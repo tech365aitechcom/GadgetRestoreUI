@@ -1,8 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: process.env.CAPACITOR_BUILD === 'true' ? 'export' : 'standalone',
-  transpilePackages: ['@ionic/react', '@ionic/core', 'ionicons'],
   images: {
+    unoptimized: process.env.CAPACITOR_BUILD === 'true',
     remotePatterns: [
       {
         protocol: 'https',

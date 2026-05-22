@@ -142,7 +142,7 @@ export default function HomePage() {
           {/* Hero Banner */}
           <div style={{ position: 'relative', borderRadius: 20, overflow: 'hidden', marginBottom: 28, minHeight: 260, background: '#0a0a0a', display: 'flex', alignItems: 'center' }}>
             <div style={{ position: 'absolute', inset: 0 }}>
-              <Image src="/images/home-banner-top.png" alt="Workshop" fill style={{ objectFit: 'cover', opacity: 0.45 }} priority />
+              <Image src="/images/home-banner-top.png" alt="Workshop" width={1200} height={260} style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.45 }} priority />
               <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(90deg,rgba(5,5,5,0.95) 40%,rgba(5,5,5,0.25) 100%)' }} />
             </div>
             <div style={{ position: 'relative', zIndex: 1, padding: '40px 48px', maxWidth: 520 }}>
@@ -257,8 +257,8 @@ export default function HomePage() {
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
               {/* Screen Replacement */}
-              <div className="popular-card" style={{ minHeight: 220 }} onClick={handleStart}>
-                <Image src="/images/home-banner-top.png" alt="Screen Replacement" fill style={{ objectFit: 'cover', opacity: 0.5 }} />
+              <div className="popular-card" style={{ minHeight: 220, position: 'relative' }} onClick={handleStart}>
+                <Image src="/images/home-banner-top.png" alt="Screen Replacement" width={600} height={220} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.5 }} />
                 <div className="popular-card-overlay" />
                 <div className="popular-card-content">
                   <span className="badge badge-accent" style={{ marginBottom: 10, display: 'inline-flex' }}>Most Requested</span>
@@ -393,7 +393,7 @@ export default function HomePage() {
           {/* Promo Banner */}
           <div style={{ ...S.darkCard, padding: '20px', position: 'relative', overflow: 'hidden' }}>
             <div style={{ position: 'absolute', inset: 0, borderRadius: 18, overflow: 'hidden' }}>
-              <Image src="/images/home-banner-top.png" alt="" fill style={{ objectFit: 'cover', opacity: 0.12 }} />
+              <Image src="/images/home-banner-top.png" alt="" width={400} height={200} style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.12 }} />
             </div>
             <div style={{ position: 'relative', zIndex: 1 }}>
               <span style={{ ...S.mutedLabel, display: 'block', marginBottom: 6 }}>Promo</span>
@@ -424,7 +424,7 @@ export default function HomePage() {
                   onClick={handleStart}
                   style={{ flexShrink: 0, width: 155, height: 195, borderRadius: 16, overflow: 'hidden', position: 'relative', cursor: 'pointer', scrollSnapAlign: 'start', background: bg, border: '1px solid rgba(255,255,255,0.07)' }}
                 >
-                  {useImg && <Image src="/images/home-banner-top.png" alt={title} fill style={{ objectFit: 'cover', opacity: 0.3 }} />}
+                  {useImg && <Image src="/images/home-banner-top.png" alt={title} width={155} height={195} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.3 }} />}
                   <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.85) 40%, transparent)' }} />
                   <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '14px 14px' }}>
                     <h5 style={{ fontSize: 12, fontWeight: 800, color: '#fff', lineHeight: 1.3, marginBottom: 3 }}>{title}</h5>

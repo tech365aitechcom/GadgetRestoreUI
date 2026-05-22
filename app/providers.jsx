@@ -1,8 +1,7 @@
-'use client';
+'use client'
 
-import { BookingProvider } from '@/context/BookingContext';
-import { ToastProvider } from '@/components/ui/Toast';
-import { IonicProvider } from '@/components/providers/IonicProvider';
+import { BookingProvider } from '@/context/BookingContext'
+import { ToastProvider } from '@/components/ui/Toast'
 
 /**
  * Providers wrapper — all client-side context providers live here.
@@ -10,11 +9,9 @@ import { IonicProvider } from '@/components/providers/IonicProvider';
  */
 export default function Providers({ children }) {
   return (
-    <IonicProvider>
-      <BookingProvider>
-        <ToastProvider />
-        {children}
-      </BookingProvider>
-    </IonicProvider>
-  );
+    <BookingProvider>
+      <ToastProvider />
+      {children}
+    </BookingProvider>
+  )
 }
