@@ -59,15 +59,26 @@ export default function AppShell({ children, className = '' }) {
             const isActive =
               pathname === item.href ||
               (item.href !== '/home' && pathname.startsWith(item.href));
-            const Icon = item.icon;
             return (
               <Link
                 key={item.href}
                 href={item.href}
                 className={`sidebar-nav-item${isActive ? ' active' : ''}`}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  padding: '12px 20px',
+                  borderRadius: '12px',
+                  fontSize: '13px',
+                  fontWeight: isActive ? '800' : '500',
+                  color: isActive ? '#000000' : '#8A8A8A',
+                  backgroundColor: isActive ? '#FFFFFF' : 'transparent',
+                  textTransform: isActive ? 'uppercase' : 'none',
+                  letterSpacing: isActive ? '0.07em' : 'normal',
+                  transition: 'all 150ms ease',
+                }}
               >
-                <Icon size={17} />
-                {item.label}
+                {isActive ? item.label.toUpperCase() : item.label}
               </Link>
             );
           })}
@@ -76,29 +87,26 @@ export default function AppShell({ children, className = '' }) {
         {/* User snippet */}
         <div
           style={{
-            padding: '16px',
+            padding: '16px 20px',
             borderTop: '1px solid var(--color-divider)',
             display: 'flex',
             alignItems: 'center',
             gap: 12,
           }}
         >
-          <div
+          <img
+            src="/images/pragya.png"
+            alt="User Avatar"
             style={{
-              width: 34, height: 34,
+              width: 34,
+              height: 34,
               borderRadius: '50%',
-              background: '#1a1a1a',
-              border: '1px solid #333',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
+              objectFit: 'cover',
               flexShrink: 0,
             }}
-          >
-            <User size={16} color="var(--color-text-secondary)" />
-          </div>
+          />
           <span style={{ fontSize: 13, fontWeight: 500, color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-            {userName}
+            Hi {userName.startsWith('Guest') ? 'Pragya' : userName}
           </span>
         </div>
       </aside>
