@@ -20,6 +20,8 @@ import AppShell from '@/components/layout/AppShell';
 import BottomNav from '@/components/ui/BottomNav';
 import { useBooking } from '@/context/BookingContext';
 import catalogueService from '@/services/catalogue.service';
+import Cookies from 'js-cookie';
+import { TOKEN_COOKIE } from '@/lib/constants';
 
 /* ─── Helpers ────────────────────────────────────────────────────────────────── */
 function collectRepairTypeIds(symptoms) {
@@ -129,7 +131,13 @@ export default function PricingPage() {
   /* Handlers */
   const handleConfirm = () => {
     if (!canProceedToBook) return;
-    router.push('/login');
+    
+    const token = Cookies.get(TOKEN_COOKIE);
+    if (token) {
+      router.push('/schedule');
+    } else {
+      router.push('/login');
+    }
   };
 
   return (

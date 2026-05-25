@@ -102,6 +102,18 @@ export default function VerifyOtpPage() {
       // Clean up storage
       if (typeof window !== 'undefined') {
         sessionStorage.removeItem('gr_login_phone');
+        
+        // Check if there is an active booking state
+        const bookingStateStr = localStorage.getItem('gr_booking_state');
+        if (bookingStateStr) {
+          try {
+            const bookingState = JSON.parse(bookingStateStr);
+            if (bookingState.brand && bookingState.model) {
+              router.push('/schedule');
+              return;
+            }
+          } catch (e) {}
+        }
       }
       // Successfully authenticated, route to home
       router.push('/home');
