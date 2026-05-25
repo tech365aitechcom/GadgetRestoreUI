@@ -86,7 +86,7 @@ export default function HomePage() {
             else if (n.includes('tablet') || n.includes('ipad'))                  icon = Tablet;
             else if (n.includes('watch'))                                          icon = Watch;
             return { ...cat, icon };
-          });
+          }).sort((a, b) => (a.index ?? 999) - (b.index ?? 999));
           setCategories(mapped);
         } else {
           setCategories(fallbackCategories);

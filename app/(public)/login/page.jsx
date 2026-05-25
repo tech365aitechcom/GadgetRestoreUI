@@ -77,7 +77,14 @@ export default function LoginPage() {
       if (typeof window !== 'undefined') {
         sessionStorage.setItem('gr_login_phone', cleanMobile)
       }
-      router.push(`/verify-otp?phone=${encodeURIComponent(cleanMobile)}`)
+      // Check if there's a redirect URL stored
+      const redirectUrl = typeof window !== 'undefined'
+        ? sessionStorage.getItem('gr_redirect_after_login')
+        : null;
+      const verifyUrl = redirectUrl
+        ? `/verify-otp?phone=${encodeURIComponent(cleanMobile)}&redirect=${encodeURIComponent(redirectUrl)}`
+        : `/verify-otp?phone=${encodeURIComponent(cleanMobile)}`;
+      router.push(verifyUrl)
     } catch (err) {
       setError(err.message || 'Failed to send OTP. Please try again.')
     } finally {
