@@ -131,13 +131,11 @@ export default function PricingPage() {
   /* Handlers */
   const handleConfirm = () => {
     if (!canProceedToBook) return;
-    
-    const token = Cookies.get(TOKEN_COOKIE);
-    if (token) {
-      router.push('/schedule');
-    } else {
-      router.push('/login');
+    // Store intended redirect URL before navigating to login
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem('gr_redirect_after_login', '/pricing');
     }
+    router.push('/login');
   };
 
   return (
