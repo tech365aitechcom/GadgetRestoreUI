@@ -99,12 +99,23 @@ export default function VerifyOtpPage() {
 
     try {
       await authService.verifyOtp(phone, code);
-      // Clean up storage
+      // Check if there's a redirect URL
+      let redirectUrl = '/home';
       if (typeof window !== 'undefined') {
+        const storedRedirect = sessionStorage.getItem('gr_redirect_after_login');
+        if (storedRedirect) {
+          redirectUrl = storedRedirect;
+          sessionStorage.removeItem('gr_redirect_after_login');
+        }
         sessionStorage.removeItem('gr_login_phone');
       }
-      // Successfully authenticated, route to home
-      router.push('/home');
+      // Also check URL params as fallback
+      const redirectParam = searchParams.get('redirect');
+      if (redirectParam) {
+        redirectUrl = redirectParam;
+      }
+      // Successfully authenticated, route to intended page
+      router.push(redirectUrl);
     } catch (err) {
       setError(err.message || 'Verification failed. Please try again.');
     } finally {
