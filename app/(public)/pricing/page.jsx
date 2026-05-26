@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   ArrowLeft,
-  Bell,
   ChevronRight,
   Shield,
   Smartphone,
@@ -344,19 +343,6 @@ export default function PricingPage() {
           MOBILE <1024px
           ══════════════════════════════════════════════════════ */}
       <div className="home-mobile" style={{ background: '#0A0A0A', color: '#fff', minHeight: '100svh', paddingBottom: 160 }}>
-        
-        <div className="top-bar" style={{ background: '#0A0A0A', borderBottom: 'none' }}>
-          <button onClick={() => router.push('/select-mode')} style={{ background: '#1A1A1A', border: '1px solid #333', cursor: 'pointer', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', width: 36, height: 36, borderRadius: '50%', flexShrink: 0 }}>
-            <ArrowLeft size={16} />
-          </button>
-          <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
-            <img src="/gadget-restore-logo.svg" alt="Gadget Restore" style={{ height: 24, objectFit: 'contain', filter: 'brightness(0) invert(1)' }} />
-          </div>
-          <button style={{ background: '#1A1A1A', border: '1px solid #333', cursor: 'pointer', color: '#fff', display: 'flex', alignItems: 'center', width: 36, height: 36, justifyContent: 'center', borderRadius: '50%' }}>
-            <Bell size={16} />
-          </button>
-        </div>
-
         {isLoading ? (
           <div style={{ padding: 40, textAlign: 'center', color: '#fff' }}>Loading Quote...</div>
         ) : error ? (

@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   ArrowLeft,
-  Bell,
   Shield,
   Award,
   ChevronRight,
@@ -438,33 +437,9 @@ export default function SelectTierPage() {
       {/* ══════════════════════════════════════════════════════
           MOBILE <1024px
           ══════════════════════════════════════════════════════ */}
-      <div className="home-mobile">
-        <div style={{ background: 'var(--color-content-bg)', minHeight: '100svh', paddingBottom: 160 }}>
-
-          {/* Top bar */}
-          <div className="top-bar">
-            <button onClick={() => router.push('/select-symptoms')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', width: 36, height: 36, borderRadius: '50%', flexShrink: 0 }} aria-label="Go back">
-              <ArrowLeft size={20} />
-            </button>
-            <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
-              <img src="/gadget-restore-logo.svg" alt="Gadget Restore" style={{ height: 28, objectFit: 'contain' }} />
-            </div>
-            <button style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#888', display: 'flex', alignItems: 'center', width: 36, height: 36, justifyContent: 'center', borderRadius: '50%' }} aria-label="Notifications">
-              <Bell size={20} />
-            </button>
-          </div>
-
-          {/* Step progress — step 4 of 5 */}
-          <div className="step-progress">
-            <div className="step-dot done" />
-            <div className="step-dot done" />
-            <div className="step-dot done" />
-            <div className="step-dot active" />
-            <div className="step-dot" />
-          </div>
-
-          {/* Content */}
-          <div style={{ padding: '20px 16px', display: 'flex', flexDirection: 'column', gap: 24 }}>
+      <div className="home-mobile" style={{ background: 'var(--color-content-bg)', minHeight: '100svh', paddingBottom: 160 }}>
+        {/* Content */}
+        <div style={{ padding: '20px 16px', display: 'flex', flexDirection: 'column', gap: 24 }}>
 
             {/* Page header */}
             <div>
@@ -514,9 +489,9 @@ export default function SelectTierPage() {
               )}
             </div>
 
-          </div>
+        </div>
 
-          {/* Mobile sticky bottom CTA */}
+        {/* Mobile sticky bottom CTA */}
           <div style={{
             position: 'fixed', bottom: 64, left: 0, right: 0,
             background: 'var(--color-content-surface)',
@@ -553,10 +528,9 @@ export default function SelectTierPage() {
             >
               Continue <ChevronRight size={14} />
             </button>
-          </div>
-
-          <BottomNav />
         </div>
+
+        <BottomNav />
       </div>
 
     </AppShell>

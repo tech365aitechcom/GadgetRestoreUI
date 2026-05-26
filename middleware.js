@@ -16,7 +16,10 @@ export function middleware(req) {
 
   // Redirect logged-in users away from auth screens
   if (token && (pathname === '/login' || pathname === '/verify-otp')) {
-    return NextResponse.redirect(new URL('/home', req.url));
+    // Check if there's a redirect parameter
+    const redirectParam = req.nextUrl.searchParams.get('redirect');
+    const redirectUrl = redirectParam || '/home';
+    return NextResponse.redirect(new URL(redirectUrl, req.url));
   }
 
   return NextResponse.next();

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { ArrowLeft, Bell, ShieldCheck, Box, Compass } from 'lucide-react'
 import AppShell from '@/components/layout/AppShell'
@@ -8,9 +8,20 @@ import authService from '@/services/auth.service'
 
 export default function LoginPage() {
   const router = useRouter()
+  const searchParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null
   const [phone, setPhone] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
+
+  // Store redirect URL from query params on mount
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const redirectParam = searchParams?.get('redirect')
+      if (redirectParam) {
+        sessionStorage.setItem('gr_redirect_after_login', redirectParam)
+      }
+    }
+  }, [])
 
   const formatPhoneNumber = (value) => {
     // Keep only numbers
@@ -77,10 +88,14 @@ export default function LoginPage() {
       if (typeof window !== 'undefined') {
         sessionStorage.setItem('gr_login_phone', cleanMobile)
       }
-      // Check if there's a redirect URL stored
-      const redirectUrl = typeof window !== 'undefined'
-        ? sessionStorage.getItem('gr_redirect_after_login')
-        : null;
+
+      // Check if there's a redirect URL from query params or session storage
+      let redirectUrl = null;
+      if (typeof window !== 'undefined') {
+        // Priority: query param > session storage
+        redirectUrl = searchParams?.get('redirect') || sessionStorage.getItem('gr_redirect_after_login');
+      }
+
       const verifyUrl = redirectUrl
         ? `/verify-otp?phone=${encodeURIComponent(cleanMobile)}&redirect=${encodeURIComponent(redirectUrl)}`
         : `/verify-otp?phone=${encodeURIComponent(cleanMobile)}`;

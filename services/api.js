@@ -1,6 +1,7 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import { API_BASE_URL, TOKEN_COOKIE } from '@/lib/constants';
+import { navigateTo } from '@/lib/navigation';
 
 const api = axios.create({
   baseURL: `${API_BASE_URL}/api`,
@@ -23,9 +24,10 @@ api.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       Cookies.remove(TOKEN_COOKIE);
-      // Only redirect in browser environment
-      if (typeof window !== 'undefined') {
-        window.location.href = '/login';
+      // Only redirect if not already on login page
+      if (typeof window !== 'undefined' && !window.location.pathname.includes('/login')) {
+        // Use centralized navigation to prevent hard page reloads
+        navigateTo('/login');
       }
     }
     return Promise.reject(error);
