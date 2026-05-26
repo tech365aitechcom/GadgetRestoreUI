@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 
-const PROTECTED_PATHS = ['/orders', '/book', '/profile', '/notifications'];
+const PROTECTED_PATHS = ['/orders', '/order-confirmation', '/book', '/profile', '/notifications'];
 
 export function middleware(req) {
   const token = req.cookies.get('customer_token')?.value;
@@ -25,6 +25,7 @@ export function middleware(req) {
 export const config = {
   matcher: [
     '/orders/:path*',
+    '/order-confirmation/:path*',
     '/book/:path*',
     '/profile/:path*',
     '/notifications/:path*',

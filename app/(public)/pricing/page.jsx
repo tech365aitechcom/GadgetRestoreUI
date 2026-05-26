@@ -1,7 +1,8 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Cookies from 'js-cookie';
 import {
   ArrowLeft,
   Bell,
@@ -20,6 +21,8 @@ import AppShell from '@/components/layout/AppShell';
 import BottomNav from '@/components/ui/BottomNav';
 import { useBooking } from '@/context/BookingContext';
 import catalogueService from '@/services/catalogue.service';
+import bookingService from '@/services/booking.service';
+import { TOKEN_COOKIE } from '@/lib/constants';
 
 /* ─── Helpers ────────────────────────────────────────────────────────────────── */
 function collectRepairTypeIds(symptoms) {
@@ -39,19 +42,23 @@ function collectRepairTypeIds(symptoms) {
 export default function PricingPage() {
   const router = useRouter();
   const {
-    brand, model, symptoms, partTier, serviceMode, remarks, canProceedToBook
+    brand, model, symptoms, partTier, serviceMode, remarks, address, slot,
+    canProceedToBook, reset
   } = useBooking();
 
   const [pricingResults, setPricingResults] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState('');
+  const [bookingCompleted, setBookingCompleted] = useState(false);
 
   /* Guard */
   useEffect(() => {
-    if (!brand || !model || !symptoms?.length || !partTier || !serviceMode) {
+    if (!bookingCompleted && (!brand || !model || !symptoms?.length || !partTier || !serviceMode)) {
       router.replace('/select-tier');
     }
-  }, [brand, model, symptoms, partTier, serviceMode, router]);
+  }, [bookingCompleted, brand, model, symptoms, partTier, serviceMode, router]);
 
   /* Fetch exact pricing breakdown */
   useEffect(() => {
@@ -79,6 +86,68 @@ export default function PricingPage() {
     })
     .finally(() => setIsLoading(false));
   }, [brand, model, symptoms, partTier]);
+
+  const submitBooking = useCallback(async () => {
+    if (!canProceedToBook || isSubmitting) return;
+
+    setIsSubmitting(true);
+    setSubmitError('');
+
+    try {
+      const result = await bookingService.createBooking({
+        brand,
+        model,
+        symptoms,
+        partTier,
+        serviceMode,
+        remarks,
+        address,
+        slot,
+      });
+
+      const ticketNumber = result?.ticketNumber || result?.booking?.ticketNumber;
+      if (!ticketNumber) {
+        throw new Error('Order was created without a tracking number.');
+      }
+
+      if (typeof window !== 'undefined') {
+        sessionStorage.removeItem('gr_submit_booking_after_login');
+      }
+      setBookingCompleted(true);
+      reset();
+      router.push(`/order-confirmation/${encodeURIComponent(ticketNumber)}`);
+    } catch (submitFailure) {
+      const message = submitFailure.response?.data?.message
+        || submitFailure.message
+        || 'Unable to create your order. Please try again.';
+      setSubmitError(message);
+      setIsSubmitting(false);
+    }
+  }, [
+    address,
+    brand,
+    canProceedToBook,
+    isSubmitting,
+    model,
+    partTier,
+    remarks,
+    reset,
+    router,
+    serviceMode,
+    slot,
+    symptoms,
+  ]);
+
+  useEffect(() => {
+    if (
+      typeof window !== 'undefined'
+      && Cookies.get(TOKEN_COOKIE)
+      && sessionStorage.getItem('gr_submit_booking_after_login') === 'true'
+    ) {
+      sessionStorage.removeItem('gr_submit_booking_after_login');
+      submitBooking();
+    }
+  }, [submitBooking]);
 
   if (!brand || !model || !symptoms?.length || !partTier || !serviceMode) return null;
 
@@ -129,11 +198,15 @@ export default function PricingPage() {
   /* Handlers */
   const handleConfirm = () => {
     if (!canProceedToBook) return;
-    // Store intended redirect URL before navigating to login
-    if (typeof window !== 'undefined') {
+
+    if (!Cookies.get(TOKEN_COOKIE)) {
       sessionStorage.setItem('gr_redirect_after_login', '/pricing');
+      sessionStorage.setItem('gr_submit_booking_after_login', 'true');
+      router.push('/login');
+      return;
     }
-    router.push('/login');
+
+    submitBooking();
   };
 
   return (
@@ -316,7 +389,7 @@ export default function PricingPage() {
                
                <button
                   onClick={handleConfirm}
-                  disabled={!canProceedToBook}
+                  disabled={!canProceedToBook || isSubmitting}
                   style={{
                     height: 56,
                     padding: '0 40px',
@@ -324,17 +397,22 @@ export default function PricingPage() {
                     color: '#fff',
                     border: 'none', borderRadius: 'var(--radius-btn)',
                     fontWeight: 800, fontSize: 14, textTransform: 'uppercase', letterSpacing: '0.05em',
-                    cursor: canProceedToBook ? 'pointer' : 'not-allowed',
+                    cursor: canProceedToBook && !isSubmitting ? 'pointer' : 'not-allowed',
                     display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12,
                     transition: 'all 0.2s ease',
-                    opacity: canProceedToBook ? 1 : 0.5
+                    opacity: canProceedToBook && !isSubmitting ? 1 : 0.5
                   }}
                   onMouseOver={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.2)'; }}
                   onMouseOut={(e) => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = 'none'; }}
                 >
-                  Confirm & Continue <ChevronRight size={18} />
+                  {isSubmitting ? 'Creating Order...' : 'Confirm & Continue'} <ChevronRight size={18} />
                 </button>
             </div>
+            {submitError && (
+              <div style={{ marginTop: 16, color: 'var(--color-danger)', fontSize: 14, textAlign: 'right' }}>
+                {submitError}
+              </div>
+            )}
             </>
           )}
         </div>
@@ -476,7 +554,7 @@ export default function PricingPage() {
 
               <button
                 onClick={handleConfirm}
-                disabled={!canProceedToBook}
+                disabled={!canProceedToBook || isSubmitting}
                 style={{
                   width: '100%',
                   height: 56,
@@ -484,13 +562,18 @@ export default function PricingPage() {
                   color: '#fff',
                   border: '1px solid #333', borderRadius: 'var(--radius-btn)',
                   fontWeight: 800, fontSize: 13, textTransform: 'uppercase', letterSpacing: '0.05em',
-                  cursor: canProceedToBook ? 'pointer' : 'not-allowed',
+                  cursor: canProceedToBook && !isSubmitting ? 'pointer' : 'not-allowed',
                   display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-                  opacity: canProceedToBook ? 1 : 0.5
+                  opacity: canProceedToBook && !isSubmitting ? 1 : 0.5
                 }}
               >
-                Confirm & Continue <ChevronRight size={16} />
+                {isSubmitting ? 'Creating Order...' : 'Confirm & Continue'} <ChevronRight size={16} />
               </button>
+              {submitError && (
+                <div style={{ marginTop: 12, color: 'var(--color-danger)', fontSize: 12, textAlign: 'center' }}>
+                  {submitError}
+                </div>
+              )}
             </div>
           </div>
         )}

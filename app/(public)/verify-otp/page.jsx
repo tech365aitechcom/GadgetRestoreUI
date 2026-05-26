@@ -1,12 +1,12 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { Suspense, useState, useEffect, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ArrowLeft, Bell, Lock, Shield } from 'lucide-react';
 import AppShell from '@/components/layout/AppShell';
 import authService from '@/services/auth.service';
 
-export default function VerifyOtpPage() {
+function VerifyOtpContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -364,5 +364,13 @@ export default function VerifyOtpPage() {
         </div>
       </div>
     </AppShell>
+  );
+}
+
+export default function VerifyOtpPage() {
+  return (
+    <Suspense fallback={<div className="min-h-[100svh] bg-[#0D0E12]" />}>
+      <VerifyOtpContent />
+    </Suspense>
   );
 }
