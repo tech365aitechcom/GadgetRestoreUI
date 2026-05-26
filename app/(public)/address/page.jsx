@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Bell, Home, Briefcase, Plus, MapPin } from 'lucide-react';
+import { ArrowLeft, Bell, Home, Briefcase, Plus, Minus, MapPin } from 'lucide-react';
 import AppShell from '@/components/layout/AppShell';
 import BottomNav from '@/components/ui/BottomNav';
 import { useBooking } from '@/context/BookingContext';
@@ -186,8 +186,9 @@ export default function AddressPage() {
               <input type="text" placeholder="Street / Area*" className="w-full h-12 bg-[#F5F5F5] border border-[#E0E0E0] rounded-xl px-4 mb-3 text-sm focus:border-black outline-none" value={newAddress.street} onChange={e=>setNewAddress({...newAddress, street: e.target.value})} />
               <div className="flex gap-3 mb-3">
                  <input type="text" placeholder="City*" className="w-1/2 h-12 bg-[#F5F5F5] border border-[#E0E0E0] rounded-xl px-4 text-sm focus:border-black outline-none" value={newAddress.city} onChange={e=>setNewAddress({...newAddress, city: e.target.value})} />
-                 <input type="text" placeholder="Pincode*" className="w-1/2 h-12 bg-[#F5F5F5] border border-[#E0E0E0] rounded-xl px-4 text-sm focus:border-black outline-none" value={newAddress.pincode} onChange={e=>setNewAddress({...newAddress, pincode: e.target.value})} />
+                 <input type="text" placeholder="State*" className="w-1/2 h-12 bg-[#F5F5F5] border border-[#E0E0E0] rounded-xl px-4 text-sm focus:border-black outline-none" value={newAddress.state} onChange={e=>setNewAddress({...newAddress, state: e.target.value})} />
               </div>
+              <input type="text" placeholder="Pincode*" className="w-1/2 h-12 bg-[#F5F5F5] border border-[#E0E0E0] rounded-xl px-4 text-sm focus:border-black outline-none" value={newAddress.pincode} onChange={e=>setNewAddress({...newAddress, pincode: e.target.value})} />
             </div>
           )}
 
@@ -226,6 +227,16 @@ export default function AddressPage() {
                        <span className="text-xs font-black uppercase text-black">82nd Ave, Manhattan</span>
                     </div>
                  </div>
+               </div>
+               
+               {/* Zoom Controls */}
+               <div className="absolute bottom-10 left-10 flex flex-col bg-white rounded-lg shadow-xl overflow-hidden z-20">
+                 <button className="w-12 h-12 flex items-center justify-center text-black hover:bg-gray-50 border-b border-gray-100 transition-colors cursor-pointer">
+                   <Plus size={20} strokeWidth={2.5} />
+                 </button>
+                 <button className="w-12 h-12 flex items-center justify-center text-black hover:bg-gray-50 transition-colors cursor-pointer">
+                   <Minus size={20} strokeWidth={2.5} />
+                 </button>
                </div>
             </div>
 

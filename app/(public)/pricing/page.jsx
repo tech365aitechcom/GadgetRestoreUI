@@ -131,9 +131,17 @@ export default function PricingPage() {
   /* Handlers */
   const handleConfirm = () => {
     if (!canProceedToBook) return;
+    
+    // Check if user is already logged in
+    const token = Cookies.get(TOKEN_COOKIE);
+    if (token) {
+      router.push('/schedule');
+      return;
+    }
+    
     // Store intended redirect URL before navigating to login
     if (typeof window !== 'undefined') {
-      sessionStorage.setItem('gr_redirect_after_login', '/pricing');
+      sessionStorage.setItem('gr_redirect_after_login', '/schedule');
     }
     router.push('/login');
   };
@@ -261,7 +269,7 @@ export default function PricingPage() {
                           </div>
                         </div>
                         <div style={{ fontSize: 16, fontWeight: 800, color: '#fff' }}>
-                          {item.isVariable ? 'Estimate' : `₹${item.total.toLocaleString('en-IN')}`}
+                          {item.isVariable ? 'Ask Admin' : `₹${item.total.toLocaleString('en-IN')}`}
                         </div>
                       </div>
                       
@@ -295,7 +303,7 @@ export default function PricingPage() {
                   </div>
                   <div style={{ display: 'flex', alignItems: 'baseline', gap: 12 }}>
                     <div style={{ fontSize: 48, fontWeight: 900, color: '#fff', letterSpacing: '-0.02em', lineHeight: 1 }}>
-                      {hasVariableSymptom && grandTotal === 0 ? 'Estimate' : (
+                      {hasVariableSymptom && grandTotal === 0 ? 'Ask Admin' : (
                          <span>
                            {hasVariableSymptom ? <span style={{ fontSize: 24, fontWeight: 600, color: '#888', marginRight: 8 }}>Starting from</span> : ''}
                            ₹{grandTotal.toLocaleString('en-IN')}
@@ -420,7 +428,7 @@ export default function PricingPage() {
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                       <div style={{ fontSize: 14, fontWeight: 700, color: '#fff', flex: 1, paddingRight: 16 }}>{item.name}</div>
                       <div style={{ fontSize: 14, fontWeight: 800, color: '#fff' }}>
-                        {item.isVariable ? 'Estimate' : `₹${item.total.toLocaleString('en-IN')}`}
+                        {item.isVariable ? 'Ask Admin' : `₹${item.total.toLocaleString('en-IN')}`}
                       </div>
                     </div>
                     <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
@@ -454,7 +462,7 @@ export default function PricingPage() {
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 16 }}>
                 <span style={{ fontSize: 16, fontWeight: 800, color: '#fff' }}>Total Amount</span>
                 <span style={{ fontSize: 24, fontWeight: 900, color: '#fff', letterSpacing: '-0.02em', lineHeight: 1, textAlign: 'right' }}>
-                   {hasVariableSymptom && grandTotal === 0 ? 'Estimate' : (
+                   {hasVariableSymptom && grandTotal === 0 ? 'Ask Admin' : (
                       <>
                         {hasVariableSymptom && <span style={{ display: 'block', fontSize: 11, fontWeight: 600, color: '#888', marginBottom: 4 }}>Starting from</span>}
                         ₹{grandTotal.toLocaleString('en-IN')}

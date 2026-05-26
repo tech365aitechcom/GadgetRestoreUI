@@ -99,6 +99,11 @@ export default function VerifyOtpPage() {
 
     try {
       await authService.verifyOtp(phone, code);
+      // Save authenticated phone for checkout flow
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('gr_authenticated_phone', phone);
+      }
+      
       // Check if there's a redirect URL
       let redirectUrl = '/home';
       if (typeof window !== 'undefined') {
