@@ -1,6 +1,8 @@
 import { Inter, Manrope } from 'next/font/google';
 import './globals.css';
 import Providers from './providers';
+import ThemeProvider from '@/components/ThemeProvider';
+import { AuthProvider } from '@/context/AuthContext';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -39,7 +41,11 @@ export default function RootLayout({ children }) {
         <link rel="icon" href="/favicon.ico" />
       </head>
       <body>
-        <Providers>{children}</Providers>
+        <ThemeProvider>
+          <AuthProvider>
+            <Providers>{children}</Providers>
+          </AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
