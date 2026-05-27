@@ -81,23 +81,23 @@ export default function AddressPage() {
           setSelectedAddressId(addr.id);
           setIsAddingNew(false);
         }}
-        className={`w-full rounded-2xl p-5 flex items-start gap-4 mb-3 cursor-pointer border-2 transition-all ${
+        className={`w-full rounded-2xl p-5 flex items-start gap-4 mb-3 cursor-pointer border transition-all ${
           isSelected 
-            ? 'bg-white border-black shadow-md' 
-            : 'bg-[#F9F9F9] border-transparent hover:bg-gray-100'
+            ? 'bg-[#141414] border-white shadow-md' 
+            : 'bg-[#0A0A0A] border-[#222] hover:bg-[#1A1A1E]'
         }`}
       >
-        <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${isSelected ? 'bg-black text-white' : 'bg-gray-200 text-black'}`}>
+        <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${isSelected ? 'bg-white text-black' : 'bg-[#222] text-[#888]'}`}>
           {addr.type === 'work' ? <Briefcase size={20} /> : <Home size={20} />}
         </div>
         <div className="flex-1">
           <div className="flex justify-between items-center mb-1">
-             <h4 className="text-[15px] font-bold text-[#111]">{addr.label}</h4>
-             <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${isSelected ? 'border-black' : 'border-gray-300'}`}>
-                {isSelected && <div className="w-2.5 h-2.5 bg-black rounded-full" />}
+             <h4 className="text-[15px] font-bold text-white">{addr.label}</h4>
+             <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${isSelected ? 'border-white' : 'border-[#333]'}`}>
+                {isSelected && <div className="w-2.5 h-2.5 bg-white rounded-full" />}
              </div>
           </div>
-          <p className="text-[13px] text-[#666] leading-relaxed pr-6">{addr.line1}, {addr.line2}</p>
+          <p className="text-[13px] text-[#888] leading-relaxed pr-6">{addr.line1}, {addr.line2}</p>
         </div>
       </div>
     );
@@ -137,12 +137,12 @@ export default function AddressPage() {
         </div>
 
         {/* Content */}
-        <div className="relative z-10 pt-[72px] pb-[100px] bg-[#EBEBEB] min-h-[100svh] mt-[-20px] rounded-t-[30px]">
+        <div className="relative z-10 pt-[72px] pb-[180px] bg-[#0A0A0A] min-h-[100svh] mt-[-20px] rounded-t-[30px]">
           <div className="px-5 pt-6 pb-4">
-            <h1 className="text-2xl font-black text-black tracking-tight uppercase leading-tight mb-1">
+            <h1 className="text-2xl font-black text-white tracking-tight uppercase leading-tight mb-1">
               Select Address
             </h1>
-            <p className="text-[#666666] text-sm">
+            <p className="text-[#888888] text-sm">
               Choose a convenient address for your repair.
             </p>
           </div>
@@ -163,7 +163,7 @@ export default function AddressPage() {
           {/* Addresses */}
           <div className="px-5 mb-8">
             <div className="flex justify-between items-center mb-4">
-               <h3 className="text-sm font-bold text-[#1A1A1E]">Saved Addresses</h3>
+               <h3 className="text-sm font-bold text-[#E0E0E0]">Saved Addresses</h3>
                <span className="text-[11px] font-bold text-[#888] uppercase tracking-wider">{savedAddresses.length} LOCATIONS</span>
             </div>
 
@@ -173,30 +173,30 @@ export default function AddressPage() {
 
             <button
               onClick={() => setIsAddingNew(true)}
-              className="w-full h-[60px] rounded-2xl border-2 border-dashed border-[#CCC] flex items-center justify-center gap-2 text-[#666] font-bold text-[13px] uppercase tracking-wide hover:bg-black/5 mt-2 transition-colors"
+              className="w-full h-[60px] rounded-2xl border border-dashed border-[#333] flex items-center justify-center gap-2 text-[#888] font-bold text-[13px] uppercase tracking-wide hover:bg-[#111] mt-2 transition-colors"
             >
               <Plus size={18} /> Add New Address
             </button>
           </div>
 
           {isAddingNew && (
-            <div className="px-5 mb-8 bg-white p-5 rounded-3xl border border-[#E0E0E0]">
-              <h4 className="text-sm font-bold mb-4 uppercase">New Address Details</h4>
-              <input type="text" placeholder="Flat / House No.*" className="w-full h-12 bg-[#F5F5F5] border border-[#E0E0E0] rounded-xl px-4 mb-3 text-sm focus:border-black outline-none" value={newAddress.flat} onChange={e=>setNewAddress({...newAddress, flat: e.target.value})} />
-              <input type="text" placeholder="Street / Area*" className="w-full h-12 bg-[#F5F5F5] border border-[#E0E0E0] rounded-xl px-4 mb-3 text-sm focus:border-black outline-none" value={newAddress.street} onChange={e=>setNewAddress({...newAddress, street: e.target.value})} />
+            <div className="px-5 mb-8 bg-[#111] p-5 rounded-3xl border border-[#222]">
+              <h4 className="text-sm font-bold mb-4 uppercase text-white">New Address Details</h4>
+              <input type="text" placeholder="Flat / House No.*" className="w-full h-12 bg-[#1A1A1E] border border-[#333] rounded-xl px-4 mb-3 text-sm text-white focus:border-[#555] outline-none" value={newAddress.flat} onChange={e=>setNewAddress({...newAddress, flat: e.target.value})} />
+              <input type="text" placeholder="Street / Area*" className="w-full h-12 bg-[#1A1A1E] border border-[#333] rounded-xl px-4 mb-3 text-sm text-white focus:border-[#555] outline-none" value={newAddress.street} onChange={e=>setNewAddress({...newAddress, street: e.target.value})} />
               <div className="flex gap-3 mb-3">
-                 <input type="text" placeholder="City*" className="w-1/2 h-12 bg-[#F5F5F5] border border-[#E0E0E0] rounded-xl px-4 text-sm focus:border-black outline-none" value={newAddress.city} onChange={e=>setNewAddress({...newAddress, city: e.target.value})} />
-                 <input type="text" placeholder="State*" className="w-1/2 h-12 bg-[#F5F5F5] border border-[#E0E0E0] rounded-xl px-4 text-sm focus:border-black outline-none" value={newAddress.state} onChange={e=>setNewAddress({...newAddress, state: e.target.value})} />
+                 <input type="text" placeholder="City*" className="w-1/2 h-12 bg-[#1A1A1E] border border-[#333] rounded-xl px-4 text-sm text-white focus:border-[#555] outline-none" value={newAddress.city} onChange={e=>setNewAddress({...newAddress, city: e.target.value})} />
+                 <input type="text" placeholder="State*" className="w-1/2 h-12 bg-[#1A1A1E] border border-[#333] rounded-xl px-4 text-sm text-white focus:border-[#555] outline-none" value={newAddress.state} onChange={e=>setNewAddress({...newAddress, state: e.target.value})} />
               </div>
-              <input type="text" placeholder="Pincode*" className="w-1/2 h-12 bg-[#F5F5F5] border border-[#E0E0E0] rounded-xl px-4 text-sm focus:border-black outline-none" value={newAddress.pincode} onChange={e=>setNewAddress({...newAddress, pincode: e.target.value})} />
+              <input type="text" placeholder="Pincode*" className="w-1/2 h-12 bg-[#1A1A1E] border border-[#333] rounded-xl px-4 text-sm text-white focus:border-[#555] outline-none" value={newAddress.pincode} onChange={e=>setNewAddress({...newAddress, pincode: e.target.value})} />
             </div>
           )}
 
           {/* Confirm Button Fixed Bottom */}
-          <div className="fixed bottom-[70px] left-0 right-0 p-5 bg-gradient-to-t from-[#EBEBEB] via-[#EBEBEB] to-transparent z-40">
+          <div className="fixed bottom-[70px] left-0 right-0 p-5 bg-gradient-to-t from-[#0A0A0A] via-[#0A0A0A] to-transparent z-40 pointer-events-none">
             <button
               onClick={handleConfirm}
-              className="w-full h-[60px] bg-[#2C2C2E] text-white rounded-[20px] text-sm font-bold flex items-center justify-center gap-2 shadow-xl active:scale-95 transition-transform"
+              className="w-full h-[60px] bg-white text-black rounded-[20px] text-sm font-bold flex items-center justify-center gap-2 shadow-xl active:scale-95 transition-transform pointer-events-auto"
             >
               Confirm Address <ArrowLeft className="rotate-180" size={16} />
             </button>
@@ -211,41 +211,41 @@ export default function AddressPage() {
       {/* ════════════════════════════════════════════════════════════════
           DESKTOP VIEW (≥1024px)
           ════════════════════════════════════════════════════════════════ */}
-      <div className="home-desktop hidden lg:block bg-white min-h-[calc(100vh-var(--topbar-height))]">
+      <div className="home-desktop hidden lg:block bg-[#050505] min-h-[calc(100vh-var(--topbar-height))]">
          <div className="flex h-[calc(100vh-var(--topbar-height))]">
             {/* Left side - MAP */}
-            <div className="w-[55%] relative bg-[#333]">
+            <div className="w-[55%] relative bg-[#0D0D0F]">
                {/* Grayscale map background simulating the dark map design */}
-               <img src="/images/dark-map-placeholder.png" alt="Map" className="absolute inset-0 w-full h-full object-cover opacity-40 mix-blend-screen filter grayscale" />
+               <img src="/images/dark-map-placeholder.png" alt="Map" className="absolute inset-0 w-full h-full object-cover opacity-60 mix-blend-screen filter grayscale" />
                
                <div className="absolute inset-0 flex items-center justify-center">
                  <div className="relative">
-                    <div className="w-12 h-14 bg-black rounded-xl rounded-bl-none flex items-center justify-center shadow-2xl relative z-10 transform -translate-y-1/2">
+                    <div className="w-12 h-14 bg-[#6c7bff] rounded-xl rounded-bl-none flex items-center justify-center shadow-2xl relative z-10 transform -translate-y-1/2">
                        <MapPin size={24} color="white" />
                     </div>
-                    <div className="absolute top-8 left-6 bg-white px-4 py-2 rounded-lg shadow-xl whitespace-nowrap">
-                       <span className="text-xs font-black uppercase text-black">82nd Ave, Manhattan</span>
+                    <div className="absolute top-8 left-6 bg-[#1A1A1E] px-4 py-2 rounded-lg shadow-xl whitespace-nowrap border border-[#333]">
+                       <span className="text-xs font-black uppercase text-white">82nd Ave, Manhattan</span>
                     </div>
                  </div>
                </div>
                
                {/* Zoom Controls */}
-               <div className="absolute bottom-10 left-10 flex flex-col bg-white rounded-lg shadow-xl overflow-hidden z-20">
-                 <button className="w-12 h-12 flex items-center justify-center text-black hover:bg-gray-50 border-b border-gray-100 transition-colors cursor-pointer">
+               <div className="absolute bottom-10 left-10 flex flex-col bg-[#1A1A1E] rounded-lg shadow-xl overflow-hidden z-20 border border-[#333]">
+                 <button className="w-12 h-12 flex items-center justify-center text-white hover:bg-[#2A2A2E] border-b border-[#333] transition-colors cursor-pointer">
                    <Plus size={20} strokeWidth={2.5} />
                  </button>
-                 <button className="w-12 h-12 flex items-center justify-center text-black hover:bg-gray-50 transition-colors cursor-pointer">
+                 <button className="w-12 h-12 flex items-center justify-center text-white hover:bg-[#2A2A2E] transition-colors cursor-pointer">
                    <Minus size={20} strokeWidth={2.5} />
                  </button>
                </div>
             </div>
 
             {/* Right side - FORM */}
-            <div className="w-[45%] bg-[#FAFDFE] p-12 overflow-y-auto border-l border-gray-100">
-               <h1 className="text-[42px] font-black text-black tracking-tight leading-none mb-3">
+            <div className="w-[45%] bg-[#0A0A0A] p-12 overflow-y-auto border-l border-[#222]">
+               <h1 className="text-[42px] font-black text-white tracking-tight leading-none mb-3">
                  Select Service Address
                </h1>
-               <p className="text-[15px] text-[#666] mb-12 max-w-[85%]">
+               <p className="text-[15px] text-[#888] mb-12 max-w-[85%]">
                  Choose a saved location or set a new one for your technical service appointment.
                </p>
 
@@ -260,22 +260,22 @@ export default function AddressPage() {
 
                   <button
                     onClick={() => setIsAddingNew(true)}
-                    className="w-full h-16 rounded-xl border-2 border-dashed border-[#E0E0E0] flex items-center justify-center gap-3 text-[#666] font-bold text-[14px] hover:bg-gray-50 transition-colors mt-2"
+                    className="w-full h-16 rounded-xl border-2 border-dashed border-[#333] flex items-center justify-center gap-3 text-[#888] font-bold text-[14px] hover:bg-[#111] transition-colors mt-2"
                   >
                     <Plus size={18} /> Add New Address
                   </button>
                </div>
 
                {isAddingNew && (
-                  <div className="mb-10 bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+                  <div className="mb-10 bg-[#111] p-6 rounded-2xl border border-[#222] shadow-sm">
                      <h4 className="text-[11px] font-bold text-[#888] uppercase tracking-[0.1em] mb-4">ENTER NEW ADDRESS</h4>
-                     <input type="text" placeholder="Flat / House No.*" className="w-full h-14 bg-[#F8F8F8] border border-transparent rounded-xl px-5 mb-3 text-[14px] focus:bg-white focus:border-black outline-none transition-all" value={newAddress.flat} onChange={e=>setNewAddress({...newAddress, flat: e.target.value})} />
-                     <input type="text" placeholder="Street / Area*" className="w-full h-14 bg-[#F8F8F8] border border-transparent rounded-xl px-5 mb-3 text-[14px] focus:bg-white focus:border-black outline-none transition-all" value={newAddress.street} onChange={e=>setNewAddress({...newAddress, street: e.target.value})} />
+                     <input type="text" placeholder="Flat / House No.*" className="w-full h-14 bg-[#1A1A1E] border border-transparent rounded-xl px-5 mb-3 text-[14px] text-white focus:bg-[#222] focus:border-[#444] outline-none transition-all" value={newAddress.flat} onChange={e=>setNewAddress({...newAddress, flat: e.target.value})} />
+                     <input type="text" placeholder="Street / Area*" className="w-full h-14 bg-[#1A1A1E] border border-transparent rounded-xl px-5 mb-3 text-[14px] text-white focus:bg-[#222] focus:border-[#444] outline-none transition-all" value={newAddress.street} onChange={e=>setNewAddress({...newAddress, street: e.target.value})} />
                      <div className="flex gap-3 mb-3">
-                        <input type="text" placeholder="City*" className="w-1/2 h-14 bg-[#F8F8F8] border border-transparent rounded-xl px-5 text-[14px] focus:bg-white focus:border-black outline-none transition-all" value={newAddress.city} onChange={e=>setNewAddress({...newAddress, city: e.target.value})} />
-                        <input type="text" placeholder="State*" className="w-1/2 h-14 bg-[#F8F8F8] border border-transparent rounded-xl px-5 text-[14px] focus:bg-white focus:border-black outline-none transition-all" value={newAddress.state} onChange={e=>setNewAddress({...newAddress, state: e.target.value})} />
+                        <input type="text" placeholder="City*" className="w-1/2 h-14 bg-[#1A1A1E] border border-transparent rounded-xl px-5 text-[14px] text-white focus:bg-[#222] focus:border-[#444] outline-none transition-all" value={newAddress.city} onChange={e=>setNewAddress({...newAddress, city: e.target.value})} />
+                        <input type="text" placeholder="State*" className="w-1/2 h-14 bg-[#1A1A1E] border border-transparent rounded-xl px-5 text-[14px] text-white focus:bg-[#222] focus:border-[#444] outline-none transition-all" value={newAddress.state} onChange={e=>setNewAddress({...newAddress, state: e.target.value})} />
                      </div>
-                     <input type="text" placeholder="Pincode*" className="w-1/2 h-14 bg-[#F8F8F8] border border-transparent rounded-xl px-5 text-[14px] focus:bg-white focus:border-black outline-none transition-all" value={newAddress.pincode} onChange={e=>setNewAddress({...newAddress, pincode: e.target.value})} />
+                     <input type="text" placeholder="Pincode*" className="w-1/2 h-14 bg-[#1A1A1E] border border-transparent rounded-xl px-5 text-[14px] text-white focus:bg-[#222] focus:border-[#444] outline-none transition-all" value={newAddress.pincode} onChange={e=>setNewAddress({...newAddress, pincode: e.target.value})} />
                   </div>
                )}
 
@@ -287,13 +287,13 @@ export default function AddressPage() {
                      value={deliveryNotes}
                      onChange={(e) => setDeliveryNotes(e.target.value)}
                      placeholder="Access codes, gate instructions..."
-                     className="w-full h-24 bg-[#F5F5F5] border border-transparent rounded-2xl p-5 text-[14px] resize-none focus:bg-white focus:border-black outline-none transition-all"
+                     className="w-full h-24 bg-[#111] border border-[#222] rounded-2xl p-5 text-[14px] text-white resize-none focus:bg-[#1A1A1E] focus:border-[#444] outline-none transition-all"
                   />
                </div>
 
                <button
                   onClick={handleConfirm}
-                  className="w-full h-[64px] bg-black hover:bg-[#1A1A1A] text-white rounded-[20px] text-[15px] font-black uppercase tracking-[0.1em] flex items-center justify-center gap-3 shadow-xl transition-colors"
+                  className="w-full h-[64px] bg-white hover:bg-gray-200 text-black rounded-[20px] text-[15px] font-black uppercase tracking-[0.1em] flex items-center justify-center gap-3 shadow-xl transition-colors"
                >
                   CONFIRM ADDRESS <ArrowLeft className="rotate-180" size={18} />
                </button>

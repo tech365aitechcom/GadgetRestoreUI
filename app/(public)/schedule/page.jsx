@@ -105,12 +105,12 @@ export default function SchedulePage() {
         </div>
 
         {/* Content */}
-        <div className="relative z-10 pt-[72px] pb-[100px] bg-[#EBEBEB] min-h-[100svh] mt-[-20px] rounded-t-[30px]">
+        <div className="relative z-10 pt-[72px] pb-[100px] bg-[#0A0A0A] min-h-[100svh] mt-[-20px] rounded-t-[30px]">
           <div className="px-5 pt-6 pb-4">
-            <h1 className="text-2xl font-black text-black tracking-tight uppercase leading-tight mb-1">
+            <h1 className="text-2xl font-black text-white tracking-tight uppercase leading-tight mb-1">
               BOOK APPOINTMENT
             </h1>
-            <p className="text-[#666666] text-sm">
+            <p className="text-[#888888] text-sm">
               Choose a convenient time for your repair.
             </p>
           </div>
@@ -123,8 +123,8 @@ export default function SchedulePage() {
 
           {/* Date Selection */}
           <div className="mb-8">
-            <h3 className="px-5 text-sm font-bold text-[#1A1A1E] mb-3">Select Date</h3>
-            <div className="flex overflow-x-auto gap-3 px-5 pb-2 scrollbar-hide">
+            <h3 className="px-5 text-sm font-bold text-[#E0E0E0] mb-3">Select Date</h3>
+            <div className="flex overflow-x-auto gap-3 px-5 p-2 -m-2 pb-2 scrollbar-hide">
               {availableDates.map((d, idx) => {
                 const isSelected = d.date === selectedDate;
                 // Parse date for display if it came from backend format
@@ -146,15 +146,15 @@ export default function SchedulePage() {
                        setSelectedTimeSlot(null); // reset time slot on date change
                        setError('');
                     }}
-                    className={`flex-shrink-0 w-[72px] py-3 rounded-2xl flex flex-col items-center justify-center transition-all ${
+                    className={`flex-shrink-0 w-[72px] py-3 rounded-2xl flex flex-col items-center justify-center transition-all border border-[#222] ${
                       isSelected 
-                        ? 'bg-black text-white shadow-lg scale-[1.02]' 
-                        : 'bg-white text-black shadow-sm'
+                        ? 'bg-[#141414] border-white text-white shadow-lg scale-[1.02]' 
+                        : 'bg-[#111111] text-[#888] shadow-sm'
                     }`}
                   >
-                    <span className={`text-[11px] font-bold ${isSelected ? 'text-white/80' : 'text-[#666]'}`}>{dayLabel}</span>
-                    <span className="text-2xl font-black mt-0.5 mb-0.5">{dateLabel}</span>
-                    <span className={`text-[11px] font-bold ${isSelected ? 'text-white/80' : 'text-[#666]'}`}>{monthLabel}</span>
+                    <span className={`text-[11px] font-bold ${isSelected ? 'text-[#888]' : 'text-[#666]'}`}>{dayLabel}</span>
+                    <span className={`text-2xl font-black mt-0.5 mb-0.5 ${isSelected ? 'text-white' : 'text-[#E0E0E0]'}`}>{dateLabel}</span>
+                    <span className={`text-[11px] font-bold ${isSelected ? 'text-[#888]' : 'text-[#666]'}`}>{monthLabel}</span>
                   </button>
                 );
               })}
@@ -163,7 +163,7 @@ export default function SchedulePage() {
 
           {/* Time Slot Selection */}
           <div className="mb-8 px-5">
-            <h3 className="text-sm font-bold text-[#1A1A1E] mb-3">Select Time Slot</h3>
+            <h3 className="text-sm font-bold text-[#E0E0E0] mb-3">Select Time Slot</h3>
             <div className="grid grid-cols-2 gap-3">
               {isLoading ? (
                 <div className="col-span-2 text-center text-sm text-[#666] py-4">Loading slots...</div>
@@ -179,12 +179,12 @@ export default function SchedulePage() {
                         setSelectedTimeSlot(t.time);
                         setError('');
                       }}
-                      className={`h-[52px] rounded-2xl text-sm font-bold transition-all ${
+                      className={`h-[52px] rounded-2xl text-sm font-bold transition-all border border-[#222] ${
                         !isAvailable 
-                          ? 'bg-black/5 text-black/30 cursor-not-allowed'
+                          ? 'bg-[#0A0A0A] border-[#111] text-[#333] cursor-not-allowed'
                           : isSelected
-                            ? 'bg-black text-white shadow-md'
-                            : 'bg-white text-black shadow-sm hover:bg-gray-50'
+                            ? 'bg-[#141414] border-white text-white shadow-md'
+                            : 'bg-[#111111] text-[#888] shadow-sm hover:bg-[#1A1A1E]'
                       }`}
                     >
                       {t.time}
@@ -199,11 +199,11 @@ export default function SchedulePage() {
 
           {/* Service Center (Placeholder as per Phase 1 UI) */}
           <div className="mb-8 px-5">
-            <h3 className="text-sm font-bold text-[#1A1A1E] mb-3">Shop / Service Center</h3>
-            <div className="bg-white rounded-2xl p-4 flex items-center justify-between shadow-sm border border-[#E4E4E7]">
+            <h3 className="text-sm font-bold text-[#E0E0E0] mb-3">Shop / Service Center</h3>
+            <div className="bg-[#111] rounded-2xl p-4 flex items-center justify-between shadow-sm border border-[#222]">
                <div>
-                  <h4 className="text-sm font-extrabold text-[#111]">Gadget Restore - Default Lab</h4>
-                  <p className="text-xs text-[#666] mt-1">Pick & Drop Facility</p>
+                  <h4 className="text-sm font-extrabold text-white">Gadget Restore - Default Lab</h4>
+                  <p className="text-xs text-[#888] mt-1">Pick & Drop Facility</p>
                </div>
                <ChevronDown size={18} color="#999" />
             </div>
@@ -213,7 +213,7 @@ export default function SchedulePage() {
           <div className="px-5 mt-10 mb-8">
             <button
               onClick={handleConfirm}
-              className="w-full h-14 bg-black text-white rounded-[20px] text-sm font-extrabold flex items-center justify-center gap-2 active:scale-[0.98] transition-transform"
+              className="w-full h-14 bg-white text-black rounded-[20px] text-sm font-extrabold flex items-center justify-center gap-2 active:scale-[0.98] transition-transform"
             >
               Confirm Booking <ArrowLeft className="rotate-180" size={16} />
             </button>
@@ -226,32 +226,32 @@ export default function SchedulePage() {
       {/* ════════════════════════════════════════════════════════════════
           DESKTOP VIEW (≥1024px)
           ════════════════════════════════════════════════════════════════ */}
-      <div className="home-desktop hidden lg:block bg-white min-h-[calc(100vh-var(--topbar-height))]">
+      <div className="home-desktop hidden lg:block bg-[#050505] text-white min-h-[calc(100vh-var(--topbar-height))]">
          {/* Using a simplified layout that mimics the image for desktop */}
          <div className="max-w-6xl mx-auto p-10 flex gap-12">
             
             <div className="flex-1">
-               <h1 className="text-[44px] font-black text-black tracking-tight leading-none mb-3">
+               <h1 className="text-[44px] font-black text-white tracking-tight leading-none mb-3">
                  Book Appointment
                </h1>
-               <p className="text-lg text-[#666] mb-12">
+               <p className="text-lg text-[#888] mb-12">
                  Schedule a convenient time for your device restoration using our precision booking system.
                </p>
 
                {error && (
-                  <div className="mb-6 p-4 bg-red-50 text-red-600 rounded-lg text-sm font-semibold">
+                  <div className="mb-6 p-4 bg-[rgba(239,68,68,0.1)] text-red-500 rounded-lg text-sm font-semibold border border-[rgba(239,68,68,0.2)]">
                      {error}
                   </div>
                )}
 
                <div className="flex items-center justify-between mb-6">
-                 <h3 className="text-sm font-bold text-[#111] uppercase tracking-wider flex items-center gap-2">
+                 <h3 className="text-sm font-bold text-[#E0E0E0] uppercase tracking-wider flex items-center gap-2">
                    📅 SELECT DATE
                  </h3>
-                 <span className="text-sm font-bold underline decoration-2 underline-offset-4">{new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</span>
+                 <span className="text-sm font-bold text-white underline decoration-2 underline-offset-4">{new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</span>
                </div>
 
-               <div className="flex gap-4 mb-12 overflow-x-auto pb-4">
+               <div className="flex gap-4 mb-12 overflow-x-auto p-2 -m-2">
                   {availableDates.map((d, idx) => {
                     const isSelected = d.date === selectedDate;
                     const dateObj = new Date(d.date);
@@ -268,19 +268,19 @@ export default function SchedulePage() {
                         }}
                         className={`w-24 h-24 rounded-2xl flex flex-col items-center justify-center transition-all ${
                           isSelected 
-                            ? 'bg-black text-white shadow-xl scale-105' 
-                            : 'bg-[#F4F4F5] text-black hover:bg-[#EAEAEF]'
+                            ? 'bg-[#141414] border border-white text-white shadow-xl scale-105' 
+                            : 'bg-[#0A0A0A] border border-[#222] text-[#888] hover:bg-[#1A1A1E]'
                         }`}
                       >
-                        <span className={`text-[13px] font-bold uppercase ${isSelected ? 'text-white/80' : 'text-[#666]'}`}>{dayLabel}</span>
-                        <span className="text-3xl font-black mt-1">{dateLabel}</span>
+                        <span className={`text-[13px] font-bold uppercase ${isSelected ? 'text-[#888]' : 'text-[#666]'}`}>{dayLabel}</span>
+                        <span className={`text-3xl font-black mt-1 ${isSelected ? 'text-white' : 'text-[#E0E0E0]'}`}>{dateLabel}</span>
                       </button>
                     );
                   })}
                </div>
 
                <div className="flex items-center justify-between mb-6">
-                 <h3 className="text-sm font-bold text-[#111] uppercase tracking-wider flex items-center gap-2">
+                 <h3 className="text-sm font-bold text-[#E0E0E0] uppercase tracking-wider flex items-center gap-2">
                    🕒 PREFERRED TIME SLOT
                  </h3>
                </div>
@@ -301,10 +301,10 @@ export default function SchedulePage() {
                         }}
                         className={`h-14 rounded-xl text-sm font-bold transition-all border-2 ${
                           !isAvailable 
-                            ? 'bg-gray-50 border-gray-100 text-gray-300 cursor-not-allowed'
+                            ? 'bg-[#0A0A0A] border-[#111] text-[#333] cursor-not-allowed'
                             : isSelected
-                              ? 'border-black text-black'
-                              : 'bg-[#F4F4F5] border-transparent text-[#666] hover:bg-[#EAEAEF]'
+                              ? 'border-white text-white bg-[#141414]'
+                              : 'bg-[#0A0A0A] border-transparent text-[#888] hover:bg-[#1A1A1E]'
                         }`}
                       >
                         {t.time}
@@ -315,7 +315,7 @@ export default function SchedulePage() {
 
                <button
                   onClick={handleConfirm}
-                  className="w-full h-16 bg-[#EBEBEB] hover:bg-[#E0E0E0] text-black rounded-xl text-[15px] font-black uppercase tracking-wider flex items-center justify-center gap-2 transition-colors"
+                  className="w-full h-16 bg-white hover:bg-gray-200 text-black rounded-xl text-[15px] font-black uppercase tracking-wider flex items-center justify-center gap-2 transition-colors"
                >
                   CONFIRM BOOKING <ArrowLeft className="rotate-180" size={18} />
                </button>
@@ -323,25 +323,25 @@ export default function SchedulePage() {
 
             {/* Right column - Service Center map preview */}
             <div className="w-[400px]">
-               <div className="bg-[#F8F8F8] rounded-[24px] p-6 h-full border border-gray-100">
+               <div className="bg-[#0A0A0A] rounded-[24px] p-6 h-full border border-[#222]">
                   <h3 className="text-xs font-black text-[#888] uppercase tracking-wider mb-4">SERVICE CENTER</h3>
                   
-                  <div className="bg-white rounded-2xl p-4 flex items-center gap-4 shadow-sm border border-[#F0F0F0] mb-6">
-                     <div className="w-12 h-12 bg-black rounded-xl flex items-center justify-center flex-shrink-0">
+                  <div className="bg-[#141414] rounded-2xl p-4 flex items-center gap-4 shadow-sm border border-[#333] mb-6">
+                     <div className="w-12 h-12 bg-[#222] rounded-xl flex items-center justify-center flex-shrink-0">
                         <span className="text-white font-bold text-xs">GR</span>
                      </div>
                      <div className="flex-1">
-                        <h4 className="text-sm font-extrabold text-[#111]">Gadget Restore</h4>
-                        <p className="text-[11px] text-[#666] mt-0.5">Central Processing Lab</p>
+                        <h4 className="text-sm font-extrabold text-white">Gadget Restore</h4>
+                        <p className="text-[11px] text-[#888] mt-0.5">Central Processing Lab</p>
                      </div>
                      <ChevronDown size={20} color="#999" />
                   </div>
 
-                  <div className="w-full h-[240px] bg-[#EBEBEB] rounded-2xl overflow-hidden relative border border-[#E0E0E0]">
+                  <div className="w-full h-[240px] bg-[#111] rounded-2xl overflow-hidden relative border border-[#222]">
                      {/* Static Map Background mimicking image */}
-                     <img src="/images/service-center-placeholder.png" alt="Service Center Map" className="absolute inset-0 w-full h-full object-cover opacity-50 mix-blend-multiply filter grayscale" />
+                     <img src="/images/service-center-placeholder.png" alt="Service Center Map" className="absolute inset-0 w-full h-full object-cover opacity-60 mix-blend-screen filter grayscale" />
                      {/* Center dot */}
-                     <div className="absolute top-1/2 left-1/2 w-4 h-4 bg-black rounded-full transform -translate-x-1/2 -translate-y-1/2 shadow-md"></div>
+                     <div className="absolute top-1/2 left-1/2 w-4 h-4 bg-[#6c7bff] rounded-full transform -translate-x-1/2 -translate-y-1/2 shadow-md"></div>
                   </div>
                </div>
             </div>
