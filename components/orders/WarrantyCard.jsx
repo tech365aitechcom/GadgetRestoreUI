@@ -1,6 +1,8 @@
 'use client';
 
-import { ShieldCheck } from 'lucide-react';
+import { useState } from 'react';
+import { Download, Share2, ShieldCheck } from 'lucide-react';
+import orderService from '@/services/order.service';
 
 function formatDate(value) {
   if (!value) return '-';
@@ -11,27 +13,97 @@ function formatDate(value) {
   });
 }
 
-export default function WarrantyCard({ warranty }) {
+export default function WarrantyCard({ ticketNumber, warranty }) {
+  const [downloading, setDownloading] = useState(false);
+  const [error, setError] = useState('');
+  const [notice, setNotice] = useState('');
+
   if (!warranty) return null;
 
+  const download = async () => {
+    setDownloading(true);
+    setError('');
+    try {
+      await orderService.downloadWarranty(ticketNumber);
+    } catch (_) {
+      setError('Unable to download the warranty card right now.');
+    } finally {
+      setDownloading(false);
+    }
+  };
+
+  const share = async () => {
+    setError('');
+    setNotice('');
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: `Warranty Card - ${ticketNumber}`,
+          text: `Digital warranty card for order ${ticketNumber}`,
+        });
+        return;
+      }
+
+      await navigator.clipboard.writeText(`Warranty card for order ${ticketNumber}`);
+      setNotice('Warranty reference copied.');
+    } catch (shareError) {
+      if (shareError.name !== 'AbortError') {
+        setError('Unable to share the warranty card right now.');
+      }
+    }
+  };
+
+  const claimContact = [
+    warranty.claimContact?.phone,
+    warranty.claimContact?.email,
+  ].filter(Boolean).join(' / ') || 'customer support';
+
   return (
-    <div style={{ background: '#141414', border: '1px solid #222', borderRadius: 18, padding: 22, marginBottom: 20 }}>
+    <div className="bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-[18px] p-[22px] mb-5">
       <div style={{ display: 'flex', alignItems: 'center', gap: 9, marginBottom: 16 }}>
-        <ShieldCheck size={19} color="#22C55E" />
+        <ShieldCheck size={19} className="text-[var(--color-success)]" />
         <h2 style={{ fontSize: 16 }}>Digital Warranty Card</h2>
       </div>
-      <p style={{ fontSize: 13, color: '#D4D4D4', marginBottom: 12 }}>
+      <p className="text-[13px] text-[var(--theme-text-primary)] mb-3">
         {warranty.device} - Order {warranty.orderReference}
       </p>
-      <div style={{ display: 'flex', gap: 22, marginBottom: 16 }}>
+      <div className="flex flex-wrap gap-[22px] mb-4">
         <Field label="Starts" value={formatDate(warranty.startDate)} />
         <Field label="Ends" value={formatDate(warranty.expiryDate)} />
         <Field label="Period" value={`${warranty.durationDays} days`} />
       </div>
-      <p style={{ fontSize: 13, color: '#A3A3A3', lineHeight: 1.5 }}>{warranty.terms}</p>
-      <p style={{ fontSize: 12, color: '#93A4FF', marginTop: 14 }}>
-        Contact customer support with your order ID to initiate a warranty claim.
+      {warranty.repairs?.length > 0 && (
+        <div className="border border-[var(--theme-border)] rounded-[10px] p-3 mb-4">
+          <p className="text-[11px] uppercase tracking-wide text-[var(--theme-text-tertiary)] mb-2">Covered Repairs</p>
+          {warranty.repairs.map((repair, index) => (
+            <div key={`${repair.description}-${index}`} className="py-[7px] text-[13px] text-[var(--theme-text-primary)] border-b border-[var(--theme-border)] last:border-b-0">
+              <div className="flex justify-between gap-3">
+                <span>{repair.repairType || repair.description}</span>
+                <span className="text-[var(--theme-text-secondary)]">{repair.partTier || 'Pro'} tier</span>
+              </div>
+              <p className="text-[11px] text-[var(--theme-text-secondary)] mt-1">
+                {repair.warrantyDays || warranty.durationDays} days: {formatDate(repair.warrantyStartDate || warranty.startDate)} - {formatDate(repair.warrantyEndDate || warranty.expiryDate)}
+              </p>
+            </div>
+          ))}
+        </div>
+      )}
+      <p className="text-[13px] text-[var(--theme-text-secondary)] leading-normal mb-4">{warranty.terms}</p>
+      <TermList title="Covered" values={warranty.coverage} />
+      <TermList title="Not covered" values={warranty.exclusions} />
+      <p className="text-xs text-[var(--color-accent)] mt-[14px] mb-4">
+        Contact support at {claimContact} with your order ID to initiate a warranty claim.
       </p>
+      {error && <p className="text-red-400 text-xs mb-3">{error}</p>}
+      {notice && <p className="text-[var(--color-success)] text-xs mb-3">{notice}</p>}
+      <div className="flex flex-wrap gap-[10px]">
+        <button type="button" onClick={download} disabled={downloading} className="btn-secondary !h-[43px] !px-[15px]">
+          <Download size={15} /> {downloading ? 'Downloading...' : 'Download Warranty PDF'}
+        </button>
+        <button type="button" onClick={share} className="btn-secondary !h-[43px] !px-[15px]">
+          <Share2 size={15} /> Share Warranty
+        </button>
+      </div>
     </div>
   );
 }
@@ -39,8 +111,21 @@ export default function WarrantyCard({ warranty }) {
 function Field({ label, value }) {
   return (
     <div>
-      <p style={{ color: '#737373', fontSize: 11, marginBottom: 4 }}>{label}</p>
+      <p className="text-[var(--theme-text-tertiary)] text-[11px] mb-1">{label}</p>
       <p style={{ fontSize: 13, fontWeight: 600 }}>{value}</p>
+    </div>
+  );
+}
+
+function TermList({ title, values = [] }) {
+  if (!values.length) return null;
+
+  return (
+    <div className="mb-3">
+      <p className="text-[11px] uppercase tracking-wide text-[var(--theme-text-tertiary)] mb-2">{title}</p>
+      <ul className="m-0 pl-4 text-xs text-[var(--theme-text-secondary)] leading-relaxed">
+        {values.map((value) => <li key={value}>{value}</li>)}
+      </ul>
     </div>
   );
 }

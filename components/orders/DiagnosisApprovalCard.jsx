@@ -36,11 +36,11 @@ export default function DiagnosisApprovalCard({ ticketNumber, approval, onUpdate
   };
 
   return (
-    <div style={{ background: '#141414', border: '1px solid rgba(251,191,36,0.3)', borderRadius: 18, padding: 22, marginBottom: 20 }}>
-      <p style={{ color: '#FBBF24', fontSize: 13, fontWeight: 700, marginBottom: 8 }}>
+    <div className="bg-[var(--theme-card)] border border-amber-400/30 rounded-[18px] p-[22px] mb-5">
+      <p className="text-amber-400 text-[13px] font-bold mb-2">
         Diagnosis complete - revised estimate available
       </p>
-      <p style={{ color: '#A3A3A3', fontSize: 13, lineHeight: 1.5, marginBottom: 18 }}>
+      <p className="text-[var(--theme-text-secondary)] text-[13px] leading-normal mb-[18px]">
         Review the diagnosis and approve repair work, or request a call from support.
       </p>
       <div style={{ display: 'flex', gap: 18, marginBottom: 16 }}>
@@ -48,31 +48,47 @@ export default function DiagnosisApprovalCard({ ticketNumber, approval, onUpdate
         <Price label="Revised cost" value={cost.final} emphasized={cost.isRevised} />
       </div>
       {approval.diagnosis.revisionReason && (
-        <p style={{ fontSize: 13, color: '#D4D4D4', marginBottom: 10 }}>
+        <p className="text-[13px] text-[var(--theme-text-primary)] mb-[10px]">
           <strong>Reason: </strong>{approval.diagnosis.revisionReason}
         </p>
       )}
       {approval.diagnosis.findings && (
-        <p style={{ fontSize: 13, color: '#A3A3A3', lineHeight: 1.5, marginBottom: 15 }}>
+        <p className="text-[13px] text-[var(--theme-text-secondary)] leading-normal mb-[15px]">
           {approval.diagnosis.findings}
         </p>
       )}
-      {approval.diagnosis.advancePaymentRequired && (
-        <p style={{ padding: 12, background: 'rgba(251,191,36,0.08)', color: '#FBBF24', borderRadius: 10, fontSize: 12, lineHeight: 1.45, marginBottom: 16 }}>
-          A 50% advance may be required. Our support team will contact you before proceeding.
+      {approval.diagnosis.pricingItems?.length > 0 && (
+        <div className="border border-[var(--theme-border)] rounded-[10px] py-[10px] px-3 mb-4">
+          {approval.diagnosis.pricingItems.map((item, index) => (
+            <div key={`${item.description}-${index}`} className="py-[8px] text-xs text-[var(--theme-text-primary)] border-b border-[var(--theme-border)] last:border-b-0">
+              <div className="flex justify-between gap-3 font-semibold mb-[6px]">
+                <span>{item.description || 'Repair item'}</span>
+                <span>Rs {formatAmount(item.totalCost)}</span>
+              </div>
+              <div className="flex flex-wrap gap-x-5 gap-y-1 text-[var(--theme-text-secondary)]">
+                <span>Parts: Rs {formatAmount(item.partCost)}</span>
+                <span>Labour: Rs {formatAmount(item.labourCost)}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+      {(approval.diagnosis.advancePaymentRequired || approval.diagnosis.advancePaymentRecommended) && (
+        <p className="p-3 bg-amber-400/10 text-amber-400 rounded-[10px] text-xs leading-[1.45] mb-4">
+          This repair meets the advance review rule. Our support team will contact you if a 50% advance is required before proceeding.
         </p>
       )}
-      {error && <p style={{ color: '#F87171', fontSize: 12, marginBottom: 12 }}>{error}</p>}
+      {error && <p className="text-red-400 text-xs mb-3">{error}</p>}
       {discussionRequested && (
-        <p style={{ color: '#22C55E', fontSize: 13, marginBottom: 12 }}>
+        <p className="text-[var(--color-success)] text-[13px] mb-3">
           Request received. Our support team will call you to discuss the estimate.
         </p>
       )}
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
-        <button type="button" onClick={() => act('approve')} disabled={Boolean(busy)} style={approveStyle}>
+        <button type="button" onClick={() => act('approve')} disabled={Boolean(busy)} className="h-[45px] border-0 rounded-[10px] px-[15px] inline-flex items-center gap-[6px] bg-[var(--color-success)] text-[#071008] font-bold cursor-pointer disabled:opacity-60">
           <IndianRupee size={15} /> {busy === 'approve' ? 'Approving...' : `Approve Rs ${formatAmount(cost.final)}`}
         </button>
-        <button type="button" onClick={() => act('discuss')} disabled={Boolean(busy)} style={discussStyle}>
+        <button type="button" onClick={() => act('discuss')} disabled={Boolean(busy)} className="btn-secondary !h-[45px] !px-[15px] disabled:opacity-60">
           <PhoneCall size={15} /> {busy === 'discuss' ? 'Requesting...' : 'Call CS to Discuss'}
         </button>
       </div>
@@ -83,31 +99,10 @@ export default function DiagnosisApprovalCard({ ticketNumber, approval, onUpdate
 function Price({ label, value, emphasized = false }) {
   return (
     <div>
-      <p style={{ fontSize: 11, color: '#737373', marginBottom: 5 }}>{label}</p>
-      <strong style={{ color: emphasized ? '#FBBF24' : '#fff', fontSize: 20 }}>
+      <p className="text-[11px] text-[var(--theme-text-tertiary)] mb-[5px]">{label}</p>
+      <strong style={{ color: emphasized ? 'var(--color-warning)' : 'var(--theme-text-primary)', fontSize: 20 }}>
         Rs {formatAmount(value)}
       </strong>
     </div>
   );
 }
-
-const approveStyle = {
-  height: 45,
-  border: 0,
-  borderRadius: 10,
-  padding: '0 15px',
-  display: 'inline-flex',
-  alignItems: 'center',
-  gap: 6,
-  background: '#22C55E',
-  color: '#071008',
-  fontWeight: 700,
-  cursor: 'pointer',
-};
-
-const discussStyle = {
-  ...approveStyle,
-  background: 'transparent',
-  color: '#fff',
-  border: '1px solid #303030',
-};

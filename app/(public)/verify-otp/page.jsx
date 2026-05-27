@@ -129,11 +129,11 @@ function VerifyOtpContent() {
     setError('');
 
     try {
-      await authService.sendOtp(phone);
+      const result = await authService.sendOtp(phone);
       setResendTimer(119); // reset timer
       setOtp(['', '', '', '', '', '']); // clear OTP boxes
       inputRefs.current[0]?.focus();
-      alert('A new verification code has been sent (Test Code: 123456)');
+      alert(result.mock ? 'A development verification code has been sent. Use 123456.' : 'A new verification code has been sent.');
     } catch (err) {
       setError('Failed to resend code. Please try again.');
     } finally {

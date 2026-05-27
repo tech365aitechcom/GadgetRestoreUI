@@ -1,68 +1,110 @@
 'use client';
 
 import { useState } from 'react';
-import { Download, FileText } from 'lucide-react';
+import { CheckCircle2, Clock3, Download, FileText } from 'lucide-react';
 import orderService from '@/services/order.service';
 
 export default function InvoiceCard({ ticketNumber, invoice }) {
-  const [downloading, setDownloading] = useState(false);
+  const [downloading, setDownloading] = useState('');
   const [error, setError] = useState('');
 
-  if (!invoice) {
-    return (
-      <div style={cardStyle}>
-        <p style={{ color: '#A3A3A3', fontSize: 13 }}>Your final invoice is being prepared.</p>
-      </div>
-    );
-  }
+  const downloadConfirmation = async () => {
+    setDownloading('confirmation');
+    setError('');
+    try {
+      await orderService.downloadConfirmation(ticketNumber);
+    } catch (_) {
+      setError('Unable to download order confirmation right now.');
+    } finally {
+      setDownloading('');
+    }
+  };
 
-  const download = async () => {
-    setDownloading(true);
+  const downloadInvoice = async () => {
+    setDownloading('invoice');
     setError('');
     try {
       await orderService.downloadInvoice(ticketNumber);
     } catch (_) {
-      setError('Unable to download invoice right now.');
+      setError('Unable to download final invoice right now.');
     } finally {
-      setDownloading(false);
+      setDownloading('');
     }
   };
 
   return (
-    <div style={cardStyle}>
+    <div className="bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-[18px] p-[22px] mb-5">
       <div style={{ display: 'flex', gap: 10, alignItems: 'center', marginBottom: 14 }}>
-        <FileText size={18} color="#93A4FF" />
-        <h2 style={{ fontSize: 16 }}>Final Invoice</h2>
+        <FileText size={18} className="text-[var(--color-accent)]" />
+        <h2 style={{ fontSize: 16 }}>Documents</h2>
       </div>
-      <p style={{ color: '#A3A3A3', fontSize: 13, marginBottom: 14 }}>
-        Invoice No: <strong style={{ color: '#fff' }}>{invoice.invoiceNumber}</strong>
-      </p>
-      {error && <p style={{ color: '#F87171', fontSize: 12, marginBottom: 10 }}>{error}</p>}
-      <button type="button" onClick={download} disabled={downloading} style={buttonStyle}>
-        <Download size={15} /> {downloading ? 'Downloading...' : 'Download PDF'}
-      </button>
+      {error && <p className="text-red-400 text-xs mb-[10px]">{error}</p>}
+      <DocumentRow
+        title="Order Confirmation"
+        description="Booking summary and terms & conditions"
+        ready
+        buttonText={downloading === 'confirmation' ? 'Downloading...' : 'Download PDF'}
+        onDownload={downloadConfirmation}
+        disabled={Boolean(downloading)}
+      />
+      {invoice ? (
+        <div className="mt-3">
+          <DocumentRow
+            title="Final Invoice"
+            description={`Invoice No: ${invoice.invoiceNumber}`}
+            ready
+            buttonText={downloading === 'invoice' ? 'Downloading...' : 'Download PDF'}
+            onDownload={downloadInvoice}
+            disabled={Boolean(downloading)}
+          />
+          {invoice.pricing && (
+            <div className="grid grid-cols-2 gap-3 mt-3 text-[13px]">
+              <InvoiceValue label="Total" value={`Rs ${Number(invoice.pricing.grandTotal || 0).toLocaleString('en-IN')}`} />
+              <InvoiceValue label="Payment" value={invoice.paymentMethod || 'COD'} />
+              <InvoiceValue label="Advance Paid" value={`Rs ${Number(invoice.pricing.advancePayment || 0).toLocaleString('en-IN')}`} />
+              <InvoiceValue label="Balance" value={`Rs ${Number(invoice.pricing.balanceDue || 0).toLocaleString('en-IN')}`} />
+            </div>
+          )}
+        </div>
+      ) : (
+        <div className="mt-3">
+          <DocumentRow
+            title="Final Invoice"
+            description="Available after your repaired device is delivered"
+          />
+        </div>
+      )}
     </div>
   );
 }
 
-const cardStyle = {
-  background: '#141414',
-  border: '1px solid #222',
-  borderRadius: 18,
-  padding: 22,
-  marginBottom: 20,
-};
+function DocumentRow({ title, description, ready = false, buttonText, onDownload, disabled }) {
+  return (
+    <div className="bg-[var(--theme-card-darker)] border border-[var(--theme-border)] rounded-xl p-4">
+      <div className="flex justify-between items-start gap-3 mb-3">
+        <div>
+          <p className="text-sm font-semibold text-[var(--theme-text-primary)] mb-1">{title}</p>
+          <p className="text-xs text-[var(--theme-text-secondary)]">{description}</p>
+        </div>
+        <span className={`flex items-center gap-1 text-[11px] font-semibold ${ready ? 'text-[var(--color-success)]' : 'text-[var(--theme-text-tertiary)]'}`}>
+          {ready ? <CheckCircle2 size={13} /> : <Clock3 size={13} />}
+          {ready ? 'Ready' : 'Pending'}
+        </span>
+      </div>
+      {ready && (
+        <button type="button" onClick={onDownload} disabled={disabled} className="btn-secondary !h-[40px] !px-[14px]">
+          <Download size={15} /> {buttonText}
+        </button>
+      )}
+    </div>
+  );
+}
 
-const buttonStyle = {
-  height: 43,
-  padding: '0 15px',
-  border: '1px solid #303030',
-  borderRadius: 10,
-  color: '#fff',
-  background: 'transparent',
-  display: 'inline-flex',
-  alignItems: 'center',
-  gap: 7,
-  fontWeight: 700,
-  cursor: 'pointer',
-};
+function InvoiceValue({ label, value }) {
+  return (
+    <div className="p-3 rounded-lg bg-[var(--theme-card-darker)] border border-[var(--theme-border)]">
+      <p className="text-[11px] text-[var(--theme-text-tertiary)] mb-1">{label}</p>
+      <p className="font-semibold text-[var(--theme-text-primary)]">{value}</p>
+    </div>
+  );
+}

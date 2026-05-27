@@ -2,15 +2,24 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Package, RefreshCw } from 'lucide-react';
 import bookingService from '@/services/booking.service';
 import orderService from '@/services/order.service';
-import { STATUS_LABELS } from '@/lib/constants';
 import OrderTimeline from '@/components/orders/OrderTimeline';
 import PartnerCard from '@/components/orders/PartnerCard';
 import DiagnosisApprovalCard from '@/components/orders/DiagnosisApprovalCard';
 import InvoiceCard from '@/components/orders/InvoiceCard';
 import WarrantyCard from '@/components/orders/WarrantyCard';
+import OrderStatusBadge from '@/components/orders/OrderStatusBadge';
+
+function formatDate(value) {
+  if (!value) return 'To be confirmed';
+  return new Date(value).toLocaleDateString('en-IN', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  });
+}
 
 export default function OrderDetailPage() {
   const { ticketNumber } = useParams();
@@ -21,6 +30,7 @@ export default function OrderDetailPage() {
   const [warranty, setWarranty] = useState(null);
   const [error, setError] = useState('');
   const [reloadVersion, setReloadVersion] = useState(0);
+  const [lastUpdated, setLastUpdated] = useState(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -31,6 +41,7 @@ export default function OrderDetailPage() {
         if (isMounted) {
           setOrder(nextOrder);
           setError('');
+          setLastUpdated(new Date());
         }
 
         if (nextOrder.repairStatus === 'CUSTOMER_APPROVAL_PENDING') {
@@ -67,31 +78,54 @@ export default function OrderDetailPage() {
     };
   }, [reloadVersion, ticketNumber]);
 
+  const device = order && [order.brandRef?.name, order.modelRef?.name].filter(Boolean).join(' ');
+  const repairs = order?.repairTypes?.map((repair) => repair.name).join(', ');
+  const address = order?.address?.addressLine1
+    ? [order.address.addressLine1, order.address.city, order.address.pincode].filter(Boolean).join(', ')
+    : 'To be confirmed';
+
   return (
-    <main style={{ minHeight: '100svh', padding: '24px 16px 100px', color: '#fff', background: '#0A0A0A' }}>
+    <main className="min-h-[100svh] px-4 pt-6 pb-[100px] text-[var(--theme-text-primary)] bg-[var(--theme-bg)]">
       <section style={{ maxWidth: 720, margin: '0 auto' }}>
-        <button type="button" onClick={() => router.back()} style={{ border: 0, background: 'transparent', color: '#A3A3A3', display: 'flex', alignItems: 'center', gap: 7, cursor: 'pointer', marginBottom: 24 }}>
+        <button type="button" onClick={() => router.back()} className="border-0 bg-transparent text-[var(--theme-text-secondary)] flex items-center gap-[7px] cursor-pointer mb-6">
           <ArrowLeft size={16} /> Back
         </button>
-        {error ? <p style={{ color: '#F87171' }}>{error}</p> : !order ? (
-          <p>Loading order...</p>
+        {error ? <p className="text-red-400">{error}</p> : !order ? (
+          <p className="text-[var(--theme-text-secondary)]">Loading order...</p>
         ) : (
           <>
-            <p style={{ color: '#737373', textTransform: 'uppercase', letterSpacing: '0.12em', fontSize: 11, marginBottom: 8 }}>Order ID</p>
-            <h1 style={{ fontSize: 28, fontWeight: 800, marginBottom: 22 }}>{order.ticketNumber}</h1>
-            <div style={{ background: '#141414', border: '1px solid #222', borderRadius: 18, padding: 22, marginBottom: 20 }}>
-              <p style={{ color: '#737373', fontSize: 12, marginBottom: 7 }}>Current Status</p>
-              <strong style={{ color: '#22C55E', fontSize: 18 }}>
-                {STATUS_LABELS[order.repairStatus] || order.repairStatus}
-              </strong>
+            <div className="flex items-start justify-between gap-4 mb-[22px]">
+              <div>
+                <p className="text-[var(--theme-text-tertiary)] uppercase tracking-[0.12em] text-[11px] mb-2">Order ID</p>
+                <h1 className="text-[28px] font-extrabold">{order.ticketNumber}</h1>
+              </div>
+              <button type="button" onClick={() => setReloadVersion((current) => current + 1)} className="btn-secondary !h-[40px] !px-3" aria-label="Refresh status">
+                <RefreshCw size={15} /> Refresh
+              </button>
+            </div>
+            <div className="bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-[18px] p-[22px] mb-5 flex items-center justify-between gap-4 flex-wrap">
+              <div>
+                <p className="text-[var(--theme-text-tertiary)] text-xs mb-[9px]">Current Status</p>
+                <OrderStatusBadge status={order.repairStatus} />
+              </div>
+              {lastUpdated && <p className="text-[11px] text-[var(--theme-text-tertiary)]">Updated {lastUpdated.toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit' })}</p>}
+            </div>
+            <div className="bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-[18px] p-[22px] mb-5">
+              <h2 className="text-base font-bold mb-4 flex items-center gap-2"><Package size={17} className="text-[var(--color-accent)]" /> Repair Summary</h2>
+              <SummaryRow label="Device" value={device || 'Device Repair'} />
+              <SummaryRow label="Repair" value={repairs || 'Inspection and repair'} />
+              <SummaryRow label="Pickup" value={`${formatDate(order.slotDate)}${order.slotTime ? `, ${order.slotTime}` : ''}`} />
+              <SummaryRow label="Address" value={address} />
+              <SummaryRow label="Estimate" value={order.finalCost != null ? `Rs ${Number(order.finalCost).toLocaleString('en-IN')}` : 'To be confirmed'} last />
             </div>
             {order.repairStatus === 'CANCELLED' && (
-              <div style={{ background: 'rgba(248,113,113,0.1)', color: '#F87171', border: '1px solid rgba(248,113,113,0.25)', borderRadius: 16, padding: 18, marginBottom: 20 }}>
+              <div className="bg-red-500/10 text-red-400 border border-red-400/25 rounded-2xl p-[18px] mb-5">
                 This order has been cancelled.
+                {order.cancellationReason && <p style={{ marginTop: 8, fontSize: 13 }}>Reason: {order.cancellationReason}</p>}
               </div>
             )}
             {order.repairStatus === 'PENDING_ADVANCE_PAYMENT' && (
-              <div style={{ background: 'rgba(251,191,36,0.1)', color: '#FBBF24', border: '1px solid rgba(251,191,36,0.25)', borderRadius: 16, padding: 18, marginBottom: 20 }}>
+              <div className="bg-amber-400/10 text-amber-400 border border-amber-400/25 rounded-2xl p-[18px] mb-5">
                 Diagnosis is complete. Our support team will contact you regarding the required advance payment.
               </div>
             )}
@@ -101,17 +135,34 @@ export default function OrderDetailPage() {
               onUpdated={() => setReloadVersion((current) => current + 1)}
             />
             {['PICKUP_ASSIGNED', 'PICKUP_EN_ROUTE'].includes(order.repairStatus) && (
-              <PartnerCard title="Pickup Partner" partner={order.pickupPartner} />
+              <PartnerCard title="Pickup Partner" partner={order.pickupPartner ? { ...order.pickupPartner, eta: order.pickupEta } : null} />
             )}
             {['DELIVERY_ASSIGNED', 'OUT_FOR_DELIVERY'].includes(order.repairStatus) && (
-              <PartnerCard title="Delivery Partner" partner={order.deliveryPartner} />
+              <PartnerCard title="Delivery Partner" partner={order.deliveryPartner ? { ...order.deliveryPartner, eta: order.deliveryEta } : null} />
             )}
-            {order.repairStatus === 'DELIVERED' && <InvoiceCard ticketNumber={ticketNumber} invoice={invoice} />}
-            {order.repairStatus === 'DELIVERED' && <WarrantyCard warranty={warranty} />}
-            <OrderTimeline currentStatus={order.repairStatus} history={order.repairStatusHistory} />
+            <InvoiceCard ticketNumber={ticketNumber} invoice={invoice} />
+            {order.repairStatus === 'DELIVERED' && <WarrantyCard ticketNumber={ticketNumber} warranty={warranty} />}
+            <OrderTimeline
+              currentStatus={order.repairStatus}
+              history={order.repairStatusHistory}
+              timeline={order.timeline}
+              partners={{
+                pickup: order.pickupPartner ? { ...order.pickupPartner, eta: order.pickupEta } : null,
+                delivery: order.deliveryPartner ? { ...order.deliveryPartner, eta: order.deliveryEta } : null,
+              }}
+            />
           </>
         )}
       </section>
     </main>
+  );
+}
+
+function SummaryRow({ label, value, last = false }) {
+  return (
+    <div className="grid grid-cols-[92px_1fr] gap-3 py-[10px] text-[13px]" style={{ borderBottom: last ? 'none' : '1px solid var(--theme-divider)' }}>
+      <span className="text-[var(--theme-text-tertiary)]">{label}</span>
+      <span className="text-[var(--theme-text-primary)] font-medium">{value}</span>
+    </div>
   );
 }

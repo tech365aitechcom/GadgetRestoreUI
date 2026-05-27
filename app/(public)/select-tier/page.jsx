@@ -155,7 +155,7 @@ function TierCard({ tier, isSelected, availability, onSelect, compact = false })
       {/* Price */}
       {unavailable ? (
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: 'var(--color-danger)' }}>
-          <AlertCircle size={13} /> Pricing unavailable for this combination
+          <AlertCircle size={13} /> Price not configured for this device and repair
         </div>
       ) : hasPrice ? (
         <div>
@@ -220,12 +220,13 @@ export default function SelectTierPage() {
 
   /* Restore context state */
   useEffect(() => {
+    // The context value can arrive after localStorage hydration.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (contextTier) setSelectedTier(contextTier);
   }, [contextTier]);
 
   /* Fetch part tiers from backend */
   useEffect(() => {
-    setIsLoadingTiers(true);
     catalogueService.getPartTiers()
       .then((data) => {
         const sorted = [...data].sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0));
@@ -241,6 +242,8 @@ export default function SelectTierPage() {
     const repairTypeIds = collectRepairTypeIds(symptoms);
     if (!repairTypeIds.length) return;
 
+    // Display progress while the async matrix lookup is in flight.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsCheckingPricing(true);
     Promise.all(
       tiers.map((tier) =>

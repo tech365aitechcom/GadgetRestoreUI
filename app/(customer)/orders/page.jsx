@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { ChevronRight, ClipboardList, Plus } from 'lucide-react';
 import orderService from '@/services/order.service';
-import { STATUS_LABELS } from '@/lib/constants';
+import OrderStatusBadge from '@/components/orders/OrderStatusBadge';
 
 const CLOSED_STATUSES = new Set(['DELIVERED', 'CANCELLED']);
 
@@ -14,13 +14,6 @@ function formatDate(value) {
     month: 'short',
     year: 'numeric',
   });
-}
-
-function badgeColor(status) {
-  if (status === 'DELIVERED') return { color: '#22C55E', background: 'rgba(34,197,94,0.12)' };
-  if (status === 'CANCELLED') return { color: '#F87171', background: 'rgba(248,113,113,0.12)' };
-  if (status === 'CUSTOMER_APPROVAL_PENDING') return { color: '#FBBF24', background: 'rgba(251,191,36,0.12)' };
-  return { color: '#93A4FF', background: 'rgba(124,135,255,0.14)' };
 }
 
 export default function OrdersPage() {
@@ -57,55 +50,51 @@ export default function OrdersPage() {
   const activeCount = orders.filter((order) => !CLOSED_STATUSES.has(order.repairStatus)).length;
 
   return (
-    <main style={{ minHeight: '100svh', background: '#0A0A0A', color: '#fff', padding: '28px 16px 100px' }}>
+    <main className="min-h-[100svh] bg-[var(--theme-bg)] text-[var(--theme-text-primary)] px-4 pt-7 pb-[100px]">
       <section style={{ maxWidth: 760, margin: '0 auto' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'end', gap: 18, marginBottom: 28 }}>
           <div>
-            <p style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.12em', color: '#737373', marginBottom: 8 }}>
+            <p className="text-[11px] uppercase tracking-[0.12em] text-[var(--theme-text-tertiary)] mb-2">
               Repairs
             </p>
             <h1 style={{ fontSize: 31, fontWeight: 800 }}>Your Orders</h1>
             {!loading && orders.length > 0 && (
-              <p style={{ color: '#A3A3A3', fontSize: 13, marginTop: 8 }}>
+              <p className="text-[var(--theme-text-secondary)] text-[13px] mt-2">
                 {activeCount} active {activeCount === 1 ? 'repair' : 'repairs'}
               </p>
             )}
           </div>
-          <Link href="/select-brand" style={newBookingStyle}>
+          <Link href="/select-brand" className="btn-secondary !h-[42px] !px-[15px] no-underline font-bold text-[13px]">
             <Plus size={16} /> New
           </Link>
         </div>
 
         {loading ? (
-          <div style={stateCardStyle}>Loading your orders...</div>
+          <div className="grid place-items-center min-h-[150px] p-6 bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-[18px] text-[var(--theme-text-secondary)] text-center">Loading your orders...</div>
         ) : error ? (
-          <div style={{ ...stateCardStyle, color: '#F87171' }}>{error}</div>
+          <div className="grid place-items-center min-h-[150px] p-6 bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-[18px] text-red-400 text-center">{error}</div>
         ) : orders.length === 0 ? (
-          <div style={{ ...stateCardStyle, padding: '54px 24px' }}>
-            <ClipboardList size={42} color="#737373" style={{ marginBottom: 16 }} />
+          <div className="grid place-items-center min-h-[150px] py-[54px] px-6 bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-[18px] text-[var(--theme-text-secondary)] text-center">
+            <ClipboardList size={42} className="text-[var(--theme-text-tertiary)] mb-4" />
             <h2 style={{ fontSize: 20, marginBottom: 8 }}>No orders yet</h2>
-            <p style={{ color: '#A3A3A3', marginBottom: 24 }}>Book your first repair!</p>
-            <Link href="/select-brand" style={primaryLinkStyle}>Book Repair</Link>
+            <p className="text-[var(--theme-text-secondary)] mb-6">Book your first repair!</p>
+            <Link href="/select-brand" className="btn-primary no-underline">Book Repair</Link>
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             {orders.map((order) => {
               const device = [order.brandRef?.name, order.modelRef?.name].filter(Boolean).join(' ') || 'Device Repair';
-              const label = STATUS_LABELS[order.repairStatus] || order.repairStatus;
-
               return (
-                <Link key={order.ticketNumber} href={`/orders/${encodeURIComponent(order.ticketNumber)}`} style={orderCardStyle}>
+                <Link key={order.ticketNumber} href={`/orders/${encodeURIComponent(order.ticketNumber)}`} className="flex items-center gap-4 p-5 border border-[var(--theme-border)] rounded-2xl bg-[var(--theme-card)] text-[var(--theme-text-primary)] no-underline hover:border-[var(--theme-border-strong)] transition-colors">
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, alignItems: 'center', marginBottom: 12 }}>
-                      <span style={{ color: '#A3A3A3', fontSize: 12, fontWeight: 600 }}>{order.ticketNumber}</span>
-                      <span style={{ ...badgeColor(order.repairStatus), fontSize: 11, fontWeight: 700, padding: '5px 9px', borderRadius: 999 }}>
-                        {label}
-                      </span>
+                      <span className="text-[var(--theme-text-secondary)] text-xs font-semibold">{order.ticketNumber}</span>
+                      <OrderStatusBadge status={order.repairStatus} />
                     </div>
                     <h2 style={{ fontSize: 16, fontWeight: 700, marginBottom: 7 }}>{device}</h2>
-                    <p style={{ fontSize: 13, color: '#737373' }}>{formatDate(order.createdAt)}</p>
+                    <p className="text-[13px] text-[var(--theme-text-tertiary)]">{formatDate(order.createdAt)}</p>
                   </div>
-                  <ChevronRight size={18} color="#737373" />
+                  <ChevronRight size={18} className="text-[var(--theme-text-tertiary)]" />
                 </Link>
               );
             })}
@@ -115,49 +104,3 @@ export default function OrdersPage() {
     </main>
   );
 }
-
-const orderCardStyle = {
-  display: 'flex',
-  alignItems: 'center',
-  gap: 16,
-  padding: 20,
-  border: '1px solid #242424',
-  borderRadius: 16,
-  background: '#141414',
-  color: '#fff',
-  textDecoration: 'none',
-};
-
-const stateCardStyle = {
-  display: 'grid',
-  placeItems: 'center',
-  minHeight: 150,
-  padding: 24,
-  background: '#141414',
-  border: '1px solid #242424',
-  borderRadius: 18,
-  color: '#A3A3A3',
-  textAlign: 'center',
-};
-
-const newBookingStyle = {
-  display: 'inline-flex',
-  alignItems: 'center',
-  gap: 5,
-  padding: '11px 15px',
-  border: '1px solid #303030',
-  borderRadius: 10,
-  color: '#fff',
-  fontWeight: 700,
-  fontSize: 13,
-  textDecoration: 'none',
-};
-
-const primaryLinkStyle = {
-  padding: '14px 24px',
-  background: '#fff',
-  borderRadius: 10,
-  color: '#080808',
-  textDecoration: 'none',
-  fontWeight: 700,
-};

@@ -1,5 +1,15 @@
 import api from './api';
 
+async function downloadDocument(path, filename) {
+  const response = await api.get(path, { responseType: 'blob' });
+  const url = window.URL.createObjectURL(response.data);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  link.click();
+  window.URL.revokeObjectURL(url);
+}
+
 export const orderService = {
   async getOrders() {
     const response = await api.get('/customer/orders', {
@@ -37,15 +47,24 @@ export const orderService = {
   },
 
   async downloadInvoice(ticketNumber) {
-    const response = await api.get(`/customer/orders/${encodeURIComponent(ticketNumber)}/invoice/download`, {
-      responseType: 'blob',
-    });
-    const url = window.URL.createObjectURL(response.data);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `invoice-${ticketNumber}.pdf`;
-    link.click();
-    window.URL.revokeObjectURL(url);
+    return downloadDocument(
+      `/customer/orders/${encodeURIComponent(ticketNumber)}/invoice/download`,
+      `Invoice-${ticketNumber}.pdf`,
+    );
+  },
+
+  async downloadConfirmation(ticketNumber) {
+    return downloadDocument(
+      `/customer/orders/${encodeURIComponent(ticketNumber)}/confirmation/download`,
+      `Order-Confirmation-${ticketNumber}.pdf`,
+    );
+  },
+
+  async downloadWarranty(ticketNumber) {
+    return downloadDocument(
+      `/customer/orders/${encodeURIComponent(ticketNumber)}/warranty/download`,
+      `Warranty-${ticketNumber}.pdf`,
+    );
   },
 };
 
