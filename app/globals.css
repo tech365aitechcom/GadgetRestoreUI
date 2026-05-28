@@ -84,6 +84,30 @@
   --font-inter-family: var(--font-inter), 'Inter', sans-serif;
 }
 
+@keyframes order-confirm-check {
+  0% {
+    opacity: 0;
+    transform: scale(0.55);
+  }
+  65% {
+    transform: scale(1.08);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.order-success-mark {
+  animation: order-confirm-check 460ms ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .order-success-mark {
+    animation: none;
+  }
+}
+
 /* ─── Tailwind v4 Theme Extension ─────────────────────────────────────────── */
 @theme inline {
   --color-bg: var(--color-bg);
