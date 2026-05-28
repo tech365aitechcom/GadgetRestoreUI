@@ -1,5 +1,6 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import {
   Home,
   ClipboardList,
@@ -13,6 +14,9 @@ import {
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useAuth } from '@/context/AuthContext'
+import NotificationDrawer from '@/components/layout/NotificationDrawer'
+import notificationService from '@/services/notification.service'
+import { setRouterInstance } from '@/lib/navigation'
 
 /**
  * AppShell — Responsive layout shell
@@ -23,6 +27,32 @@ export default function AppShell({ children, className = '' }) {
   const pathname = usePathname()
   const router = useRouter()
   const { user } = useAuth()
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false)
+  const [unreadCount, setUnreadCount] = useState(0)
+
+  // Register router instance for use in API interceptor
+  useEffect(() => {
+    setRouterInstance(router)
+  }, [router])
+
+  useEffect(() => {
+    // Only fetch notifications if user is authenticated
+    if (!user) return
+
+    const fetchUnreadCount = async () => {
+      try {
+        const res = await notificationService.getUnreadCount()
+        setUnreadCount(res?.data?.count ?? res?.count ?? 0)
+      } catch (err) {
+        // Set to 0 on error
+        setUnreadCount(0)
+      }
+    }
+    fetchUnreadCount()
+    // Fetch unread count every 30 seconds to keep drawer icon in sync
+    const interval = setInterval(fetchUnreadCount, 30000)
+    return () => clearInterval(interval)
+  }, [user])
 
   const navItems = [
     { href: '/home', label: 'Home', icon: Home },
@@ -92,7 +122,7 @@ export default function AppShell({ children, className = '' }) {
           }}
         >
           <img
-            src='/images/pragya.png'
+            src='/images/Guest.png'
             alt='User Avatar'
             style={{
               width: 34,
@@ -140,6 +170,7 @@ export default function AppShell({ children, className = '' }) {
           >
             <button
               aria-label='Notifications'
+              onClick={() => setIsNotificationOpen(true)}
               style={{
                 background: 'none',
                 border: 'none',
@@ -147,9 +178,25 @@ export default function AppShell({ children, className = '' }) {
                 color: 'var(--color-content-text-secondary)',
                 display: 'flex',
                 alignItems: 'center',
+                position: 'relative',
               }}
             >
               <Bell size={21} />
+              {unreadCount > 0 && (
+                <span
+                  style={{
+                    position: 'absolute',
+                    top: -2,
+                    right: -2,
+                    width: 7,
+                    height: 7,
+                    borderRadius: '50%',
+                    backgroundColor: 'var(--color-danger)',
+                    border: '1px solid var(--color-bg)',
+                  }}
+                  className='animate-pulse'
+                />
+              )}
             </button>
             <button
               aria-label='Help'
@@ -181,6 +228,11 @@ export default function AppShell({ children, className = '' }) {
 
         {children}
       </main>
+
+      <NotificationDrawer
+        isOpen={isNotificationOpen}
+        onClose={() => setIsNotificationOpen(false)}
+      />
     </div>
   )
 }

@@ -98,8 +98,21 @@ export default function ProfilePage() {
         })
       }
     } catch (error) {
-      console.error('Failed to fetch profile:', error)
-      toast.error('Failed to load profile data')
+      if (
+        error.message &&
+        error.message.toLowerCase().includes('customer not found')
+      ) {
+        // Expected for new users, set default guest profile
+        setUserData((prev) => ({
+          ...prev,
+          name: 'Guest User',
+          email: 'Not provided',
+          currentStatus: 'No Active Orders',
+        }))
+      } else {
+        console.error('Failed to fetch profile:', error)
+        toast.error('Failed to load profile data')
+      }
     } finally {
       setIsLoading(false)
     }
@@ -153,7 +166,7 @@ export default function ProfilePage() {
     return (
       <div className='min-h-screen bg-[var(--theme-bg)] flex items-center justify-center'>
         <div className='text-center'>
-          <div className='w-12 h-12 border-3 border-[var(--theme-border-strong)] border-t-white rounded-full animate-spin mx-auto mb-4' />
+          <div className='w-12 h-12 border-3 border-[var(--theme-border-strong)] border-t-[var(--theme-text-primary)] rounded-full animate-spin mx-auto mb-4' />
           <p className='text-[14px] text-[var(--theme-text-secondary)]'>
             Loading profile...
           </p>
@@ -168,31 +181,6 @@ export default function ProfilePage() {
           MOBILE VIEW (<1024px)
           ════════════════════════════════════════════════════════════════ */}
       <div className='lg:hidden min-h-screen bg-[var(--theme-bg)] text-[var(--theme-text-primary)] pb-24'>
-        {/* Mobile Header */}
-        <div className='sticky top-0 z-50 bg-[var(--theme-bg)] border-b border-[var(--theme-border)]'>
-          <div className='flex items-center justify-between px-4 py-3'>
-            <button
-              onClick={() => router.back()}
-              className='w-9 h-9 rounded-full bg-white/5 flex items-center justify-center'
-              aria-label='Go back'
-            >
-              <ChevronRight size={16} className='rotate-180' />
-            </button>
-            <img
-              src='/gadget-restore-logo.svg'
-              alt='Gadget Restore'
-              className='h-7 object-contain'
-            />
-            <button
-              className='w-9 h-9 rounded-full bg-white/5 flex items-center justify-center relative'
-              aria-label='Notifications'
-              onClick={() => router.push('/profile/notifications')}
-            >
-              <Bell size={16} />
-            </button>
-          </div>
-        </div>
-
         {/* Profile Header */}
         <div className='px-5 pt-6 pb-4'>
           <h1 className='text-[22px] font-extrabold tracking-tight mb-6'>
@@ -202,7 +190,7 @@ export default function ProfilePage() {
           {/* Profile Card */}
           <div className='flex flex-col items-center text-center mb-6'>
             <div className='relative mb-4'>
-              <div className='w-32 h-32 rounded-2xl bg-gradient-to-br from-white/10 to-white/5 border border-[var(--theme-border-strong)] flex items-center justify-center overflow-hidden'>
+              <div className='w-32 h-32 rounded-2xl bg-gradient-to-br from-[var(--theme-border-strong)] to-[var(--theme-border)] border border-[var(--theme-border-strong)] flex items-center justify-center overflow-hidden'>
                 {userData.profileImage ? (
                   <img
                     src={userData.profileImage}
@@ -240,7 +228,7 @@ export default function ProfilePage() {
               {userData.email}
             </p>
 
-            <div className='inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 border border-[var(--theme-border-strong)]'>
+            <div className='inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[var(--theme-btn-secondary-bg)] border border-[var(--theme-border-strong)]'>
               <Shield
                 size={12}
                 className='text-[var(--theme-text-secondary)]'
@@ -294,7 +282,7 @@ export default function ProfilePage() {
               onClick={() => router.push('/profile/personal-info')}
               className='w-full flex items-center gap-3 p-4 bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-xl hover:bg-[var(--theme-btn-secondary-hover)] active:scale-[0.98] transition-all'
             >
-              <div className='w-9 h-9 rounded-lg bg-white/5 flex items-center justify-center flex-shrink-0'>
+              <div className='w-9 h-9 rounded-lg bg-[var(--theme-btn-secondary-bg)] flex items-center justify-center flex-shrink-0'>
                 <User
                   size={18}
                   className='text-[var(--theme-text-secondary)]'
@@ -334,7 +322,7 @@ export default function ProfilePage() {
               onClick={() => router.push('/profile/addresses')}
               className='w-full flex items-center gap-3 p-4 bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-xl hover:bg-[var(--theme-btn-secondary-hover)] active:scale-[0.98] transition-all'
             >
-              <div className='w-9 h-9 rounded-lg bg-white/5 flex items-center justify-center flex-shrink-0'>
+              <div className='w-9 h-9 rounded-lg bg-[var(--theme-btn-secondary-bg)] flex items-center justify-center flex-shrink-0'>
                 <MapPin
                   size={18}
                   className='text-[var(--theme-text-secondary)]'
@@ -353,7 +341,7 @@ export default function ProfilePage() {
               onClick={() => router.push('/orders')}
               className='w-full flex items-center gap-3 p-4 bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-xl hover:bg-[var(--theme-btn-secondary-hover)] active:scale-[0.98] transition-all'
             >
-              <div className='w-9 h-9 rounded-lg bg-white/5 flex items-center justify-center flex-shrink-0'>
+              <div className='w-9 h-9 rounded-lg bg-[var(--theme-btn-secondary-bg)] flex items-center justify-center flex-shrink-0'>
                 <Clock
                   size={18}
                   className='text-[var(--theme-text-secondary)]'
@@ -377,10 +365,10 @@ export default function ProfilePage() {
           </h3>
           <div className='space-y-2'>
             <button
-              onClick={() => router.push('/profile/notifications')}
+              onClick={() => router.push('/notifications')}
               className='w-full flex items-center gap-3 p-4 bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-xl hover:bg-[var(--theme-btn-secondary-hover)] active:scale-[0.98] transition-all'
             >
-              <div className='w-9 h-9 rounded-lg bg-white/5 flex items-center justify-center flex-shrink-0'>
+              <div className='w-9 h-9 rounded-lg bg-[var(--theme-btn-secondary-bg)] flex items-center justify-center flex-shrink-0'>
                 <Bell
                   size={18}
                   className='text-[var(--theme-text-secondary)]'
@@ -399,7 +387,7 @@ export default function ProfilePage() {
               onClick={() => router.push('/profile/security')}
               className='w-full flex items-center gap-3 p-4 bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-xl hover:bg-[var(--theme-btn-secondary-hover)] active:scale-[0.98] transition-all'
             >
-              <div className='w-9 h-9 rounded-lg bg-white/5 flex items-center justify-center flex-shrink-0'>
+              <div className='w-9 h-9 rounded-lg bg-[var(--theme-btn-secondary-bg)] flex items-center justify-center flex-shrink-0'>
                 <Shield
                   size={18}
                   className='text-[var(--theme-text-secondary)]'
@@ -420,7 +408,7 @@ export default function ProfilePage() {
               onClick={() => router.push('/profile/support')}
               className='w-full flex items-center gap-3 p-4 bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-xl hover:bg-[var(--theme-btn-secondary-hover)] active:scale-[0.98] transition-all'
             >
-              <div className='w-9 h-9 rounded-lg bg-white/5 flex items-center justify-center flex-shrink-0'>
+              <div className='w-9 h-9 rounded-lg bg-[var(--theme-btn-secondary-bg)] flex items-center justify-center flex-shrink-0'>
                 <MessageCircle
                   size={18}
                   className='text-[var(--theme-text-secondary)]'
@@ -437,7 +425,7 @@ export default function ProfilePage() {
 
             <button
               onClick={handleLogout}
-              className='w-full flex items-center gap-3 p-4 bg-[#1A0D0D] border border-red-500/20 rounded-xl hover:bg-red-500/10 active:scale-[0.98] transition-all'
+              className='w-full flex items-center gap-3 p-4 bg-red-500/5 border border-red-500/20 rounded-xl hover:bg-red-500/10 active:scale-[0.98] transition-all'
             >
               <div className='w-9 h-9 rounded-lg bg-red-500/10 flex items-center justify-center flex-shrink-0'>
                 <LogOut size={18} className='text-red-500' />
@@ -455,381 +443,368 @@ export default function ProfilePage() {
       {/* ════════════════════════════════════════════════════════════════
           DESKTOP VIEW (≥1024px)
           ════════════════════════════════════════════════════════════════ */}
-      <div className='hidden lg:block min-h-[calc(100vh-var(--topbar-height))] bg-[var(--theme-bg)]'>
-        <div className='container  px-12 py-8'>
-          {/* Desktop Profile Header */}
-          <div className='bg-[var(--theme-card)] rounded-2xl border border-[var(--theme-border)] p-8 mb-6 shadow-sm'>
-            <div className='flex items-start gap-6'>
-              {/* Profile Image */}
-              <div className='relative'>
-                <div className='w-32 h-32 rounded-2xl bg-gradient-to-br from-white/10 to-white/5 flex items-center justify-center overflow-hidden border border-[var(--theme-border-strong)]'>
-                  {userData.profileImage ? (
-                    <img
-                      src={userData.profileImage}
-                      alt={userData.name}
-                      className='w-full h-full object-cover'
-                    />
-                  ) : (
-                    <User
-                      size={56}
-                      className='text-[var(--theme-placeholder)]'
-                    />
-                  )}
-                </div>
-                <button
-                  className='absolute bottom-0 right-0 w-10 h-10 rounded-full bg-[var(--theme-btn-primary-bg)] text-[var(--theme-btn-primary-text)] flex items-center justify-center shadow-lg hover:bg-[var(--theme-btn-primary-hover)] transition-colors'
-                  aria-label='Edit profile picture'
+
+      <div className='hidden lg:block p-6'>
+        {/* Desktop Profile Header */}
+        <div className='bg-[var(--theme-card)] rounded-2xl border border-[var(--theme-border)] p-8 mb-6 shadow-sm'>
+          <div className='flex items-start gap-6'>
+            {/* Profile Image */}
+            <div className='relative'>
+              <div className='w-32 h-32 rounded-2xl bg-gradient-to-br from-[var(--theme-border-strong)] to-[var(--theme-border)] flex items-center justify-center overflow-hidden border border-[var(--theme-border-strong)]'>
+                {userData.profileImage ? (
+                  <img
+                    src={userData.profileImage}
+                    alt={userData.name}
+                    className='w-full h-full object-cover'
+                  />
+                ) : (
+                  <User size={56} className='text-[var(--theme-placeholder)]' />
+                )}
+              </div>
+              <button
+                className='absolute bottom-0 right-0 w-10 h-10 rounded-full bg-[var(--theme-btn-primary-bg)] text-[var(--theme-btn-primary-text)] flex items-center justify-center shadow-lg hover:bg-[var(--theme-btn-primary-hover)] transition-colors'
+                aria-label='Edit profile picture'
+              >
+                <svg
+                  width='16'
+                  height='16'
+                  viewBox='0 0 16 16'
+                  fill='none'
+                  xmlns='http://www.w3.org/2000/svg'
                 >
-                  <svg
-                    width='16'
-                    height='16'
-                    viewBox='0 0 16 16'
-                    fill='none'
-                    xmlns='http://www.w3.org/2000/svg'
-                  >
-                    <path
-                      d='M12 2L14 4L5 13H3V11L12 2Z'
-                      stroke='currentColor'
-                      strokeWidth='1.5'
-                      strokeLinecap='round'
-                      strokeLinejoin='round'
-                    />
-                  </svg>
-                </button>
-              </div>
-
-              {/* Profile Info */}
-              <div className='flex-1'>
-                <div className='flex items-center gap-3 mb-2'>
-                  <h1 className='text-[28px] font-extrabold text-[var(--theme-text-primary)]'>
-                    {userData.name}
-                  </h1>
-                  <div className='inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 border border-[var(--theme-border-strong)]'>
-                    <Shield
-                      size={12}
-                      className='text-[var(--theme-text-secondary)]'
-                    />
-                    <span className='text-[10px] font-bold tracking-wider text-[var(--theme-text-primary)]'>
-                      {userData.membershipType}
-                    </span>
-                  </div>
-                </div>
-                <p className='text-[15px] text-[var(--theme-text-secondary)] mb-4'>
-                  {userData.email}
-                </p>
-
-                <div className='flex gap-4'>
-                  <button
-                    className='btn-primary text-[13px] px-5 h-[42px]'
-                    onClick={() => router.push('/profile/personal-info')}
-                  >
-                    Edit Profile
-                  </button>
-                  <button className='btn-secondary text-[13px] px-5 h-[42px]'>
-                    Security Log
-                  </button>
-                </div>
-              </div>
+                  <path
+                    d='M12 2L14 4L5 13H3V11L12 2Z'
+                    stroke='currentColor'
+                    strokeWidth='1.5'
+                    strokeLinecap='round'
+                    strokeLinejoin='round'
+                  />
+                </svg>
+              </button>
             </div>
 
-            {/* Stats Row */}
-            <div className='flex gap-4 mt-8 pt-6 border-t border-[var(--theme-border)]'>
-              <div className='flex-1 bg-[var(--theme-card-darker)] rounded-xl p-5 border border-[var(--theme-border)]'>
-                <div className='text-[10px] font-bold text-[var(--theme-text-disabled)] tracking-[0.1em] uppercase mb-2'>
-                  TOTAL REPAIRS
-                </div>
-                <div className='text-[32px] font-extrabold text-[var(--theme-text-primary)]'>
-                  {userData.totalRepairs}
-                </div>
-                <div className='text-[12px] text-[var(--theme-text-secondary)] mt-1'>
-                  +{userData.repairsLastMonth} from last month
-                </div>
-              </div>
-
-              <div className='flex-1 bg-[var(--theme-btn-primary-bg)] rounded-xl p-5 border border-[var(--theme-border)] relative overflow-hidden text-[var(--theme-btn-primary-text)]'>
-                <div className='absolute inset-0 bg-gradient-to-br from-black/5 to-transparent' />
-                <div className='relative'>
-                  <div className='text-[10px] font-bold text-[var(--theme-btn-primary-text)] tracking-[0.1em] uppercase mb-2'>
-                    CURRENT STATUS
-                  </div>
-                  <div className='text-[24px] font-extrabold text-[var(--theme-btn-primary-text)] mb-1'>
-                    {userData.currentStatus}
-                  </div>
-                  <div className='text-[12px] text-[var(--theme-btn-primary-text)]'>
-                    {userData.currentDevice}
-                  </div>
+            {/* Profile Info */}
+            <div className='flex-1'>
+              <div className='flex items-center gap-3 mb-2'>
+                <h1 className='text-[28px] font-extrabold text-[var(--theme-text-primary)]'>
+                  {userData.name}
+                </h1>
+                <div className='inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[var(--theme-btn-secondary-bg)] border border-[var(--theme-border-strong)]'>
+                  <Shield
+                    size={12}
+                    className='text-[var(--theme-text-secondary)]'
+                  />
+                  <span className='text-[10px] font-bold tracking-wider text-[var(--theme-text-primary)]'>
+                    {userData.membershipType}
+                  </span>
                 </div>
               </div>
+              <p className='text-[15px] text-[var(--theme-text-secondary)] mb-4'>
+                {userData.email}
+              </p>
 
-              <div className='flex-1 bg-[var(--theme-card-darker)] rounded-xl p-5 border border-[var(--theme-border)]'>
-                <div className='text-[10px] font-bold text-[var(--theme-text-disabled)] tracking-[0.1em] uppercase mb-2'>
-                  WARRANTY COVERAGE
-                </div>
-                <div className='text-[32px] font-extrabold text-[var(--theme-text-primary)]'>
-                  {userData.warrantyMonths}m
-                </div>
-                <div className='text-[12px] text-[var(--theme-text-secondary)] mt-1'>
-                  {userData.warrantyExpiry}
-                </div>
+              <div className='flex gap-4'>
+                <button
+                  className='btn-primary text-[13px] px-5 h-[42px]'
+                  onClick={() => router.push('/profile/personal-info')}
+                >
+                  Edit Profile
+                </button>
+                <button className='btn-secondary text-[13px] px-5 h-[42px]'>
+                  Security Log
+                </button>
               </div>
             </div>
           </div>
 
-          {/* Desktop Content Grid */}
-          <div className='grid grid-cols-2 gap-6'>
-            {/* Account Settings */}
-            <div className='bg-[var(--theme-card)] rounded-2xl border border-[var(--theme-border)] p-6 shadow-sm'>
-              <h2 className='text-[18px] font-extrabold text-[var(--theme-text-primary)] mb-5'>
-                Account Settings
-              </h2>
-              <div className='space-y-2'>
-                <button
-                  onClick={() => router.push('/profile/personal-info')}
-                  className='w-full flex items-center gap-4 p-4 rounded-xl hover:bg-[var(--theme-btn-secondary-hover)] active:scale-[0.99] transition-all group'
-                >
-                  <div className='w-11 h-11 rounded-xl bg-white/5 flex items-center justify-center group-hover:bg-[var(--theme-btn-secondary-hover)] transition-colors'>
-                    <User
-                      size={20}
-                      className='text-[var(--theme-text-secondary)]'
-                    />
-                  </div>
-                  <div className='flex-1 text-left'>
-                    <div className='text-[14px] font-semibold text-[var(--theme-text-primary)]'>
-                      Personal Information
-                    </div>
-                    <div className='text-[12px] text-[var(--theme-text-secondary)]'>
-                      Manage your name, email, and biometric data
-                    </div>
-                  </div>
-                  <ChevronRight
-                    size={20}
-                    className='text-[var(--theme-text-disabled)]'
-                  />
-                </button>
-
-                <button
-                  onClick={() => router.push('/profile/addresses')}
-                  className='w-full flex items-center gap-4 p-4 rounded-xl hover:bg-[var(--theme-btn-secondary-hover)] active:scale-[0.99] transition-all group'
-                >
-                  <div className='w-11 h-11 rounded-xl bg-white/5 flex items-center justify-center group-hover:bg-[var(--theme-btn-secondary-hover)] transition-colors'>
-                    <MapPin
-                      size={20}
-                      className='text-[var(--theme-text-secondary)]'
-                    />
-                  </div>
-                  <div className='flex-1 text-left'>
-                    <div className='text-[14px] font-semibold text-[var(--theme-text-primary)]'>
-                      Saved Addresses
-                    </div>
-                    <div className='text-[12px] text-[var(--theme-text-secondary)]'>
-                      {userData.addressCount} active location
-                      {userData.addressCount !== 1 ? 's' : ''} for
-                      pick-up/drop-off
-                    </div>
-                  </div>
-                  <ChevronRight
-                    size={20}
-                    className='text-[var(--theme-text-disabled)]'
-                  />
-                </button>
-
-                <button
-                  onClick={() => router.push('/orders')}
-                  className='w-full flex items-center gap-4 p-4 rounded-xl hover:bg-[var(--theme-btn-secondary-hover)] active:scale-[0.99] transition-all group'
-                >
-                  <div className='w-11 h-11 rounded-xl bg-white/5 flex items-center justify-center group-hover:bg-[var(--theme-btn-secondary-hover)] transition-colors'>
-                    <Clock
-                      size={20}
-                      className='text-[var(--theme-text-secondary)]'
-                    />
-                  </div>
-                  <div className='flex-1 text-left'>
-                    <div className='text-[14px] font-semibold text-[var(--theme-text-primary)]'>
-                      Order History
-                    </div>
-                    <div className='text-[12px] text-[var(--theme-text-secondary)]'>
-                      View past invoices and repair reports
-                    </div>
-                  </div>
-                  <ChevronRight
-                    size={20}
-                    className='text-[var(--theme-text-disabled)]'
-                  />
-                </button>
+          {/* Stats Row */}
+          <div className='flex gap-4 mt-8 pt-6 border-t border-[var(--theme-border)]'>
+            <div className='flex-1 bg-[var(--theme-card-darker)] rounded-xl p-5 border border-[var(--theme-border)]'>
+              <div className='text-[10px] font-bold text-[var(--theme-text-disabled)] tracking-[0.1em] uppercase mb-2'>
+                TOTAL REPAIRS
+              </div>
+              <div className='text-[32px] font-extrabold text-[var(--theme-text-primary)]'>
+                {userData.totalRepairs}
+              </div>
+              <div className='text-[12px] text-[var(--theme-text-secondary)] mt-1'>
+                +{userData.repairsLastMonth} from last month
               </div>
             </div>
 
-            {/* App Settings & Support */}
-            <div className='space-y-6'>
-              {/* Notifications */}
-              <div className='bg-[var(--theme-card)] rounded-2xl border border-[var(--theme-border)] p-6 shadow-sm'>
-                <h2 className='text-[18px] font-extrabold text-[var(--theme-text-primary)] mb-5 flex items-center gap-2'>
-                  <Bell size={20} />
-                  Notifications
-                </h2>
-                <div className='space-y-4'>
-                  <div className='flex items-center justify-between'>
-                    <div>
-                      <div className='text-[13px] font-semibold text-[var(--theme-text-primary)]'>
-                        WhatsApp Notifications
-                      </div>
-                    </div>
-                    <button
-                      onClick={() =>
-                        handleToggleNotification('whatsappNotifications')
-                      }
-                      className={`relative w-12 h-7 rounded-full transition-colors ${
-                        notifications.whatsappNotifications
-                          ? 'bg-[var(--theme-btn-primary-bg)]'
-                          : 'bg-white/10'
-                      }`}
-                    >
-                      <div
-                        className={`absolute w-5 h-5 rounded-full top-1 transition-transform ${
-                          notifications.whatsappNotifications
-                            ? 'translate-x-6 bg-black'
-                            : 'translate-x-1 bg-[var(--theme-btn-primary-bg)]'
-                        }`}
-                      />
-                    </button>
-                  </div>
-
-                  <div className='flex items-center justify-between'>
-                    <div>
-                      <div className='text-[13px] font-semibold text-[var(--theme-text-primary)]'>
-                        SMS Notifications
-                      </div>
-                    </div>
-                    <button
-                      onClick={() =>
-                        handleToggleNotification('smsNotifications')
-                      }
-                      className={`relative w-12 h-7 rounded-full transition-colors ${
-                        notifications.smsNotifications
-                          ? 'bg-[var(--theme-btn-primary-bg)]'
-                          : 'bg-white/10'
-                      }`}
-                    >
-                      <div
-                        className={`absolute w-5 h-5 rounded-full top-1 transition-transform ${
-                          notifications.smsNotifications
-                            ? 'translate-x-6 bg-black'
-                            : 'translate-x-1 bg-[var(--theme-btn-primary-bg)]'
-                        }`}
-                      />
-                    </button>
-                  </div>
-
-                  <div className='flex items-center justify-between'>
-                    <div>
-                      <div className='text-[13px] font-semibold text-[var(--theme-text-primary)]'>
-                        Email Notifications
-                      </div>
-                    </div>
-                    <button
-                      onClick={() =>
-                        handleToggleNotification('emailNotifications')
-                      }
-                      className={`relative w-12 h-7 rounded-full transition-colors ${
-                        notifications.emailNotifications
-                          ? 'bg-[var(--theme-btn-primary-bg)]'
-                          : 'bg-white/10'
-                      }`}
-                    >
-                      <div
-                        className={`absolute w-5 h-5 rounded-full top-1 transition-transform ${
-                          notifications.emailNotifications
-                            ? 'translate-x-6 bg-black'
-                            : 'translate-x-1 bg-[var(--theme-btn-primary-bg)]'
-                        }`}
-                      />
-                    </button>
-                  </div>
-
-                  <div className='flex items-center justify-between'>
-                    <div>
-                      <div className='text-[13px] font-semibold text-[var(--theme-text-primary)]'>
-                        Push Notifications
-                      </div>
-                    </div>
-                    <button
-                      onClick={() =>
-                        handleToggleNotification('pushNotifications')
-                      }
-                      className={`relative w-12 h-7 rounded-full transition-colors ${
-                        notifications.pushNotifications
-                          ? 'bg-[var(--theme-btn-primary-bg)]'
-                          : 'bg-white/10'
-                      }`}
-                    >
-                      <div
-                        className={`absolute w-5 h-5 rounded-full top-1 transition-transform ${
-                          notifications.pushNotifications
-                            ? 'translate-x-6 bg-black'
-                            : 'translate-x-1 bg-[var(--theme-btn-primary-bg)]'
-                        }`}
-                      />
-                    </button>
-                  </div>
+            <div className='flex-1 bg-[var(--theme-btn-primary-bg)] rounded-xl p-5 border border-[var(--theme-border)] relative overflow-hidden text-[var(--theme-btn-primary-text)]'>
+              <div className='absolute inset-0 bg-gradient-to-br from-black/5 to-transparent' />
+              <div className='relative'>
+                <div className='text-[10px] font-bold text-[var(--theme-btn-primary-text)] tracking-[0.1em] uppercase mb-2'>
+                  CURRENT STATUS
+                </div>
+                <div className='text-[24px] font-extrabold text-[var(--theme-btn-primary-text)] mb-1'>
+                  {userData.currentStatus}
+                </div>
+                <div className='text-[12px] text-[var(--theme-btn-primary-text)]'>
+                  {userData.currentDevice}
                 </div>
               </div>
+            </div>
 
-              {/* System Support */}
-              <div className='bg-[var(--theme-card-darker)] rounded-2xl border border-[var(--theme-border-strong)] p-6 text-[var(--theme-text-primary)]'>
-                <h2 className='text-[18px] font-extrabold mb-2'>
-                  System Support
-                </h2>
-                <p className='text-[13px] text-[var(--theme-text-secondary)] mb-5'>
-                  Need technical assistance with a repair or your account?
-                </p>
-
-                <div className='space-y-2'>
-                  <button
-                    onClick={() => handleContactSupport('whatsapp')}
-                    className='w-full flex items-center gap-3 p-4 bg-white/5 border border-[var(--theme-border-strong)] rounded-xl hover:bg-[var(--theme-btn-secondary-hover)] active:scale-[0.99] transition-all'
-                  >
-                    <div className='w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center'>
-                      <MessageCircle size={20} className='text-white/80' />
-                    </div>
-                    <div className='flex-1 text-left'>
-                      <div className='text-[13px] font-semibold'>
-                        Live Assistant
-                      </div>
-                    </div>
-                    <ChevronRight
-                      size={18}
-                      className='text-[var(--theme-text-disabled)]'
-                    />
-                  </button>
-
-                  <button
-                    onClick={() => handleContactSupport('phone')}
-                    className='w-full flex items-center gap-3 p-4 bg-white/5 border border-[var(--theme-border-strong)] rounded-xl hover:bg-[var(--theme-btn-secondary-hover)] active:scale-[0.99] transition-all'
-                  >
-                    <div className='w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center'>
-                      <Phone size={20} className='text-white/80' />
-                    </div>
-                    <div className='flex-1 text-left'>
-                      <div className='text-[13px] font-semibold'>
-                        Help Center
-                      </div>
-                    </div>
-                    <ChevronRight
-                      size={18}
-                      className='text-[var(--theme-text-disabled)]'
-                    />
-                  </button>
-                </div>
+            <div className='flex-1 bg-[var(--theme-card-darker)] rounded-xl p-5 border border-[var(--theme-border)]'>
+              <div className='text-[10px] font-bold text-[var(--theme-text-disabled)] tracking-[0.1em] uppercase mb-2'>
+                WARRANTY COVERAGE
               </div>
+              <div className='text-[32px] font-extrabold text-[var(--theme-text-primary)]'>
+                {userData.warrantyMonths}m
+              </div>
+              <div className='text-[12px] text-[var(--theme-text-secondary)] mt-1'>
+                {userData.warrantyExpiry}
+              </div>
+            </div>
+          </div>
+        </div>
 
-              {/* Logout */}
+        {/* Desktop Content Grid */}
+        <div className='grid grid-cols-2 gap-6'>
+          {/* Account Settings */}
+          <div className='bg-[var(--theme-card)] rounded-2xl border border-[var(--theme-border)] p-6 shadow-sm'>
+            <h2 className='text-[18px] font-extrabold text-[var(--theme-text-primary)] mb-5'>
+              Account Settings
+            </h2>
+            <div className='space-y-2'>
               <button
-                onClick={handleLogout}
-                className='w-full bg-[#1A0D0D] border border-red-500/20 rounded-2xl p-4 text-red-500 font-bold text-[13px] hover:bg-red-500/10 active:scale-[0.99] transition-all shadow-sm'
+                onClick={() => router.push('/profile/personal-info')}
+                className='w-full flex items-center gap-4 p-4 rounded-xl hover:bg-[var(--theme-btn-secondary-hover)] active:scale-[0.99] transition-all group'
               >
-                Sign Out of Precision Portal
+                <div className='w-11 h-11 rounded-xl bg-[var(--theme-btn-secondary-bg)] flex items-center justify-center group-hover:bg-[var(--theme-btn-secondary-hover)] transition-colors'>
+                  <User
+                    size={20}
+                    className='text-[var(--theme-text-secondary)]'
+                  />
+                </div>
+                <div className='flex-1 text-left'>
+                  <div className='text-[14px] font-semibold text-[var(--theme-text-primary)]'>
+                    Personal Information
+                  </div>
+                  <div className='text-[12px] text-[var(--theme-text-secondary)]'>
+                    Manage your name, email, and biometric data
+                  </div>
+                </div>
+                <ChevronRight
+                  size={20}
+                  className='text-[var(--theme-text-disabled)]'
+                />
+              </button>
+
+              <button
+                onClick={() => router.push('/profile/addresses')}
+                className='w-full flex items-center gap-4 p-4 rounded-xl hover:bg-[var(--theme-btn-secondary-hover)] active:scale-[0.99] transition-all group'
+              >
+                <div className='w-11 h-11 rounded-xl bg-[var(--theme-btn-secondary-bg)] flex items-center justify-center group-hover:bg-[var(--theme-btn-secondary-hover)] transition-colors'>
+                  <MapPin
+                    size={20}
+                    className='text-[var(--theme-text-secondary)]'
+                  />
+                </div>
+                <div className='flex-1 text-left'>
+                  <div className='text-[14px] font-semibold text-[var(--theme-text-primary)]'>
+                    Saved Addresses
+                  </div>
+                  <div className='text-[12px] text-[var(--theme-text-secondary)]'>
+                    {userData.addressCount} active location
+                    {userData.addressCount !== 1 ? 's' : ''} for
+                    pick-up/drop-off
+                  </div>
+                </div>
+                <ChevronRight
+                  size={20}
+                  className='text-[var(--theme-text-disabled)]'
+                />
+              </button>
+
+              <button
+                onClick={() => router.push('/orders')}
+                className='w-full flex items-center gap-4 p-4 rounded-xl hover:bg-[var(--theme-btn-secondary-hover)] active:scale-[0.99] transition-all group'
+              >
+                <div className='w-11 h-11 rounded-xl bg-[var(--theme-btn-secondary-bg)] flex items-center justify-center group-hover:bg-[var(--theme-btn-secondary-hover)] transition-colors'>
+                  <Clock
+                    size={20}
+                    className='text-[var(--theme-text-secondary)]'
+                  />
+                </div>
+                <div className='flex-1 text-left'>
+                  <div className='text-[14px] font-semibold text-[var(--theme-text-primary)]'>
+                    Order History
+                  </div>
+                  <div className='text-[12px] text-[var(--theme-text-secondary)]'>
+                    View past invoices and repair reports
+                  </div>
+                </div>
+                <ChevronRight
+                  size={20}
+                  className='text-[var(--theme-text-disabled)]'
+                />
               </button>
             </div>
+          </div>
+
+          {/* App Settings & Support */}
+          <div className='space-y-6'>
+            {/* Notifications */}
+            <div className='bg-[var(--theme-card)] rounded-2xl border border-[var(--theme-border)] p-6 shadow-sm'>
+              <h2 className='text-[18px] font-extrabold text-[var(--theme-text-primary)] mb-5 flex items-center gap-2'>
+                <Bell size={20} />
+                Notifications
+              </h2>
+              <div className='space-y-4 mb-4'>
+                <div className='flex items-center justify-between'>
+                  <div>
+                    <div className='text-[13px] font-semibold text-[var(--theme-text-primary)]'>
+                      WhatsApp Notifications
+                    </div>
+                  </div>
+                  <button
+                    onClick={() =>
+                      handleToggleNotification('whatsappNotifications')
+                    }
+                    className={`relative w-12 h-7 rounded-full transition-colors ${
+                      notifications.whatsappNotifications
+                        ? 'bg-[var(--theme-btn-primary-bg)]'
+                        : 'bg-white/10'
+                    }`}
+                  >
+                    <div
+                      className={`absolute w-5 h-5 rounded-full top-1 transition-transform ${
+                        notifications.whatsappNotifications
+                          ? 'translate-x-6 bg-black'
+                          : 'translate-x-1 bg-[var(--theme-btn-primary-bg)]'
+                      }`}
+                    />
+                  </button>
+                </div>
+
+                <div className='flex items-center justify-between'>
+                  <div>
+                    <div className='text-[13px] font-semibold text-[var(--theme-text-primary)]'>
+                      SMS Notifications
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => handleToggleNotification('smsNotifications')}
+                    className={`relative w-12 h-7 rounded-full transition-colors ${
+                      notifications.smsNotifications
+                        ? 'bg-[var(--theme-btn-primary-bg)]'
+                        : 'bg-white/10'
+                    }`}
+                  >
+                    <div
+                      className={`absolute w-5 h-5 rounded-full top-1 transition-transform ${
+                        notifications.smsNotifications
+                          ? 'translate-x-6 bg-black'
+                          : 'translate-x-1 bg-[var(--theme-btn-primary-bg)]'
+                      }`}
+                    />
+                  </button>
+                </div>
+
+                <div className='flex items-center justify-between'>
+                  <div>
+                    <div className='text-[13px] font-semibold text-[var(--theme-text-primary)]'>
+                      Email Notifications
+                    </div>
+                  </div>
+                  <button
+                    onClick={() =>
+                      handleToggleNotification('emailNotifications')
+                    }
+                    className={`relative w-12 h-7 rounded-full transition-colors ${
+                      notifications.emailNotifications
+                        ? 'bg-[var(--theme-btn-primary-bg)]'
+                        : 'bg-white/10'
+                    }`}
+                  >
+                    <div
+                      className={`absolute w-5 h-5 rounded-full top-1 transition-transform ${
+                        notifications.emailNotifications
+                          ? 'translate-x-6 bg-black'
+                          : 'translate-x-1 bg-[var(--theme-btn-primary-bg)]'
+                      }`}
+                    />
+                  </button>
+                </div>
+
+                <div className='flex items-center justify-between'>
+                  <div>
+                    <div className='text-[13px] font-semibold text-[var(--theme-text-primary)]'>
+                      Push Notifications
+                    </div>
+                  </div>
+                  <button
+                    onClick={() =>
+                      handleToggleNotification('pushNotifications')
+                    }
+                    className={`relative w-12 h-7 rounded-full transition-colors ${
+                      notifications.pushNotifications
+                        ? 'bg-[var(--theme-btn-primary-bg)]'
+                        : 'bg-white/10'
+                    }`}
+                  >
+                    <div
+                      className={`absolute w-5 h-5 rounded-full top-1 transition-transform ${
+                        notifications.pushNotifications
+                          ? 'translate-x-6 bg-black'
+                          : 'translate-x-1 bg-[var(--theme-btn-primary-bg)]'
+                      }`}
+                    />
+                  </button>
+                </div>
+              </div>
+              <div className='space-y-2'>
+                <button
+                  onClick={() => handleContactSupport('whatsapp')}
+                  className='w-full flex items-center gap-3 p-4 bg-[var(--theme-btn-secondary-bg)] border border-[var(--theme-border-strong)] rounded-xl hover:bg-[var(--theme-btn-secondary-hover)] active:scale-[0.99] transition-all'
+                >
+                  <div className='w-10 h-10 rounded-xl bg-[var(--theme-btn-secondary-bg)] flex items-center justify-center'>
+                    <MessageCircle
+                      size={20}
+                      className='text-[var(--theme-text-primary)]'
+                    />
+                  </div>
+                  <div className='flex-1 text-left'>
+                    <div className='text-[13px] font-semibold'>
+                      Live Assistant
+                    </div>
+                  </div>
+                  <ChevronRight
+                    size={18}
+                    className='text-[var(--theme-text-disabled)]'
+                  />
+                </button>
+
+                <button
+                  onClick={() => handleContactSupport('phone')}
+                  className='w-full flex items-center gap-3 p-4 bg-[var(--theme-btn-secondary-bg)] border border-[var(--theme-border-strong)] rounded-xl hover:bg-[var(--theme-btn-secondary-hover)] active:scale-[0.99] transition-all'
+                >
+                  <div className='w-10 h-10 rounded-xl bg-[var(--theme-btn-secondary-bg)] flex items-center justify-center'>
+                    <Phone
+                      size={20}
+                      className='text-[var(--theme-text-primary)]'
+                    />
+                  </div>
+                  <div className='flex-1 text-left'>
+                    <div className='text-[13px] font-semibold'>Help Center</div>
+                  </div>
+                  <ChevronRight
+                    size={18}
+                    className='text-[var(--theme-text-disabled)]'
+                  />
+                </button>
+              </div>
+            </div>
+
+            {/* Logout */}
+            <button
+              onClick={handleLogout}
+              className='w-full bg-red-500/5 border border-red-500/20 rounded-2xl p-4 text-red-500 font-bold text-[13px] hover:bg-red-500/10 active:scale-[0.99] transition-all shadow-sm'
+            >
+              Sign Out of Precision Portal
+            </button>
           </div>
         </div>
       </div>

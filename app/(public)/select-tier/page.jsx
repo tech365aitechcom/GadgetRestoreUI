@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   ArrowLeft,
-  Bell,
   Shield,
   Award,
   ChevronRight,
@@ -62,8 +61,7 @@ function TierCard({ tier, isSelected, availability, onSelect, compact = false })
 
   return (
     <button
-      onClick={() => !unavailable && onSelect(tier)}
-      disabled={unavailable}
+      onClick={() => onSelect(tier)}
       aria-pressed={isSelected}
       style={{
         flex: 1,
@@ -74,8 +72,7 @@ function TierCard({ tier, isSelected, availability, onSelect, compact = false })
         borderRadius: 'var(--radius-card)',
         background: isSelected ? style.accentBg : 'var(--color-content-card)',
         padding: compact ? '18px 16px' : '26px 22px',
-        cursor: unavailable ? 'not-allowed' : 'pointer',
-        opacity: unavailable ? 0.45 : 1,
+        cursor: 'pointer',
         transition: 'all 0.2s ease',
         textAlign: 'left',
         outline: 'none',
@@ -155,7 +152,7 @@ function TierCard({ tier, isSelected, availability, onSelect, compact = false })
       {/* Price */}
       {unavailable ? (
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: 'var(--color-danger)' }}>
-          <AlertCircle size={13} /> Pricing unavailable for this combination
+          <AlertCircle size={13} /> Price not configured for this device and repair
         </div>
       ) : hasPrice ? (
         <div>
@@ -220,12 +217,13 @@ export default function SelectTierPage() {
 
   /* Restore context state */
   useEffect(() => {
+    // The context value can arrive after localStorage hydration.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (contextTier) setSelectedTier(contextTier);
   }, [contextTier]);
 
   /* Fetch part tiers from backend */
   useEffect(() => {
-    setIsLoadingTiers(true);
     catalogueService.getPartTiers()
       .then((data) => {
         const sorted = [...data].sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0));
@@ -241,6 +239,8 @@ export default function SelectTierPage() {
     const repairTypeIds = collectRepairTypeIds(symptoms);
     if (!repairTypeIds.length) return;
 
+    // Display progress while the async matrix lookup is in flight.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsCheckingPricing(true);
     Promise.all(
       tiers.map((tier) =>
@@ -438,33 +438,9 @@ export default function SelectTierPage() {
       {/* ══════════════════════════════════════════════════════
           MOBILE <1024px
           ══════════════════════════════════════════════════════ */}
-      <div className="home-mobile">
-        <div style={{ background: 'var(--color-content-bg)', minHeight: '100svh', paddingBottom: 160 }}>
-
-          {/* Top bar */}
-          <div className="top-bar">
-            <button onClick={() => router.push('/select-symptoms')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', width: 36, height: 36, borderRadius: '50%', flexShrink: 0 }} aria-label="Go back">
-              <ArrowLeft size={20} />
-            </button>
-            <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
-              <img src="/gadget-restore-logo.svg" alt="Gadget Restore" style={{ height: 28, objectFit: 'contain' }} />
-            </div>
-            <button style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#888', display: 'flex', alignItems: 'center', width: 36, height: 36, justifyContent: 'center', borderRadius: '50%' }} aria-label="Notifications">
-              <Bell size={20} />
-            </button>
-          </div>
-
-          {/* Step progress — step 4 of 5 */}
-          <div className="step-progress">
-            <div className="step-dot done" />
-            <div className="step-dot done" />
-            <div className="step-dot done" />
-            <div className="step-dot active" />
-            <div className="step-dot" />
-          </div>
-
-          {/* Content */}
-          <div style={{ padding: '20px 16px', display: 'flex', flexDirection: 'column', gap: 24 }}>
+      <div className="home-mobile" style={{ background: 'var(--color-content-bg)', minHeight: '100svh', paddingBottom: 160 }}>
+        {/* Content */}
+        <div style={{ padding: '20px 16px', display: 'flex', flexDirection: 'column', gap: 24 }}>
 
             {/* Page header */}
             <div>
@@ -514,9 +490,9 @@ export default function SelectTierPage() {
               )}
             </div>
 
-          </div>
+        </div>
 
-          {/* Mobile sticky bottom CTA */}
+        {/* Mobile sticky bottom CTA */}
           <div style={{
             position: 'fixed', bottom: 64, left: 0, right: 0,
             background: 'var(--color-content-surface)',
@@ -553,10 +529,9 @@ export default function SelectTierPage() {
             >
               Continue <ChevronRight size={14} />
             </button>
-          </div>
-
-          <BottomNav />
         </div>
+
+        <BottomNav />
       </div>
 
     </AppShell>

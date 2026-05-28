@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Bell, ScanLine } from 'lucide-react';
+import { ScanLine } from 'lucide-react';
 
 import AppShell from '@/components/layout/AppShell';
 import BottomNav from '@/components/ui/BottomNav';
@@ -131,37 +131,9 @@ export default function SelectBrandPage() {
       {/* ════════════════════════════════════════════════════════════════
           MOBILE  <1024px
           ════════════════════════════════════════════════════════════════ */}
-      <div className="home-mobile">
-        <div style={{ background: 'var(--color-content-bg)', minHeight: '100svh', paddingBottom: 80 }}>
-
-          {/* Mobile Top Bar */}
-          <div className="top-bar">
-            <button
-              onClick={() => router.push('/home')}
-              style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', width: 36, height: 36, borderRadius: '50%', flexShrink: 0 }}
-              aria-label="Go back"
-            >
-              <ArrowLeft size={20} />
-            </button>
-            <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
-              <img src="/gadget-restore-logo.svg" alt="Gadget Restore" style={{ height: 28, objectFit: 'contain' }} />
-            </div>
-            <button style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#888', display: 'flex', alignItems: 'center', width: 36, height: 36, justifyContent: 'center', borderRadius: '50%' }} aria-label="Notifications">
-              <Bell size={20} />
-            </button>
-          </div>
-
-          {/* Step progress */}
-          <div className="step-progress">
-            <div className="step-dot active" />
-            <div className="step-dot" />
-            <div className="step-dot" />
-            <div className="step-dot" />
-            <div className="step-dot" />
-          </div>
-
-          {/* Content */}
-          <div style={{ padding: '20px 16px', display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <div className="home-mobile" style={{ background: 'var(--color-content-bg)', minHeight: '100svh', paddingBottom: 80 }}>
+        {/* Content */}
+        <div style={{ padding: '20px 16px', display: 'flex', flexDirection: 'column', gap: 16 }}>
 
             {/* Heading */}
             <div>
@@ -208,10 +180,9 @@ export default function SelectBrandPage() {
               />
             )}
 
-          </div>
-
-          <BottomNav />
         </div>
+
+        <BottomNav />
       </div>
 
     </AppShell>

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 
-const PROTECTED_PATHS = ['/orders', '/book', '/profile', '/notifications'];
+const PROTECTED_PATHS = ['/orders', '/order-confirmation', '/book', '/profile', '/notifications'];
 
 export function middleware(req) {
   const token = req.cookies.get('customer_token')?.value;
@@ -16,7 +16,10 @@ export function middleware(req) {
 
   // Redirect logged-in users away from auth screens
   if (token && (pathname === '/login' || pathname === '/verify-otp')) {
-    return NextResponse.redirect(new URL('/home', req.url));
+    // Check if there's a redirect parameter
+    const redirectParam = req.nextUrl.searchParams.get('redirect');
+    const redirectUrl = redirectParam || '/home';
+    return NextResponse.redirect(new URL(redirectUrl, req.url));
   }
 
   return NextResponse.next();
@@ -25,6 +28,7 @@ export function middleware(req) {
 export const config = {
   matcher: [
     '/orders/:path*',
+    '/order-confirmation/:path*',
     '/book/:path*',
     '/profile/:path*',
     '/notifications/:path*',

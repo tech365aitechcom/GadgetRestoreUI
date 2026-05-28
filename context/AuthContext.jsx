@@ -38,7 +38,7 @@ export function AuthProvider({ children }) {
         ...profile,
       })
     } catch (error) {
-      console.error('Failed to load user data:', error)
+      console.warn('Could not load full profile (expected for new users):', error.message)
       // Try to get basic info from token
       try {
         const token = Cookies.get(TOKEN_COOKIE)
