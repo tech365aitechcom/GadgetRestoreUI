@@ -33,9 +33,19 @@ export default function EditAddressPage() {
   const fetchAddressData = async () => {
     try {
       setIsFetching(true)
-      const profile = await customerService.getProfile()
+      const response = await customerService.getAddresses()
 
-      const address = profile.addresses?.find((addr) => addr._id === addressId)
+      // Handle different response structures
+      let addressesArray = []
+      if (response?.data?.addresses && Array.isArray(response.data.addresses)) {
+        addressesArray = response.data.addresses
+      } else if (Array.isArray(response?.data)) {
+        addressesArray = response.data
+      } else if (Array.isArray(response)) {
+        addressesArray = response
+      }
+
+      const address = addressesArray.find((addr) => addr._id === addressId)
 
       if (!address) {
         toast.error('Address not found')

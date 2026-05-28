@@ -2,6 +2,14 @@ import api from './api';
 import Cookies from 'js-cookie';
 import { TOKEN_COOKIE, TOKEN_EXPIRY_DAYS } from '@/lib/constants';
 
+const MOCK_AUTH_ENABLED =
+  process.env.NODE_ENV !== 'production' &&
+  process.env.NEXT_PUBLIC_ENABLE_MOCK_AUTH === 'true';
+
+function authenticationError(error, fallbackMessage) {
+  return new Error(error.response?.data?.message || fallbackMessage);
+}
+
 export const authService = {
   /**
    * Request OTP for mobile number.
@@ -16,9 +24,12 @@ export const authService = {
       const response = await api.post('/mobile-auth/send-otp', { mobile: mobileNum });
       return response.data;
     } catch (error) {
-      console.warn('Backend API offline, using mock OTP mode', error);
-      // Mock Success Fallback for development/testing
-      return { success: true, message: 'OTP sent successfully (Mock Mode)', mock: true };
+      if (MOCK_AUTH_ENABLED) {
+        console.warn('OTP API unavailable, using explicitly enabled development mock mode.');
+        return { success: true, message: 'OTP sent successfully (Development Mock Mode)', mock: true };
+      }
+
+      throw authenticationError(error, 'Unable to send OTP right now. Please try again.');
     }
   },
 
@@ -44,10 +55,8 @@ export const authService = {
       }
       return { token, customer: { phone: mobile || mobileNum } };
     } catch (error) {
-      console.warn('Backend API offline, running mock OTP verification', error);
-      
-      // Mock verification for any phone if code is '123456' or '480000'
-      if (code === '123456' || code === '480000' || code === '000000' || code.length === 6) {
+      if (MOCK_AUTH_ENABLED && code === '123456') {
+        console.warn('OTP API unavailable, using explicitly enabled development mock mode.');
         const mockToken = 'mock_jwt_customer_token_grest';
         const mockCustomer = {
           _id: 'mock_customer_id_123',
@@ -59,8 +68,8 @@ export const authService = {
         Cookies.set(TOKEN_COOKIE, mockToken, { expires: TOKEN_EXPIRY_DAYS });
         return { token: mockToken, customer: mockCustomer, mock: true };
       }
-      
-      throw new Error('Invalid verification code. Use code "123456" for testing.');
+
+      throw authenticationError(error, 'Verification failed. Please try again.');
     }
   },
 

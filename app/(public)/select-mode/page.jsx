@@ -1,10 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   ArrowLeft,
-  Bell,
   ChevronRight,
   Check,
   Smartphone,
@@ -44,7 +43,15 @@ const SERVICE_MODES = [
 ];
 
 /* ─── ServiceModeCard ────────────────────────────────────────────────────────── */
-function ServiceModeCard({ mode, isSelected, onSelect }) {
+function ServiceModeCard({ mode, isSelected, onSelect, isMobile }) {
+  const cardPadding = isMobile ? '18px' : '24px';
+  const cardGap = isMobile ? 12 : 16;
+  const iconSize = isMobile ? 20 : 24;
+  const titleSize = isMobile ? 17 : 20;
+  const descMinHeight = isMobile ? 'auto' : 62;
+  const bottomMarginTop = isMobile ? 4 : 8;
+  const bottomPaddingTop = isMobile ? 14 : 20;
+
   return (
     <button
       onClick={() => mode.active && onSelect(mode.id)}
@@ -56,8 +63,8 @@ function ServiceModeCard({ mode, isSelected, onSelect }) {
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'flex-start',
-        gap: 16,
-        padding: '24px',
+        gap: cardGap,
+        padding: cardPadding,
         border: isSelected
           ? '2px solid var(--color-accent)'
           : '1px solid transparent',
@@ -71,11 +78,11 @@ function ServiceModeCard({ mode, isSelected, onSelect }) {
         boxShadow: isSelected ? '0 4px 14px rgba(108,123,255,0.12)' : '0 1px 6px rgba(0,0,0,0.04)',
       }}
     >
-      <div style={{ opacity: mode.active ? 1 : 0.35, display: 'flex', flexDirection: 'column', gap: 16, width: '100%', pointerEvents: 'none' }}>
+      <div style={{ opacity: mode.active ? 1 : 0.35, display: 'flex', flexDirection: 'column', gap: isMobile ? 10 : 16, width: '100%', pointerEvents: 'none' }}>
         {/* Badges */}
         {mode.badges && mode.badges.length > 0 && (
           <div style={{
-            display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 4
+            display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: isMobile ? 0 : 4
           }}>
             {mode.badges.map((b, i) => (
               <span key={i} style={{
@@ -93,44 +100,43 @@ function ServiceModeCard({ mode, isSelected, onSelect }) {
         <div style={{
           color: 'var(--color-content-text)',
         }}>
-          {mode.icon}
+          {React.cloneElement(mode.icon, { size: iconSize, strokeWidth: 1.5 })}
         </div>
 
         {/* Text */}
         <div style={{ flex: 1, minWidth: 0, position: 'relative' }}>
           <div style={{
-            fontSize: 20, fontWeight: 800,
+            fontSize: titleSize, fontWeight: 800,
             color: 'var(--color-content-text)',
-            marginBottom: 10,
+            marginBottom: isMobile ? 6 : 10,
           }}>
             {mode.label}
           </div>
-          <div style={{ fontSize: 13, color: 'var(--color-content-text-secondary)', lineHeight: 1.6, minHeight: 62 }}>
+          <div style={{ fontSize: 13, color: 'var(--color-content-text-secondary)', lineHeight: 1.6, minHeight: descMinHeight }}>
             {mode.description}
           </div>
         </div>
 
-        <div style={{ 
-          width: '100%', 
-          display: 'flex', 
-          alignItems: 'center', 
+        <div style={{
+          width: '100%',
+          display: 'flex',
+          alignItems: 'center',
           justifyContent: 'space-between',
-          marginTop: 8,
+          marginTop: bottomMarginTop,
           borderTop: '1px solid var(--color-content-border)',
-          paddingTop: 20
+          paddingTop: bottomPaddingTop
         }}>
-           <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--color-content-text)' }}>{mode.est}</span>
-           <ChevronRight size={18} strokeWidth={2} color="var(--color-content-text)" />
+           <span style={{ fontSize: isMobile ? 12 : 13, fontWeight: 700, color: 'var(--color-content-text)' }}>{mode.est}</span>
+           <ChevronRight size={isMobile ? 16 : 18} strokeWidth={2} color="var(--color-content-text)" />
         </div>
       </div>
 
       {!mode.active && (
-        /* coming-soon pill: centered over the dimmed card — #555555 replaced with var(--color-bg-100) */
-        <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', zIndex: 1 }}>
-          <span style={{ background: 'var(--color-bg-100)', color: 'var(--color-btn-cta-bg)', fontSize: 10, fontWeight: 800, padding: '8px 14px', borderRadius: 999, textTransform: 'uppercase', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
-            <Lock size={12} strokeWidth={2.5} /> COMING SOON
-          </span>
-        </div>
+         <div style={{ position: 'absolute', top: isMobile ? 90 : 115, left: '50%', transform: 'translateX(-50%)', zIndex: 1 }}>
+            <span style={{ background: 'var(--color-bg-100)', color: 'var(--color-btn-cta-bg)', fontSize: 10, fontWeight: 800, padding: '8px 14px', borderRadius: 999, textTransform: 'uppercase', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
+              <Lock size={12} strokeWidth={2.5} /> COMING SOON
+            </span>
+         </div>
       )}
     </button>
   );
@@ -257,6 +263,7 @@ export default function SelectModePage() {
                  mode={mode}
                  isSelected={selectedMode === mode.id}
                  onSelect={setSelectedMode}
+                 isMobile={false}
                />
              ))}
           </div>
@@ -372,30 +379,8 @@ export default function SelectModePage() {
       {/* ══════════════════════════════════════════════════════
           MOBILE <1024px
           ══════════════════════════════════════════════════════ */}
-      <div className="home-mobile">
-        <div style={{ background: 'var(--color-content-bg)', minHeight: '100svh', paddingBottom: 160 }}>
-          
-          <div className="top-bar">
-            <button onClick={() => router.push('/select-tier')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', width: 36, height: 36, borderRadius: '50%', flexShrink: 0 }}>
-              <ArrowLeft size={20} />
-            </button>
-            <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
-              <img src="/gadget-restore-logo.svg" alt="Gadget Restore" style={{ height: 28, objectFit: 'contain' }} />
-            </div>
-            <button style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-text-dim)', display: 'flex', alignItems: 'center', width: 36, height: 36, justifyContent: 'center', borderRadius: '50%' }}>
-              <Bell size={20} />
-            </button>
-          </div>
-
-          <div className="step-progress">
-            <div className="step-dot done" />
-            <div className="step-dot done" />
-            <div className="step-dot done" />
-            <div className="step-dot done" />
-            <div className="step-dot active" />
-          </div>
-
-          <div style={{ padding: '20px 16px', display: 'flex', flexDirection: 'column', gap: 24 }}>
+      <div className="home-mobile" style={{ background: 'var(--color-content-bg)', minHeight: '100svh', paddingBottom: 160 }}>
+        <div style={{ padding: '20px 16px', display: 'flex', flexDirection: 'column', gap: 24 }}>
             <div>
               <h1 style={{ fontSize: 26, fontWeight: 900, letterSpacing: '-0.02em', color: 'var(--color-content-text)', marginBottom: 8 }}>
                 Service Mode
@@ -412,6 +397,7 @@ export default function SelectModePage() {
                    mode={mode}
                    isSelected={selectedMode === mode.id}
                    onSelect={setSelectedMode}
+                   isMobile={true}
                  />
                ))}
             </div>
@@ -467,10 +453,9 @@ export default function SelectModePage() {
             >
               View Pricing <ChevronRight size={14} />
             </button>
-          </div>
-
-          <BottomNav />
         </div>
+
+        <BottomNav />
       </div>
     </AppShell>
   );

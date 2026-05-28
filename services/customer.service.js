@@ -77,6 +77,28 @@ class CustomerService {
   }
 
   /**
+   * GET /api/customer/addresses
+   * Get all addresses for the customer
+   */
+  async getAddresses() {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/customer/addresses`, {
+        method: 'GET',
+        headers: this.getAuthHeaders(),
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.message || 'Failed to fetch addresses')
+      }
+
+      return await response.json()
+    } catch (error) {
+      this.handleError(error)
+    }
+  }
+
+  /**
    * POST /api/customer/addresses
    * Add a new address to customer's profile
    * @param {Object} addressData - { address: {...}, setAsDefault: Boolean }

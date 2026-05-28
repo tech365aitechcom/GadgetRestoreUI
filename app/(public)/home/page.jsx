@@ -49,14 +49,8 @@ export default function HomePage() {
   const { reset, setCategory } = useBooking();
   const [categories, setCategories] = useState([]);
   const [isLoading, setIsLoading]   = useState(true);
+  const [error, setError] = useState(null);
   const [customerName, setCustomerName] = useState('Guest');
-
-  const fallbackCategories = [
-    { name: 'Repair Phone',    icon: Smartphone },
-    { name: 'Repair Laptop',   icon: Laptop },
-    { name: 'Battery Service', icon: BatteryCharging },
-    { name: 'Diagnose Issue',  icon: Microscope },
-  ];
 
   useEffect(() => {
     const token = Cookies.get('customer_token');
@@ -65,11 +59,11 @@ export default function HomePage() {
         const parts = token.split('.');
         if (parts.length === 3) {
           const payload = JSON.parse(atob(parts[1]));
-          setCustomerName(payload.name || payload.phoneNumber || 'Pragya');
+          setCustomerName(payload.name || payload.phoneNumber || 'Guest');
         } else {
-          setCustomerName('Pragya');
+          setCustomerName('Guest');
         }
-      } catch { setCustomerName('Pragya'); }
+      } catch { setCustomerName('Guest'); }
     }
 
     const fetchCategories = async () => {
@@ -88,11 +82,16 @@ export default function HomePage() {
             return { ...cat, icon };
           }).sort((a, b) => (a.index ?? 999) - (b.index ?? 999));
           setCategories(mapped);
+          setError(null);
         } else {
-          setCategories(fallbackCategories);
+          setError('No service categories available at the moment.');
         }
-      } catch { setCategories(fallbackCategories); }
-      finally   { setIsLoading(false); }
+      } catch (err) {
+        setError('Failed to load service categories. Please try again later.');
+        console.error('Error fetching categories:', err);
+      } finally {
+        setIsLoading(false);
+      }
     };
     fetchCategories();
   }, []);
@@ -105,13 +104,9 @@ export default function HomePage() {
     if (cat && cat._id) {
       // API-backed category: store it so select-brand can filter brands
       setCategory({ _id: cat._id, name: cat.name });
-    } else {
-      // Fallback / local-only category (no _id): just reset and go
-      reset();
+      router.push('/select-brand');
     }
-    router.push('/select-brand');
   };
-  const displayCats = isLoading || categories.length === 0 ? fallbackCategories : categories;
 
   return (
     <AppShell>
@@ -236,17 +231,92 @@ export default function HomePage() {
                 Quick Service Selection
               </span>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14 }}>
-              {displayCats.map((cat, idx) => {
-                const CatIcon = cat.icon || Smartphone;
-                return (
-                  <button key={idx} onClick={() => handleCategorySelect(cat)} className="service-card">
-                    <div className="service-card-icon"><CatIcon size={21} /></div>
-                    <span className="service-card-label">{cat.name}</span>
-                  </button>
-                );
-              })}
-            </div>
+            {error ? (
+              <div style={{
+                padding: '32px 24px',
+                background: 'var(--color-content-card)',
+                border: '1px solid var(--color-content-border)',
+                borderRadius: 'var(--radius-card)',
+                textAlign: 'center'
+              }}>
+                <div style={{
+                  width: 48,
+                  height: 48,
+                  borderRadius: '50%',
+                  background: 'rgba(239, 68, 68, 0.1)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  margin: '0 auto 16px'
+                }}>
+                  <span style={{ fontSize: 24 }}>⚠️</span>
+                </div>
+                <p style={{
+                  fontSize: 15,
+                  fontWeight: 600,
+                  color: 'var(--color-danger)',
+                  marginBottom: 8
+                }}>
+                  {error}
+                </p>
+                <p style={{
+                  fontSize: 13,
+                  color: 'var(--color-content-text-secondary)',
+                  marginBottom: 20
+                }}>
+                  You can still start a repair by clicking the button below.
+                </p>
+                <button
+                  onClick={handleStart}
+                  className="btn-primary"
+                  style={{ margin: '0 auto' }}
+                >
+                  Start New Repair <ArrowRight size={14} />
+                </button>
+              </div>
+            ) : isLoading ? (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14 }}>
+                {[1, 2, 3, 4].map((i) => (
+                  <div key={i} className="skeleton" style={{ height: 110, borderRadius: 'var(--radius-card)' }} />
+                ))}
+              </div>
+            ) : categories.length === 0 ? (
+              <div style={{
+                padding: '32px 24px',
+                background: 'var(--color-content-card)',
+                border: '1px solid var(--color-content-border)',
+                borderRadius: 'var(--radius-card)',
+                textAlign: 'center'
+              }}>
+                <p style={{
+                  fontSize: 15,
+                  fontWeight: 600,
+                  color: 'var(--color-content-text-secondary)',
+                  marginBottom: 20
+                }}>
+                  No service categories available
+                </p>
+                <button
+                  onClick={handleStart}
+                  className="btn-primary"
+                  style={{ margin: '0 auto' }}
+                >
+                  Start New Repair <ArrowRight size={14} />
+                </button>
+              </div>
+            ) : (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14 }}>
+                {categories.map((cat, idx) => {
+                  const CatIcon = cat.icon || Smartphone;
+                  return (
+                    <button key={idx} onClick={() => handleCategorySelect(cat)} className="service-card">
+                      <div className="service-card-icon"><CatIcon size={21} /></div>
+                      <span className="service-card-label">{cat.name}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
           </div>
 
           {/* Popular Services */}
@@ -294,26 +364,8 @@ export default function HomePage() {
           ════════════════════════════════════════════════════════════════ */}
       <div className="home-mobile">
         <div style={{ background: 'var(--color-content-bg)', minHeight: '100svh', display: 'flex', flexDirection: 'column', paddingBottom: 80 }}>
-
-        {/* Mobile Top Bar — dark, same as select-brand */}
-        <div className="top-bar">
-          {/* Empty left slot to keep logo centred */}
-          <div style={{ width: 36, flexShrink: 0 }} />
-          <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
-            <img src="/gadget-restore-logo.svg" alt="Gadget Restore" style={{ height: 28, objectFit: 'contain' }} />
-          </div>
-          <button
-            style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-text-dim)', display: 'flex', alignItems: 'center', width: 36, height: 36, justifyContent: 'center', borderRadius: '50%', flexShrink: 0, position: 'relative' }}
-            aria-label="Notifications"
-          >
-            <Bell size={20} />
-            <span style={{ position: 'absolute', top: 8, right: 8, width: 7, height: 7, borderRadius: '50%', background: 'var(--color-danger)', border: '1.5px solid var(--color-bg-700)' }} />
-          </button>
-        </div>
-
-
         {/* Main scroll content */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12, padding: '16px 16px 0' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12, padding: '68px 16px 0' }}>
 
           {/* Search bar */}
           <div
@@ -362,17 +414,88 @@ export default function HomePage() {
           {/* Quick Repair */}
           <div>
             <h4 style={{ ...S.mutedLabel, display: 'block', marginBottom: 12 }}>Quick Repair</h4>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-              {displayCats.map((cat, idx) => {
-                const CatIcon = cat.icon || Smartphone;
-                return (
-                  <button key={idx} onClick={() => handleCategorySelect(cat)} className="service-card" style={{ padding: '18px 12px' }}>
-                    <div className="service-card-icon"><CatIcon size={20} /></div>
-                    <span className="service-card-label" style={{ fontSize: 12 }}>{cat.name}</span>
-                  </button>
-                );
-              })}
-            </div>
+            {error ? (
+              <div style={{
+                ...S.darkCard,
+                padding: '24px 20px',
+                textAlign: 'center'
+              }}>
+                <div style={{
+                  width: 40,
+                  height: 40,
+                  borderRadius: '50%',
+                  background: 'rgba(239, 68, 68, 0.15)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  margin: '0 auto 12px'
+                }}>
+                  <span style={{ fontSize: 20 }}>⚠️</span>
+                </div>
+                <p style={{
+                  fontSize: 13,
+                  fontWeight: 600,
+                  color: 'var(--color-danger)',
+                  marginBottom: 6
+                }}>
+                  {error}
+                </p>
+                <p style={{
+                  fontSize: 11,
+                  color: '#888',
+                  marginBottom: 16
+                }}>
+                  Use the search bar or scan button above to continue.
+                </p>
+              </div>
+            ) : isLoading ? (
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                {[1, 2, 3, 4].map((i) => (
+                  <div key={i} className="skeleton" style={{ height: 90, borderRadius: 'var(--radius-card)' }} />
+                ))}
+              </div>
+            ) : categories.length === 0 ? (
+              <div style={{
+                ...S.darkCard,
+                padding: '24px 20px',
+                textAlign: 'center'
+              }}>
+                <p style={{
+                  fontSize: 13,
+                  color: '#888',
+                  marginBottom: 16
+                }}>
+                  No service categories available
+                </p>
+                <button
+                  onClick={handleStart}
+                  style={{
+                    background: '#fff',
+                    color: '#000',
+                    border: 'none',
+                    borderRadius: 10,
+                    padding: '10px 20px',
+                    fontSize: 12,
+                    fontWeight: 700,
+                    cursor: 'pointer'
+                  }}
+                >
+                  Start Repair
+                </button>
+              </div>
+            ) : (
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                {categories.map((cat, idx) => {
+                  const CatIcon = cat.icon || Smartphone;
+                  return (
+                    <button key={idx} onClick={() => handleCategorySelect(cat)} className="service-card" style={{ padding: '18px 12px' }}>
+                      <div className="service-card-icon"><CatIcon size={20} /></div>
+                      <span className="service-card-label" style={{ fontSize: 12 }}>{cat.name}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
           </div>
 
           {/* Watch Live Repair */}
