@@ -98,8 +98,18 @@ export default function ProfilePage() {
         })
       }
     } catch (error) {
-      console.error('Failed to fetch profile:', error)
-      toast.error('Failed to load profile data')
+      if (error.message && error.message.toLowerCase().includes('customer not found')) {
+        // Expected for new users, set default guest profile
+        setUserData(prev => ({
+          ...prev,
+          name: 'Guest User',
+          email: 'Not provided',
+          currentStatus: 'No Active Orders'
+        }))
+      } else {
+        console.error('Failed to fetch profile:', error)
+        toast.error('Failed to load profile data')
+      }
     } finally {
       setIsLoading(false)
     }

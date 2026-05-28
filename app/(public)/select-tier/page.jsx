@@ -61,8 +61,7 @@ function TierCard({ tier, isSelected, availability, onSelect, compact = false })
 
   return (
     <button
-      onClick={() => !unavailable && onSelect(tier)}
-      disabled={unavailable}
+      onClick={() => onSelect(tier)}
       aria-pressed={isSelected}
       style={{
         flex: 1,
@@ -73,8 +72,7 @@ function TierCard({ tier, isSelected, availability, onSelect, compact = false })
         borderRadius: 'var(--radius-card)',
         background: isSelected ? style.accentBg : 'var(--color-content-card)',
         padding: compact ? '18px 16px' : '26px 22px',
-        cursor: unavailable ? 'not-allowed' : 'pointer',
-        opacity: unavailable ? 0.45 : 1,
+        cursor: 'pointer',
         transition: 'all 0.2s ease',
         textAlign: 'left',
         outline: 'none',
