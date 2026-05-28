@@ -1,7 +1,7 @@
-'use client';
+'use client'
 
-import { useRouter, usePathname } from 'next/navigation';
-import { ArrowLeft, Bell } from 'lucide-react';
+import { useRouter, usePathname } from 'next/navigation'
+import { ArrowLeft, Bell } from 'lucide-react'
 
 /**
  * Mobile header component with back button, logo, and notification bell
@@ -11,75 +11,79 @@ export default function MobileHeader({
   onBackClick,
   showNotification = true,
   showBack = true,
-  unreadCount = 0
+  unreadCount = 0,
 }) {
-  const router = useRouter();
-  const pathname = usePathname();
+  const router = useRouter()
+  const pathname = usePathname()
 
   // Define back navigation mapping
   const backNavigation = {
-    '/pricing': '/select-mode',
-    '/select-mode': '/select-tier',
-    '/select-tier': '/select-symptoms',
-    '/select-symptoms': '/select-model',
-    '/select-model': '/select-brand',
     '/select-brand': '/home',
-  };
+    '/select-model': '/select-brand',
+    '/select-symptoms': '/select-model',
+    '/select-tier': '/select-symptoms',
+    '/select-mode': '/select-tier',
+    '/pricing': '/select-mode',
+    '/schedule': '/pricing',
+    '/address': '/schedule',
+    '/checkout/summary': '/address',
+    '/checkout/customer-details': '/checkout/summary',
+  }
 
   // Check if we're on home page (no back button)
-  const isHomePage = pathname === '/home' || pathname === '/';
+  const isHomePage = pathname === '/home' || pathname === '/'
 
   const handleBackClick = () => {
     if (onBackClick) {
-      onBackClick();
+      onBackClick()
     } else {
-      const backPath = backNavigation[pathname];
+      const backPath = backNavigation[pathname]
       if (backPath) {
-        router.push(backPath);
+        router.push(backPath)
       } else {
-        router.back();
+        router.back()
       }
     }
-  };
+  }
 
   return (
-    <div className="top-bar">
+    <div className='top-bar'>
       {/* Left side - Back button or empty space */}
       {showBack && !isHomePage ? (
         <button
           onClick={handleBackClick}
-          className="bg-transparent border-0 cursor-pointer text-white flex items-center justify-center w-9 h-9 rounded-full flex-shrink-0"
-          aria-label="Go back"
+          className='bg-transparent border-0 cursor-pointer text-white flex items-center justify-center w-9 h-9 rounded-full flex-shrink-0'
+          aria-label='Go back'
         >
           <ArrowLeft size={20} />
         </button>
       ) : (
-        <div className="w-9 flex-shrink-0" />
+        <div className='w-9 flex-shrink-0' />
       )}
 
       {/* Center - Logo */}
-      <div className="flex-1 flex justify-center">
+      <div className='flex-1 flex justify-center'>
         <img
-          src="/gadget-restore-logo.svg"
-          alt="Gadget Restore"
-          className="h-7 object-contain"
+          src='/gadget-restore-logo.svg'
+          alt='Gadget Restore'
+          className='h-7 object-contain'
         />
       </div>
 
       {/* Right side - Notification bell */}
       {showNotification ? (
         <button
-          className="bg-transparent border-0 cursor-pointer text-[#888] flex items-center w-9 h-9 justify-center rounded-full flex-shrink-0 relative"
-          aria-label="Notifications"
+          className='bg-transparent border-0 cursor-pointer text-[#888] flex items-center w-9 h-9 justify-center rounded-full flex-shrink-0 relative'
+          aria-label='Notifications'
         >
           <Bell size={20} />
           {unreadCount > 0 && (
-            <span className="absolute top-2 right-2 w-[7px] h-[7px] rounded-full bg-[var(--color-danger)] border-[1.5px] border-[#111] animate-pulse" />
+            <span className='absolute top-2 right-2 w-[7px] h-[7px] rounded-full bg-[var(--color-danger)] border-[1.5px] border-[#111] animate-pulse' />
           )}
         </button>
       ) : (
-        <div className="w-9 h-9" />
+        <div className='w-9 h-9' />
       )}
     </div>
-  );
+  )
 }

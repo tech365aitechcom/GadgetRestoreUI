@@ -49,6 +49,8 @@ export const bookingService = {
       address: toBookingAddress(address),
       slotDate: slot?.date,
       slotTime: slot?.timeSlot,
+    }, {
+      timeout: 45000  // 45 seconds for booking creation (long-running operation)
     });
 
     return response.data?.data || response.data;

@@ -35,7 +35,7 @@ export default function PublicLayout({ children }) {
   return (
     <>
       {/* Mobile header and step indicator - only visible on mobile */}
-      <div className="home-mobile" style={{ position: 'sticky', top: 0, zIndex: 100 }}>
+      <div className="home-mobile" style={{ position: 'sticky', top: 0, zIndex: 100, paddingTop: 0 }}>
         <MobileHeader unreadCount={unreadCount} />
         <StepIndicator />
       </div>

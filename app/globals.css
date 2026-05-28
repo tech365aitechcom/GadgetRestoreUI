@@ -1284,10 +1284,7 @@ hr,
     box-sizing: border-box;
   }
 
-  /* Add padding to mobile content to account for sticky header */
-  .home-mobile {
-    padding-top: calc(52px + 48px + env(safe-area-inset-top, 0px));
-  }
+  /* Removed - padding handled by individual pages now */
 
   /* Automatically push down adjacent content of the fixed top-bar */
   .top-bar + * {

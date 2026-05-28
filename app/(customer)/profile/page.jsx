@@ -98,13 +98,16 @@ export default function ProfilePage() {
         })
       }
     } catch (error) {
-      if (error.message && error.message.toLowerCase().includes('customer not found')) {
+      if (
+        error.message &&
+        error.message.toLowerCase().includes('customer not found')
+      ) {
         // Expected for new users, set default guest profile
-        setUserData(prev => ({
+        setUserData((prev) => ({
           ...prev,
           name: 'Guest User',
           email: 'Not provided',
-          currentStatus: 'No Active Orders'
+          currentStatus: 'No Active Orders',
         }))
       } else {
         console.error('Failed to fetch profile:', error)
@@ -178,31 +181,6 @@ export default function ProfilePage() {
           MOBILE VIEW (<1024px)
           ════════════════════════════════════════════════════════════════ */}
       <div className='lg:hidden min-h-screen bg-[var(--theme-bg)] text-[var(--theme-text-primary)] pb-24'>
-        {/* Mobile Header */}
-        <div className='sticky top-0 z-50 bg-[var(--theme-bg)] border-b border-[var(--theme-border)]'>
-          <div className='flex items-center justify-between px-4 py-3'>
-            <button
-              onClick={() => router.back()}
-              className='w-9 h-9 rounded-full bg-[var(--theme-btn-secondary-bg)] flex items-center justify-center'
-              aria-label='Go back'
-            >
-              <ChevronRight size={16} className='rotate-180' />
-            </button>
-            <img
-              src='/gadget-restore-logo.svg'
-              alt='Gadget Restore'
-              className='h-7 object-contain'
-            />
-            <button
-              className='w-9 h-9 rounded-full bg-[var(--theme-btn-secondary-bg)] flex items-center justify-center relative'
-              aria-label='Notifications'
-              onClick={() => router.push('/notifications')}
-            >
-              <Bell size={16} />
-            </button>
-          </div>
-        </div>
-
         {/* Profile Header */}
         <div className='px-5 pt-6 pb-4'>
           <h1 className='text-[22px] font-extrabold tracking-tight mb-6'>
@@ -466,7 +444,7 @@ export default function ProfilePage() {
           DESKTOP VIEW (≥1024px)
           ════════════════════════════════════════════════════════════════ */}
 
-      <div className='hidden lg:block '>
+      <div className='hidden lg:block p-6'>
         {/* Desktop Profile Header */}
         <div className='bg-[var(--theme-card)] rounded-2xl border border-[var(--theme-border)] p-8 mb-6 shadow-sm'>
           <div className='flex items-start gap-6'>
@@ -674,7 +652,7 @@ export default function ProfilePage() {
                 <Bell size={20} />
                 Notifications
               </h2>
-              <div className='space-y-4'>
+              <div className='space-y-4 mb-4'>
                 <div className='flex items-center justify-between'>
                   <div>
                     <div className='text-[13px] font-semibold text-[var(--theme-text-primary)]'>
