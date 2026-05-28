@@ -299,7 +299,7 @@ export default function SelectTierPage() {
               <ArrowLeft size={14} /> Back to Symptoms
             </button>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-              <span style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', background: '#111', color: '#fff', padding: '4px 12px', borderRadius: 999 }}>{categoryName}</span>
+              <span style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', background: 'var(--color-bg-700)', color: 'var(--color-btn-cta-bg)', padding: '4px 12px', borderRadius: 999 }}>{categoryName}</span>
               <span style={{ fontSize: 12, color: 'var(--color-content-text-secondary)' }}>/</span>
               <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-content-text-secondary)', textTransform: 'uppercase' }}>{brand.name}</span>
               <span style={{ fontSize: 12, color: 'var(--color-content-text-secondary)' }}>/</span>
@@ -347,7 +347,7 @@ export default function SelectTierPage() {
 
                 {/* Pricing disclaimer */}
                 {!isLoadingTiers && !isCheckingPricing && (
-                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: 9, padding: '12px 16px', background: 'rgba(108,123,255,0.04)', border: '1px solid rgba(108,123,255,0.14)', borderRadius: 10, fontSize: 12, color: 'var(--color-content-text-secondary)', lineHeight: 1.6, marginTop: 14 }}>
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: 9, padding: '12px 16px', background: 'var(--color-accent-tint-4)', border: '1px solid var(--color-accent-tint-14)', borderRadius: 10, fontSize: 12, color: 'var(--color-content-text-secondary)', lineHeight: 1.6, marginTop: 14 }}>
                     <Sparkles size={13} color="var(--color-accent)" style={{ marginTop: 1, flexShrink: 0 }} />
                     <span>Pricing is an estimate based on your symptoms. Final cost confirmed after device diagnosis at our service centre.</span>
                   </div>
@@ -447,7 +447,7 @@ export default function SelectTierPage() {
             <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
               <img src="/gadget-restore-logo.svg" alt="Gadget Restore" style={{ height: 28, objectFit: 'contain' }} />
             </div>
-            <button style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#888', display: 'flex', alignItems: 'center', width: 36, height: 36, justifyContent: 'center', borderRadius: '50%' }} aria-label="Notifications">
+            <button style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-text-dim)', display: 'flex', alignItems: 'center', width: 36, height: 36, justifyContent: 'center', borderRadius: '50%' }} aria-label="Notifications">
               <Bell size={20} />
             </button>
           </div>
@@ -467,7 +467,7 @@ export default function SelectTierPage() {
             {/* Page header */}
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 12, flexWrap: 'wrap' }}>
-                <span style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', background: '#111', color: '#fff', padding: '4px 10px', borderRadius: 999 }}>{categoryName}</span>
+                <span style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', background: 'var(--color-bg-700)', color: 'var(--color-btn-cta-bg)', padding: '4px 10px', borderRadius: 999 }}>{categoryName}</span>
                 <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--color-accent)', textTransform: 'uppercase', background: 'rgba(108,123,255,0.1)', padding: '4px 10px', borderRadius: 999 }}>{model.name}</span>
                 <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--color-content-text-secondary)', textTransform: 'uppercase', background: 'var(--color-content-card)', border: '1px solid var(--color-content-border)', padding: '4px 10px', borderRadius: 999 }}>{symptoms.length} symptom{symptoms.length > 1 ? 's' : ''}</span>
               </div>
@@ -505,7 +505,7 @@ export default function SelectTierPage() {
               )}
 
               {!isLoadingTiers && !isCheckingPricing && (
-                <div style={{ display: 'flex', alignItems: 'flex-start', gap: 7, padding: '10px 12px', background: 'rgba(108,123,255,0.04)', border: '1px solid rgba(108,123,255,0.12)', borderRadius: 9, fontSize: 11, color: 'var(--color-content-text-secondary)', lineHeight: 1.55 }}>
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: 7, padding: '10px 12px', background: 'var(--color-accent-tint-4)', border: '1px solid var(--color-accent-tint-12)', borderRadius: 9, fontSize: 11, color: 'var(--color-content-text-secondary)', lineHeight: 1.55 }}>
                   <Sparkles size={11} color="var(--color-accent)" style={{ marginTop: 1, flexShrink: 0 }} />
                   Pricing shown is an estimate. Final cost confirmed after device diagnosis.
                 </div>

@@ -78,13 +78,13 @@ export default function SplashPage() {
   const activeDotIndex = Math.min(2, Math.floor(progress / 33.3));
 
   return (
-    <div className="min-h-screen w-screen bg-[#070709] text-white flex flex-col overflow-hidden relative">
+    <div className="min-h-screen w-screen text-white flex flex-col overflow-hidden relative" style={{ background: 'var(--color-bg)' }}>
 
       {/* 💻 DESKTOP SPLASH VIEW (lg size screen) */}
       <div
         className="hidden lg:flex flex-col justify-between w-full h-screen p-10 box-border z-10"
         style={{
-          background: 'radial-gradient(circle at 75% 25%, rgba(108, 123, 255, 0.08) 0%, transparent 55%), linear-gradient(135deg, #070709 0%, #0b0b0f 50%, #14141d 100%)'
+          background: 'radial-gradient(circle at 75% 25%, var(--color-accent-tint-8) 0%, transparent 55%), linear-gradient(135deg, var(--color-bg) 0%, var(--color-bg-900) 50%, var(--color-bg-600) 100%)'
         }}
       >
         {/* Header Row */}
@@ -163,9 +163,9 @@ export default function SplashPage() {
 
       {/* 📱 MOBILE SPLASH VIEW (lg hidden) */}
       <div
-        className="flex lg:hidden flex-col justify-between w-full h-[100svh] px-6 py-10 box-border z-10 bg-[#0c0c0e] overflow-hidden"
+        className="flex lg:hidden flex-col justify-between w-full h-[100svh] px-6 py-10 box-border z-10 overflow-hidden"
         style={{
-          background: 'radial-gradient(circle at 50% 30%, rgba(108, 123, 255, 0.04) 0%, transparent 60%), #0c0c0e'
+          background: 'radial-gradient(circle at 50% 30%, var(--color-accent-tint-4) 0%, transparent 60%), var(--color-bg-900)'
         }}
       >
         {/* Empty top spacing for balance */}

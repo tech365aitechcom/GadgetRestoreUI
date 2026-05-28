@@ -79,7 +79,7 @@ function ServiceModeCard({ mode, isSelected, onSelect }) {
           }}>
             {mode.badges.map((b, i) => (
               <span key={i} style={{
-                background: '#F2F2F2', color: '#111',
+                background: 'var(--color-tag-bg)', color: 'var(--color-tag-text)',  /* tag tokens — intentionally fixed contrast */
                 fontSize: 9, fontWeight: 800, letterSpacing: '0.07em',
                 textTransform: 'uppercase', padding: '6px 12px', borderRadius: 999,
               }}>
@@ -125,11 +125,12 @@ function ServiceModeCard({ mode, isSelected, onSelect }) {
       </div>
 
       {!mode.active && (
-         <div style={{ position: 'absolute', top: 115, left: '50%', transform: 'translateX(-50%)', zIndex: 1 }}>
-            <span style={{ background: '#555555', color: '#fff', fontSize: 10, fontWeight: 800, padding: '8px 14px', borderRadius: 999, textTransform: 'uppercase', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
-              <Lock size={12} strokeWidth={2.5} /> COMING SOON
-            </span>
-         </div>
+        /* coming-soon pill: centered over the dimmed card — #555555 replaced with var(--color-bg-100) */
+        <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', zIndex: 1 }}>
+          <span style={{ background: 'var(--color-bg-100)', color: 'var(--color-btn-cta-bg)', fontSize: 10, fontWeight: 800, padding: '8px 14px', borderRadius: 999, textTransform: 'uppercase', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
+            <Lock size={12} strokeWidth={2.5} /> COMING SOON
+          </span>
+        </div>
       )}
     </button>
   );
@@ -266,21 +267,21 @@ export default function SelectModePage() {
              {/* Left: Banner + Remarks */}
              <div style={{ display: 'flex', flexDirection: 'column' }}>
                  <div style={{ 
-                     background: '#2B2B2B', 
+                     background: 'var(--color-bg-300)',  /* #2B2B2B promotional banner bg */
                      borderRadius: 'var(--radius-card)', 
                      overflow: 'hidden',
                      display: 'flex',
-                     color: '#fff',
+                     color: 'var(--color-btn-cta-bg)',
                      position: 'relative'
                  }}>
                      <div style={{ padding: '48px 40px', flex: 1, zIndex: 2 }}>
-                         <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#A0A0A0', marginBottom: 16 }}>
+                         <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--color-text-mid)', marginBottom: 16 }}>  {/* #A0A0A0 → var(--color-text-mid) */}
                              The Repair.co Promise
                          </div>
                          <h2 style={{ fontSize: 32, fontWeight: 800, lineHeight: 1.2, marginBottom: 16, letterSpacing: '-0.02em' }}>
                              Precision is not an option; it is our standard.
                          </h2>
-                         <p style={{ fontSize: 15, color: '#CCCCCC', lineHeight: 1.6, marginBottom: 32, maxWidth: 440 }}>
+                         <p style={{ fontSize: 15, color: 'var(--color-text-soft)', lineHeight: 1.6, marginBottom: 32, maxWidth: 440 }}>  {/* #CCCCCC → var(--color-text-soft) */}
                              Every repair is backed by a comprehensive 12-month warranty. We use only OEM-grade components to ensure your hardware maintains its original factory integrity and performance metrics.
                          </p>
                          <div style={{ display: 'flex', gap: 24 }}>
@@ -381,7 +382,7 @@ export default function SelectModePage() {
             <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
               <img src="/gadget-restore-logo.svg" alt="Gadget Restore" style={{ height: 28, objectFit: 'contain' }} />
             </div>
-            <button style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#888', display: 'flex', alignItems: 'center', width: 36, height: 36, justifyContent: 'center', borderRadius: '50%' }}>
+            <button style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-text-dim)', display: 'flex', alignItems: 'center', width: 36, height: 36, justifyContent: 'center', borderRadius: '50%' }}>
               <Bell size={20} />
             </button>
           </div>
@@ -416,10 +417,10 @@ export default function SelectModePage() {
             </div>
 
             <div style={{ 
-                 background: '#2B2B2B', 
+                 background: 'var(--color-bg-300)',  /* #2B2B2B */
                  borderRadius: 'var(--radius-card)', 
                  overflow: 'hidden',
-                 color: '#fff',
+                 color: 'var(--color-btn-cta-bg)',
                  marginTop: 16
              }}>
                  <img src="/images/service-mode-banner.png" alt="Precision Repair" style={{ width: '100%', height: 140, objectFit: 'cover' }} />
@@ -427,7 +428,7 @@ export default function SelectModePage() {
                      <h2 style={{ fontSize: 20, fontWeight: 800, lineHeight: 1.2, marginBottom: 12, letterSpacing: '-0.02em' }}>
                          Precision is not an option; it is our standard.
                      </h2>
-                     <p style={{ fontSize: 13, color: '#CCCCCC', lineHeight: 1.6, marginBottom: 20 }}>
+                     <p style={{ fontSize: 13, color: 'var(--color-text-soft)', lineHeight: 1.6, marginBottom: 20 }}>  {/* #CCCCCC → var(--color-text-soft) */}
                          Every repair is backed by a comprehensive 12-month warranty with OEM-grade components.
                      </p>
                  </div>

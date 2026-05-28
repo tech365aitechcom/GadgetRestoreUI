@@ -33,14 +33,14 @@ import { useBooking } from '@/context/BookingContext';
 const S = {
   /* Dark card for mobile (scan, active repair, promo, live) */
   darkCard: {
-    background: '#111111',
-    border: '1px solid #252525',
+    background: 'var(--color-bg-700)',          /* #111111 */
+    border: '1px solid var(--color-bg-400)',     /* #252525 → nearest is bg-400 (#222) */
     borderRadius: 18,
   },
   /* Muted label on dark card */
-  mutedLabel: { color: '#888', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em' },
+  mutedLabel: { color: 'var(--color-text-dim)', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em' },
   /* Progress bar track */
-  progressTrack: { height: 4, borderRadius: 4, background: 'rgba(255,255,255,0.08)' },
+  progressTrack: { height: 4, borderRadius: 4, background: 'var(--color-accent-tint-8)' },
   progressFill:  { height: 4, borderRadius: 4, width: '65%', background: 'var(--color-accent)' },
 };
 
@@ -140,22 +140,22 @@ export default function HomePage() {
           </div>
 
           {/* Hero Banner */}
-          <div style={{ position: 'relative', borderRadius: 20, overflow: 'hidden', marginBottom: 28, minHeight: 260, background: '#0a0a0a', display: 'flex', alignItems: 'center' }}>
+          <div style={{ position: 'relative', borderRadius: 20, overflow: 'hidden', marginBottom: 28, minHeight: 260, background: 'var(--color-bg-900)', display: 'flex', alignItems: 'center' }}>
             <div style={{ position: 'absolute', inset: 0 }}>
               <Image src="/images/home-banner-top.png" alt="Workshop" width={1200} height={260} style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.45 }} priority />
               <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(90deg,rgba(5,5,5,0.95) 40%,rgba(5,5,5,0.25) 100%)' }} />
             </div>
             <div style={{ position: 'relative', zIndex: 1, padding: '40px 48px', maxWidth: 520 }}>
-              <span style={{ display: 'inline-block', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: '#fff', fontSize: 9, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', padding: '4px 12px', borderRadius: 999, marginBottom: 16 }}>
+              <span style={{ display: 'inline-block', background: 'var(--color-overlay-white-10)', border: '1px solid rgba(255,255,255,0.2)', color: 'var(--color-btn-cta-bg)', fontSize: 9, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', padding: '4px 12px', borderRadius: 999, marginBottom: 16 }}>
                 Special Offer
               </span>
-              <h2 style={{ fontSize: 36, fontWeight: 800, color: '#fff', lineHeight: 1.2, marginBottom: 12 }}>
+              <h2 style={{ fontSize: 36, fontWeight: 800, color: 'var(--color-btn-cta-bg)', lineHeight: 1.2, marginBottom: 12 }}>
                 Get 20% Off on First Repair
               </h2>
               <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.55)', marginBottom: 28, lineHeight: 1.6 }}>
                 Exclusive offer for new service registrations. Boost your conversion rates today.
               </p>
-              <button onClick={handleStart} style={{ background: '#fff', color: '#000', border: 'none', borderRadius: 12, padding: '13px 28px', fontWeight: 700, fontSize: 13, letterSpacing: '0.06em', textTransform: 'uppercase', cursor: 'pointer' }}>
+              <button onClick={handleStart} style={{ background: 'var(--color-btn-cta-bg)', color: 'var(--color-btn-cta-text)', border: 'none', borderRadius: 12, padding: '13px 28px', fontWeight: 700, fontSize: 13, letterSpacing: '0.06em', textTransform: 'uppercase', cursor: 'pointer' }}>
                 Claim Offer
               </button>
               <div style={{ marginTop: 14 }}>
@@ -262,7 +262,7 @@ export default function HomePage() {
                 <div className="popular-card-overlay" />
                 <div className="popular-card-content">
                   <span className="badge badge-accent" style={{ marginBottom: 10, display: 'inline-flex' }}>Most Requested</span>
-                  <h4 style={{ fontSize: 20, fontWeight: 800, color: '#fff', marginBottom: 6 }}>Screen Replacement</h4>
+                  <h4 style={{ fontSize: 20, fontWeight: 800, color: 'var(--color-btn-cta-bg)', marginBottom: 6 }}>Screen Replacement</h4>
                   <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.55)', marginBottom: 14 }}>Original parts with 12-month warranty.</p>
                   <button onClick={(e) => { e.stopPropagation(); handleStart(); }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.75)', fontSize: 12, fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: 4 }}>
                     Book Screen <ChevronRight size={13} />
@@ -276,7 +276,7 @@ export default function HomePage() {
                 <div className="popular-card-overlay" />
                 <div className="popular-card-content">
                   <span className="badge badge-accent" style={{ marginBottom: 10, display: 'inline-flex' }}>Advanced Repair</span>
-                  <h4 style={{ fontSize: 20, fontWeight: 800, color: '#fff', marginBottom: 6 }}>Liquid Damage</h4>
+                  <h4 style={{ fontSize: 20, fontWeight: 800, color: 'var(--color-btn-cta-bg)', marginBottom: 6 }}>Liquid Damage</h4>
                   <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.55)', marginBottom: 14 }}>Ultrasonic cleaning &amp; circuit restoration.</p>
                   <button onClick={(e) => { e.stopPropagation(); handleStart(); }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.75)', fontSize: 12, fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: 4 }}>
                     Diagnose Board <ChevronRight size={13} />
@@ -303,11 +303,11 @@ export default function HomePage() {
             <img src="/gadget-restore-logo.svg" alt="Gadget Restore" style={{ height: 28, objectFit: 'contain' }} />
           </div>
           <button
-            style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#888', display: 'flex', alignItems: 'center', width: 36, height: 36, justifyContent: 'center', borderRadius: '50%', flexShrink: 0, position: 'relative' }}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-text-dim)', display: 'flex', alignItems: 'center', width: 36, height: 36, justifyContent: 'center', borderRadius: '50%', flexShrink: 0, position: 'relative' }}
             aria-label="Notifications"
           >
             <Bell size={20} />
-            <span style={{ position: 'absolute', top: 8, right: 8, width: 7, height: 7, borderRadius: '50%', background: 'var(--color-danger)', border: '1.5px solid #111' }} />
+            <span style={{ position: 'absolute', top: 8, right: 8, width: 7, height: 7, borderRadius: '50%', background: 'var(--color-danger)', border: '1.5px solid var(--color-bg-700)' }} />
           </button>
         </div>
 
@@ -331,9 +331,9 @@ export default function HomePage() {
           >
             <div>
               <span style={{ ...S.mutedLabel, display: 'block', marginBottom: 4 }}>Auto-Detect</span>
-              <span style={{ fontSize: 16, fontWeight: 800, color: '#fff' }}>Scan Serial</span>
+              <span style={{ fontSize: 16, fontWeight: 800, color: 'var(--color-btn-cta-bg)' }}>Scan Serial</span>
             </div>
-            <div style={{ width: 40, height: 40, borderRadius: 11, background: 'rgba(255,255,255,0.07)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#888', flexShrink: 0 }}>
+            <div style={{ width: 40, height: 40, borderRadius: 11, background: 'var(--color-overlay-white-10)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-text-dim)', flexShrink: 0 }}>
               <Scan size={20} />
             </div>
           </button>
@@ -343,7 +343,7 @@ export default function HomePage() {
             <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 8 }}>
               <div>
                 <span style={{ ...S.mutedLabel, display: 'block', marginBottom: 4 }}>Active Repair</span>
-                <h4 style={{ fontSize: 16, fontWeight: 800, color: '#fff' }}>iPhone 13 Pro</h4>
+                <h4 style={{ fontSize: 16, fontWeight: 800, color: 'var(--color-btn-cta-bg)' }}>iPhone 13 Pro</h4>
               </div>
               <span className="badge badge-accent" style={{ marginTop: 2 }}>In Progress</span>
             </div>
@@ -351,9 +351,9 @@ export default function HomePage() {
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 16, paddingTop: 14, borderTop: '1px solid rgba(255,255,255,0.07)' }}>
               <div>
                 <span style={{ ...S.mutedLabel, display: 'block', marginBottom: 2 }}>Estimated Completion</span>
-                <span style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>Today, 5:00 PM</span>
+                <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--color-btn-cta-bg)' }}>Today, 5:00 PM</span>
               </div>
-              <button onClick={() => router.push('/orders')} style={{ background: '#fff', color: '#000', border: 'none', borderRadius: 10, padding: '9px 18px', fontSize: 12, fontWeight: 700, letterSpacing: '0.04em', cursor: 'pointer' }}>
+              <button onClick={() => router.push('/orders')} style={{ background: 'var(--color-btn-cta-bg)', color: 'var(--color-btn-cta-text)', border: 'none', borderRadius: 10, padding: '9px 18px', fontSize: 12, fontWeight: 700, letterSpacing: '0.04em', cursor: 'pointer' }}>
                 Track Order
               </button>
             </div>
@@ -382,8 +382,8 @@ export default function HomePage() {
                 <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--color-danger)', display: 'inline-block', animation: 'pulse 1.4s infinite' }} />
                 <span style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-danger)' }}>Live</span>
               </div>
-              <h4 style={{ fontSize: 14, fontWeight: 800, color: '#fff', marginBottom: 3 }}>Watch Live Repair</h4>
-              <span style={{ fontSize: 11, color: '#888' }}>Streaming Now</span>
+              <h4 style={{ fontSize: 14, fontWeight: 800, color: 'var(--color-btn-cta-bg)', marginBottom: 3 }}>Watch Live Repair</h4>
+              <span style={{ fontSize: 11, color: 'var(--color-text-dim)' }}>Streaming Now</span>
             </div>
             <div style={{ width: 40, height: 40, borderRadius: '50%', background: 'rgba(255,255,255,0.09)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 }}>
               <Play size={17} color="#fff" fill="#fff" style={{ marginLeft: 2 }} />
@@ -397,9 +397,9 @@ export default function HomePage() {
             </div>
             <div style={{ position: 'relative', zIndex: 1 }}>
               <span style={{ ...S.mutedLabel, display: 'block', marginBottom: 6 }}>Promo</span>
-              <h4 style={{ fontSize: 17, fontWeight: 800, color: '#fff', marginBottom: 6 }}>Get 20% Off on First Repair</h4>
-              <p style={{ fontSize: 12, color: '#888', lineHeight: 1.55, marginBottom: 16 }}>Exclusive offer for new service registrations.</p>
-              <button onClick={handleStart} style={{ background: '#fff', color: '#000', border: 'none', borderRadius: 10, padding: '10px 20px', fontSize: 12, fontWeight: 700, cursor: 'pointer', letterSpacing: '0.04em' }}>
+              <h4 style={{ fontSize: 17, fontWeight: 800, color: 'var(--color-btn-cta-bg)', marginBottom: 6 }}>Get 20% Off on First Repair</h4>
+              <p style={{ fontSize: 12, color: 'var(--color-text-dim)', lineHeight: 1.55, marginBottom: 16 }}>Exclusive offer for new service registrations.</p>
+              <button onClick={handleStart} style={{ background: 'var(--color-btn-cta-bg)', color: 'var(--color-btn-cta-text)', border: 'none', borderRadius: 10, padding: '10px 20px', fontSize: 12, fontWeight: 700, cursor: 'pointer', letterSpacing: '0.04em' }}>
                 Book Now
               </button>
             </div>
@@ -427,7 +427,7 @@ export default function HomePage() {
                   {useImg && <Image src="/images/home-banner-top.png" alt={title} width={155} height={195} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.3 }} />}
                   <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.85) 40%, transparent)' }} />
                   <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '14px 14px' }}>
-                    <h5 style={{ fontSize: 12, fontWeight: 800, color: '#fff', lineHeight: 1.3, marginBottom: 3 }}>{title}</h5>
+                    <h5 style={{ fontSize: 12, fontWeight: 800, color: 'var(--color-btn-cta-bg)', lineHeight: 1.3, marginBottom: 3 }}>{title}</h5>
                     <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.45)' }}>{sub}</span>
                   </div>
                 </div>
@@ -440,7 +440,7 @@ export default function HomePage() {
         {/* Floating CTA */}
         <button
           onClick={handleStart}
-          style={{ position: 'fixed', bottom: 80, right: 16, zIndex: 40, background: 'var(--color-accent)', color: '#fff', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 999, padding: '12px 20px', fontWeight: 700, fontSize: 13, display: 'flex', alignItems: 'center', gap: 8, boxShadow: '0 4px 16px rgba(108,123,255,0.4)', cursor: 'pointer' }}
+          style={{ position: 'fixed', bottom: 80, right: 16, zIndex: 40, background: 'var(--color-accent)', color: 'var(--color-btn-cta-bg)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 999, padding: '12px 20px', fontWeight: 700, fontSize: 13, display: 'flex', alignItems: 'center', gap: 8, boxShadow: '0 4px 16px rgba(108,123,255,0.4)', cursor: 'pointer' }}
         >
           <Plus size={17} /> Start Repair
         </button>

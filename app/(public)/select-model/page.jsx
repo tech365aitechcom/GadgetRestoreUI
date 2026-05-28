@@ -86,7 +86,7 @@ export default function SelectModelPage() {
                   </div>
                 </div>
                 <div style={{ width: '100%', height: 3, borderRadius: 3, background: 'rgba(255,255,255,0.1)' }}>
-                  <div style={{ height: '100%', width: '40%', background: '#6C7BFF', borderRadius: 3 }} />
+                  <div style={{ height: '100%', width: '40%', background: 'var(--color-accent)', borderRadius: 3 }} />
                 </div>
               </button>
             </div>
@@ -133,7 +133,7 @@ export default function SelectModelPage() {
               <img src="/gadget-restore-logo.svg" alt="Gadget Restore" style={{ height: 28, objectFit: 'contain' }} />
             </div>
             <button
-              style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#888', display: 'flex', alignItems: 'center', width: 36, height: 36, justifyContent: 'center', borderRadius: '50%' }}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-text-dim)', display: 'flex', alignItems: 'center', width: 36, height: 36, justifyContent: 'center', borderRadius: '50%' }}
               aria-label="Notifications"
             >
               <Bell size={20} />

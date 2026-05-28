@@ -54,7 +54,7 @@ export default function SelectBrandPage() {
               {/* Category filter chip */}
               {category && (
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
-                  <span style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', background: '#111', color: '#fff', padding: '4px 14px', borderRadius: 999 }}>
+                  <span style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', background: 'var(--color-bg-700)', color: 'var(--color-btn-cta-bg)', padding: '4px 14px', borderRadius: 999 }}>
                     {category.name}
                   </span>
                   <button
@@ -92,7 +92,7 @@ export default function SelectBrandPage() {
                   </div>
                 </div>
                 <div style={{ width: '100%', height: 3, borderRadius: 3, background: 'rgba(255,255,255,0.1)' }}>
-                  <div style={{ height: '100%', width: '40%', background: '#6C7BFF', borderRadius: 3 }} />
+                  <div style={{ height: '100%', width: '40%', background: 'var(--color-accent)', borderRadius: 3 }} />
                 </div>
               </button>
             </div>
@@ -146,7 +146,7 @@ export default function SelectBrandPage() {
             <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
               <img src="/gadget-restore-logo.svg" alt="Gadget Restore" style={{ height: 28, objectFit: 'contain' }} />
             </div>
-            <button style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#888', display: 'flex', alignItems: 'center', width: 36, height: 36, justifyContent: 'center', borderRadius: '50%' }} aria-label="Notifications">
+            <button style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-text-dim)', display: 'flex', alignItems: 'center', width: 36, height: 36, justifyContent: 'center', borderRadius: '50%' }} aria-label="Notifications">
               <Bell size={20} />
             </button>
           </div>
@@ -168,7 +168,7 @@ export default function SelectBrandPage() {
               {/* Category filter chip */}
               {category && (
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-                  <span style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', background: '#111', color: '#fff', padding: '4px 12px', borderRadius: 999 }}>
+                  <span style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', background: 'var(--color-bg-700)', color: 'var(--color-btn-cta-bg)', padding: '4px 12px', borderRadius: 999 }}>
                     {category.name}
                   </span>
                   <button

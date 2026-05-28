@@ -209,7 +209,7 @@ export default function SelectSymptomsPage() {
 
               {/* Selection Summary Breadcrumb Chips */}
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-                <span style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', background: '#111', color: '#fff', padding: '4px 12px', borderRadius: 999 }}>
+                <span style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', background: 'var(--color-bg-700)', color: 'var(--color-btn-cta-bg)', padding: '4px 12px', borderRadius: 999 }}>
                   {category?.name || model?.categoryId?.name || 'Device'}
                 </span>
                 <span style={{ fontSize: 12, color: 'var(--color-content-text-secondary)' }}>/</span>
@@ -537,7 +537,7 @@ export default function SelectSymptomsPage() {
             <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
               <img src="/gadget-restore-logo.svg" alt="Gadget Restore" style={{ height: 28, objectFit: 'contain' }} />
             </div>
-            <button style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#888', display: 'flex', alignItems: 'center', width: 36, height: 36, justifyContent: 'center', borderRadius: '50%' }} aria-label="Notifications">
+            <button style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-text-dim)', display: 'flex', alignItems: 'center', width: 36, height: 36, justifyContent: 'center', borderRadius: '50%' }} aria-label="Notifications">
               <Bell size={20} />
             </button>
           </div>
@@ -557,7 +557,7 @@ export default function SelectSymptomsPage() {
             {/* Header info */}
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 12 }}>
-                <span style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', background: '#111', color: '#fff', padding: '4px 10px', borderRadius: 999 }}>
+                <span style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', background: 'var(--color-bg-700)', color: 'var(--color-btn-cta-bg)', padding: '4px 10px', borderRadius: 999 }}>
                   {category?.name || model?.categoryId?.name || 'Device'}
                 </span>
                 <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--color-accent)', textTransform: 'uppercase', background: 'rgba(108,123,255,0.1)', padding: '4px 10px', borderRadius: 999 }}>
