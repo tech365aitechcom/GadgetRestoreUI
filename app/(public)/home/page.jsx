@@ -141,20 +141,20 @@ export default function HomePage() {
               <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(90deg,rgba(5,5,5,0.95) 40%,rgba(5,5,5,0.25) 100%)' }} />
             </div>
             <div style={{ position: 'relative', zIndex: 1, padding: '40px 48px', maxWidth: 520 }}>
-              <span style={{ display: 'inline-block', background: 'var(--color-overlay-white-10)', border: '1px solid rgba(255,255,255,0.2)', color: 'var(--color-btn-cta-bg)', fontSize: 9, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', padding: '4px 12px', borderRadius: 999, marginBottom: 16 }}>
+              <span style={{ display: 'inline-block', background: 'var(--color-overlay-white-10)', border: '1px solid rgba(255,255,255,0.2)', color: '#ffffff', fontSize: 9, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', padding: '4px 12px', borderRadius: 999, marginBottom: 16 }}>
                 Special Offer
               </span>
-              <h2 style={{ fontSize: 36, fontWeight: 800, color: 'var(--color-btn-cta-bg)', lineHeight: 1.2, marginBottom: 12 }}>
+              <h2 style={{ fontSize: 36, fontWeight: 800, color: '#ffffff', lineHeight: 1.2, marginBottom: 12 }}>
                 Get 20% Off on First Repair
               </h2>
-              <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.55)', marginBottom: 28, lineHeight: 1.6 }}>
+              <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.75)', marginBottom: 28, lineHeight: 1.6 }}>
                 Exclusive offer for new service registrations. Boost your conversion rates today.
               </p>
-              <button onClick={handleStart} style={{ background: 'var(--color-btn-cta-bg)', color: 'var(--color-btn-cta-text)', border: 'none', borderRadius: 12, padding: '13px 28px', fontWeight: 700, fontSize: 13, letterSpacing: '0.06em', textTransform: 'uppercase', cursor: 'pointer' }}>
+              <button onClick={handleStart} style={{ background: '#ffffff', color: '#000000', border: 'none', borderRadius: 12, padding: '13px 28px', fontWeight: 700, fontSize: 13, letterSpacing: '0.06em', textTransform: 'uppercase', cursor: 'pointer' }}>
                 Claim Offer
               </button>
               <div style={{ marginTop: 14 }}>
-                <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' }}>Limited Offer</span>
+                <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.45)', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' }}>Limited Offer</span>
               </div>
             </div>
           </div>
@@ -332,9 +332,9 @@ export default function HomePage() {
                 <div className="popular-card-overlay" />
                 <div className="popular-card-content">
                   <span className="badge badge-accent" style={{ marginBottom: 10, display: 'inline-flex' }}>Most Requested</span>
-                  <h4 style={{ fontSize: 20, fontWeight: 800, color: 'var(--color-btn-cta-bg)', marginBottom: 6 }}>Screen Replacement</h4>
-                  <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.55)', marginBottom: 14 }}>Original parts with 12-month warranty.</p>
-                  <button onClick={(e) => { e.stopPropagation(); handleStart(); }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.75)', fontSize: 12, fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <h4 style={{ fontSize: 20, fontWeight: 800, color: '#ffffff', marginBottom: 6 }}>Screen Replacement</h4>
+                  <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.75)', marginBottom: 14 }}>Original parts with 12-month warranty.</p>
+                  <button onClick={(e) => { e.stopPropagation(); handleStart(); }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.85)', fontSize: 12, fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: 4 }}>
                     Book Screen <ChevronRight size={13} />
                   </button>
                 </div>
@@ -346,9 +346,9 @@ export default function HomePage() {
                 <div className="popular-card-overlay" />
                 <div className="popular-card-content">
                   <span className="badge badge-accent" style={{ marginBottom: 10, display: 'inline-flex' }}>Advanced Repair</span>
-                  <h4 style={{ fontSize: 20, fontWeight: 800, color: 'var(--color-btn-cta-bg)', marginBottom: 6 }}>Liquid Damage</h4>
-                  <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.55)', marginBottom: 14 }}>Ultrasonic cleaning &amp; circuit restoration.</p>
-                  <button onClick={(e) => { e.stopPropagation(); handleStart(); }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.75)', fontSize: 12, fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <h4 style={{ fontSize: 20, fontWeight: 800, color: '#ffffff', marginBottom: 6 }}>Liquid Damage</h4>
+                  <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.75)', marginBottom: 14 }}>Ultrasonic cleaning &amp; circuit restoration.</p>
+                  <button onClick={(e) => { e.stopPropagation(); handleStart(); }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.85)', fontSize: 12, fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: 4 }}>
                     Diagnose Board <ChevronRight size={13} />
                   </button>
                 </div>

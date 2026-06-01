@@ -35,11 +35,11 @@ const InputField = ({
   onTogglePassword,
 }) => (
   <div className='mb-5 relative'>
-    <label className='block text-[10px] font-bold text-[#888] tracking-[0.1em] mb-2 uppercase'>
+    <label className='block text-[10px] font-bold tracking-[0.1em] mb-2 uppercase' style={{ color: 'var(--color-content-text-secondary)' }}>
       {label} {required && <span className='text-red-500'>*</span>}
     </label>
     <div className='relative'>
-      <div className='absolute left-4 top-1/2 -translate-y-1/2 text-[#666]'>
+      <div className='absolute left-4 top-1/2 -translate-y-1/2' style={{ color: 'var(--color-content-text-secondary)' }}>
         <Icon size={18} />
       </div>
       <input
@@ -50,13 +50,19 @@ const InputField = ({
         placeholder={placeholder}
         readOnly={readOnly}
         maxLength={maxLength}
-        className={`w-full h-14 bg-[#141414] border ${error ? 'border-red-500' : 'border-[#333]'} rounded-xl pl-12 pr-4 text-[14px] text-white focus:bg-[#1A1A1A] focus:border-white outline-none transition-all ${readOnly ? 'opacity-60 cursor-not-allowed' : ''}`}
+        className={`w-full h-14 border rounded-xl pl-12 pr-4 text-[14px] outline-none transition-all ${readOnly ? 'opacity-60 cursor-not-allowed' : ''}`}
+        style={{
+          background: 'var(--color-content-card)',
+          borderColor: error ? 'var(--color-danger)' : 'var(--color-content-border)',
+          color: 'var(--color-content-text)',
+        }}
       />
       {showPasswordToggle && value && (
         <button
           type='button'
           onClick={onTogglePassword}
-          className='absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-[#888] uppercase tracking-wider hover:text-white'
+          className='absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold uppercase tracking-wider hover:opacity-100 transition-opacity'
+          style={{ color: 'var(--color-content-text-secondary)' }}
         >
           {type === 'text' ? 'Hide' : 'Show'}
         </button>
@@ -66,7 +72,7 @@ const InputField = ({
       <p className='text-red-500 text-xs mt-1.5 font-medium'>{error}</p>
     )}
     {hint && !error && (
-      <p className='text-[#666] text-[11px] mt-1.5 leading-snug'>{hint}</p>
+      <p className='text-[11px] mt-1.5 leading-snug' style={{ color: 'var(--color-content-text-secondary)' }}>{hint}</p>
     )}
   </div>
 )
@@ -225,12 +231,12 @@ export default function CustomerDetailsPage() {
       {/* ════════════════════════════════════════════════════════════════
           MOBILE VIEW (<1024px)
           ════════════════════════════════════════════════════════════════ */}
-      <div className='home-mobile lg:hidden min-h-[100svh] relative bg-[#0A0A0A] text-white pb-[140px]'>
+      <div className='home-mobile lg:hidden min-h-[100svh] relative pb-[140px]' style={{ background: 'var(--color-content-bg)', color: 'var(--color-content-text)' }}>
         <div className='relative z-10 pt-[60px] px-5'>
           <h1 className='text-[28px] font-black tracking-tight leading-tight mb-2'>
             Almost Done!
           </h1>
-          <p className='text-[#888] text-[13px] mb-8'>
+          <p className='text-[13px] mb-8' style={{ color: 'var(--color-content-text-secondary)' }}>
             Please confirm your contact details to finalize the booking.
           </p>
 
@@ -277,7 +283,7 @@ export default function CustomerDetailsPage() {
               error={errors.altContact}
             />
 
-            <div className='h-[1px] w-full bg-[#222] my-8'></div>
+            <div className='h-[1px] w-full my-8' style={{ background: 'var(--color-content-border)' }}></div>
 
             <h2 className='text-[16px] font-black tracking-tight mb-4 flex items-center gap-2'>
               <Lock size={18} className='text-accent' /> Security Details
@@ -299,11 +305,12 @@ export default function CustomerDetailsPage() {
           </form>
         </div>
 
-        <div className='fixed bottom-[50px] left-0 right-0 p-5 bg-gradient-to-t from-[#0A0A0A] via-[#0A0A0A] to-transparent z-40'>
+        <div className='fixed bottom-[50px] left-0 right-0 p-5 z-40' style={{ background: 'linear-gradient(to top, var(--color-content-bg) 60%, transparent)' }}>
           <button
             onClick={handleSubmit}
             disabled={isLoading || !formData.fullName || !formData.email}
-            className='w-full h-[50px] bg-white hover:bg-gray-200 text-black rounded-[20px] text-[15px] font-black flex items-center justify-center gap-2 shadow-xl active:scale-95 transition-all uppercase tracking-wider disabled:opacity-50'
+            className='w-full h-[50px] rounded-[20px] text-[15px] font-black flex items-center justify-center gap-2 shadow-xl active:scale-95 transition-all uppercase tracking-wider disabled:opacity-50'
+            style={{ background: 'var(--theme-btn-primary-bg)', color: 'var(--theme-btn-primary-text)' }}
           >
             {isLoading ? 'Processing...' : 'Place Order'}{' '}
             <ChevronRight size={18} />
@@ -314,26 +321,26 @@ export default function CustomerDetailsPage() {
       {/* ════════════════════════════════════════════════════════════════
           DESKTOP VIEW (≥1024px)
           ════════════════════════════════════════════════════════════════ */}
-      <div className='home-desktop hidden lg:block bg-[#0A0A0A] min-h-[calc(100vh-var(--topbar-height))] text-white'>
+      <div className='home-desktop hidden lg:block min-h-[calc(100vh-var(--topbar-height))]' style={{ background: 'var(--color-content-bg)', color: 'var(--color-content-text)' }}>
         <div className='flex h-[calc(100vh-var(--topbar-height))]'>
           {/* Left Side: Summary Panel */}
           <div className='w-1/2 flex flex-col items-center justify-center p-12 relative overflow-hidden'>
-            <div className="absolute inset-0 opacity-10 bg-[url('/images/dark-microchip-bg.png')] bg-cover mix-blend-screen pointer-events-none"></div>
+            <div className="absolute inset-0 opacity-10 bg-[url('/images/dark-microchip-bg.png')] bg-cover pointer-events-none"></div>
 
             <div className='relative z-10 w-full max-w-md text-center'>
-              <div className='w-20 h-20 bg-black border border-[#333] rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-2xl'>
+              <div className='w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-2xl' style={{ background: 'var(--theme-bg)', border: '1px solid var(--color-content-border)' }}>
                 <ShieldCheck size={40} className='text-accent' />
               </div>
               <h1 className='text-[36px] font-black tracking-tight leading-none mb-4'>
                 Secure Checkout
               </h1>
-              <p className='text-[#888] text-[15px] leading-relaxed mb-10'>
+              <p className='text-[15px] leading-relaxed mb-10' style={{ color: 'var(--color-content-text-secondary)' }}>
                 Please confirm your details to finalize the booking. Your device
                 password is encrypted end-to-end and is only visible to your
                 assigned engineer.
               </p>
 
-              <div className='bg-black/50 border border-[#222] rounded-2xl p-6 text-left'>
+              <div className='rounded-2xl p-6 text-left' style={{ background: 'rgba(0,0,0,0.5)', border: '1px solid var(--color-content-border)' }}>
                 <div className='flex items-center gap-3 mb-4'>
                   <CheckCircle2 size={18} className='text-green-500' />
                   <span className='text-sm font-bold text-white'>
@@ -357,7 +364,7 @@ export default function CustomerDetailsPage() {
           </div>
 
           {/* Right Side: Form */}
-          <div className='w-1/2 p-12 overflow-y-auto flex flex-col justify-center border-l border-[#222]/30'>
+          <div className='w-1/2 p-12 overflow-y-auto flex flex-col justify-center' style={{ borderLeft: '1px solid rgba(34,34,34,0.3)' }}>
             <div className='w-full max-w-lg mx-auto'>
               <h2 className='text-[22px] font-black uppercase tracking-wider mb-8 flex items-center gap-3'>
                 Customer Details
@@ -416,10 +423,10 @@ export default function CustomerDetailsPage() {
                   </div>
                 </div>
 
-                <div className='h-[1px] w-full bg-[#222] my-8'></div>
+                <div className='h-[1px] w-full my-8' style={{ background: 'var(--color-content-border)' }}></div>
 
                 <h2 className='text-[22px] font-black uppercase tracking-wider mb-8 flex items-center gap-3'>
-                  <Lock size={24} className='text-[#888]' /> Device Security
+                  <Lock size={24} style={{ color: 'var(--color-content-text-secondary)' }} /> Device Security
                 </h2>
 
                 <InputField
@@ -442,7 +449,8 @@ export default function CustomerDetailsPage() {
                     disabled={
                       isLoading || !formData.fullName || !formData.email
                     }
-                    className='w-full h-[64px] bg-white hover:bg-gray-200 text-black rounded-[20px] text-[16px] font-black flex items-center justify-center gap-3 shadow-xl active:scale-95 transition-all uppercase tracking-wider disabled:opacity-50'
+                    className='w-full h-[64px] rounded-[20px] text-[16px] font-black flex items-center justify-center gap-3 shadow-xl active:scale-95 transition-all uppercase tracking-wider disabled:opacity-50'
+                    style={{ background: 'var(--theme-btn-primary-bg)', color: 'var(--theme-btn-primary-text)' }}
                   >
                     {isLoading ? 'Processing...' : 'Submit Order'}{' '}
                     <ChevronRight size={20} />

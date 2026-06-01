@@ -26,12 +26,12 @@ import { TOKEN_COOKIE } from '@/lib/constants'
 /* ─── Helpers ────────────────────────────────────────────────────────────────── */
 function collectRepairTypeIds(symptoms) {
   const ids = new Set()
-  ;(symptoms || []).forEach((s) => {
-    ;(s.repairTypes || []).forEach((rt) => {
-      const id = typeof rt === 'object' ? rt._id : rt
-      if (id) ids.add(id)
+    ; (symptoms || []).forEach((s) => {
+      ; (s.repairTypes || []).forEach((rt) => {
+        const id = typeof rt === 'object' ? rt._id : rt
+        if (id) ids.add(id)
+      })
     })
-  })
   return [...ids]
 }
 
@@ -109,7 +109,9 @@ export default function PricingPage() {
       const rTypes = symp.repairTypes || []
       rTypes.forEach((rtId) => {
         const id = typeof rtId === 'object' ? rtId._id : rtId
-        const res = pricingResults.results.find((r) => r.repairTypeId === id)
+        // Coerce both sides to String — repairTypeId from API may be a plain string
+        // while rt._id from context could be a Mongoose ObjectId-derived string
+        const res = pricingResults.results.find((r) => String(r.repairTypeId) === String(id))
         if (!res || !res.available || !res.pricing) {
           sympIsVariable = true
         } else {
@@ -162,26 +164,9 @@ export default function PricingPage() {
       {/* ══════════════════════════════════════════════════════
           DESKTOP ≥1024px
           ══════════════════════════════════════════════════════ */}
-<<<<<<< HEAD
-      <div className="home-desktop" style={{ background: 'var(--color-bg-900)', color: 'var(--color-btn-cta-bg)', minHeight: '100svh' }}>
-        <div className="page-container" style={{ paddingBottom: 60, maxWidth: 1200 }}>
-          
-          <div style={{ marginBottom: 40, paddingTop: 20 }}>
-            <button
-              onClick={() => router.push('/select-mode')}
-              style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-text-dim)', fontSize: 12, fontWeight: 600, marginBottom: 24, padding: 0, textTransform: 'uppercase', letterSpacing: '0.07em' }}
-            >
-              <ArrowLeft size={14} /> Back to Service Mode
-            </button>
-            <h1 style={{ fontSize: 44, fontWeight: 900, letterSpacing: '-0.03em', color: 'var(--color-btn-cta-bg)', marginBottom: 12 }}>
-              Review & Quote
-            </h1>
-            <p style={{ fontSize: 16, color: 'var(--color-text-mid)', lineHeight: 1.6, maxWidth: 640 }}>
-              Please review your selection before finalizing the booking. <span style={{ color: 'var(--color-btn-cta-bg)', fontWeight: 600 }}>Quote ID: {quoteId}</span>
-=======
       <div
         className='home-desktop'
-        style={{ background: '#0A0A0A', color: '#fff', minHeight: '100svh' }}
+        style={{ background: 'var(--color-content-bg)', color: 'var(--color-content-text)', minHeight: '100svh' }}
       >
         <div
           className='page-container'
@@ -197,7 +182,7 @@ export default function PricingPage() {
                 background: 'none',
                 border: 'none',
                 cursor: 'pointer',
-                color: '#888',
+                color: 'var(--color-content-text-secondary)',
                 fontSize: 12,
                 fontWeight: 600,
                 marginBottom: 24,
@@ -213,7 +198,7 @@ export default function PricingPage() {
                 fontSize: 44,
                 fontWeight: 900,
                 letterSpacing: '-0.03em',
-                color: '#fff',
+                color: 'var(--color-content-text)',
                 marginBottom: 12,
               }}
             >
@@ -222,27 +207,22 @@ export default function PricingPage() {
             <p
               style={{
                 fontSize: 16,
-                color: '#A0A0A0',
+                color: 'var(--color-content-text-secondary)',
                 lineHeight: 1.6,
                 maxWidth: 640,
               }}
             >
               Please review your selection before finalizing the booking.{' '}
-              <span style={{ color: '#fff', fontWeight: 600 }}>
+              <span style={{ color: 'var(--color-content-text)', fontWeight: 600 }}>
                 Quote ID: {quoteId}
               </span>
->>>>>>> origin/dev/arijit
             </p>
           </div>
 
           {isLoading ? (
-<<<<<<< HEAD
-            <div style={{ padding: 40, textAlign: 'center', color: 'var(--color-btn-cta-bg)' }}>Loading your technical quote...</div>
-=======
-            <div style={{ padding: 40, textAlign: 'center', color: '#fff' }}>
+            <div style={{ padding: 40, textAlign: 'center', color: 'var(--color-content-text)' }}>
               Loading your technical quote...
             </div>
->>>>>>> origin/dev/arijit
           ) : error ? (
             <div
               style={{
@@ -255,28 +235,6 @@ export default function PricingPage() {
             </div>
           ) : (
             <>
-<<<<<<< HEAD
-              <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: 32, alignItems: 'start' }}>
-              
-              {/* Left Column */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-                
-                {/* Device Card */}
-                <div style={{ background: 'var(--color-bg-600)', borderRadius: 'var(--radius-card)', border: '1px solid var(--color-bg-400)', overflow: 'hidden' }}>
-                  <div style={{ padding: '32px 32px 24px 32px', display: 'flex', alignItems: 'center', gap: 24 }}>
-                    <div style={{ width: 100, height: 120, background: 'var(--color-bg-base)', borderRadius: 16, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <Smartphone size={48} color="var(--color-accent)" strokeWidth={1} />
-                    </div>
-                    <div>
-                      <div style={{ display: 'inline-block', background: 'var(--color-overlay-white-10)', color: 'var(--color-btn-cta-bg)', fontSize: 9, fontWeight: 800, padding: '4px 10px', borderRadius: 999, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 12 }}>
-                        {partTier.tier} Quality Parts
-                      </div>
-                      <h2 style={{ fontSize: 28, fontWeight: 800, color: 'var(--color-btn-cta-bg)', marginBottom: 6 }}>
-                        {brand.name} {model.name}
-                      </h2>
-                      <div style={{ fontSize: 13, color: 'var(--color-text-dim)', display: 'flex', alignItems: 'center', gap: 6 }}>
-                         <FileText size={14} /> Model Details: Verified
-=======
               <div
                 style={{
                   display: 'grid',
@@ -292,9 +250,9 @@ export default function PricingPage() {
                   {/* Device Card */}
                   <div
                     style={{
-                      background: '#141414',
+                      background: 'var(--color-content-card)',
                       borderRadius: 'var(--radius-card)',
-                      border: '1px solid #222',
+                      border: '1px solid var(--color-content-border)',
                       overflow: 'hidden',
                     }}
                   >
@@ -310,7 +268,7 @@ export default function PricingPage() {
                         style={{
                           width: 100,
                           height: 120,
-                          background: '#000',
+                          background: 'var(--theme-bg)',
                           borderRadius: 16,
                           display: 'flex',
                           alignItems: 'center',
@@ -327,8 +285,8 @@ export default function PricingPage() {
                         <div
                           style={{
                             display: 'inline-block',
-                            background: 'rgba(255,255,255,0.1)',
-                            color: '#fff',
+                            background: 'var(--color-content-border)',
+                            color: 'var(--color-content-text)',
                             fontSize: 9,
                             fontWeight: 800,
                             padding: '4px 10px',
@@ -344,7 +302,7 @@ export default function PricingPage() {
                           style={{
                             fontSize: 28,
                             fontWeight: 800,
-                            color: '#fff',
+                            color: 'var(--color-content-text)',
                             marginBottom: 6,
                           }}
                         >
@@ -353,7 +311,7 @@ export default function PricingPage() {
                         <div
                           style={{
                             fontSize: 13,
-                            color: '#888',
+                            color: 'var(--color-content-text-secondary)',
                             display: 'flex',
                             alignItems: 'center',
                             gap: 6,
@@ -369,18 +327,18 @@ export default function PricingPage() {
                         display: 'grid',
                         gridTemplateColumns: 'repeat(3, 1fr)',
                         gap: 1,
-                        background: '#222',
-                        borderTop: '1px solid #222',
+                        background: 'var(--color-content-border)',
+                        borderTop: '1px solid var(--color-content-border)',
                       }}
                     >
                       <div
-                        style={{ background: '#141414', padding: '20px 24px' }}
+                        style={{ background: 'var(--color-content-card)', padding: '20px 24px' }}
                       >
                         <div
                           style={{
                             fontSize: 10,
                             fontWeight: 700,
-                            color: '#888',
+                            color: 'var(--color-content-text-secondary)',
                             textTransform: 'uppercase',
                             letterSpacing: '0.05em',
                             marginBottom: 6,
@@ -395,7 +353,7 @@ export default function PricingPage() {
                           style={{
                             fontSize: 14,
                             fontWeight: 700,
-                            color: '#fff',
+                            color: 'var(--color-content-text)',
                           }}
                         >
                           {serviceMode === 'lab'
@@ -404,13 +362,13 @@ export default function PricingPage() {
                         </div>
                       </div>
                       <div
-                        style={{ background: '#141414', padding: '20px 24px' }}
+                        style={{ background: 'var(--color-content-card)', padding: '20px 24px' }}
                       >
                         <div
                           style={{
                             fontSize: 10,
                             fontWeight: 700,
-                            color: '#888',
+                            color: 'var(--color-content-text-secondary)',
                             textTransform: 'uppercase',
                             letterSpacing: '0.05em',
                             marginBottom: 6,
@@ -425,20 +383,20 @@ export default function PricingPage() {
                           style={{
                             fontSize: 14,
                             fontWeight: 700,
-                            color: '#fff',
+                            color: 'var(--color-content-text)',
                           }}
                         >
                           {serviceMode === 'lab' ? '48 Hours' : 'Today'}
                         </div>
                       </div>
                       <div
-                        style={{ background: '#141414', padding: '20px 24px' }}
+                        style={{ background: 'var(--color-content-card)', padding: '20px 24px' }}
                       >
                         <div
                           style={{
                             fontSize: 10,
                             fontWeight: 700,
-                            color: '#888',
+                            color: 'var(--color-content-text-secondary)',
                             textTransform: 'uppercase',
                             letterSpacing: '0.05em',
                             marginBottom: 6,
@@ -453,48 +411,21 @@ export default function PricingPage() {
                           style={{
                             fontSize: 14,
                             fontWeight: 700,
-                            color: '#fff',
+                            color: 'var(--color-content-text)',
                           }}
                         >
                           {partTier.defaultWarrantyMonths} Months
                         </div>
->>>>>>> origin/dev/arijit
                       </div>
                     </div>
                   </div>
 
-<<<<<<< HEAD
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 1, background: 'var(--color-bg-400)', borderTop: '1px solid var(--color-bg-400)' }}>
-                    <div style={{ background: 'var(--color-bg-600)', padding: '20px 24px' }}>
-                      <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--color-text-dim)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
-                        <Truck size={12} /> Repair Mode
-                      </div>
-                      <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-btn-cta-bg)' }}>
-                        {serviceMode === 'lab' ? 'Pick and Drop' : 'Doorstep Repair'}
-                      </div>
-                    </div>
-                    <div style={{ background: 'var(--color-bg-600)', padding: '20px 24px' }}>
-                      <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--color-text-dim)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
-                        <Clock size={12} /> Est. Time
-                      </div>
-                      <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-btn-cta-bg)' }}>
-                        {serviceMode === 'lab' ? '48 Hours' : 'Today'}
-                      </div>
-                    </div>
-                    <div style={{ background: 'var(--color-bg-600)', padding: '20px 24px' }}>
-                      <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--color-text-dim)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
-                        <Shield size={12} /> Warranty
-                      </div>
-                      <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-btn-cta-bg)' }}>
-                        {partTier.defaultWarrantyMonths} Months
-                      </div>
-=======
                   {/* Diagnostic Summary */}
                   <div
                     style={{
-                      background: '#141414',
+                      background: 'var(--color-content-card)',
                       borderRadius: 'var(--radius-card)',
-                      border: '1px solid #222',
+                      border: '1px solid var(--color-content-border)',
                       padding: 32,
                     }}
                   >
@@ -502,7 +433,7 @@ export default function PricingPage() {
                       style={{
                         fontSize: 12,
                         fontWeight: 800,
-                        color: '#666',
+                        color: 'var(--color-content-text-secondary)',
                         textTransform: 'uppercase',
                         letterSpacing: '0.1em',
                         marginBottom: 24,
@@ -527,11 +458,11 @@ export default function PricingPage() {
                             paddingBottom: 16,
                             borderBottom:
                               i < symptoms.length - 1
-                                ? '1px solid #222'
+                                ? '1px solid var(--color-content-border)'
                                 : 'none',
                           }}
                         >
-                          <span style={{ fontSize: 14, color: '#E0E0E0' }}>
+                          <span style={{ fontSize: 14, color: 'var(--color-content-text)' }}>
                             {symp.name}
                           </span>
                           <span
@@ -548,72 +479,17 @@ export default function PricingPage() {
                           </span>
                         </div>
                       ))}
->>>>>>> origin/dev/arijit
                     </div>
                   </div>
                 </div>
 
-<<<<<<< HEAD
-                {/* Diagnostic Summary */}
-                <div style={{ background: 'var(--color-bg-600)', borderRadius: 'var(--radius-card)', border: '1px solid var(--color-bg-400)', padding: 32 }}>
-                   <h3 style={{ fontSize: 12, fontWeight: 800, color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 24 }}>
-                     Diagnostic Summary
-                   </h3>
-                   <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-                     {symptoms.map((symp, i) => (
-                       <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: 16, borderBottom: i < symptoms.length -1 ? `1px solid var(--color-bg-400)` : 'none' }}>
-                         <span style={{ fontSize: 14, color: 'var(--color-text-near-white)' }}>{symp.name}</span>
-                         <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--color-danger)', background: 'rgba(239, 68, 68, 0.1)', padding: '4px 10px', borderRadius: 999 }}>
-                           REQUIRES ATTENTION
-                         </span>
-                       </div>
-                     ))}
-                   </div>
-                </div>
-
-              </div>
-
-              {/* Right Column: Quote */}
-              <div style={{ background: 'var(--color-bg-700)', borderRadius: 'var(--radius-card)', padding: 40, border: '1px solid var(--color-bg-400)', position: 'sticky', top: 40, boxShadow: '0 20px 40px rgba(0,0,0,0.4)' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 32 }}>
-                  <FileText size={20} color="var(--color-accent)" />
-                  <h3 style={{ fontSize: 18, fontWeight: 800, color: 'var(--color-btn-cta-bg)' }}>Technical Quote</h3>
-                </div>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 24, paddingBottom: 32, borderBottom: '1px solid var(--color-bg-400)' }}>
-                  {itemizedSymptoms.map((item, idx) => (
-                    <div key={idx} style={{ display: 'flex', flexDirection: 'column', gap: 12, paddingBottom: idx < itemizedSymptoms.length - 1 ? 24 : 0, borderBottom: idx < itemizedSymptoms.length - 1 ? `1px dashed var(--color-bg-200)` : 'none' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                        <div>
-                          <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--color-btn-cta-bg)', marginBottom: 6 }}>{item.name}</div>
-                          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                             <span style={{ fontSize: 9, fontWeight: 800, color: 'var(--color-tag-text)', background: 'var(--color-tag-bg)', padding: '4px 8px', borderRadius: 4, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                               {partTier.tier} Quality
-                             </span>
-                             <span style={{ fontSize: 9, fontWeight: 800, color: 'var(--color-accent)', background: 'var(--color-accent-tint-10)', padding: '4px 8px', borderRadius: 4, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                               {partTier.defaultWarrantyMonths} Mo Warranty
-                             </span>
-                          </div>
-                        </div>
-                        <div style={{ fontSize: 16, fontWeight: 800, color: 'var(--color-btn-cta-bg)' }}>
-                          {item.isVariable ? 'Ask Admin' : `₹${item.total.toLocaleString('en-IN')}`}
-                        </div>
-                      </div>
-                      
-                      {!item.isVariable && (
-                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: 'var(--color-text-dim)' }}>
-                           <span>Part: ₹{item.partsCost.toLocaleString('en-IN')}</span>
-                           <span>Labour: ₹{item.labourCost.toLocaleString('en-IN')}</span>
-                        </div>
-                      )}
-=======
                 {/* Right Column: Quote */}
                 <div
                   style={{
-                    background: '#111',
+                    background: 'var(--color-content-card)',
                     borderRadius: 'var(--radius-card)',
                     padding: 40,
-                    border: '1px solid #222',
+                    border: '1px solid var(--color-content-border)',
                     position: 'sticky',
                     top: 40,
                     boxShadow: '0 20px 40px rgba(0,0,0,0.4)',
@@ -629,7 +505,7 @@ export default function PricingPage() {
                   >
                     <FileText size={20} color='var(--color-accent)' />
                     <h3
-                      style={{ fontSize: 18, fontWeight: 800, color: '#fff' }}
+                      style={{ fontSize: 18, fontWeight: 800, color: 'var(--color-content-text)' }}
                     >
                       Technical Quote
                     </h3>
@@ -641,7 +517,7 @@ export default function PricingPage() {
                       flexDirection: 'column',
                       gap: 24,
                       paddingBottom: 32,
-                      borderBottom: '1px solid #222',
+                      borderBottom: '1px solid var(--color-content-border)',
                     }}
                   >
                     {itemizedSymptoms.map((item, idx) => (
@@ -655,7 +531,7 @@ export default function PricingPage() {
                             idx < itemizedSymptoms.length - 1 ? 24 : 0,
                           borderBottom:
                             idx < itemizedSymptoms.length - 1
-                              ? '1px dashed #333'
+                              ? '1px dashed var(--color-content-border)'
                               : 'none',
                         }}
                       >
@@ -671,7 +547,7 @@ export default function PricingPage() {
                               style={{
                                 fontSize: 15,
                                 fontWeight: 700,
-                                color: '#fff',
+                                color: 'var(--color-content-text)',
                                 marginBottom: 6,
                               }}
                             >
@@ -718,7 +594,7 @@ export default function PricingPage() {
                             style={{
                               fontSize: 16,
                               fontWeight: 800,
-                              color: '#fff',
+                              color: 'var(--color-content-text)',
                             }}
                           >
                             {item.isVariable
@@ -733,7 +609,7 @@ export default function PricingPage() {
                               display: 'flex',
                               justifyContent: 'space-between',
                               fontSize: 12,
-                              color: '#888',
+                              color: 'var(--color-content-text-secondary)',
                             }}
                           >
                             <span>
@@ -752,7 +628,7 @@ export default function PricingPage() {
                     <div
                       style={{
                         padding: '24px 0',
-                        borderBottom: '1px solid #222',
+                        borderBottom: '1px solid var(--color-content-border)',
                       }}
                     >
                       <div
@@ -784,7 +660,7 @@ export default function PricingPage() {
                           <div
                             style={{
                               fontSize: 13,
-                              color: '#A0A0A0',
+                              color: 'var(--color-content-text-secondary)',
                               lineHeight: 1.5,
                             }}
                           >
@@ -794,44 +670,15 @@ export default function PricingPage() {
                           </div>
                         </div>
                       </div>
->>>>>>> origin/dev/arijit
                     </div>
                   )}
 
-<<<<<<< HEAD
-                {hasVariableSymptom && (
-                  <div style={{ padding: '24px 0', borderBottom: '1px solid var(--color-bg-400)' }}>
-                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, background: 'var(--color-warning-tint)', padding: 16, borderRadius: 12 }}>
-                       <AlertCircle size={18} color="var(--color-warning)" style={{ flexShrink: 0, marginTop: 2 }} />
-                       <div>
-                         <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--color-warning)', marginBottom: 4 }}>Post-diagnosis estimate required</div>
-                         <div style={{ fontSize: 13, color: 'var(--color-text-mid)', lineHeight: 1.5 }}>
-                           Final cost confirmed after diagnosis. One or more selected repairs require inspection before a quote can be provided.
-                         </div>
-                       </div>
-                    </div>
-                  </div>
-                )}
-
-                <div style={{ paddingTop: 32, paddingBottom: 40 }}>
-                  <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: 8 }}>
-                    Grand Total
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'baseline', gap: 12 }}>
-                    <div style={{ fontSize: 48, fontWeight: 900, color: 'var(--color-btn-cta-bg)', letterSpacing: '-0.02em', lineHeight: 1 }}>
-                      {hasVariableSymptom && grandTotal === 0 ? 'Ask Admin' : (
-                         <span>
-                           {hasVariableSymptom ? <span style={{ fontSize: 24, fontWeight: 600, color: 'var(--color-text-dim)', marginRight: 8 }}>Starting from</span> : ''}
-                           ₹{grandTotal.toLocaleString('en-IN')}
-                         </span>
-                      )}
-=======
                   <div style={{ paddingTop: 32, paddingBottom: 40 }}>
                     <div
                       style={{
                         fontSize: 10,
                         fontWeight: 700,
-                        color: '#666',
+                        color: 'var(--color-content-text-secondary)',
                         textTransform: 'uppercase',
                         letterSpacing: '0.15em',
                         marginBottom: 8,
@@ -850,7 +697,7 @@ export default function PricingPage() {
                         style={{
                           fontSize: 48,
                           fontWeight: 900,
-                          color: '#fff',
+                          color: 'var(--color-content-text)',
                           letterSpacing: '-0.02em',
                           lineHeight: 1,
                         }}
@@ -864,7 +711,7 @@ export default function PricingPage() {
                                 style={{
                                   fontSize: 24,
                                   fontWeight: 600,
-                                  color: '#888',
+                                  color: 'var(--color-content-text-secondary)',
                                   marginRight: 8,
                                 }}
                               >
@@ -877,27 +724,16 @@ export default function PricingPage() {
                           </span>
                         )}
                       </div>
->>>>>>> origin/dev/arijit
                     </div>
                   </div>
                 </div>
               </div>
-<<<<<<< HEAD
-            </div>
-            
-            {/* Desktop Bottom Action Bar */}
-            <div style={{ marginTop: 24, background: 'var(--color-btn-cta-bg)', borderRadius: 'var(--radius-card)', padding: '24px 32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-               <div style={{ display: 'flex', alignItems: 'center', gap: 12, color: 'var(--color-btn-cta-text)' }}>
-                  <AlertCircle size={20} color="var(--color-btn-cta-text)" />
-                  <span style={{ fontSize: 13, fontWeight: 500, lineHeight: 1.5 }}>
-                    By continuing, you agree to our Service Terms &amp; Genuine<br/>Part Policy.
-=======
 
               {/* Desktop Bottom Action Bar */}
               <div
                 style={{
                   marginTop: 24,
-                  background: '#fff',
+                  background: 'var(--theme-btn-primary-bg)',
                   borderRadius: 'var(--radius-card)',
                   padding: '24px 32px',
                   display: 'flex',
@@ -910,17 +746,16 @@ export default function PricingPage() {
                     display: 'flex',
                     alignItems: 'center',
                     gap: 12,
-                    color: '#666',
+                    color: 'var(--theme-btn-primary-text)',
                   }}
                 >
-                  <AlertCircle size={20} color='#888' />
+                  <AlertCircle size={20} color='var(--theme-btn-primary-text)' />
                   <span
                     style={{ fontSize: 13, fontWeight: 500, lineHeight: 1.5 }}
                   >
                     By continuing, you agree to our Service Terms & Genuine
                     <br />
                     Part Policy.
->>>>>>> origin/dev/arijit
                   </span>
                 </div>
 
@@ -930,21 +765,14 @@ export default function PricingPage() {
                   style={{
                     height: 56,
                     padding: '0 40px',
-<<<<<<< HEAD
-                    background: 'var(--color-btn-cta-text)',
-                    color: 'var(--color-btn-cta-bg)',
-                    border: 'none', borderRadius: 'var(--radius-btn)',
-                    fontWeight: 800, fontSize: 14, textTransform: 'uppercase', letterSpacing: '0.05em',
-=======
-                    background: '#000',
-                    color: '#fff',
+                    background: 'var(--theme-btn-primary-text)',
+                    color: 'var(--theme-btn-primary-bg)',
                     border: 'none',
                     borderRadius: 'var(--radius-btn)',
                     fontWeight: 800,
                     fontSize: 14,
                     textTransform: 'uppercase',
                     letterSpacing: '0.05em',
->>>>>>> origin/dev/arijit
                     cursor: canProceedToBook ? 'pointer' : 'not-allowed',
                     display: 'flex',
                     alignItems: 'center',
@@ -974,38 +802,19 @@ export default function PricingPage() {
       {/* ══════════════════════════════════════════════════════
           MOBILE <1024px
           ══════════════════════════════════════════════════════ */}
-<<<<<<< HEAD
-      <div className="home-mobile" style={{ background: 'var(--color-bg-900)', color: 'var(--color-btn-cta-bg)', minHeight: '100svh', paddingBottom: 160 }}>
-        
-        <div className="top-bar" style={{ background: 'var(--color-bg-900)', borderBottom: 'none' }}>
-          <button onClick={() => router.push('/select-mode')} style={{ background: 'var(--color-bg-600)', border: '1px solid var(--color-bg-200)', cursor: 'pointer', color: 'var(--color-btn-cta-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center', width: 36, height: 36, borderRadius: '50%', flexShrink: 0 }}>
-            <ArrowLeft size={16} />
-          </button>
-          <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
-            <img src="/gadget-restore-logo.svg" alt="Gadget Restore" style={{ height: 24, objectFit: 'contain', filter: 'brightness(0) invert(1)' }} />
-          </div>
-          <button style={{ background: 'var(--color-bg-600)', border: '1px solid var(--color-bg-200)', cursor: 'pointer', color: 'var(--color-btn-cta-bg)', display: 'flex', alignItems: 'center', width: 36, height: 36, justifyContent: 'center', borderRadius: '50%' }}>
-            <Bell size={16} />
-          </button>
-        </div>
-
-        {isLoading ? (
-          <div style={{ padding: 40, textAlign: 'center', color: 'var(--color-btn-cta-bg)' }}>Loading Quote...</div>
-=======
       <div
         className='home-mobile'
         style={{
-          background: '#0A0A0A',
-          color: '#fff',
+          background: 'var(--color-content-bg)',
+          color: 'var(--color-content-text)',
           minHeight: '100svh',
           paddingBottom: 160,
         }}
       >
         {isLoading ? (
-          <div style={{ padding: 40, textAlign: 'center', color: '#fff' }}>
+          <div style={{ padding: 40, textAlign: 'center', color: 'var(--color-content-text)' }}>
             Loading Quote...
           </div>
->>>>>>> origin/dev/arijit
         ) : error ? (
           <div
             style={{
@@ -1026,20 +835,16 @@ export default function PricingPage() {
             }}
           >
             <div>
-<<<<<<< HEAD
-              <h1 style={{ fontSize: 28, fontWeight: 900, letterSpacing: '-0.02em', color: 'var(--color-btn-cta-bg)', marginBottom: 6, textTransform: 'uppercase' }}>
-=======
               <h1
                 style={{
                   fontSize: 28,
                   fontWeight: 900,
                   letterSpacing: '-0.02em',
-                  color: '#fff',
+                  color: 'var(--color-content-text)',
                   marginBottom: 6,
                   textTransform: 'uppercase',
                 }}
               >
->>>>>>> origin/dev/arijit
                 Review & Quote
               </h1>
               <p style={{ fontSize: 13, color: 'var(--color-text-mid)', lineHeight: 1.5 }}>
@@ -1048,24 +853,11 @@ export default function PricingPage() {
             </div>
 
             {/* Device Summary Card */}
-<<<<<<< HEAD
-            <div style={{ background: 'var(--color-bg-600)', borderRadius: 'var(--radius-card)', border: '1px solid var(--color-bg-400)', overflow: 'hidden' }}>
-              <div style={{ padding: '20px', display: 'flex', alignItems: 'center', gap: 16, borderBottom: '1px solid var(--color-bg-400)' }}>
-                <div style={{ width: 64, height: 74, background: 'var(--color-bg-900)', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Smartphone size={32} color="var(--color-accent)" strokeWidth={1} />
-                </div>
-                <div>
-                  <h2 style={{ fontSize: 20, fontWeight: 800, color: 'var(--color-btn-cta-bg)', marginBottom: 4 }}>
-                    {brand.name} {model.name}
-                  </h2>
-                  <div style={{ fontSize: 12, color: 'var(--color-text-dim)' }}>
-                     {symptoms.length} Selected Symptoms
-=======
             <div
               style={{
-                background: '#141414',
+                background: 'var(--color-content-card)',
                 borderRadius: 'var(--radius-card)',
-                border: '1px solid #222',
+                border: '1px solid var(--color-content-border)',
                 overflow: 'hidden',
               }}
             >
@@ -1075,14 +867,14 @@ export default function PricingPage() {
                   display: 'flex',
                   alignItems: 'center',
                   gap: 16,
-                  borderBottom: '1px solid #222',
+                  borderBottom: '1px solid var(--color-content-border)',
                 }}
               >
                 <div
                   style={{
                     width: 64,
                     height: 74,
-                    background: '#0A0A0A',
+                    background: 'var(--color-content-bg)',
                     borderRadius: 12,
                     display: 'flex',
                     alignItems: 'center',
@@ -1100,37 +892,18 @@ export default function PricingPage() {
                     style={{
                       fontSize: 20,
                       fontWeight: 800,
-                      color: '#fff',
+                      color: 'var(--color-content-text)',
                       marginBottom: 4,
                     }}
                   >
                     {brand.name} {model.name}
                   </h2>
-                  <div style={{ fontSize: 12, color: '#888' }}>
+                  <div style={{ fontSize: 12, color: 'var(--color-content-text-secondary)' }}>
                     {symptoms.length} Selected Symptoms
->>>>>>> origin/dev/arijit
                   </div>
                 </div>
               </div>
 
-<<<<<<< HEAD
-              <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: 14 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ fontSize: 13, color: 'var(--color-text-mid)' }}>Part Type</span>
-                  <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-btn-cta-bg)' }}>{partTier.tier}</span>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ fontSize: 13, color: 'var(--color-text-mid)' }}>Repair Mode</span>
-                  <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-btn-cta-bg)' }}>{serviceMode === 'lab' ? 'Pick & Drop' : 'Doorstep Repair'}</span>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ fontSize: 13, color: 'var(--color-text-mid)' }}>Estimated Time</span>
-                  <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-btn-cta-bg)' }}>{serviceMode === 'lab' ? '48 Hours' : 'Today'}</span>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ fontSize: 13, color: 'var(--color-text-mid)' }}>Warranty</span>
-                  <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-btn-cta-bg)' }}>{partTier.defaultWarrantyMonths} Months</span>
-=======
               <div
                 style={{
                   padding: '20px',
@@ -1146,11 +919,11 @@ export default function PricingPage() {
                     alignItems: 'center',
                   }}
                 >
-                  <span style={{ fontSize: 13, color: '#A0A0A0' }}>
+                  <span style={{ fontSize: 13, color: 'var(--color-content-text-secondary)' }}>
                     Part Type
                   </span>
                   <span
-                    style={{ fontSize: 14, fontWeight: 700, color: '#fff' }}
+                    style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-content-text)' }}
                   >
                     {partTier.tier}
                   </span>
@@ -1162,11 +935,11 @@ export default function PricingPage() {
                     alignItems: 'center',
                   }}
                 >
-                  <span style={{ fontSize: 13, color: '#A0A0A0' }}>
+                  <span style={{ fontSize: 13, color: 'var(--color-content-text-secondary)' }}>
                     Repair Mode
                   </span>
                   <span
-                    style={{ fontSize: 14, fontWeight: 700, color: '#fff' }}
+                    style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-content-text)' }}
                   >
                     {serviceMode === 'lab' ? 'Pick & Drop' : 'Doorstep Repair'}
                   </span>
@@ -1178,11 +951,11 @@ export default function PricingPage() {
                     alignItems: 'center',
                   }}
                 >
-                  <span style={{ fontSize: 13, color: '#A0A0A0' }}>
+                  <span style={{ fontSize: 13, color: 'var(--color-content-text-secondary)' }}>
                     Estimated Time
                   </span>
                   <span
-                    style={{ fontSize: 14, fontWeight: 700, color: '#fff' }}
+                    style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-content-text)' }}
                   >
                     {serviceMode === 'lab' ? '48 Hours' : 'Today'}
                   </span>
@@ -1194,50 +967,24 @@ export default function PricingPage() {
                     alignItems: 'center',
                   }}
                 >
-                  <span style={{ fontSize: 13, color: '#A0A0A0' }}>
+                  <span style={{ fontSize: 13, color: 'var(--color-content-text-secondary)' }}>
                     Warranty
                   </span>
                   <span
-                    style={{ fontSize: 14, fontWeight: 700, color: '#fff' }}
+                    style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-content-text)' }}
                   >
                     {partTier.defaultWarrantyMonths} Months
                   </span>
->>>>>>> origin/dev/arijit
                 </div>
               </div>
             </div>
 
             {/* Quote Card */}
-<<<<<<< HEAD
-            <div style={{ background: 'var(--color-bg-600)', borderRadius: 'var(--radius-card)', border: '1px solid var(--color-bg-400)', padding: '24px 20px' }}>
-              
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 20, borderBottom: '1px solid var(--color-bg-400)', paddingBottom: 24, marginBottom: 24 }}>
-                {itemizedSymptoms.map((item, idx) => (
-                  <div key={idx} style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                      <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-btn-cta-bg)', flex: 1, paddingRight: 16 }}>{item.name}</div>
-                      <div style={{ fontSize: 14, fontWeight: 800, color: 'var(--color-btn-cta-bg)' }}>
-                        {item.isVariable ? 'Ask Admin' : `₹${item.total.toLocaleString('en-IN')}`}
-                      </div>
-                    </div>
-                    <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                       <span style={{ fontSize: 9, fontWeight: 700, color: 'var(--color-tag-text)', background: 'var(--color-tag-bg)', padding: '3px 6px', borderRadius: 4, textTransform: 'uppercase' }}>
-                         {partTier.tier}
-                       </span>
-                       <span style={{ fontSize: 9, fontWeight: 700, color: 'var(--color-accent)', background: 'var(--color-accent-tint-10)', padding: '3px 6px', borderRadius: 4, textTransform: 'uppercase' }}>
-                         {partTier.defaultWarrantyMonths} Mo Warranty
-                       </span>
-                    </div>
-                    {!item.isVariable && (
-                      <div style={{ display: 'flex', gap: 12, fontSize: 11, color: 'var(--color-text-dim)', marginTop: 4 }}>
-                         <span>Part: ₹{item.partsCost.toLocaleString('en-IN')}</span>
-                         <span>Labour: ₹{item.labourCost.toLocaleString('en-IN')}</span>
-=======
             <div
               style={{
-                background: '#141414',
+                background: 'var(--color-content-card)',
                 borderRadius: 'var(--radius-card)',
-                border: '1px solid #222',
+                border: '1px solid var(--color-content-border)',
                 padding: '24px 20px',
               }}
             >
@@ -1246,7 +993,7 @@ export default function PricingPage() {
                   display: 'flex',
                   flexDirection: 'column',
                   gap: 20,
-                  borderBottom: '1px solid #222',
+                  borderBottom: '1px solid var(--color-content-border)',
                   paddingBottom: 24,
                   marginBottom: 24,
                 }}
@@ -1267,7 +1014,7 @@ export default function PricingPage() {
                         style={{
                           fontSize: 14,
                           fontWeight: 700,
-                          color: '#fff',
+                          color: 'var(--color-content-text)',
                           flex: 1,
                           paddingRight: 16,
                         }}
@@ -1275,7 +1022,7 @@ export default function PricingPage() {
                         {item.name}
                       </div>
                       <div
-                        style={{ fontSize: 14, fontWeight: 800, color: '#fff' }}
+                        style={{ fontSize: 14, fontWeight: 800, color: 'var(--color-content-text)' }}
                       >
                         {item.isVariable
                           ? 'Ask Admin'
@@ -1316,7 +1063,7 @@ export default function PricingPage() {
                           display: 'flex',
                           gap: 12,
                           fontSize: 11,
-                          color: '#888',
+                          color: 'var(--color-content-text-secondary)',
                           marginTop: 4,
                         }}
                       >
@@ -1326,7 +1073,6 @@ export default function PricingPage() {
                         <span>
                           Labour: ₹{item.labourCost.toLocaleString('en-IN')}
                         </span>
->>>>>>> origin/dev/arijit
                       </div>
                     )}
                   </div>
@@ -1334,26 +1080,6 @@ export default function PricingPage() {
               </div>
 
               {hasVariableSymptom && (
-<<<<<<< HEAD
-                <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, background: 'var(--color-warning-tint)', padding: 14, borderRadius: 10, marginBottom: 24 }}>
-                   <AlertCircle size={16} color="var(--color-warning)" style={{ flexShrink: 0, marginTop: 2 }} />
-                   <div style={{ fontSize: 12, color: 'var(--color-text-near-white)', lineHeight: 1.5 }}>
-                     <strong style={{ color: 'var(--color-warning)', display: 'block', marginBottom: 2 }}>Post-diagnosis estimate required</strong>
-                     Final cost confirmed after diagnosis.
-                   </div>
-                </div>
-              )}
-
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 16 }}>
-                <span style={{ fontSize: 16, fontWeight: 800, color: 'var(--color-btn-cta-bg)' }}>Total Amount</span>
-                <span style={{ fontSize: 24, fontWeight: 900, color: 'var(--color-btn-cta-bg)', letterSpacing: '-0.02em', lineHeight: 1, textAlign: 'right' }}>
-                   {hasVariableSymptom && grandTotal === 0 ? 'Ask Admin' : (
-                      <>
-                        {hasVariableSymptom && <span style={{ display: 'block', fontSize: 11, fontWeight: 600, color: 'var(--color-text-dim)', marginBottom: 4 }}>Starting from</span>}
-                        ₹{grandTotal.toLocaleString('en-IN')}
-                      </>
-                   )}
-=======
                 <div
                   style={{
                     display: 'flex',
@@ -1371,7 +1097,7 @@ export default function PricingPage() {
                     style={{ flexShrink: 0, marginTop: 2 }}
                   />
                   <div
-                    style={{ fontSize: 12, color: '#E0E0E0', lineHeight: 1.5 }}
+                    style={{ fontSize: 12, color: 'var(--color-content-text)', lineHeight: 1.5 }}
                   >
                     <strong
                       style={{
@@ -1395,14 +1121,14 @@ export default function PricingPage() {
                   marginBottom: 16,
                 }}
               >
-                <span style={{ fontSize: 16, fontWeight: 800, color: '#fff' }}>
+                <span style={{ fontSize: 16, fontWeight: 800, color: 'var(--color-content-text)' }}>
                   Total Amount
                 </span>
                 <span
                   style={{
                     fontSize: 24,
                     fontWeight: 900,
-                    color: '#fff',
+                    color: 'var(--color-content-text)',
                     letterSpacing: '-0.02em',
                     lineHeight: 1,
                     textAlign: 'right',
@@ -1418,7 +1144,7 @@ export default function PricingPage() {
                             display: 'block',
                             fontSize: 11,
                             fontWeight: 600,
-                            color: '#888',
+                            color: 'var(--color-content-text-secondary)',
                             marginBottom: 4,
                           }}
                         >
@@ -1428,37 +1154,25 @@ export default function PricingPage() {
                       ₹{grandTotal.toLocaleString('en-IN')}
                     </>
                   )}
->>>>>>> origin/dev/arijit
                 </span>
               </div>
 
               {!hasVariableSymptom && (
-<<<<<<< HEAD
-                <div style={{ fontSize: 9, fontWeight: 700, color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.1em', textAlign: 'right', marginBottom: 24 }}>
-=======
                 <div
                   style={{
                     fontSize: 9,
                     fontWeight: 700,
-                    color: '#666',
+                    color: 'var(--color-content-text-secondary)',
                     textTransform: 'uppercase',
                     letterSpacing: '0.1em',
                     textAlign: 'right',
                     marginBottom: 24,
                   }}
                 >
->>>>>>> origin/dev/arijit
                   * FINAL PRICE MAY VARY AFTER DIAGNOSIS
                 </div>
               )}
 
-<<<<<<< HEAD
-              <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginBottom: 24 }}>
-                 <AlertCircle size={14} color="var(--color-text-muted)" style={{ flexShrink: 0, marginTop: 2 }} />
-                 <div style={{ fontSize: 11, color: 'var(--color-text-dim)', lineHeight: 1.4 }}>
-                   By continuing, you agree to our Service Terms & Genuine Part Policy.
-                 </div>
-=======
               <div
                 style={{
                   display: 'flex',
@@ -1469,14 +1183,13 @@ export default function PricingPage() {
               >
                 <AlertCircle
                   size={14}
-                  color='#666'
+                  color='var(--color-content-text-secondary)'
                   style={{ flexShrink: 0, marginTop: 2 }}
                 />
-                <div style={{ fontSize: 11, color: '#888', lineHeight: 1.4 }}>
+                <div style={{ fontSize: 11, color: 'var(--color-content-text-secondary)', lineHeight: 1.4 }}>
                   By continuing, you agree to our Service Terms & Genuine Part
                   Policy.
                 </div>
->>>>>>> origin/dev/arijit
               </div>
 
               <button
@@ -1485,21 +1198,14 @@ export default function PricingPage() {
                 style={{
                   width: '100%',
                   height: 56,
-<<<<<<< HEAD
-                  background: 'var(--color-btn-cta-text)',
-                  color: 'var(--color-btn-cta-bg)',
-                  border: '1px solid var(--color-bg-200)', borderRadius: 'var(--radius-btn)',
-                  fontWeight: 800, fontSize: 13, textTransform: 'uppercase', letterSpacing: '0.05em',
-=======
-                  background: '#000',
-                  color: '#fff',
-                  border: '1px solid #333',
+                  background: '#000000',
+                  color: '#ffffff',
+                  border: 'none',
                   borderRadius: 'var(--radius-btn)',
                   fontWeight: 800,
                   fontSize: 13,
                   textTransform: 'uppercase',
                   letterSpacing: '0.05em',
->>>>>>> origin/dev/arijit
                   cursor: canProceedToBook ? 'pointer' : 'not-allowed',
                   display: 'flex',
                   alignItems: 'center',

@@ -53,11 +53,14 @@ function collectRepairTypeIds(symptoms) {
 function TierCard({ tier, isSelected, availability, onSelect, compact = false }) {
   const style = TIER_STYLE[tier.tier] || TIER_STYLE.Pro;
   const avail = availability[tier.tier];
-  const unavailable = avail !== undefined && avail !== null && avail.available === false;
 
+  // Compute price first — used to decide whether to show the "not configured" error
   const totalPartsCost = avail?.totalPartsCost ?? null;
   const totalLabourCost = avail?.totalLabourCost ?? null;
   const hasPrice = totalPartsCost !== null && (totalPartsCost + totalLabourCost) > 0;
+
+  // Show "not configured" only when availability was checked AND returned false AND there is genuinely no price
+  const unavailable = avail !== undefined && avail !== null && avail.available === false && !hasPrice;
 
   return (
     <button

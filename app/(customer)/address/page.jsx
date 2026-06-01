@@ -374,25 +374,30 @@ export default function AddressPage() {
     const isSelected = selectedAddressId === addr.id
     return (
       <div
-        className={`w-full rounded-2xl p-5 mb-3 border transition-all ${
-          isSelected
-            ? 'bg-[#141414] border-white shadow-md'
-            : 'bg-[#0A0A0A] border-[#222] hover:bg-[#1A1A1E]'
-        }`}
+        className={`w-full rounded-2xl p-5 mb-3 border transition-all`}
+        style={{
+          background: isSelected ? 'var(--color-content-card)' : 'var(--color-content-bg)',
+          borderColor: isSelected ? 'var(--color-content-text)' : 'var(--color-content-border)',
+          boxShadow: isSelected ? '0 4px 12px rgba(0,0,0,0.3)' : 'none',
+        }}
       >
         <div
           onClick={() => setSelectedAddressId(addr.id)}
           className='flex items-start gap-4 cursor-pointer mb-3'
         >
           <div
-            className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${isSelected ? 'bg-white text-black' : 'bg-[#222] text-[#888]'}`}
+            className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0`}
+            style={{
+              background: isSelected ? 'var(--color-content-text)' : 'var(--color-content-card)',
+              color: isSelected ? 'var(--color-content-bg)' : 'var(--color-content-text-secondary)',
+            }}
           >
             {getAddressIcon(addr.type)}
           </div>
           <div className='flex-1'>
             <div className='flex justify-between items-center mb-1'>
               <div className='flex items-center gap-2'>
-                <h4 className='text-[15px] font-bold text-white'>
+                <h4 className='text-[15px] font-bold' style={{ color: 'var(--color-content-text)' }}>
                   {addr.label}
                 </h4>
                 {addr.isDefault && (
@@ -402,35 +407,38 @@ export default function AddressPage() {
                 )}
               </div>
               <div
-                className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${isSelected ? 'border-white' : 'border-[#333]'}`}
+                className={`w-5 h-5 rounded-full border-2 flex items-center justify-center`}
+                style={{ borderColor: isSelected ? 'var(--color-content-text)' : 'var(--color-content-border)' }}
               >
                 {isSelected && (
-                  <div className='w-2.5 h-2.5 bg-white rounded-full' />
+                  <div className='w-2.5 h-2.5 rounded-full' style={{ background: 'var(--color-content-text)' }} />
                 )}
               </div>
             </div>
-            <p className='text-[13px] text-[#888] leading-relaxed pr-6'>
+            <p className='text-[13px] leading-relaxed pr-6' style={{ color: 'var(--color-content-text-secondary)' }}>
               {addr.line1}
             </p>
-            <p className='text-[13px] text-[#888] leading-relaxed pr-6'>
+            <p className='text-[13px] leading-relaxed pr-6' style={{ color: 'var(--color-content-text-secondary)' }}>
               {addr.line2}
             </p>
           </div>
         </div>
 
         {/* Action Buttons */}
-        <div className='flex gap-2 mt-3 pt-3 border-t border-[#222]'>
+        <div className='flex gap-2 mt-3 pt-3' style={{ borderTop: '1px solid var(--color-content-border)' }}>
           {!addr.isDefault && (
             <button
               onClick={() => handleSetDefault(addr.id)}
-              className='flex-1 h-[36px] bg-white/5 border border-[#333] text-white rounded-lg text-[11px] font-semibold hover:bg-white/10 active:scale-[0.98] transition-all'
+              className='flex-1 h-[36px] border rounded-lg text-[11px] font-semibold hover:bg-white/10 active:scale-[0.98] transition-all'
+              style={{ background: 'var(--color-content-border)', borderColor: 'var(--color-content-border)', color: 'var(--color-content-text)' }}
             >
               Set Default
             </button>
           )}
           <button
             onClick={() => handleEditAddress(addr)}
-            className='flex-1 h-[36px] bg-white/5 border border-[#333] text-white rounded-lg text-[11px] font-semibold hover:bg-white/10 active:scale-[0.98] transition-all flex items-center justify-center gap-1.5'
+            className='flex-1 h-[36px] border rounded-lg text-[11px] font-semibold hover:bg-white/10 active:scale-[0.98] transition-all flex items-center justify-center gap-1.5'
+            style={{ background: 'var(--color-content-border)', borderColor: 'var(--color-content-border)', color: 'var(--color-content-text)' }}
           >
             <Edit2 size={12} />
             Edit
@@ -448,10 +456,10 @@ export default function AddressPage() {
 
   if (isLoading) {
     return (
-      <div className='min-h-screen bg-[#0A0A0A] flex items-center justify-center'>
+      <div className='min-h-screen flex items-center justify-center' style={{ background: 'var(--color-content-bg)' }}>
         <div className='text-center'>
-          <div className='w-12 h-12 border-3 border-[#333] border-t-white rounded-full animate-spin mx-auto mb-4' />
-          <p className='text-[14px] text-[#888]'>Loading addresses...</p>
+          <div className='w-12 h-12 border-3 rounded-full animate-spin mx-auto mb-4' style={{ borderColor: 'var(--color-content-border)', borderTopColor: 'var(--color-content-text)' }} />
+          <p className='text-[14px]' style={{ color: 'var(--color-content-text-secondary)' }}>Loading addresses...</p>
         </div>
       </div>
     )
@@ -462,21 +470,21 @@ export default function AddressPage() {
       {/* ════════════════════════════════════════════════════════════════
           MOBILE VIEW (<1024px)
           ════════════════════════════════════════════════════════════════ */}
-      <div className='home-mobile lg:hidden min-h-[100svh] relative overflow-hidden bg-[#222222]'>
+      <div className='home-mobile lg:hidden min-h-[100svh] relative overflow-hidden' style={{ background: 'var(--color-content-card)' }}>
         {/* Content */}
-        <div className='relative z-10 pt-[72px] pb-[180px] bg-[#0A0A0A] min-h-[100svh] mt-[-20px] rounded-t-[30px]'>
+        <div className='relative z-10 pt-[72px] pb-[180px] min-h-[100svh] mt-[-20px] rounded-t-[30px]' style={{ background: 'var(--color-content-bg)' }}>
           <div className='px-5 pt-6 pb-4'>
-            <h1 className='text-2xl font-black text-white tracking-tight uppercase leading-tight mb-1'>
+            <h1 className='text-2xl font-black tracking-tight uppercase leading-tight mb-1' style={{ color: 'var(--color-content-text)' }}>
               Select Address
             </h1>
-            <p className='text-[#888888] text-sm'>
+            <p className='text-sm' style={{ color: 'var(--color-content-text-secondary)' }}>
               Choose a convenient address for your repair.
             </p>
           </div>
 
           {/* Map Preview */}
           <div className='px-5 mb-8'>
-            <div className='w-full h-[180px] bg-black rounded-3xl overflow-hidden relative shadow-lg'>
+            <div className='w-full h-[180px] rounded-3xl overflow-hidden relative shadow-lg' style={{ background: 'var(--theme-bg)' }}>
               <img
                 src='/images/dark-map-placeholder.png'
                 alt='Map'
@@ -500,21 +508,21 @@ export default function AddressPage() {
           {/* Addresses */}
           <div className='px-5 mb-8'>
             <div className='flex justify-between items-center mb-4'>
-              <h3 className='text-sm font-bold text-[#E0E0E0]'>
+              <h3 className='text-sm font-bold mb-4' style={{ color: 'var(--color-content-text)' }}>
                 Saved Addresses
               </h3>
-              <span className='text-[11px] font-bold text-[#888] uppercase tracking-wider'>
+              <span className='text-[11px] font-bold uppercase tracking-wider' style={{ color: 'var(--color-content-text-secondary)' }}>
                 {addresses.length} LOCATIONS
               </span>
             </div>
 
             {addresses.length === 0 ? (
-              <div className='text-center py-8 bg-[#111] rounded-2xl border border-[#222]'>
+              <div className='text-center py-8 rounded-2xl' style={{ background: 'var(--color-content-card)', border: '1px solid var(--color-content-border)' }}>
                 <MapPin size={40} className='text-[#444] mx-auto mb-3' />
-                <p className='text-[14px] text-[#888] mb-2'>
+                <p className='text-[14px] mb-2' style={{ color: 'var(--color-content-text-secondary)' }}>
                   No saved addresses
                 </p>
-                <p className='text-[12px] text-[#666]'>
+                <p className='text-[12px]' style={{ color: 'var(--color-content-text-secondary)' }}>
                   Add your first address below
                 </p>
               </div>
@@ -524,7 +532,8 @@ export default function AddressPage() {
 
             <button
               onClick={() => setIsAddingNew(true)}
-              className='w-full h-[60px] rounded-2xl border border-dashed border-[#333] flex items-center justify-center gap-2 text-[#888] font-bold text-[13px] uppercase tracking-wide hover:bg-[#111] mt-2 transition-colors'
+              className='w-full h-[60px] rounded-2xl flex items-center justify-center gap-2 font-bold text-[13px] uppercase tracking-wide hover:opacity-80 mt-2 transition-colors'
+              style={{ border: '1px dashed var(--color-content-border)', color: 'var(--color-content-text-secondary)' }}
             >
               <Plus size={18} /> Add New Address
             </button>
@@ -532,23 +541,28 @@ export default function AddressPage() {
 
           {/* Delivery Notes */}
           <div className='px-5 mb-8'>
-            <h3 className='text-[11px] font-bold text-[#888] uppercase tracking-wider mb-3'>
+            <h3 className='text-[11px] font-bold uppercase tracking-wider mb-3' style={{ color: 'var(--color-content-text-secondary)' }}>
               DELIVERY NOTES (OPTIONAL)
             </h3>
             <textarea
               value={deliveryNotes}
               onChange={(e) => setDeliveryNotes(e.target.value)}
               placeholder='Access codes, gate instructions...'
-              className='w-full h-20 bg-[#111] border border-[#222] rounded-xl p-4 text-[13px] text-white resize-none focus:bg-[#1A1A1E] focus:border-[#444] outline-none transition-all'
+              className='w-full h-20 rounded-xl p-4 text-[13px] resize-none outline-none transition-all'
+              style={{ background: 'var(--color-content-card)', border: '1px solid var(--color-content-border)', color: 'var(--color-content-text)' }}
             />
           </div>
 
           {/* Confirm Button Fixed Bottom */}
-          <div className='fixed bottom-[50px] left-0 right-0 p-5 bg-gradient-to-t from-[#0A0A0A] via-[#0A0A0A] to-transparent z-40 pointer-events-none'>
+          <div className='fixed bottom-[50px] left-0 right-0 p-5 z-40 pointer-events-none' style={{ background: 'linear-gradient(to top, var(--color-content-bg) 60%, transparent)' }}>
             <button
               onClick={handleConfirm}
               disabled={!selectedAddressId}
-              className='w-full h-[50px] bg-white disabled:bg-[#333] disabled:text-[#666] text-black rounded-[20px] text-sm font-bold flex items-center justify-center gap-2 shadow-xl active:scale-95 transition-transform pointer-events-auto'
+              className='w-full h-[50px] rounded-[20px] text-sm font-bold flex items-center justify-center gap-2 shadow-xl active:scale-95 transition-transform pointer-events-auto'
+              style={{
+                background: selectedAddressId ? 'var(--theme-btn-primary-bg)' : 'var(--color-content-border)',
+                color: selectedAddressId ? 'var(--theme-btn-primary-text)' : 'var(--color-content-text-secondary)',
+              }}
             >
               Confirm Address <ArrowLeft className='rotate-180' size={16} />
             </button>
@@ -559,23 +573,23 @@ export default function AddressPage() {
       {/* ════════════════════════════════════════════════════════════════
           DESKTOP VIEW (≥1024px)
           ════════════════════════════════════════════════════════════════ */}
-      <div className='home-desktop hidden lg:block bg-[#050505] min-h-[calc(100vh-var(--topbar-height))]'>
+      <div className='home-desktop hidden lg:block min-h-[calc(100vh-var(--topbar-height))]' style={{ background: 'var(--theme-bg)' }}>
         <div className='flex h-[calc(100vh-var(--topbar-height))]'>
           {/* Left side - MAP */}
-          <div className='w-[55%] relative bg-[#0D0D0F]'>
+          <div className='w-[55%] relative' style={{ background: 'var(--color-content-bg)' }}>
             <img
               src='/images/dark-map-placeholder.png'
               alt='Map'
-              className='absolute inset-0 w-full h-full object-cover opacity-60 mix-blend-screen filter grayscale'
+              className='absolute inset-0 w-full h-full object-cover opacity-55 filter grayscale'
             />
 
             <div className='absolute inset-0 flex items-center justify-center'>
               <div className='relative'>
-                <div className='w-12 h-14 bg-[#6c7bff] rounded-xl rounded-bl-none flex items-center justify-center shadow-2xl relative z-10 transform -translate-y-1/2'>
+                <div className='w-12 h-14 rounded-xl rounded-bl-none flex items-center justify-center shadow-2xl relative z-10 transform -translate-y-1/2' style={{ background: 'var(--color-accent)' }}>
                   <MapPin size={24} color='white' />
                 </div>
-                <div className='absolute top-8 left-6 bg-[#1A1A1E] px-4 py-2 rounded-lg shadow-xl whitespace-nowrap border border-[#333]'>
-                  <span className='text-xs font-black uppercase text-white'>
+                <div className='absolute top-8 left-6 px-4 py-2 rounded-lg shadow-xl whitespace-nowrap' style={{ background: 'var(--color-content-card)', border: '1px solid var(--color-content-border)' }}>
+                  <span className='text-xs font-black uppercase' style={{ color: 'var(--color-content-text)' }}>
                     82nd Ave, Manhattan
                   </span>
                 </div>
@@ -583,38 +597,38 @@ export default function AddressPage() {
             </div>
 
             {/* Zoom Controls */}
-            <div className='absolute bottom-10 left-10 flex flex-col bg-[#1A1A1E] rounded-lg shadow-xl overflow-hidden z-20 border border-[#333]'>
-              <button className='w-12 h-12 flex items-center justify-center text-white hover:bg-[#2A2A2E] border-b border-[#333] transition-colors cursor-pointer'>
+            <div className='absolute bottom-10 left-10 flex flex-col rounded-lg shadow-xl overflow-hidden z-20' style={{ background: 'var(--color-content-card)', border: '1px solid var(--color-content-border)' }}>
+              <button className='w-12 h-12 flex items-center justify-center hover:opacity-80 transition-colors cursor-pointer' style={{ color: 'var(--color-content-text)', borderBottom: '1px solid var(--color-content-border)' }}>
                 <Plus size={20} strokeWidth={2.5} />
               </button>
-              <button className='w-12 h-12 flex items-center justify-center text-white hover:bg-[#2A2A2E] transition-colors cursor-pointer'>
+              <button className='w-12 h-12 flex items-center justify-center hover:opacity-80 transition-colors cursor-pointer' style={{ color: 'var(--color-content-text)' }}>
                 <Minus size={20} strokeWidth={2.5} />
               </button>
             </div>
           </div>
 
           {/* Right side - FORM */}
-          <div className='w-[45%] bg-[#0A0A0A] p-12 overflow-y-auto border-l border-[#222]'>
-            <h1 className='text-[42px] font-black text-white tracking-tight leading-none mb-3'>
+          <div className='w-[45%] p-12 overflow-y-auto' style={{ background: 'var(--color-content-bg)', borderLeft: '1px solid var(--color-content-border)' }}>
+            <h1 className='text-[42px] font-black tracking-tight leading-none mb-3' style={{ color: 'var(--color-content-text)' }}>
               Select Service Address
             </h1>
-            <p className='text-[15px] text-[#888] mb-12 max-w-[85%]'>
+            <p className='text-[15px] mb-12 max-w-[85%]' style={{ color: 'var(--color-content-text-secondary)' }}>
               Choose a saved location or add a new one for your technical
               service appointment.
             </p>
 
             <div className='mb-10'>
-              <h3 className='text-[11px] font-bold text-[#888] uppercase tracking-[0.1em] mb-4'>
+              <h3 className='text-[11px] font-bold uppercase tracking-[0.1em] mb-4' style={{ color: 'var(--color-content-text-secondary)' }}>
                 SAVED ADDRESSES
               </h3>
 
               {addresses.length === 0 ? (
-                <div className='text-center py-12 bg-[#111] rounded-2xl border border-[#222]'>
+                <div className='text-center py-12 rounded-2xl' style={{ background: 'var(--color-content-card)', border: '1px solid var(--color-content-border)' }}>
                   <MapPin size={48} className='text-[#444] mx-auto mb-4' />
-                  <p className='text-[15px] text-[#888] mb-2'>
+                  <p className='text-[15px] mb-2' style={{ color: 'var(--color-content-text-secondary)' }}>
                     No saved addresses
                   </p>
-                  <p className='text-[13px] text-[#666]'>
+                  <p className='text-[13px]' style={{ color: 'var(--color-content-text-secondary)' }}>
                     Add your first address below
                   </p>
                 </div>
@@ -626,28 +640,34 @@ export default function AddressPage() {
 
               <button
                 onClick={() => setIsAddingNew(true)}
-                className='w-full h-16 rounded-xl border-2 border-dashed border-[#333] flex items-center justify-center gap-3 text-[#888] font-bold text-[14px] hover:bg-[#111] transition-colors mt-2'
+                className='w-full h-16 rounded-xl flex items-center justify-center gap-3 font-bold text-[14px] hover:opacity-80 transition-colors mt-2'
+                style={{ border: '2px dashed var(--color-content-border)', color: 'var(--color-content-text-secondary)' }}
               >
                 <Plus size={18} /> Add New Address
               </button>
             </div>
 
             <div className='mb-10'>
-              <h3 className='text-[11px] font-bold text-[#888] uppercase tracking-[0.1em] mb-4'>
+              <h3 className='text-[11px] font-bold uppercase tracking-[0.1em] mb-4' style={{ color: 'var(--color-content-text-secondary)' }}>
                 DELIVERY NOTES (OPTIONAL)
               </h3>
               <textarea
                 value={deliveryNotes}
                 onChange={(e) => setDeliveryNotes(e.target.value)}
                 placeholder='Access codes, gate instructions...'
-                className='w-full h-24 bg-[#111] border border-[#222] rounded-2xl p-5 text-[14px] text-white resize-none focus:bg-[#1A1A1E] focus:border-[#444] outline-none transition-all'
+                className='w-full h-24 rounded-2xl p-5 text-[14px] resize-none outline-none transition-all'
+                style={{ background: 'var(--color-content-card)', border: '1px solid var(--color-content-border)', color: 'var(--color-content-text)' }}
               />
             </div>
 
             <button
               onClick={handleConfirm}
               disabled={!selectedAddressId}
-              className='w-full h-[64px] bg-white disabled:bg-[#333] disabled:text-[#666] hover:bg-gray-200 text-black rounded-[20px] text-[15px] font-black uppercase tracking-[0.1em] flex items-center justify-center gap-3 shadow-xl transition-colors'
+              className='w-full h-[64px] rounded-[20px] text-[15px] font-black uppercase tracking-[0.1em] flex items-center justify-center gap-3 shadow-xl transition-colors'
+              style={{
+                background: selectedAddressId ? 'var(--theme-btn-primary-bg)' : 'var(--color-content-border)',
+                color: selectedAddressId ? 'var(--theme-btn-primary-text)' : 'var(--color-content-text-secondary)',
+              }}
             >
               CONFIRM ADDRESS <ArrowLeft className='rotate-180' size={18} />
             </button>
@@ -658,9 +678,9 @@ export default function AddressPage() {
       {/* Add New Address Modal */}
       {isAddingNew && (
         <div className='fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[200] p-4'>
-          <div className='bg-[#0A0A0A] border border-[#222] rounded-2xl p-6 max-w-[600px] w-full max-h-[90vh] overflow-y-auto shadow-2xl'>
+          <div className='rounded-2xl p-6 max-w-[600px] w-full max-h-[90vh] overflow-y-auto shadow-2xl' style={{ background: 'var(--color-content-bg)', border: '1px solid var(--color-content-border)' }}>
             <div className='flex items-center justify-between mb-6'>
-              <h3 className='text-[20px] font-black text-white uppercase'>
+              <h3 className='text-[20px] font-black uppercase' style={{ color: 'var(--color-content-text)' }}>
                 {isEditingAddress ? 'Edit Address' : 'Add New Address'}
               </h3>
               <button
@@ -684,7 +704,7 @@ export default function AddressPage() {
             >
               {/* Address Type */}
               <div>
-                <label className='block text-[10px] font-bold text-[#888] tracking-[0.08em] mb-2 uppercase'>
+                <label className='block text-[10px] font-bold tracking-[0.08em] mb-2 uppercase' style={{ color: 'var(--color-content-text-secondary)' }}>
                   ADDRESS TYPE
                 </label>
                 <div className='flex gap-2'>
@@ -695,9 +715,14 @@ export default function AddressPage() {
                       onClick={() => handleChange('addressType', type)}
                       className={`flex-1 h-[44px] rounded-lg text-[13px] font-semibold transition-all ${
                         newAddress.addressType === type
-                          ? 'bg-white text-black'
-                          : 'bg-white/5 border border-[#333] text-white hover:bg-white/10'
+                          ? ''
+                          : 'hover:bg-white/10'
                       }`}
+                      style={{
+                        background: newAddress.addressType === type ? 'var(--theme-btn-primary-bg)' : 'var(--color-content-border)',
+                        border: newAddress.addressType === type ? 'none' : '1px solid var(--color-content-border)',
+                        color: newAddress.addressType === type ? 'var(--theme-btn-primary-text)' : 'var(--color-content-text)',
+                      }}
                     >
                       {type}
                     </button>
@@ -707,16 +732,19 @@ export default function AddressPage() {
 
               {/* Address Line 1 */}
               <div>
-                <label className='block text-[10px] font-bold text-[#888] tracking-[0.08em] mb-2 uppercase'>
+                <label className='block text-[10px] font-bold tracking-[0.08em] mb-2 uppercase' style={{ color: 'var(--color-content-text-secondary)' }}>
                   ADDRESS LINE 1 *
                 </label>
                 <input
                   type='text'
                   value={newAddress.addressLine1}
                   onChange={(e) => handleChange('addressLine1', e.target.value)}
-                  className={`w-full h-[52px] bg-[#111] border ${
-                    errors.addressLine1 ? 'border-red-500/50' : 'border-[#222]'
-                  } rounded-lg text-white text-[15px] px-4 outline-none focus:border-[#444] transition-colors`}
+                  className={`w-full h-[52px] rounded-lg text-[15px] px-4 outline-none transition-colors`}
+                  style={{
+                    background: 'var(--color-content-card)',
+                    border: errors.addressLine1 ? '1px solid var(--color-danger)' : '1px solid var(--color-content-border)',
+                    color: 'var(--color-content-text)',
+                  }}
                   placeholder='House/Flat no., Building name'
                 />
                 {errors.addressLine1 && (
@@ -728,28 +756,30 @@ export default function AddressPage() {
 
               {/* Address Line 2 */}
               <div>
-                <label className='block text-[10px] font-bold text-[#888] tracking-[0.08em] mb-2 uppercase'>
+                <label className='block text-[10px] font-bold tracking-[0.08em] mb-2 uppercase' style={{ color: 'var(--color-content-text-secondary)' }}>
                   ADDRESS LINE 2
                 </label>
                 <input
                   type='text'
                   value={newAddress.addressLine2}
                   onChange={(e) => handleChange('addressLine2', e.target.value)}
-                  className='w-full h-[52px] bg-[#111] border border-[#222] rounded-lg text-white text-[15px] px-4 outline-none focus:border-[#444] transition-colors'
+                  className='w-full h-[52px] rounded-lg text-[15px] px-4 outline-none transition-colors'
+                  style={{ background: 'var(--color-content-card)', border: '1px solid var(--color-content-border)', color: 'var(--color-content-text)' }}
                   placeholder='Road name, Area, Colony'
                 />
               </div>
 
               {/* Landmark */}
               <div>
-                <label className='block text-[10px] font-bold text-[#888] tracking-[0.08em] mb-2 uppercase'>
+                <label className='block text-[10px] font-bold tracking-[0.08em] mb-2 uppercase' style={{ color: 'var(--color-content-text-secondary)' }}>
                   LANDMARK
                 </label>
                 <input
                   type='text'
                   value={newAddress.landmark}
                   onChange={(e) => handleChange('landmark', e.target.value)}
-                  className='w-full h-[52px] bg-[#111] border border-[#222] rounded-lg text-white text-[15px] px-4 outline-none focus:border-[#444] transition-colors'
+                  className='w-full h-[52px] rounded-lg text-[15px] px-4 outline-none transition-colors'
+                  style={{ background: 'var(--color-content-card)', border: '1px solid var(--color-content-border)', color: 'var(--color-content-text)' }}
                   placeholder='Nearby landmark (optional)'
                 />
               </div>
@@ -757,7 +787,7 @@ export default function AddressPage() {
               {/* Pincode and City */}
               <div className='grid grid-cols-2 gap-3'>
                 <div>
-                  <label className='block text-[10px] font-bold text-[#888] tracking-[0.08em] mb-2 uppercase'>
+                  <label className='block text-[10px] font-bold tracking-[0.08em] mb-2 uppercase' style={{ color: 'var(--color-content-text-secondary)' }}>
                     PINCODE *
                   </label>
                   <input
@@ -769,9 +799,12 @@ export default function AddressPage() {
                         .slice(0, 6)
                       handleChange('pincode', value)
                     }}
-                    className={`w-full h-[52px] bg-[#111] border ${
-                      errors.pincode ? 'border-red-500/50' : 'border-[#222]'
-                    } rounded-lg text-white text-[15px] px-4 outline-none focus:border-[#444] transition-colors`}
+                    className={`w-full h-[52px] rounded-lg text-[15px] px-4 outline-none transition-colors`}
+                    style={{
+                      background: 'var(--color-content-card)',
+                      border: errors.pincode ? '1px solid var(--color-danger)' : '1px solid var(--color-content-border)',
+                      color: 'var(--color-content-text)',
+                    }}
                     placeholder='000000'
                     maxLength={6}
                   />
@@ -783,16 +816,19 @@ export default function AddressPage() {
                 </div>
 
                 <div>
-                  <label className='block text-[10px] font-bold text-[#888] tracking-[0.08em] mb-2 uppercase'>
+                  <label className='block text-[10px] font-bold tracking-[0.08em] mb-2 uppercase' style={{ color: 'var(--color-content-text-secondary)' }}>
                     CITY *
                   </label>
                   <input
                     type='text'
                     value={newAddress.city}
                     onChange={(e) => handleChange('city', e.target.value)}
-                    className={`w-full h-[52px] bg-[#111] border ${
-                      errors.city ? 'border-red-500/50' : 'border-[#222]'
-                    } rounded-lg text-white text-[15px] px-4 outline-none focus:border-[#444] transition-colors`}
+                    className={`w-full h-[52px] rounded-lg text-[15px] px-4 outline-none transition-colors`}
+                    style={{
+                      background: 'var(--color-content-card)',
+                      border: errors.city ? '1px solid var(--color-danger)' : '1px solid var(--color-content-border)',
+                      color: 'var(--color-content-text)',
+                    }}
                     placeholder='City'
                   />
                   {errors.city && (
@@ -805,16 +841,19 @@ export default function AddressPage() {
 
               {/* State */}
               <div>
-                <label className='block text-[10px] font-bold text-[#888] tracking-[0.08em] mb-2 uppercase'>
+                <label className='block text-[10px] font-bold tracking-[0.08em] mb-2 uppercase' style={{ color: 'var(--color-content-text-secondary)' }}>
                   STATE *
                 </label>
                 <input
                   type='text'
                   value={newAddress.state}
                   onChange={(e) => handleChange('state', e.target.value)}
-                  className={`w-full h-[52px] bg-[#111] border ${
-                    errors.state ? 'border-red-500/50' : 'border-[#222]'
-                  } rounded-lg text-white text-[15px] px-4 outline-none focus:border-[#444] transition-colors`}
+                  className={`w-full h-[52px] rounded-lg text-[15px] px-4 outline-none transition-colors`}
+                  style={{
+                    background: 'var(--color-content-card)',
+                    border: errors.state ? '1px solid var(--color-danger)' : '1px solid var(--color-content-border)',
+                    color: 'var(--color-content-text)',
+                  }}
                   placeholder='State'
                 />
                 {errors.state && (
@@ -825,7 +864,7 @@ export default function AddressPage() {
               </div>
 
               {/* Set as Default */}
-              <div className='flex items-center gap-3 p-4 bg-white/5 border border-[#222] rounded-xl'>
+              <div className='flex items-center gap-3 p-4 rounded-xl' style={{ background: 'var(--color-content-border)', border: '1px solid var(--color-content-border)' }}>
                 <input
                   type='checkbox'
                   id='setAsDefault'
@@ -837,7 +876,8 @@ export default function AddressPage() {
                 />
                 <label
                   htmlFor='setAsDefault'
-                  className='flex-1 text-[13px] font-medium text-white cursor-pointer'
+                  className='flex-1 text-[13px] font-medium cursor-pointer'
+                  style={{ color: 'var(--color-content-text)' }}
                 >
                   Set as default address
                 </label>
@@ -847,7 +887,11 @@ export default function AddressPage() {
               <button
                 type='submit'
                 disabled={isSavingAddress}
-                className='w-full h-[52px] bg-white hover:bg-gray-200 disabled:bg-[#333] disabled:text-[#666] text-black rounded-lg text-[15px] font-bold cursor-pointer flex items-center justify-center gap-2 transition-all duration-200'
+                className='w-full h-[52px] rounded-lg text-[15px] font-bold cursor-pointer flex items-center justify-center gap-2 transition-all duration-200'
+                style={{
+                  background: isSavingAddress ? 'var(--color-content-border)' : 'var(--theme-btn-primary-bg)',
+                  color: isSavingAddress ? 'var(--color-content-text-secondary)' : 'var(--theme-btn-primary-text)',
+                }}
               >
                 {isSavingAddress ? (
                   <>
@@ -873,11 +917,11 @@ export default function AddressPage() {
       {/* Delete Confirmation Modal */}
       {showDeleteConfirm && (
         <div className='fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[250] p-4'>
-          <div className='bg-[#0A0A0A] border border-[#222] rounded-2xl p-6 max-w-[400px] w-full shadow-2xl'>
-            <h3 className='text-[18px] font-black text-white mb-2'>
+          <div className='rounded-2xl p-6 max-w-[400px] w-full shadow-2xl' style={{ background: 'var(--color-content-bg)', border: '1px solid var(--color-content-border)' }}>
+            <h3 className='text-[18px] font-black mb-2' style={{ color: 'var(--color-content-text)' }}>
               Delete Address?
             </h3>
-            <p className='text-[13px] text-[#888] mb-6'>
+            <p className='text-[13px] mb-6' style={{ color: 'var(--color-content-text-secondary)' }}>
               Are you sure you want to delete this address? This action cannot
               be undone.
             </p>
@@ -885,7 +929,8 @@ export default function AddressPage() {
               <button
                 onClick={() => setShowDeleteConfirm(null)}
                 disabled={isDeletingAddress}
-                className='flex-1 h-[46px] bg-white/5 border border-[#333] text-white rounded-lg text-[13px] font-bold hover:bg-white/10 transition-all disabled:opacity-50'
+                className='flex-1 h-[46px] border rounded-lg text-[13px] font-bold hover:bg-white/10 transition-all disabled:opacity-50'
+                style={{ background: 'var(--color-content-border)', borderColor: 'var(--color-content-border)', color: 'var(--color-content-text)' }}
               >
                 Cancel
               </button>

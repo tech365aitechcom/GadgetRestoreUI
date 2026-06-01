@@ -27,15 +27,16 @@ function collectRepairTypeIds(symptoms) {
 }
 
 const SummarySection = ({ title, onEdit, children }) => (
-  <div className='bg-[#141414] rounded-[24px] border border-[#222] p-5 mb-4 relative overflow-hidden group'>
-    <div className='flex justify-between items-center mb-4 border-b border-[#222] pb-3'>
-      <h3 className='text-xs font-black text-[#888] uppercase tracking-[0.1em]'>
+  <div className='rounded-[24px] p-5 mb-4 relative overflow-hidden group' style={{ background: 'var(--color-content-card)', border: '1px solid var(--color-content-border)' }}>
+    <div className='flex justify-between items-center mb-4 pb-3' style={{ borderBottom: '1px solid var(--color-content-border)' }}>
+      <h3 className='text-xs font-black uppercase tracking-[0.1em]' style={{ color: 'var(--color-content-text-secondary)' }}>
         {title}
       </h3>
       {onEdit && (
         <button
           onClick={onEdit}
-          className='flex items-center gap-1.5 text-xs font-bold text-white/50 hover:text-white transition-colors'
+          className='flex items-center gap-1.5 text-xs font-bold hover:opacity-100 opacity-60 transition-opacity'
+          style={{ color: 'var(--color-content-text)' }}
         >
           <Edit2 size={12} /> Edit
         </button>
@@ -168,9 +169,9 @@ export default function OrderSummaryPage() {
       {/* ════════════════════════════════════════════════════════════════
           MOBILE VIEW (<1024px)
           ════════════════════════════════════════════════════════════════ */}
-      <div className='home-mobile lg:hidden min-h-[100svh] relative bg-[#0A0A0A] text-white pb-[160px]'>
+      <div className='home-mobile lg:hidden min-h-[100svh] relative pb-[160px]' style={{ background: 'var(--color-content-bg)', color: 'var(--color-content-text)' }}>
         <div className='relative z-10 pt-[58px] px-4'>
-          <h1 className='text-[28px] font-black text-white tracking-tight uppercase leading-tight mb-6'>
+          <h1 className='text-[28px] font-black tracking-tight uppercase leading-tight mb-6' style={{ color: 'var(--color-content-text)' }}>
             Order Summary
           </h1>
 
@@ -180,7 +181,7 @@ export default function OrderSummaryPage() {
               onEdit={() => router.push('/select-symptoms')}
             >
               <div className='flex items-center gap-4 mb-4'>
-                <div className='w-14 h-16 bg-[#0A0A0A] rounded-xl flex items-center justify-center'>
+                <div className='w-14 h-16 rounded-xl flex items-center justify-center' style={{ background: 'var(--color-content-bg)' }}>
                   <Smartphone
                     size={28}
                     color='var(--color-accent)'
@@ -188,10 +189,10 @@ export default function OrderSummaryPage() {
                   />
                 </div>
                 <div>
-                  <h2 className='text-lg font-extrabold text-white'>
+                  <h2 className='text-lg font-extrabold mb-0.5' style={{ color: 'var(--color-content-text)' }}>
                     {brand.name} {model.name}
                   </h2>
-                  <div className='text-xs font-bold text-[#888]'>
+                   <div className='text-xs font-bold' style={{ color: 'var(--color-content-text-secondary)' }}>
                     {symptoms.length} selected issues
                   </div>
                 </div>
@@ -200,7 +201,8 @@ export default function OrderSummaryPage() {
                 {symptoms.map((s, i) => (
                   <span
                     key={i}
-                    className='text-[11px] font-bold text-white bg-[#222] px-3 py-1.5 rounded-full'
+                    className='text-[11px] font-bold px-3 py-1.5 rounded-full'
+                    style={{ color: 'var(--color-content-text)', background: 'var(--color-content-border)' }}
                   >
                     {s.name}
                   </span>
@@ -214,19 +216,19 @@ export default function OrderSummaryPage() {
             >
               <div className='grid grid-cols-2 gap-4'>
                 <div>
-                  <div className='text-[10px] font-bold text-[#666] uppercase tracking-wider mb-1'>
+                  <div className='text-[10px] font-bold uppercase tracking-wider mb-1' style={{ color: 'var(--color-content-text-secondary)' }}>
                     Service
                   </div>
-                  <div className='text-sm font-bold text-white flex items-center gap-1.5'>
+                  <div className='text-sm font-bold flex items-center gap-1.5' style={{ color: 'var(--color-content-text)' }}>
                     <Truck size={14} />{' '}
                     {serviceMode === 'lab' ? 'Pick & Drop' : 'Doorstep'}
                   </div>
                 </div>
                 <div>
-                  <div className='text-[10px] font-bold text-[#666] uppercase tracking-wider mb-1'>
+                  <div className='text-[10px] font-bold uppercase tracking-wider mb-1' style={{ color: 'var(--color-content-text-secondary)' }}>
                     Part Tier
                   </div>
-                  <div className='text-sm font-bold text-white flex items-center gap-1.5'>
+                  <div className='text-sm font-bold flex items-center gap-1.5' style={{ color: 'var(--color-content-text)' }}>
                     <Shield size={14} /> {partTier.tier} Quality
                   </div>
                 </div>
@@ -238,11 +240,11 @@ export default function OrderSummaryPage() {
               onEdit={() => router.push('/schedule')}
             >
               <div className='flex items-center gap-3'>
-                <div className='w-10 h-10 bg-[#222] rounded-full flex items-center justify-center'>
-                  <Calendar size={18} color='white' />
+                <div className='w-10 h-10 rounded-full flex items-center justify-center' style={{ background: 'var(--color-content-border)' }}>
+                  <Calendar size={18} color='var(--color-content-text)' />
                 </div>
                 <div>
-                  <div className='text-sm font-bold text-white'>
+                  <div className='text-sm font-bold' style={{ color: 'var(--color-content-text)' }}>
                     {new Date(slot.date).toLocaleDateString('en-US', {
                       weekday: 'long',
                       month: 'long',
@@ -261,14 +263,14 @@ export default function OrderSummaryPage() {
               onEdit={() => router.push('/address')}
             >
               <div className='flex items-start gap-3'>
-                <div className='w-10 h-10 bg-[#222] rounded-full flex items-center justify-center flex-shrink-0'>
-                  <MapPin size={18} color='white' />
+                <div className='w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0' style={{ background: 'var(--color-content-border)' }}>
+                  <MapPin size={18} color='var(--color-content-text)' />
                 </div>
                 <div>
-                  <div className='text-sm font-bold text-white mb-0.5'>
+                  <div className='text-sm font-bold mb-0.5' style={{ color: 'var(--color-content-text)' }}>
                     {address.label}
                   </div>
-                  <div className='text-[13px] text-[#888] leading-tight'>
+                  <div className='text-[13px] leading-tight' style={{ color: 'var(--color-content-text-secondary)' }}>
                     {address.line1}, {address.line2}
                   </div>
                 </div>
@@ -284,49 +286,51 @@ export default function OrderSummaryPage() {
                   <textarea
                     value={localRemarks}
                     onChange={(e) => setLocalRemarks(e.target.value)}
-                    className='w-full bg-[#0A0A0A] border border-[#333] rounded-xl p-3 text-sm text-white resize-none h-24 focus:border-white outline-none'
+                    className='w-full rounded-xl p-3 text-sm resize-none h-24 outline-none'
+                    style={{ background: 'var(--color-content-bg)', border: '1px solid var(--color-content-border)', color: 'var(--color-content-text)' }}
                     placeholder='Add delivery instructions or device notes...'
                   />
                   <div className='flex justify-end gap-2 mt-2'>
                     <button
                       onClick={() => setIsEditingRemarks(false)}
-                      className='px-4 py-2 text-xs font-bold text-[#888]'
+                      className='px-4 py-2 text-xs font-bold' style={{ color: 'var(--color-content-text-secondary)' }}
                     >
                       Cancel
                     </button>
                     <button
                       onClick={handleSaveRemarks}
-                      className='px-4 py-2 bg-white text-black text-xs font-bold rounded-lg'
+                      className='px-4 py-2 text-xs font-bold rounded-lg'
+                      style={{ background: 'var(--theme-btn-primary-bg)', color: 'var(--theme-btn-primary-text)' }}
                     >
                       Save
                     </button>
                   </div>
                 </div>
               ) : (
-                <div className='text-sm text-[#A0A0A0]'>
+                <div className='text-sm' style={{ color: 'var(--color-content-text-secondary)' }}>
                   {remarks || 'No special remarks added.'}
                 </div>
               )}
             </SummarySection>
 
             {/* Pricing Summary */}
-            <div className='bg-[#111] rounded-[24px] p-6 border border-[#222] mt-4 mb-10'>
-              <h3 className='text-[18px] font-black text-white mb-4'>
+            <div className='rounded-[24px] p-6 mt-4 mb-10' style={{ background: 'var(--color-content-card)', border: '1px solid var(--color-content-border)' }}>
+              <h3 className='text-[18px] font-black mb-4' style={{ color: 'var(--color-content-text)' }}>
                 Total Estimate
               </h3>
 
-              <div className='flex flex-col gap-4 border-b border-[#222] pb-6 mb-6'>
+              <div className='flex flex-col gap-4 pb-6 mb-6' style={{ borderBottom: '1px solid var(--color-content-border)' }}>
                 {itemizedSymptoms.map((item, idx) => (
                   <div key={idx} className='flex justify-between items-start'>
                     <div className='pr-4'>
-                      <div className='text-sm font-bold text-white mb-1'>
+                      <div className='text-sm font-bold mb-1' style={{ color: 'var(--color-content-text)' }}>
                         {item.name}
                       </div>
-                      <div className='text-[10px] text-[#666] uppercase'>
+                       <div className='text-[10px] uppercase' style={{ color: 'var(--color-content-text-secondary)' }}>
                         {partTier.tier} Quality
                       </div>
                     </div>
-                    <div className='text-sm font-black text-white whitespace-nowrap'>
+                    <div className='text-sm font-black whitespace-nowrap' style={{ color: 'var(--color-content-text)' }}>
                       {item.isVariable
                         ? 'Ask Admin'
                         : `₹${item.total.toLocaleString('en-IN')}`}
@@ -342,7 +346,7 @@ export default function OrderSummaryPage() {
                     color='var(--color-warning)'
                     className='mt-0.5'
                   />
-                  <div className='text-xs text-[#E0E0E0] leading-snug'>
+                  <div className='text-xs leading-snug' style={{ color: 'var(--color-content-text)' }}>
                     <span className='text-warning font-bold block mb-1'>
                       Post-diagnosis estimate required
                     </span>
@@ -352,16 +356,16 @@ export default function OrderSummaryPage() {
               )}
 
               <div className='flex justify-between items-end'>
-                <span className='text-[15px] font-bold text-[#888]'>
+                <span className='text-[15px] font-bold' style={{ color: 'var(--color-content-text-secondary)' }}>
                   Grand Total
                 </span>
-                <span className='text-[28px] font-black text-white leading-none tracking-tight'>
+                <span className='text-[28px] font-black leading-none tracking-tight' style={{ color: 'var(--color-content-text)' }}>
                   {hasVariableSymptom && grandTotal === 0 ? (
                     'Ask Admin'
                   ) : (
                     <>
                       {hasVariableSymptom && (
-                        <span className='block text-[10px] font-bold text-[#888] mb-1 text-right'>
+                        <span className='block text-[10px] font-bold mb-1 text-right' style={{ color: 'var(--color-content-text-secondary)' }}>
                           Starting from
                         </span>
                       )}
@@ -374,11 +378,12 @@ export default function OrderSummaryPage() {
           </div>
         </div>
 
-        <div className='fixed bottom-[50px] left-0 right-0 p-5 bg-gradient-to-t from-[#0A0A0A] via-[#0A0A0A] to-transparent z-40'>
+        <div className='fixed bottom-[50px] left-0 right-0 p-5 z-40' style={{ background: 'linear-gradient(to top, var(--color-content-bg) 60%, transparent)' }}>
           <button
             onClick={handlePlaceOrder}
             disabled={isSubmitting || isLoading}
-            className='w-full h-[50px] bg-white text-black rounded-[20px] text-[15px] font-black flex items-center justify-center gap-2 shadow-xl active:scale-95 transition-transform uppercase tracking-wider disabled:opacity-50'
+            className='w-full h-[50px] rounded-[20px] text-[15px] font-black flex items-center justify-center gap-2 shadow-xl active:scale-95 transition-transform uppercase tracking-wider disabled:opacity-50'
+            style={{ background: 'var(--theme-btn-primary-bg)', color: 'var(--theme-btn-primary-text)' }}
           >
             {isLoading
               ? 'Calculating...'
@@ -393,13 +398,13 @@ export default function OrderSummaryPage() {
       {/* ════════════════════════════════════════════════════════════════
           DESKTOP VIEW (≥1024px)
           ════════════════════════════════════════════════════════════════ */}
-      <div className='home-desktop hidden lg:block bg-[#0A0A0A] min-h-[100svh] text-white'>
+      <div className='home-desktop hidden lg:block min-h-[100svh]' style={{ background: 'var(--color-content-bg)', color: 'var(--color-content-text)' }}>
         <div className='max-w-[1200px] mx-auto pt-[60px] pb-[100px] px-8'>
           <div className='mb-10'>
             <h1 className='text-[44px] font-black tracking-tight leading-none mb-3'>
               Order Summary
             </h1>
-            <p className='text-[16px] text-[#888]'>
+            <p className='text-[16px]' style={{ color: 'var(--color-content-text-secondary)' }}>
               Please review your repair details before confirming.
             </p>
           </div>
@@ -412,7 +417,7 @@ export default function OrderSummaryPage() {
                 onEdit={() => router.push('/select-symptoms')}
               >
                 <div className='flex items-center gap-6 mb-5'>
-                  <div className='w-20 h-24 bg-black rounded-[16px] flex items-center justify-center border border-[#222]'>
+                  <div className='w-20 h-24 rounded-[16px] flex items-center justify-center' style={{ background: 'var(--theme-bg)', border: '1px solid var(--color-content-border)' }}>
                     <Smartphone
                       size={36}
                       color='var(--color-accent)'
@@ -420,10 +425,10 @@ export default function OrderSummaryPage() {
                     />
                   </div>
                   <div>
-                    <h2 className='text-[28px] font-extrabold text-white mb-1'>
+                    <h2 className='text-[28px] font-extrabold mb-1' style={{ color: 'var(--color-content-text)' }}>
                       {brand.name} {model.name}
                     </h2>
-                    <div className='text-sm font-bold text-[#666] uppercase tracking-wider'>
+                     <div className='text-sm font-bold uppercase tracking-wider' style={{ color: 'var(--color-content-text-secondary)' }}>
                       {symptoms.length} Issues Selected
                     </div>
                   </div>
@@ -432,7 +437,8 @@ export default function OrderSummaryPage() {
                   {symptoms.map((s, i) => (
                     <span
                       key={i}
-                      className='text-xs font-bold text-white bg-[#222] px-4 py-2 rounded-full'
+                      className='text-xs font-bold px-4 py-2 rounded-full'
+                      style={{ color: 'var(--color-content-text)', background: 'var(--color-content-border)' }}
                     >
                       {s.name}
                     </span>
@@ -446,11 +452,11 @@ export default function OrderSummaryPage() {
                   onEdit={() => router.push('/schedule')}
                 >
                   <div className='flex items-center gap-4'>
-                    <div className='w-12 h-12 bg-black rounded-full flex items-center justify-center border border-[#222]'>
-                      <Calendar size={20} color='white' />
+                    <div className='w-12 h-12 rounded-full flex items-center justify-center' style={{ background: 'var(--theme-bg)', border: '1px solid var(--color-content-border)' }}>
+                      <Calendar size={20} color='var(--color-content-text)' />
                     </div>
                     <div>
-                      <div className='text-base font-bold text-white'>
+                      <div className='text-base font-bold' style={{ color: 'var(--color-content-text)' }}>
                         {new Date(slot.date).toLocaleDateString('en-US', {
                           weekday: 'long',
                           month: 'short',
@@ -470,18 +476,18 @@ export default function OrderSummaryPage() {
                 >
                   <div className='flex flex-col gap-3'>
                     <div className='flex justify-between items-center'>
-                      <span className='text-xs font-bold text-[#666] uppercase'>
+                      <span className='text-xs font-bold uppercase' style={{ color: 'var(--color-content-text-secondary)' }}>
                         Mode
                       </span>
-                      <span className='text-sm font-bold text-white'>
+                      <span className='text-sm font-bold' style={{ color: 'var(--color-content-text)' }}>
                         {serviceMode === 'lab' ? 'Pick & Drop' : 'Doorstep'}
                       </span>
                     </div>
                     <div className='flex justify-between items-center'>
-                      <span className='text-xs font-bold text-[#666] uppercase'>
+                      <span className='text-xs font-bold uppercase' style={{ color: 'var(--color-content-text-secondary)' }}>
                         Part Tier
                       </span>
-                      <span className='text-sm font-bold text-white'>
+                      <span className='text-sm font-bold' style={{ color: 'var(--color-content-text)' }}>
                         {partTier.tier} Quality
                       </span>
                     </div>
@@ -494,14 +500,14 @@ export default function OrderSummaryPage() {
                 onEdit={() => router.push('/address')}
               >
                 <div className='flex items-start gap-4'>
-                  <div className='w-12 h-12 bg-black rounded-full flex items-center justify-center flex-shrink-0 border border-[#222]'>
-                    <MapPin size={20} color='white' />
+                    <div className='w-12 h-12 rounded-full flex items-center justify-center border flex-shrink-0' style={{ background: 'var(--theme-bg)', border: '1px solid var(--color-content-border)' }}>
+                    <MapPin size={20} color='var(--color-content-text)' />
                   </div>
                   <div>
-                    <div className='text-base font-bold text-white mb-1'>
+                    <div className='text-base font-bold mb-1' style={{ color: 'var(--color-content-text)' }}>
                       {address.label}
                     </div>
-                    <div className='text-sm text-[#888] leading-relaxed'>
+                     <div className='text-sm leading-relaxed' style={{ color: 'var(--color-content-text-secondary)' }}>
                       {address.line1}
                       <br />
                       {address.line2}
@@ -519,26 +525,29 @@ export default function OrderSummaryPage() {
                     <textarea
                       value={localRemarks}
                       onChange={(e) => setLocalRemarks(e.target.value)}
-                      className='w-full bg-black border border-[#333] rounded-xl p-4 text-sm text-white resize-none h-24 focus:border-white outline-none'
+                      className='w-full rounded-xl p-4 text-sm resize-none h-24 outline-none'
+                      style={{ background: 'var(--theme-bg)', border: '1px solid var(--color-content-border)', color: 'var(--color-content-text)' }}
                       placeholder='Add delivery instructions or device notes...'
                     />
                     <div className='flex justify-end gap-3'>
                       <button
                         onClick={() => setIsEditingRemarks(false)}
-                        className='px-5 py-2.5 text-xs font-bold text-[#888] hover:text-white transition-colors'
+                        className='px-5 py-2.5 text-xs font-bold hover:opacity-100 transition-opacity'
+                        style={{ color: 'var(--color-content-text-secondary)' }}
                       >
                         Cancel
                       </button>
                       <button
                         onClick={handleSaveRemarks}
-                        className='px-5 py-2.5 bg-white text-black text-xs font-bold uppercase tracking-wider rounded-lg hover:bg-gray-200 transition-colors'
+                        className='px-5 py-2.5 text-xs font-bold uppercase tracking-wider rounded-lg transition-colors'
+                        style={{ background: 'var(--theme-btn-primary-bg)', color: 'var(--theme-btn-primary-text)' }}
                       >
                         Save Remarks
                       </button>
                     </div>
                   </div>
                 ) : (
-                  <div className='text-sm text-[#A0A0A0] bg-black p-4 rounded-xl border border-[#222]'>
+                  <div className='text-sm p-4 rounded-xl' style={{ color: 'var(--color-content-text-secondary)', background: 'var(--theme-bg)', border: '1px solid var(--color-content-border)' }}>
                     {remarks ||
                       'No special remarks added. Click Edit to add instructions.'}
                   </div>
@@ -548,23 +557,23 @@ export default function OrderSummaryPage() {
 
             {/* Right Column - Pricing */}
             <div className='w-[40%]'>
-              <div className='bg-[#111] rounded-[32px] p-8 border border-[#222] sticky top-[100px] shadow-2xl'>
-                <h3 className='text-[24px] font-black text-white mb-8'>
+              <div className='rounded-[32px] p-8 sticky top-[100px] shadow-2xl' style={{ background: 'var(--color-content-card)', border: '1px solid var(--color-content-border)' }}>
+                <h3 className='text-[24px] font-black mb-8' style={{ color: 'var(--color-content-text)' }}>
                   Technical Quote
                 </h3>
 
-                <div className='flex flex-col gap-5 border-b border-[#333] pb-8 mb-8'>
+                <div className='flex flex-col gap-5 pb-8 mb-8' style={{ borderBottom: '1px solid var(--color-content-border)' }}>
                   {itemizedSymptoms.map((item, idx) => (
                     <div key={idx} className='flex justify-between items-start'>
                       <div className='pr-6'>
-                        <div className='text-base font-bold text-white mb-1'>
+                        <div className='text-base font-bold mb-1' style={{ color: 'var(--color-content-text)' }}>
                           {item.name}
                         </div>
-                        <div className='text-[11px] font-bold tracking-wider text-[#666] uppercase'>
+                         <div className='text-[11px] font-bold tracking-wider uppercase' style={{ color: 'var(--color-content-text-secondary)' }}>
                           {partTier.tier} Quality
                         </div>
                       </div>
-                      <div className='text-lg font-black text-white whitespace-nowrap'>
+                      <div className='text-lg font-black whitespace-nowrap' style={{ color: 'var(--color-content-text)' }}>
                         {item.isVariable
                           ? 'Ask Admin'
                           : `₹${item.total.toLocaleString('en-IN')}`}
@@ -580,7 +589,7 @@ export default function OrderSummaryPage() {
                       color='var(--color-warning)'
                       className='flex-shrink-0'
                     />
-                    <div className='text-sm text-[#E0E0E0] leading-snug'>
+                    <div className='text-sm leading-snug' style={{ color: 'var(--color-content-text)' }}>
                       <strong className='text-warning font-bold block mb-1'>
                         Post-diagnosis estimate required
                       </strong>
@@ -591,16 +600,16 @@ export default function OrderSummaryPage() {
                 )}
 
                 <div className='flex justify-between items-end mb-10'>
-                  <span className='text-sm font-bold text-[#888] uppercase tracking-wider'>
+                  <span className='text-sm font-bold uppercase tracking-wider' style={{ color: 'var(--color-content-text-secondary)' }}>
                     Grand Total
                   </span>
-                  <span className='text-[42px] font-black text-white leading-none tracking-tight'>
+                  <span className='text-[42px] font-black leading-none tracking-tight' style={{ color: 'var(--color-content-text)' }}>
                     {hasVariableSymptom && grandTotal === 0 ? (
                       'Ask Admin'
                     ) : (
                       <>
                         {hasVariableSymptom && (
-                          <span className='block text-[12px] font-bold text-[#888] mb-2 text-right'>
+                          <span className='block text-[12px] font-bold mb-2 text-right' style={{ color: 'var(--color-content-text-secondary)' }}>
                             Starting from
                           </span>
                         )}
@@ -613,7 +622,8 @@ export default function OrderSummaryPage() {
                 <button
                   onClick={handlePlaceOrder}
                   disabled={isSubmitting || isLoading}
-                  className='w-full h-[64px] bg-white hover:bg-gray-200 text-black rounded-[20px] text-[16px] font-black flex items-center justify-center gap-3 shadow-xl active:scale-95 transition-all uppercase tracking-wider disabled:opacity-50'
+                  className='w-full h-[64px] rounded-[20px] text-[16px] font-black flex items-center justify-center gap-3 shadow-xl active:scale-95 transition-all uppercase tracking-wider disabled:opacity-50'
+                  style={{ background: 'var(--theme-btn-primary-bg)', color: 'var(--theme-btn-primary-text)' }}
                 >
                   {isLoading
                     ? 'Calculating...'
@@ -623,7 +633,7 @@ export default function OrderSummaryPage() {
                   <ChevronRight size={20} />
                 </button>
 
-                <p className='text-[11px] text-[#666] text-center mt-6 font-medium'>
+                <p className='text-[11px] text-center mt-6 font-medium' style={{ color: 'var(--color-content-text-secondary)' }}>
                   By proceeding, you agree to our terms and conditions.
                 </p>
               </div>

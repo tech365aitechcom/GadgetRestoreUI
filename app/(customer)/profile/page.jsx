@@ -646,6 +646,7 @@ export default function ProfilePage() {
 
           {/* App Settings & Support */}
           <div className='space-y-6'>
+
             {/* Notifications */}
             <div className='bg-[var(--theme-card)] rounded-2xl border border-[var(--theme-border)] p-6 shadow-sm'>
               <h2 className='text-[18px] font-extrabold text-[var(--theme-text-primary)] mb-5 flex items-center gap-2'>
