@@ -17,12 +17,12 @@ import catalogueService from '@/services/catalogue.service'
 
 function collectRepairTypeIds(symptoms) {
   const ids = new Set()
-  ;(symptoms || []).forEach((s) => {
-    ;(s.repairTypes || []).forEach((rt) => {
-      const id = typeof rt === 'object' ? rt._id : rt
-      if (id) ids.add(id)
+    ; (symptoms || []).forEach((s) => {
+      ; (s.repairTypes || []).forEach((rt) => {
+        const id = typeof rt === 'object' ? rt._id : rt
+        if (id) ids.add(id)
+      })
     })
-  })
   return [...ids]
 }
 
@@ -192,7 +192,7 @@ export default function OrderSummaryPage() {
                   <h2 className='text-lg font-extrabold mb-0.5' style={{ color: 'var(--color-content-text)' }}>
                     {brand.name} {model.name}
                   </h2>
-                   <div className='text-xs font-bold' style={{ color: 'var(--color-content-text-secondary)' }}>
+                  <div className='text-xs font-bold' style={{ color: 'var(--color-content-text-secondary)' }}>
                     {symptoms.length} selected issues
                   </div>
                 </div>
@@ -326,7 +326,7 @@ export default function OrderSummaryPage() {
                       <div className='text-sm font-bold mb-1' style={{ color: 'var(--color-content-text)' }}>
                         {item.name}
                       </div>
-                       <div className='text-[10px] uppercase' style={{ color: 'var(--color-content-text-secondary)' }}>
+                      <div className='text-[10px] uppercase' style={{ color: 'var(--color-content-text-secondary)' }}>
                         {partTier.tier} Quality
                       </div>
                     </div>
@@ -382,7 +382,7 @@ export default function OrderSummaryPage() {
           <button
             onClick={handlePlaceOrder}
             disabled={isSubmitting || isLoading}
-            className='w-full h-[50px] rounded-[20px] text-[15px] font-black flex items-center justify-center gap-2 shadow-xl active:scale-95 transition-transform uppercase tracking-wider disabled:opacity-50'
+            className='w-full h-[50px] rounded-[20px] text-[15px] font-black flex items-center justify-center gap-2 shadow-xl active:scale-95 transition-transform uppercase tracking-wider disabled:opacity-50 cursor-pointer'
             style={{ background: 'var(--theme-btn-primary-bg)', color: 'var(--theme-btn-primary-text)' }}
           >
             {isLoading
@@ -399,7 +399,7 @@ export default function OrderSummaryPage() {
           DESKTOP VIEW (≥1024px)
           ════════════════════════════════════════════════════════════════ */}
       <div className='home-desktop hidden lg:block min-h-[100svh]' style={{ background: 'var(--color-content-bg)', color: 'var(--color-content-text)' }}>
-        <div className='max-w-[1200px] mx-auto pt-[60px] pb-[100px] px-8'>
+        <div className='p-8'>
           <div className='mb-10'>
             <h1 className='text-[44px] font-black tracking-tight leading-none mb-3'>
               Order Summary
@@ -428,7 +428,7 @@ export default function OrderSummaryPage() {
                     <h2 className='text-[28px] font-extrabold mb-1' style={{ color: 'var(--color-content-text)' }}>
                       {brand.name} {model.name}
                     </h2>
-                     <div className='text-sm font-bold uppercase tracking-wider' style={{ color: 'var(--color-content-text-secondary)' }}>
+                    <div className='text-sm font-bold uppercase tracking-wider' style={{ color: 'var(--color-content-text-secondary)' }}>
                       {symptoms.length} Issues Selected
                     </div>
                   </div>
@@ -500,14 +500,14 @@ export default function OrderSummaryPage() {
                 onEdit={() => router.push('/address')}
               >
                 <div className='flex items-start gap-4'>
-                    <div className='w-12 h-12 rounded-full flex items-center justify-center border flex-shrink-0' style={{ background: 'var(--theme-bg)', border: '1px solid var(--color-content-border)' }}>
+                  <div className='w-12 h-12 rounded-full flex items-center justify-center border flex-shrink-0' style={{ background: 'var(--theme-bg)', border: '1px solid var(--color-content-border)' }}>
                     <MapPin size={20} color='var(--color-content-text)' />
                   </div>
                   <div>
                     <div className='text-base font-bold mb-1' style={{ color: 'var(--color-content-text)' }}>
                       {address.label}
                     </div>
-                     <div className='text-sm leading-relaxed' style={{ color: 'var(--color-content-text-secondary)' }}>
+                    <div className='text-sm leading-relaxed' style={{ color: 'var(--color-content-text-secondary)' }}>
                       {address.line1}
                       <br />
                       {address.line2}
@@ -569,7 +569,7 @@ export default function OrderSummaryPage() {
                         <div className='text-base font-bold mb-1' style={{ color: 'var(--color-content-text)' }}>
                           {item.name}
                         </div>
-                         <div className='text-[11px] font-bold tracking-wider uppercase' style={{ color: 'var(--color-content-text-secondary)' }}>
+                        <div className='text-[11px] font-bold tracking-wider uppercase' style={{ color: 'var(--color-content-text-secondary)' }}>
                           {partTier.tier} Quality
                         </div>
                       </div>
@@ -622,7 +622,7 @@ export default function OrderSummaryPage() {
                 <button
                   onClick={handlePlaceOrder}
                   disabled={isSubmitting || isLoading}
-                  className='w-full h-[64px] rounded-[20px] text-[16px] font-black flex items-center justify-center gap-3 shadow-xl active:scale-95 transition-all uppercase tracking-wider disabled:opacity-50'
+                  className='w-full h-[64px] rounded-[20px] text-[16px] font-black flex items-center justify-center gap-3 shadow-xl active:scale-95 transition-all uppercase tracking-wider disabled:opacity-50 cursor-pointer'
                   style={{ background: 'var(--theme-btn-primary-bg)', color: 'var(--theme-btn-primary-text)' }}
                 >
                   {isLoading

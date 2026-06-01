@@ -124,12 +124,12 @@ export default function CustomerDetailsPage() {
     const storedMobile =
       typeof window !== 'undefined'
         ? localStorage.getItem('gr_authenticated_phone') ||
-          sessionStorage.getItem('gr_login_phone')
+        sessionStorage.getItem('gr_login_phone')
         : ''
     let savedProfile = null
     try {
       savedProfile = JSON.parse(localStorage.getItem('gr_customer_profile'))
-    } catch (e) {}
+    } catch (e) { }
 
     setFormData((prev) => ({
       ...prev,
@@ -208,9 +208,6 @@ export default function CustomerDetailsPage() {
       if (!ticketNumber) {
         throw new Error('Order was created without a tracking number.')
       }
-
-      // Clear booking state
-      reset()
 
       // Redirect to order confirmation
       const redirectUrl = `/order-confirmation/${encodeURIComponent(ticketNumber)}`
@@ -322,7 +319,7 @@ export default function CustomerDetailsPage() {
           DESKTOP VIEW (≥1024px)
           ════════════════════════════════════════════════════════════════ */}
       <div className='home-desktop hidden lg:block min-h-[calc(100vh-var(--topbar-height))]' style={{ background: 'var(--color-content-bg)', color: 'var(--color-content-text)' }}>
-        <div className='flex h-[calc(100vh-var(--topbar-height))]'>
+        <div className='p-8 flex h-[calc(100vh-var(--topbar-height))]'>
           {/* Left Side: Summary Panel */}
           <div className='w-1/2 flex flex-col items-center justify-center p-12 relative overflow-hidden'>
             <div className="absolute inset-0 opacity-10 bg-[url('/images/dark-microchip-bg.png')] bg-cover pointer-events-none"></div>
@@ -364,7 +361,7 @@ export default function CustomerDetailsPage() {
           </div>
 
           {/* Right Side: Form */}
-          <div className='w-1/2 p-12 overflow-y-auto flex flex-col justify-center' style={{ borderLeft: '1px solid rgba(34,34,34,0.3)' }}>
+          <div className='w-1/2 p-12 overflow-y-hidden flex flex-col justify-center' style={{ borderLeft: '1px solid rgba(34,34,34,0.3)' }}>
             <div className='w-full max-w-lg mx-auto'>
               <h2 className='text-[22px] font-black uppercase tracking-wider mb-8 flex items-center gap-3'>
                 Customer Details
@@ -449,7 +446,7 @@ export default function CustomerDetailsPage() {
                     disabled={
                       isLoading || !formData.fullName || !formData.email
                     }
-                    className='w-full h-[64px] rounded-[20px] text-[16px] font-black flex items-center justify-center gap-3 shadow-xl active:scale-95 transition-all uppercase tracking-wider disabled:opacity-50'
+                    className='w-full h-[64px] rounded-[20px] text-[16px] font-black flex items-center justify-center gap-3 shadow-xl active:scale-95 transition-all uppercase tracking-wider disabled:opacity-50 cursor-pointer'
                     style={{ background: 'var(--theme-btn-primary-bg)', color: 'var(--theme-btn-primary-text)' }}
                   >
                     {isLoading ? 'Processing...' : 'Submit Order'}{' '}

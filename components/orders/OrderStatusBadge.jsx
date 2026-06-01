@@ -12,9 +12,9 @@ function variantFor(status) {
   return 'accent';
 }
 
-export default function OrderStatusBadge({ status }) {
+export default function OrderStatusBadge({ status, size = 'md' }) {
   return (
-    <Badge variant={variantFor(status)}>
+    <Badge variant={variantFor(status)} size={size}>
       {STATUS_LABELS[status] || status?.replaceAll('_', ' ') || 'Pending'}
     </Badge>
   );

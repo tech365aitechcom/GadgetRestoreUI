@@ -11,10 +11,11 @@ import {
   Search,
   Plus,
 } from 'lucide-react'
-import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useAuth } from '@/context/AuthContext'
+import { useProtectedNavigation } from '@/hooks/useProtectedNavigation'
 import NotificationDrawer from '@/components/layout/NotificationDrawer'
+import LoginAlertModal from '@/components/ui/LoginAlertModal'
 import notificationService from '@/services/notification.service'
 import { setRouterInstance } from '@/lib/navigation'
 
@@ -27,6 +28,7 @@ export default function AppShell({ children, className = '' }) {
   const pathname = usePathname()
   const router = useRouter()
   const { user } = useAuth()
+  const { navigateTo, showLoginModal, setShowLoginModal, redirectPath } = useProtectedNavigation()
   const [isNotificationOpen, setIsNotificationOpen] = useState(false)
   const [unreadCount, setUnreadCount] = useState(0)
 
@@ -89,9 +91,12 @@ export default function AppShell({ children, className = '' }) {
               pathname === item.href ||
               (item.href !== '/home' && pathname.startsWith(item.href))
             return (
-              <Link
+              <button
                 key={item.href}
-                href={item.href}
+                onClick={(e) => {
+                  e.preventDefault()
+                  navigateTo(item.href)
+                }}
                 className={`sidebar-nav-item${isActive ? ' active' : ''}`}
                 style={{
                   display: 'flex',
@@ -103,10 +108,14 @@ export default function AppShell({ children, className = '' }) {
                   color: isActive ? '#000000' : '#8A8A8A',
                   backgroundColor: isActive ? '#FFFFFF' : 'transparent',
                   transition: 'all 150ms ease',
+                  border: 'none',
+                  cursor: 'pointer',
+                  width: '100%',
+                  textAlign: 'left',
                 }}
               >
                 {item.label}
-              </Link>
+              </button>
             )
           })}
         </nav>
@@ -121,17 +130,20 @@ export default function AppShell({ children, className = '' }) {
             gap: 12,
           }}
         >
-          <img
-            src='/images/Guest.png'
-            alt='User Avatar'
+          <div
             style={{
               width: 34,
               height: 34,
               borderRadius: '50%',
-              objectFit: 'cover',
+              background: 'rgba(255, 255, 255, 0.1)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
               flexShrink: 0,
             }}
-          />
+          >
+            <User size={18} color='#fff' strokeWidth={2} />
+          </div>
           <span
             style={{
               fontSize: 13,
@@ -232,6 +244,12 @@ export default function AppShell({ children, className = '' }) {
       <NotificationDrawer
         isOpen={isNotificationOpen}
         onClose={() => setIsNotificationOpen(false)}
+      />
+
+      <LoginAlertModal
+        isOpen={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+        redirectPath={redirectPath}
       />
     </div>
   )

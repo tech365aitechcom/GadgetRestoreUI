@@ -11,13 +11,13 @@
 
   /* Main Content Area — bridged to theme.js for automatic dark/light switching.
      These vars read from --theme-* which applyTheme() updates on toggle.      */
-  --color-content-bg:             var(--theme-bg);
-  --color-content-surface:        var(--theme-surface);
-  --color-content-card:           var(--theme-card);
-  --color-content-text:           var(--theme-text-primary);
+  --color-content-bg: var(--theme-bg);
+  --color-content-surface: var(--theme-surface);
+  --color-content-card: var(--theme-card);
+  --color-content-text: var(--theme-text-primary);
   --color-content-text-secondary: var(--theme-text-secondary);
-  --color-content-divider:        var(--theme-divider);
-  --color-content-border:         var(--theme-border);
+  --color-content-divider: var(--theme-divider);
+  --color-content-border: var(--theme-border);
 
   /* Brand */
   --color-accent: #6c7bff;
@@ -27,9 +27,8 @@
   --color-warning: #f59e0b;
 
   /* Card aliases — bridged to theme.js */
-  --color-card-dark:   var(--theme-card);
+  --color-card-dark: var(--theme-card);
   --color-card-darker: var(--theme-card-darker);
-
 
   /* ── Extended Palette ────────────────────────────────────────────────────
      Dark values are set by default via var(--theme-*) bridges above.
@@ -39,57 +38,140 @@
   /* ── Extended Palette — Background shades ─────────────────────────────────
      Bridged to theme.js where the value differs between dark and light.
      Fixed tokens (same in both themes) keep their literal value.           */
-  --color-bg-base:     #000000;              /* fixed: pure black (phone icon bg, editorial) */
-  --color-bg-900:      var(--theme-bg-900);  /* page-wrapper bg: dark=#0a0a0a, light=#f5f5f7 */
-  --color-bg-600:      var(--theme-bg-600);  /* card-face bg:    dark=#141414, light=#f0f0f0 */
-  --color-bg-500:      var(--theme-input-bg);/* input field bg:  dark=rgba(fff,0.04), light=#f8f8f8 */
-  --color-bg-500-alt:  var(--theme-input-bg);/* input tint (same as input-bg) */
-  --color-bg-400:      var(--theme-bg-400);  /* border/divider:  dark=#222222, light=#e0e0e0 */
-  --color-bg-300:      var(--theme-bg-300);  /* banner bg:       dark=#2b2b2b, light=#e8e8e8 */
-  --color-bg-200:      var(--theme-bg-200);  /* strong border:   dark=#333333, light=#d0d0d0 */
-  --color-bg-100:      var(--theme-bg-100);  /* muted pill bg:   dark=#555555, light=#909090 */
+  --color-bg-base: #000000; /* fixed: pure black (phone icon bg, editorial) */
+  --color-bg-900: var(
+    --theme-bg-900
+  ); /* page-wrapper bg: dark=#0a0a0a, light=#f5f5f7 */
+  --color-bg-600: var(
+    --theme-bg-600
+  ); /* card-face bg:    dark=#141414, light=#f0f0f0 */
+  --color-bg-500: var(
+    --theme-input-bg
+  ); /* input field bg:  dark=rgba(fff,0.04), light=#f8f8f8 */
+  --color-bg-500-alt: var(--theme-input-bg); /* input tint (same as input-bg) */
+  --color-bg-400: var(
+    --theme-bg-400
+  ); /* border/divider:  dark=#222222, light=#e0e0e0 */
+  --color-bg-300: var(
+    --theme-bg-300
+  ); /* banner bg:       dark=#2b2b2b, light=#e8e8e8 */
+  --color-bg-200: var(
+    --theme-bg-200
+  ); /* strong border:   dark=#333333, light=#d0d0d0 */
+  --color-bg-100: var(
+    --theme-bg-100
+  ); /* muted pill bg:   dark=#555555, light=#909090 */
 
   /* ── Extended Palette — Text shades ────────────────────────────────────── */
-  --color-text-muted:       var(--theme-text-muted);      /* section-header: dark=#666, light=#999 */
-  --color-text-dim:         var(--theme-text-secondary);  /* dim text ≈ secondary (reuses theme token) */
-  --color-text-mid:         var(--theme-text-mid);        /* subtitle: dark=#a0a0a0, light=#555555 */
-  --color-text-soft:        var(--theme-text-soft);       /* soft/banner text: dark=#ccc, light=#333 */
-  --color-text-near-white:  var(--theme-text-near-white); /* near-white: dark=#e0e0e0, light=#1a1a1a */
+  --color-text-muted: var(
+    --theme-text-muted
+  ); /* section-header: dark=#666, light=#999 */
+  --color-text-dim: var(
+    --theme-text-secondary
+  ); /* dim text ≈ secondary (reuses theme token) */
+  --color-text-mid: var(
+    --theme-text-mid
+  ); /* subtitle: dark=#a0a0a0, light=#555555 */
+  --color-text-soft: var(
+    --theme-text-soft
+  ); /* soft/banner text: dark=#ccc, light=#333 */
+  --color-text-near-white: var(
+    --theme-text-near-white
+  ); /* near-white: dark=#e0e0e0, light=#1a1a1a */
 
   /* ── Accent tints — same in both themes (accent colour is unchanged) ─── */
-  --color-accent-tint-4:    rgba(108, 123, 255, 0.04);  /* pricing disclaimer bg */
-  --color-accent-tint-8:    rgba(108, 123, 255, 0.08);  /* selected symptom card bg */
-  --color-accent-tint-10:   rgba(108, 123, 255, 0.10);  /* model chip / tier chip bg */
-  --color-accent-tint-12:   rgba(108, 123, 255, 0.12);  /* selected icon bg (mobile) */
-  --color-accent-tint-14:   rgba(108, 123, 255, 0.14);  /* pricing disclaimer border */
-  --color-accent-tint-15:   rgba(108, 123, 255, 0.15);  /* selected icon bg (desktop) */
+  --color-accent-tint-4: rgba(108, 123, 255, 0.04); /* pricing disclaimer bg */
+  --color-accent-tint-8: rgba(
+    108,
+    123,
+    255,
+    0.08
+  ); /* selected symptom card bg */
+  --color-accent-tint-10: rgba(
+    108,
+    123,
+    255,
+    0.1
+  ); /* model chip / tier chip bg */
+  --color-accent-tint-12: rgba(
+    108,
+    123,
+    255,
+    0.12
+  ); /* selected icon bg (mobile) */
+  --color-accent-tint-14: rgba(
+    108,
+    123,
+    255,
+    0.14
+  ); /* pricing disclaimer border */
+  --color-accent-tint-15: rgba(
+    108,
+    123,
+    255,
+    0.15
+  ); /* selected icon bg (desktop) */
 
   /* ── Accent shadows — same in both themes ─────────────────────────────── */
-  --color-accent-shadow-10:  rgba(108, 123, 255, 0.10); /* card hover shadow */
-  --color-accent-shadow-12:  rgba(108, 123, 255, 0.12); /* service mode card shadow */
-  --color-accent-shadow-25:  rgba(108, 123, 255, 0.25); /* CTA button glow */
+  --color-accent-shadow-10: rgba(108, 123, 255, 0.1); /* card hover shadow */
+  --color-accent-shadow-12: rgba(
+    108,
+    123,
+    255,
+    0.12
+  ); /* service mode card shadow */
+  --color-accent-shadow-25: rgba(108, 123, 255, 0.25); /* CTA button glow */
 
   /* ── Status tints — semi-transparent, work in both themes ─────────────── */
-  --color-warning-tint:  rgba(245, 158, 11, 0.10); /* warning alert bg (pricing/summary) */
-  --color-danger-tint:   rgba(239, 68, 68,  0.10); /* error alert bg (schedule desktop) */
-  --color-success-tint:  rgba(34,  197, 94, 0.20); /* success ring bg (checkout/success) */
+  --color-warning-tint: rgba(
+    245,
+    158,
+    11,
+    0.1
+  ); /* warning alert bg (pricing/summary) */
+  --color-danger-tint: rgba(
+    239,
+    68,
+    68,
+    0.1
+  ); /* error alert bg (schedule desktop) */
+  --color-success-tint: rgba(
+    34,
+    197,
+    94,
+    0.2
+  ); /* success ring bg (checkout/success) */
 
   /* ── Tag / Badge — intentionally fixed (always light label on any theme) ─ */
-  --color-tag-bg:   #f2f2f2; /* e.g. "Pro Quality" badge background */
+  --color-tag-bg: #f2f2f2; /* e.g. "Pro Quality" badge background */
   --color-tag-text: #111111; /* badge text */
 
   /* ── CTA buttons — bridged to theme.js (inverts between dark/light) ───── */
-  --color-btn-cta-bg:    var(--theme-btn-primary-bg);    /* dark=#fff,  light=#000 */
-  --color-btn-cta-text:  var(--theme-btn-primary-text);  /* dark=#000,  light=#fff */
-  --color-btn-cta-hover: var(--theme-btn-primary-hover); /* dark=rgba(fff,0.9), light=#222 */
+  --color-btn-cta-bg: var(--theme-btn-primary-bg); /* dark=#fff,  light=#000 */
+  --color-btn-cta-text: var(
+    --theme-btn-primary-text
+  ); /* dark=#000,  light=#fff */
+  --color-btn-cta-hover: var(
+    --theme-btn-primary-hover
+  ); /* dark=rgba(fff,0.9), light=#222 */
 
   /* ── Dark overlay button — fixed, always dark (editorial design element) ─ */
-  --color-btn-dark-bg:   #000000;
+  --color-btn-dark-bg: #000000;
   --color-btn-dark-text: #ffffff;
 
   /* ── Overlays ──────────────────────────────────────────────────────────── */
-  --color-overlay-white-10:  rgba(255, 255, 255, 0.10); /* semi-transparent white overlay */
-  --color-overlay-black-50:  rgba(0,   0,   0,   0.50); /* semi-transparent black overlay */
+  --color-overlay-white-10: rgba(
+    255,
+    255,
+    255,
+    0.1
+  ); /* semi-transparent white overlay */
+  --color-overlay-black-50: rgba(
+    0,
+    0,
+    0,
+    0.5
+  ); /* semi-transparent black overlay */
 
   /* Spacing — 8pt grid */
   --sp-1: 4px;
@@ -193,55 +275,55 @@
   --color-warning: var(--color-warning);
 
   /* Extended background shades */
-  --color-bg-base:     var(--color-bg-base);
-  --color-bg-900:      var(--color-bg-900);
-  --color-bg-600:      var(--color-bg-600);
-  --color-bg-500:      var(--color-bg-500);
-  --color-bg-500-alt:  var(--color-bg-500-alt);
-  --color-bg-400:      var(--color-bg-400);
-  --color-bg-300:      var(--color-bg-300);
-  --color-bg-200:      var(--color-bg-200);
-  --color-bg-100:      var(--color-bg-100);
+  --color-bg-base: var(--color-bg-base);
+  --color-bg-900: var(--color-bg-900);
+  --color-bg-600: var(--color-bg-600);
+  --color-bg-500: var(--color-bg-500);
+  --color-bg-500-alt: var(--color-bg-500-alt);
+  --color-bg-400: var(--color-bg-400);
+  --color-bg-300: var(--color-bg-300);
+  --color-bg-200: var(--color-bg-200);
+  --color-bg-100: var(--color-bg-100);
 
   /* Extended text shades */
-  --color-text-muted:       var(--color-text-muted);
-  --color-text-dim:         var(--color-text-dim);
-  --color-text-mid:         var(--color-text-mid);
-  --color-text-soft:        var(--color-text-soft);
-  --color-text-near-white:  var(--color-text-near-white);
+  --color-text-muted: var(--color-text-muted);
+  --color-text-dim: var(--color-text-dim);
+  --color-text-mid: var(--color-text-mid);
+  --color-text-soft: var(--color-text-soft);
+  --color-text-near-white: var(--color-text-near-white);
 
   /* Accent tints (theme-independent) */
-  --color-accent-tint-4:   var(--color-accent-tint-4);
-  --color-accent-tint-8:   var(--color-accent-tint-8);
-  --color-accent-tint-10:  var(--color-accent-tint-10);
-  --color-accent-tint-12:  var(--color-accent-tint-12);
-  --color-accent-tint-14:  var(--color-accent-tint-14);
-  --color-accent-tint-15:  var(--color-accent-tint-15);
+  --color-accent-tint-4: var(--color-accent-tint-4);
+  --color-accent-tint-8: var(--color-accent-tint-8);
+  --color-accent-tint-10: var(--color-accent-tint-10);
+  --color-accent-tint-12: var(--color-accent-tint-12);
+  --color-accent-tint-14: var(--color-accent-tint-14);
+  --color-accent-tint-15: var(--color-accent-tint-15);
 
   /* Accent shadows (theme-independent) */
-  --color-accent-shadow-10:  var(--color-accent-shadow-10);
-  --color-accent-shadow-12:  var(--color-accent-shadow-12);
-  --color-accent-shadow-25:  var(--color-accent-shadow-25);
+  --color-accent-shadow-10: var(--color-accent-shadow-10);
+  --color-accent-shadow-12: var(--color-accent-shadow-12);
+  --color-accent-shadow-25: var(--color-accent-shadow-25);
 
   /* Status tints (theme-independent) */
-  --color-warning-tint:  var(--color-warning-tint);
-  --color-danger-tint:   var(--color-danger-tint);
-  --color-success-tint:  var(--color-success-tint);
+  --color-warning-tint: var(--color-warning-tint);
+  --color-danger-tint: var(--color-danger-tint);
+  --color-success-tint: var(--color-success-tint);
 
   /* Tag / badge (fixed, theme-independent) */
-  --color-tag-bg:    var(--color-tag-bg);
-  --color-tag-text:  var(--color-tag-text);
+  --color-tag-bg: var(--color-tag-bg);
+  --color-tag-text: var(--color-tag-text);
 
   /* CTA buttons */
-  --color-btn-cta-bg:    var(--color-btn-cta-bg);
-  --color-btn-cta-text:  var(--color-btn-cta-text);
+  --color-btn-cta-bg: var(--color-btn-cta-bg);
+  --color-btn-cta-text: var(--color-btn-cta-text);
   --color-btn-cta-hover: var(--color-btn-cta-hover);
-  --color-btn-dark-bg:   var(--color-btn-dark-bg);
+  --color-btn-dark-bg: var(--color-btn-dark-bg);
   --color-btn-dark-text: var(--color-btn-dark-text);
 
   /* Overlays (theme-independent) */
-  --color-overlay-white-10:  var(--color-overlay-white-10);
-  --color-overlay-black-50:  var(--color-overlay-black-50);
+  --color-overlay-white-10: var(--color-overlay-white-10);
+  --color-overlay-black-50: var(--color-overlay-black-50);
 
   --font-sans: var(--font-manrope), 'SF Pro Display', system-ui, sans-serif;
   --font-inter: var(--font-inter), 'Inter', sans-serif;
@@ -259,7 +341,7 @@
                                          → sets data-theme="light" attribute
      CSS picks up both changes and the entire app re-paints.
 ──────────────────────────────────────────────────────────────────────────── */
-[data-theme="light"] {
+[data-theme='light'] {
   /* ── Sidebar / Nav — kept dark even in light mode (intentional) ─────── */
   /* --color-bg, --color-bg-card, --color-text-primary etc. are NOT
      overridden here because the sidebar is always dark by design.          */
@@ -267,12 +349,22 @@
   /* ── Tag / Badge — light mode: invert to dark-on-light ──────────────── */
   /* These are intentional "always contrast" labels — in light mode a
      near-black badge on a light page makes more design sense.              */
-  --color-tag-bg:   #1a1a1a; /* dark label bg in light mode */
+  --color-tag-bg: #1a1a1a; /* dark label bg in light mode */
   --color-tag-text: #f2f2f2; /* light label text in light mode */
 
   /* ── Overlays — invert for light surfaces ───────────────────────────── */
-  --color-overlay-white-10:  rgba(0, 0, 0, 0.08); /* was white overlay, now subtle dark tint */
-  --color-overlay-black-50:  rgba(0, 0, 0, 0.40); /* slightly lighter on light surfaces */
+  --color-overlay-white-10: rgba(
+    0,
+    0,
+    0,
+    0.08
+  ); /* was white overlay, now subtle dark tint */
+  --color-overlay-black-50: rgba(
+    0,
+    0,
+    0,
+    0.4
+  ); /* slightly lighter on light surfaces */
 }
 
 /* ─── Base Reset ──────────────────────────────────────────────────────────── */
@@ -301,6 +393,14 @@
     line-height: var(--line-height);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+  }
+
+  button,
+  [role="button"],
+  .btn-primary,
+  .btn-accent,
+  .btn-secondary {
+    cursor: pointer !important;
   }
 
   /* ─── Typography ──────────────────────────────────────────────────────────── */
@@ -1003,12 +1103,17 @@ hr,
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.1),
+    transparent
+  );
   transform: translateX(-100%);
 }
 
 .step-dot.active {
-  background: linear-gradient(90deg, #6C7BFF, #8B9AFF);
+  background: linear-gradient(90deg, #6c7bff, #8b9aff);
   box-shadow: 0 0 8px rgba(108, 123, 255, 0.4);
 }
 
@@ -1017,7 +1122,7 @@ hr,
 }
 
 .step-dot.done {
-  background: linear-gradient(90deg, #34C759, #30D158);
+  background: linear-gradient(90deg, #34c759, #30d158);
   box-shadow: 0 0 6px rgba(52, 199, 89, 0.3);
 }
 

@@ -574,7 +574,7 @@ export default function AddressPage() {
           DESKTOP VIEW (≥1024px)
           ════════════════════════════════════════════════════════════════ */}
       <div className='home-desktop hidden lg:block min-h-[calc(100vh-var(--topbar-height))]' style={{ background: 'var(--theme-bg)' }}>
-        <div className='flex h-[calc(100vh-var(--topbar-height))]'>
+        <div className='p-8 flex h-[calc(100vh-var(--topbar-height))]'>
           {/* Left side - MAP */}
           <div className='w-[55%] relative' style={{ background: 'var(--color-content-bg)' }}>
             <img
@@ -663,7 +663,7 @@ export default function AddressPage() {
             <button
               onClick={handleConfirm}
               disabled={!selectedAddressId}
-              className='w-full h-[64px] rounded-[20px] text-[15px] font-black uppercase tracking-[0.1em] flex items-center justify-center gap-3 shadow-xl transition-colors'
+              className='w-full h-[64px] rounded-[20px] text-[15px] font-black uppercase tracking-[0.1em] flex items-center justify-center gap-3 shadow-xl transition-colors cursor-pointer'
               style={{
                 background: selectedAddressId ? 'var(--theme-btn-primary-bg)' : 'var(--color-content-border)',
                 color: selectedAddressId ? 'var(--theme-btn-primary-text)' : 'var(--color-content-text-secondary)',
@@ -713,11 +713,10 @@ export default function AddressPage() {
                       key={type}
                       type='button'
                       onClick={() => handleChange('addressType', type)}
-                      className={`flex-1 h-[44px] rounded-lg text-[13px] font-semibold transition-all ${
-                        newAddress.addressType === type
-                          ? ''
-                          : 'hover:bg-white/10'
-                      }`}
+                      className={`flex-1 h-[44px] rounded-lg text-[13px] font-semibold transition-all ${newAddress.addressType === type
+                        ? ''
+                        : 'hover:bg-white/10'
+                        }`}
                       style={{
                         background: newAddress.addressType === type ? 'var(--theme-btn-primary-bg)' : 'var(--color-content-border)',
                         border: newAddress.addressType === type ? 'none' : '1px solid var(--color-content-border)',

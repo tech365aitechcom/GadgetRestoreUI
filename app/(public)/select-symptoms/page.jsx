@@ -180,8 +180,8 @@ export default function SelectSymptomsPage() {
           DESKTOP  ≥1024px
           ════════════════════════════════════════════════════════════════ */}
       <div className="home-desktop">
-        <div className="page-container" style={{ paddingBottom: 48 }}>
-          
+        <div className="p-8" style={{ paddingBottom: 48 }}>
+
           {/* Header & Back Link */}
           <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 24, marginBottom: 28 }}>
             <div>
@@ -232,10 +232,10 @@ export default function SelectSymptomsPage() {
 
           {/* Main 2-Column Grid */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: 32, alignItems: 'start' }}>
-            
+
             {/* Left Column: Symptoms List & Textarea */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-              
+
               {/* Search Bar */}
               <div className="search-input-row">
                 <Search size={18} color="var(--color-content-text-secondary)" />
@@ -467,7 +467,7 @@ export default function SelectSymptomsPage() {
                   <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--color-content-text-secondary)', textTransform: 'uppercase', display: 'block', marginBottom: 8 }}>
                     Selected Issues ({selectedIds.length})
                   </span>
-                  
+
                   {selectedIds.length === 0 ? (
                     <div style={{ padding: '16px', background: 'var(--color-content-bg)', borderRadius: 10, textAlign: 'center', fontSize: 13, color: 'var(--color-content-text-secondary)' }}>
                       No symptoms selected. Tap cards on the left to add issues.
@@ -524,258 +524,258 @@ export default function SelectSymptomsPage() {
       <div className="home-mobile" style={{ background: 'var(--color-content-bg)', minHeight: '100svh', paddingBottom: 160 }}>
         {/* Core Mobile content */}
         <div style={{ padding: '20px 16px', display: 'flex', flexDirection: 'column', gap: 16 }}>
-            
-            {/* Header info */}
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 12 }}>
-                <span style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', background: 'var(--color-bg-700)', color: 'var(--color-btn-cta-bg)', padding: '4px 10px', borderRadius: 999 }}>
-                  {category?.name || model?.categoryId?.name || 'Device'}
-                </span>
-                <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--color-accent)', textTransform: 'uppercase', background: 'rgba(108,123,255,0.1)', padding: '4px 10px', borderRadius: 999 }}>
-                  {model.name}
-                </span>
-              </div>
-              <h1 style={{ fontSize: 26, fontWeight: 900, letterSpacing: '-0.02em', textTransform: 'uppercase', color: 'var(--color-content-text)', marginBottom: 8 }}>
-                Select Issues
-              </h1>
-              <p style={{ fontSize: 13, color: 'var(--color-content-text-secondary)', lineHeight: 1.6 }}>
-                Select one or more symptoms that best describe the issue with your {model.name}.
-              </p>
+
+          {/* Header info */}
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 12 }}>
+              <span style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', background: 'var(--color-bg-700)', color: 'var(--color-btn-cta-bg)', padding: '4px 10px', borderRadius: 999 }}>
+                {category?.name || model?.categoryId?.name || 'Device'}
+              </span>
+              <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--color-accent)', textTransform: 'uppercase', background: 'rgba(108,123,255,0.1)', padding: '4px 10px', borderRadius: 999 }}>
+                {model.name}
+              </span>
             </div>
+            <h1 style={{ fontSize: 26, fontWeight: 900, letterSpacing: '-0.02em', textTransform: 'uppercase', color: 'var(--color-content-text)', marginBottom: 8 }}>
+              Select Issues
+            </h1>
+            <p style={{ fontSize: 13, color: 'var(--color-content-text-secondary)', lineHeight: 1.6 }}>
+              Select one or more symptoms that best describe the issue with your {model.name}.
+            </p>
+          </div>
 
-            {/* Mobile Search input */}
-            <div className="search-input-row" style={{ marginTop: 4 }}>
-              <Search size={17} color="var(--color-content-text-secondary)" />
-              <input
-                type="text"
-                placeholder="Search screen, battery, lock..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                autoComplete="off"
-                style={{
-                  flex: 1,
-                  background: 'transparent',
-                  border: 'none',
-                  outline: 'none',
-                  color: 'var(--color-content-text)',
-                  fontSize: 13
-                }}
-              />
-              {searchQuery && (
-                <button onClick={() => setSearchQuery('')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-content-text-secondary)' }}>✕</button>
-              )}
+          {/* Mobile Search input */}
+          <div className="search-input-row" style={{ marginTop: 4 }}>
+            <Search size={17} color="var(--color-content-text-secondary)" />
+            <input
+              type="text"
+              placeholder="Search screen, battery, lock..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              autoComplete="off"
+              style={{
+                flex: 1,
+                background: 'transparent',
+                border: 'none',
+                outline: 'none',
+                color: 'var(--color-content-text)',
+                fontSize: 13
+              }}
+            />
+            {searchQuery && (
+              <button onClick={() => setSearchQuery('')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-content-text-secondary)' }}>✕</button>
+            )}
+          </div>
+
+          {/* Loading Indicator */}
+          {isLoading && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className="skeleton" style={{ height: 72, borderRadius: 'var(--radius-card)' }} />
+              ))}
             </div>
+          )}
 
-            {/* Loading Indicator */}
-            {isLoading && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                {Array.from({ length: 6 }).map((_, i) => (
-                  <div key={i} className="skeleton" style={{ height: 72, borderRadius: 'var(--radius-card)' }} />
-                ))}
-              </div>
-            )}
+          {/* Mobile checklist results */}
+          {!isLoading && error && (
+            <div style={{ textAlign: 'center', padding: '32px', color: 'var(--color-danger)', fontWeight: 600 }}>{error}</div>
+          )}
 
-            {/* Mobile checklist results */}
-            {!isLoading && error && (
-              <div style={{ textAlign: 'center', padding: '32px', color: 'var(--color-danger)', fontWeight: 600 }}>{error}</div>
-            )}
-
-            {!isLoading && !error && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                {filteredSymptoms.map((symptom) => {
-                  const isSelected = selectedIds.includes(symptom._id);
-                  return (
-                    <button
-                      key={symptom._id}
-                      onClick={() => handleToggleSymptom(symptom._id)}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        textAlign: 'left',
-                        padding: '16px',
-                        background: isSelected ? 'rgba(108,123,255,0.08)' : 'var(--color-content-card)',
-                        border: isSelected ? '2px solid var(--color-accent)' : '1px solid var(--color-content-border)',
-                        borderRadius: 'var(--radius-card)',
-                        transition: 'all 0.15s ease',
-                        outline: 'none'
-                      }}
-                    >
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 12, flex: 1, minWidth: 0 }}>
-                        <div style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          width: 38,
-                          height: 38,
-                          borderRadius: 8,
-                          background: isSelected ? 'rgba(108,123,255,0.12)' : 'var(--color-content-bg)',
-                          color: isSelected ? 'var(--color-accent)' : 'var(--color-content-text-secondary)',
-                          flexShrink: 0
-                        }}>
-                          {getSymptomIcon(symptom)}
-                        </div>
-                        <div style={{ minWidth: 0 }}>
-                          <span style={{
-                            display: 'block',
-                            fontWeight: 700,
-                            fontSize: 13,
-                            color: isSelected ? 'var(--color-accent)' : 'var(--color-content-text)',
-                            marginBottom: 2,
-                            whiteSpace: 'nowrap',
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis'
-                          }}>
-                            {symptom.name}
-                          </span>
-                          <span style={{
-                            display: 'block',
-                            fontSize: 11,
-                            color: 'var(--color-content-text-secondary)',
-                            whiteSpace: 'nowrap',
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis'
-                          }}>
-                            {symptom.description || 'Hardware and diagnostic service'}
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Tick or Circle */}
+          {!isLoading && !error && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              {filteredSymptoms.map((symptom) => {
+                const isSelected = selectedIds.includes(symptom._id);
+                return (
+                  <button
+                    key={symptom._id}
+                    onClick={() => handleToggleSymptom(symptom._id)}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      textAlign: 'left',
+                      padding: '16px',
+                      background: isSelected ? 'rgba(108,123,255,0.08)' : 'var(--color-content-card)',
+                      border: isSelected ? '2px solid var(--color-accent)' : '1px solid var(--color-content-border)',
+                      borderRadius: 'var(--radius-card)',
+                      transition: 'all 0.15s ease',
+                      outline: 'none'
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12, flex: 1, minWidth: 0 }}>
                       <div style={{
-                        width: 18,
-                        height: 18,
-                        borderRadius: '50%',
-                        border: isSelected ? 'none' : '2px solid var(--color-content-border)',
-                        background: isSelected ? 'var(--color-accent)' : 'transparent',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        color: '#fff',
-                        marginLeft: 10,
+                        width: 38,
+                        height: 38,
+                        borderRadius: 8,
+                        background: isSelected ? 'rgba(108,123,255,0.12)' : 'var(--color-content-bg)',
+                        color: isSelected ? 'var(--color-accent)' : 'var(--color-content-text-secondary)',
                         flexShrink: 0
                       }}>
-                        {isSelected && <Check size={10} strokeWidth={3} />}
+                        {getSymptomIcon(symptom)}
                       </div>
-                    </button>
-                  );
-                })}
+                      <div style={{ minWidth: 0 }}>
+                        <span style={{
+                          display: 'block',
+                          fontWeight: 700,
+                          fontSize: 13,
+                          color: isSelected ? 'var(--color-accent)' : 'var(--color-content-text)',
+                          marginBottom: 2,
+                          whiteSpace: 'nowrap',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis'
+                        }}>
+                          {symptom.name}
+                        </span>
+                        <span style={{
+                          display: 'block',
+                          fontSize: 11,
+                          color: 'var(--color-content-text-secondary)',
+                          whiteSpace: 'nowrap',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis'
+                        }}>
+                          {symptom.description || 'Hardware and diagnostic service'}
+                        </span>
+                      </div>
+                    </div>
 
-                {filteredSymptoms.length === 0 && (
-                  <div style={{ textAlign: 'center', padding: '32px 16px', color: 'var(--color-content-text-secondary)' }}>
-                    <div style={{ fontSize: 28, marginBottom: 8 }}>🔍</div>
-                    <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 4 }}>No results found</div>
-                    <div style={{ fontSize: 12 }}>Check spelling or select "Other" to describe your issue.</div>
-                  </div>
-                )}
-              </div>
-            )}
+                    {/* Tick or Circle */}
+                    <div style={{
+                      width: 18,
+                      height: 18,
+                      borderRadius: '50%',
+                      border: isSelected ? 'none' : '2px solid var(--color-content-border)',
+                      background: isSelected ? 'var(--color-accent)' : 'transparent',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: '#fff',
+                      marginLeft: 10,
+                      flexShrink: 0
+                    }}>
+                      {isSelected && <Check size={10} strokeWidth={3} />}
+                    </div>
+                  </button>
+                );
+              })}
 
-            {/* Mobile expandable description field */}
-            {isOtherSelected && (
-              <div style={{
-                background: 'var(--color-content-card)',
-                border: '1px solid var(--color-content-border)',
-                borderRadius: 'var(--radius-card)',
-                padding: 16,
-                marginTop: 4,
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 10
-              }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--color-content-text)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                    Describe issue details
-                  </label>
-                  <span style={{ fontSize: 11, color: otherText.length >= 200 ? 'var(--color-danger)' : 'var(--color-content-text-secondary)' }}>
-                    {otherText.length} / 200
-                  </span>
+              {filteredSymptoms.length === 0 && (
+                <div style={{ textAlign: 'center', padding: '32px 16px', color: 'var(--color-content-text-secondary)' }}>
+                  <div style={{ fontSize: 28, marginBottom: 8 }}>🔍</div>
+                  <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 4 }}>No results found</div>
+                  <div style={{ fontSize: 12 }}>Check spelling or select "Other" to describe your issue.</div>
                 </div>
-                <textarea
-                  rows={3}
-                  placeholder="Tell us what is wrong with the device..."
-                  value={otherText}
-                  onChange={(e) => setOtherText(e.target.value.slice(0, 200))}
-                  style={{
-                    width: '100%',
-                    padding: 12,
-                    background: 'var(--color-content-bg)',
-                    border: '1px solid var(--color-content-border)',
-                    borderRadius: 'var(--radius-input)',
-                    color: 'var(--color-content-text)',
-                    fontSize: 13,
-                    outline: 'none',
-                    resize: 'none',
-                    lineHeight: 1.4
-                  }}
-                />
+              )}
+            </div>
+          )}
+
+          {/* Mobile expandable description field */}
+          {isOtherSelected && (
+            <div style={{
+              background: 'var(--color-content-card)',
+              border: '1px solid var(--color-content-border)',
+              borderRadius: 'var(--radius-card)',
+              padding: 16,
+              marginTop: 4,
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 10
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--color-content-text)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                  Describe issue details
+                </label>
+                <span style={{ fontSize: 11, color: otherText.length >= 200 ? 'var(--color-danger)' : 'var(--color-content-text-secondary)' }}>
+                  {otherText.length} / 200
+                </span>
               </div>
-            )}
+              <textarea
+                rows={3}
+                placeholder="Tell us what is wrong with the device..."
+                value={otherText}
+                onChange={(e) => setOtherText(e.target.value.slice(0, 200))}
+                style={{
+                  width: '100%',
+                  padding: 12,
+                  background: 'var(--color-content-bg)',
+                  border: '1px solid var(--color-content-border)',
+                  borderRadius: 'var(--radius-input)',
+                  color: 'var(--color-content-text)',
+                  fontSize: 13,
+                  outline: 'none',
+                  resize: 'none',
+                  lineHeight: 1.4
+                }}
+              />
+            </div>
+          )}
 
         </div>
 
         {/* Mobile Bottom Sticky Action CTA bar (floating above standard bottom nav) */}
-          <div style={{
-            position: 'fixed',
-            bottom: 64, // Floating just above standard 64px BottomNav
-            left: 0,
-            right: 0,
-            background: 'var(--color-content-surface)',
-            borderTop: '1px solid var(--color-content-border)',
-            padding: '12px 16px',
-            zIndex: 90,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: 12,
-            boxShadow: '0 -4px 10px rgba(0,0,0,0.04)'
-          }}>
-            <div>
-              <span style={{
-                display: 'block',
-                fontSize: 10,
-                fontWeight: 700,
-                color: 'var(--color-content-text-secondary)',
-                textTransform: 'uppercase',
-                letterSpacing: '0.05em'
-              }}>
-                {selectedIds.length > 0 ? `${selectedIds.length} symptom${selectedIds.length === 1 ? '' : 's'} selected` : 'No symptoms selected'}
-              </span>
-              <span style={{
-                fontSize: 13,
-                fontWeight: 800,
-                color: selectedIds.length > 0 ? 'var(--color-accent)' : 'var(--color-content-text)'
-              }}>
-                {selectedIds.length > 0 ? 'Ready to continue ✓' : 'Select at least one issue'}
-              </span>
-            </div>
-            <button
-              onClick={handleContinue}
-              disabled={selectedIds.length === 0}
-              style={{
-                height: 44,
-                padding: '0 24px',
-                background: selectedIds.length > 0 ? 'var(--color-accent)' : 'var(--color-content-divider)',
-                color: selectedIds.length > 0 ? '#fff' : 'var(--color-content-text-secondary)',
-                border: 'none',
-                borderRadius: 'var(--radius-btn)',
-                fontWeight: 700,
-                fontSize: 13,
-                cursor: selectedIds.length > 0 ? 'pointer' : 'not-allowed',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: 6,
-                transition: 'all 0.15s ease'
-              }}
-            >
-              Continue <ChevronRight size={14} />
-            </button>
+        <div style={{
+          position: 'fixed',
+          bottom: 64, // Floating just above standard 64px BottomNav
+          left: 0,
+          right: 0,
+          background: 'var(--color-content-surface)',
+          borderTop: '1px solid var(--color-content-border)',
+          padding: '12px 16px',
+          zIndex: 90,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: 12,
+          boxShadow: '0 -4px 10px rgba(0,0,0,0.04)'
+        }}>
+          <div>
+            <span style={{
+              display: 'block',
+              fontSize: 10,
+              fontWeight: 700,
+              color: 'var(--color-content-text-secondary)',
+              textTransform: 'uppercase',
+              letterSpacing: '0.05em'
+            }}>
+              {selectedIds.length > 0 ? `${selectedIds.length} symptom${selectedIds.length === 1 ? '' : 's'} selected` : 'No symptoms selected'}
+            </span>
+            <span style={{
+              fontSize: 13,
+              fontWeight: 800,
+              color: selectedIds.length > 0 ? 'var(--color-accent)' : 'var(--color-content-text)'
+            }}>
+              {selectedIds.length > 0 ? 'Ready to continue ✓' : 'Select at least one issue'}
+            </span>
+          </div>
+          <button
+            onClick={handleContinue}
+            disabled={selectedIds.length === 0}
+            style={{
+              height: 44,
+              padding: '0 24px',
+              background: selectedIds.length > 0 ? 'var(--color-accent)' : 'var(--color-content-divider)',
+              color: selectedIds.length > 0 ? '#fff' : 'var(--color-content-text-secondary)',
+              border: 'none',
+              borderRadius: 'var(--radius-btn)',
+              fontWeight: 700,
+              fontSize: 13,
+              cursor: selectedIds.length > 0 ? 'pointer' : 'not-allowed',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 6,
+              transition: 'all 0.15s ease'
+            }}
+          >
+            Continue <ChevronRight size={14} />
+          </button>
         </div>
 
         <BottomNav />
       </div>
-      
+
       {/* Styles for simple keyframe animations */}
       <style jsx global>{`
         @keyframes fadeIn {

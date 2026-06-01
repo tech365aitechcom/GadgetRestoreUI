@@ -46,7 +46,7 @@ export default function SelectBrandPage() {
           DESKTOP  ≥1024px
           ════════════════════════════════════════════════════════════════ */}
       <div className="home-desktop">
-        <div className="page-container" style={{ paddingBottom: 48 }}>
+        <div className="p-8" style={{ paddingBottom: 48 }}>
 
           {/* Page header row */}
           <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 24, marginBottom: 28 }}>
@@ -135,50 +135,50 @@ export default function SelectBrandPage() {
         {/* Content */}
         <div style={{ padding: '20px 16px', display: 'flex', flexDirection: 'column', gap: 16 }}>
 
-            {/* Heading */}
-            <div>
-              {/* Category filter chip */}
-              {category && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-                  <span style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', background: 'var(--color-bg-700)', color: 'var(--color-btn-cta-bg)', padding: '4px 12px', borderRadius: 999 }}>
-                    {category.name}
-                  </span>
-                  <button
-                    onClick={() => router.push('/home')}
-                    style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 11, color: 'var(--color-content-text-secondary)', textDecoration: 'underline', padding: 0 }}
-                  >
-                    Change
-                  </button>
-                </div>
-              )}
-              <h1 style={{ fontSize: 26, fontWeight: 900, letterSpacing: '-0.02em', textTransform: 'uppercase', color: 'var(--color-content-text)', marginBottom: 8 }}>
-                Select Brand
-              </h1>
-              <p style={{ fontSize: 13, color: 'var(--color-content-text-secondary)', lineHeight: 1.65 }}>
-                {category
-                  ? `Showing brands for ${category.name}. Use search to filter further.`
-                  : 'We support over 50+ manufacturers. Use the search bar for specific model compatibility or contact our technician team directly.'}
-              </p>
-            </div>
-
-
-            {/* Scan Serial */}
-            <ScanSerialButton />
-
-            {/* Can't Find card */}
-            <CantFindBanner />
-
-            {/* Brand grid */}
-            {error ? (
-              <div style={{ textAlign: 'center', padding: '32px', color: 'var(--color-danger)', fontWeight: 600 }}>{error}</div>
-            ) : (
-              <BrandGrid
-                brands={brands}
-                isLoading={isLoading}
-                onSelectBrand={handleSelectBrand}
-                selectedBrandId={selectedBrand?._id}
-              />
+          {/* Heading */}
+          <div>
+            {/* Category filter chip */}
+            {category && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+                <span style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', background: 'var(--color-bg-700)', color: 'var(--color-btn-cta-bg)', padding: '4px 12px', borderRadius: 999 }}>
+                  {category.name}
+                </span>
+                <button
+                  onClick={() => router.push('/home')}
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 11, color: 'var(--color-content-text-secondary)', textDecoration: 'underline', padding: 0 }}
+                >
+                  Change
+                </button>
+              </div>
             )}
+            <h1 style={{ fontSize: 26, fontWeight: 900, letterSpacing: '-0.02em', textTransform: 'uppercase', color: 'var(--color-content-text)', marginBottom: 8 }}>
+              Select Brand
+            </h1>
+            <p style={{ fontSize: 13, color: 'var(--color-content-text-secondary)', lineHeight: 1.65 }}>
+              {category
+                ? `Showing brands for ${category.name}. Use search to filter further.`
+                : 'We support over 50+ manufacturers. Use the search bar for specific model compatibility or contact our technician team directly.'}
+            </p>
+          </div>
+
+
+          {/* Scan Serial */}
+          <ScanSerialButton />
+
+          {/* Can't Find card */}
+          <CantFindBanner />
+
+          {/* Brand grid */}
+          {error ? (
+            <div style={{ textAlign: 'center', padding: '32px', color: 'var(--color-danger)', fontWeight: 600 }}>{error}</div>
+          ) : (
+            <BrandGrid
+              brands={brands}
+              isLoading={isLoading}
+              onSelectBrand={handleSelectBrand}
+              selectedBrandId={selectedBrand?._id}
+            />
+          )}
 
         </div>
 

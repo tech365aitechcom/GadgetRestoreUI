@@ -144,11 +144,10 @@ export default function SchedulePage() {
                       setSelectedTimeSlot(null) // reset time slot on date change
                       setError('')
                     }}
-                    className={`flex-shrink-0 w-[72px] py-3 rounded-2xl flex flex-col items-center justify-center transition-all ${
-                      isSelected
-                        ? 'shadow-lg scale-[1.02]'
-                        : 'shadow-sm'
-                    }`}
+                    className={`flex-shrink-0 w-[72px] py-3 rounded-2xl flex flex-col items-center justify-center transition-all ${isSelected
+                      ? 'shadow-lg scale-[1.02]'
+                      : 'shadow-sm'
+                      }`}
                     style={{
                       background: isSelected ? 'var(--color-content-card)' : 'var(--color-content-card)',
                       border: isSelected ? '1px solid var(--color-content-text)' : '1px solid var(--color-content-border)',
@@ -254,7 +253,7 @@ export default function SchedulePage() {
                 </div>
                 <ChevronDown size={18} color='#999' className={`transition-transform ${isMobileDropdownOpen ? 'rotate-180' : ''}`} />
               </div>
-              
+
               {isMobileDropdownOpen && (
                 <>
                   <div className="fixed inset-0 z-40" onClick={() => setIsMobileDropdownOpen(false)} />
@@ -306,7 +305,7 @@ export default function SchedulePage() {
           ════════════════════════════════════════════════════════════════ */}
       <div className='home-desktop hidden lg:block min-h-[calc(100vh-var(--topbar-height))]' style={{ background: 'var(--theme-bg)' }}>
         {/* Using a simplified layout that mimics the image for desktop */}
-        <div className='max-w-6xl mx-auto p-10 flex gap-12'>
+        <div className='p-8 flex gap-12'>
           <div className='flex-1'>
             <h1 className='text-[44px] font-black tracking-tight leading-none mb-3' style={{ color: 'var(--color-content-text)' }}>
               Book Appointment
@@ -426,7 +425,7 @@ export default function SchedulePage() {
 
             <button
               onClick={handleConfirm}
-              className='w-full h-16 rounded-xl text-[15px] font-black uppercase tracking-wider flex items-center justify-center gap-2 transition-colors'
+              className='w-full h-16 rounded-xl text-[15px] font-black uppercase tracking-wider flex items-center justify-center gap-2 transition-colors cursor-pointer'
               style={{ background: 'var(--theme-btn-primary-bg)', color: 'var(--theme-btn-primary-text)' }}
             >
               CONFIRM BOOKING <ArrowLeft className='rotate-180' size={18} />
@@ -441,7 +440,7 @@ export default function SchedulePage() {
               </h3>
 
               <div className='relative mb-6'>
-                <div 
+                <div
                   onClick={() => setIsDesktopDropdownOpen(!isDesktopDropdownOpen)}
                   className='rounded-2xl p-4 flex items-center gap-4 shadow-sm cursor-pointer transition-colors'
                   style={{ background: 'var(--color-content-card)', border: '1px solid var(--color-content-border)' }}
@@ -459,7 +458,7 @@ export default function SchedulePage() {
                   </div>
                   <ChevronDown size={20} color='var(--color-content-text-secondary)' className={`transition-transform ${isDesktopDropdownOpen ? 'rotate-180' : ''}`} />
                 </div>
-                
+
                 {isDesktopDropdownOpen && (
                   <>
                     <div className="fixed inset-0 z-40" onClick={() => setIsDesktopDropdownOpen(false)} />

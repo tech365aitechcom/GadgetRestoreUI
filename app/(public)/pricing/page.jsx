@@ -169,7 +169,7 @@ export default function PricingPage() {
         style={{ background: 'var(--color-content-bg)', color: 'var(--color-content-text)', minHeight: '100svh' }}
       >
         <div
-          className='page-container'
+          className='p-8'
           style={{ paddingBottom: 60, maxWidth: 1200 }}
         >
           <div style={{ marginBottom: 40, paddingTop: 20 }}>
