@@ -554,7 +554,7 @@ export default function AddressPage() {
           </div>
 
           {/* Confirm Button Fixed Bottom */}
-          <div className='fixed bottom-[50px] left-0 right-0 p-5 z-40 pointer-events-none' style={{ background: 'linear-gradient(to top, var(--color-content-bg) 60%, transparent)' }}>
+          <div className='fixed left-0 right-0 p-5 z-40 pointer-events-none' style={{ bottom: 'calc(var(--nav-height) + env(safe-area-inset-bottom, 0px))', background: 'linear-gradient(to top, var(--color-content-bg) 60%, transparent)' }}>
             <button
               onClick={handleConfirm}
               disabled={!selectedAddressId}

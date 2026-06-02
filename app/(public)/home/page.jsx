@@ -1677,7 +1677,7 @@ export default function HomePage() {
             onClick={handleStart}
             style={{
               position: 'fixed',
-              bottom: 80,
+              bottom: 'calc(var(--nav-height) + env(safe-area-inset-bottom, 0px) + 16px)',
               right: 16,
               zIndex: 40,
               background: 'var(--color-accent)',

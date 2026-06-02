@@ -1083,7 +1083,20 @@ hr,
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 16px 20px;
+  padding: 12px 20px 12px !important;
+  background-color: #111111;
+  border-bottom: 1px solid var(--color-divider);
+}
+
+/* Remove border from top bar when followed by step progress */
+.home-mobile:has(.step-progress) .top-bar {
+  border-bottom: none !important;
+}
+
+/* Consistent spacing for booking content after the sticky header/step-progress */
+.home-mobile + .app-shell .home-mobile > div:first-child,
+.home-mobile + .home-mobile > div:first-child {
+  padding-top: 16px !important;
 }
 
 .step-dot {
@@ -1539,6 +1552,11 @@ hr,
   /* For pages without a top-bar (like onboarding), push down the main view */
   .content-col:not(:has(.top-bar)) {
     padding-top: env(safe-area-inset-top, 0px) !important;
+  }
+
+  /* If the layout header has the step progress indicator, it occupies flow space, so content-col doesn't need safe area padding */
+  .home-mobile:has(.step-progress) + .app-shell .content-col {
+    padding-top: 0 !important;
   }
 }
 

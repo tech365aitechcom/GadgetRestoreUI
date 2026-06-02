@@ -378,11 +378,11 @@ export default function OrderSummaryPage() {
           </div>
         </div>
 
-        <div className='fixed bottom-[50px] left-0 right-0 p-5 z-40' style={{ background: 'linear-gradient(to top, var(--color-content-bg) 60%, transparent)' }}>
+        <div className='fixed left-0 right-0 p-5 z-40' style={{ bottom: 'calc(var(--nav-height) + env(safe-area-inset-bottom, 0px))', background: 'linear-gradient(to top, var(--color-content-bg) 60%, transparent)' }}>
           <button
             onClick={handlePlaceOrder}
             disabled={isSubmitting || isLoading}
-            className='w-full h-[50px] rounded-[20px] text-[15px] font-black flex items-center justify-center gap-2 shadow-xl active:scale-95 transition-transform uppercase tracking-wider disabled:opacity-50 cursor-pointer'
+            className='w-full h-[50px] rounded-[20px] text-sm font-bold flex items-center justify-center gap-2 shadow-xl active:scale-95 transition-transform uppercase tracking-wider disabled:opacity-50 cursor-pointer'
             style={{ background: 'var(--theme-btn-primary-bg)', color: 'var(--theme-btn-primary-text)' }}
           >
             {isLoading

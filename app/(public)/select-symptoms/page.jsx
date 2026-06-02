@@ -717,7 +717,7 @@ export default function SelectSymptomsPage() {
         {/* Mobile Bottom Sticky Action CTA bar (floating above standard bottom nav) */}
         <div style={{
           position: 'fixed',
-          bottom: 64, // Floating just above standard 64px BottomNav
+          bottom: 'calc(var(--nav-height) + env(safe-area-inset-bottom, 0px))', // Floating just above standard BottomNav
           left: 0,
           right: 0,
           background: 'var(--color-content-surface)',
