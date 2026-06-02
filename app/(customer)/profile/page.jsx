@@ -383,7 +383,7 @@ export default function ProfilePage() {
               />
             </button>
 
-            <button
+            {/* <button
               onClick={() => router.push('/profile/security')}
               className='w-full flex items-center gap-3 p-4 bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-xl hover:bg-[var(--theme-btn-secondary-hover)] active:scale-[0.98] transition-all'
             >
@@ -421,7 +421,7 @@ export default function ProfilePage() {
                 size={18}
                 className='text-[var(--theme-text-disabled)]'
               />
-            </button>
+            </button> */}
 
             <button
               onClick={handleLogout}

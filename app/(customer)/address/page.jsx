@@ -472,7 +472,7 @@ export default function AddressPage() {
           ════════════════════════════════════════════════════════════════ */}
       <div className='home-mobile lg:hidden min-h-[100svh] relative overflow-hidden' style={{ background: 'var(--color-content-card)' }}>
         {/* Content */}
-        <div className='relative z-10 pt-[72px] pb-[180px] min-h-[100svh] mt-[-20px] rounded-t-[30px]' style={{ background: 'var(--color-content-bg)' }}>
+        <div className='relative z-10 pb-[180px] rounded-t-[30px]' style={{ background: 'var(--color-content-bg)' }}>
           <div className='px-5 pt-6 pb-4'>
             <h1 className='text-2xl font-black tracking-tight uppercase leading-tight mb-1' style={{ color: 'var(--color-content-text)' }}>
               Select Address

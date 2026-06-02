@@ -241,7 +241,7 @@ export default function OrdersPage() {
       {/* ════════════════════════════════════════════════════════════════
           MOBILE VIEW (<1024px)
           ════════════════════════════════════════════════════════════════ */}
-      <div className='lg:hidden min-h-[100svh] bg-[var(--theme-bg)] pb-20 px-4 pt-20'>
+      <div className='lg:hidden min-h-[100svh] bg-[var(--theme-bg)] pb-20 px-5 pt-6'>
         {loading ? (
           <div className='grid place-items-center min-h-[200px] rounded-2xl bg-[var(--theme-card)] border border-[var(--theme-border)] text-[var(--theme-text-secondary)]'>
             Loading...
@@ -271,7 +271,7 @@ export default function OrdersPage() {
             {/* Current Active Repair Card */}
             {currentOrder && (
               <Link
-                href={`/orders/${encodeURIComponent(currentOrder.ticketNumber)}`}
+                href={`/orders/detail?ticketNumber=${encodeURIComponent(currentOrder.ticketNumber)}`}
                 className='block mb-4 no-underline'
               >
                 <div className='bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-2xl p-5'>
@@ -472,7 +472,7 @@ export default function OrdersPage() {
                     return (
                       <Link
                         key={order.ticketNumber}
-                        href={`/orders/${encodeURIComponent(order.ticketNumber)}`}
+                        href={`/orders/detail?ticketNumber=${encodeURIComponent(order.ticketNumber)}`}
                         className='flex items-center gap-3 p-4 bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-xl no-underline'
                       >
                         <div className='w-10 h-10 rounded-lg bg-[var(--theme-surface)] flex items-center justify-center flex-shrink-0'>
@@ -553,7 +553,7 @@ export default function OrdersPage() {
               <div className='col-span-7'>
                 {currentOrder ? (
                   <Link
-                    href={`/orders/${encodeURIComponent(currentOrder.ticketNumber)}`}
+                    href={`/orders/detail?ticketNumber=${encodeURIComponent(currentOrder.ticketNumber)}`}
                     className='block no-underline group'
                   >
                     <div className='bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-2xl p-7 hover:border-[var(--theme-border-strong)] transition-colors'>
@@ -799,7 +799,7 @@ export default function OrdersPage() {
                         return (
                           <Link
                             key={order.ticketNumber}
-                            href={`/orders/${encodeURIComponent(order.ticketNumber)}`}
+                            href={`/orders/detail?ticketNumber=${encodeURIComponent(order.ticketNumber)}`}
                             className='grid grid-cols-12 gap-4 px-6 py-4 hover:bg-[var(--theme-surface)] transition-colors no-underline group'
                             style={{
                               borderBottom:

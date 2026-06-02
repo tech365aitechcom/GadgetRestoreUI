@@ -170,7 +170,7 @@ export default function OrderSummaryPage() {
           MOBILE VIEW (<1024px)
           ════════════════════════════════════════════════════════════════ */}
       <div className='home-mobile lg:hidden min-h-[100svh] relative pb-[160px]' style={{ background: 'var(--color-content-bg)', color: 'var(--color-content-text)' }}>
-        <div className='relative z-10 pt-[58px] px-4'>
+        <div className='relative z-10 pt-6 px-5'>
           <h1 className='text-[28px] font-black tracking-tight uppercase leading-tight mb-6' style={{ color: 'var(--color-content-text)' }}>
             Order Summary
           </h1>

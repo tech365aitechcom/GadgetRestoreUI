@@ -211,7 +211,7 @@ export default function NotificationsPage() {
         }
       />
 
-      <div className="max-w-[700px] mx-auto px-4 py-4">
+      <div className="max-w-[700px] mx-auto px-5 pt-6 pb-4">
         {/* Header Controls for Quick Actions */}
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">

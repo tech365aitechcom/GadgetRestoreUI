@@ -95,15 +95,20 @@ export default function SplashOrLandingPage() {
         try {
           const { value } = await Preferences.get({ key: 'has_seen_onboarding' });
           hasSeen = value || 'false';
+          console.log('[SPLASH] Onboarding status:', hasSeen);
         } catch (e) {
+          console.error('[SPLASH] Error reading preferences:', e);
           hasSeen = 'false';
         }
 
-        if (hasSeen === 'true') {
-          router.replace('/home');
-        } else {
-          router.replace('/onboarding');
-        }
+        // Use Next.js router for client-side navigation in Capacitor
+        // This avoids protocol/CORS issues with static exports
+        const targetRoute = hasSeen === 'true' ? '/home' : '/onboarding';
+        console.log('[SPLASH] Navigating to:', targetRoute);
+
+        setTimeout(() => {
+          router.push(targetRoute);
+        }, 300);
       };
       decideRoute();
     }
@@ -500,15 +505,15 @@ export default function SplashOrLandingPage() {
           {[
             {
               title: 'Smart Phone Repair',
-              img: '/images/Container.png',
+              img: '/images/service-smartphone-repair.png',
             },
             {
               title: 'Tablet & iPad Repair',
-              img: '/images/Container (1).png',
+              img: '/images/service-tablet-repair.png',
             },
             {
               title: 'Mac & PC Repair',
-              img: '/images/Container (2).png',
+              img: '/images/service-laptop-repair.png',
             }
           ].map((item, index) => (
             <div key={index}
@@ -541,7 +546,7 @@ export default function SplashOrLandingPage() {
           <div className="w-full lg:w-1/2 relative pr-4 pb-4">
             <div className="relative overflow-hidden rounded-[32px] border border-zinc-100 shadow-xl shadow-zinc-100">
               <img
-                src="/images/Container (3).png"
+                src="/images/expert-technicians.png"
                 alt="Expert Technicians"
                 className="w-full h-auto object-cover max-h-[420px]"
               />
@@ -813,7 +818,7 @@ export default function SplashOrLandingPage() {
           ──────────────────────────────────────────────────────────────────────── */}
       <section id="process" className="py-28 px-6 lg:px-20 relative overflow-hidden flex flex-col items-center justify-center bg-cover bg-center"
         style={{
-          backgroundImage: "linear-gradient(rgba(11, 12, 22, 0.92), rgba(11, 12, 22, 0.92)), url('/images/Container (1).png')"
+          backgroundImage: "linear-gradient(rgba(11, 12, 22, 0.92), rgba(11, 12, 22, 0.92)), url('/images/service-tablet-repair.png')"
         }}
       >
         <div className="text-center max-w-[600px] mx-auto mb-20 relative z-10">
@@ -937,8 +942,8 @@ export default function SplashOrLandingPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 ">
           {[
             { title: "5 Ways to Extend Your Laptop's Battery Life", img: '/images/Background.png', desc: 'Learn the professional habits that will keep your battery healthy for years...' },
-            { title: "LCD vs OLED: Which Screen Should You Choose?", img: '/images/AB6AXuAe_9tg9BInPwIii8ZSuWo-x1Zhoi_dE6ncFWlYRY79xaDFAPaWzYQdy-G_YFoKmGAoSCUfRRIeeg1bIKmYz7AN_P2pkOM1s7sb0tuIsWMIAwWOOvGfOF81S2WfWykZGLh2QNoP02im9c3cGrLOaNAYf1wEUwfeazj6l9-q5go811SoAk6cJyVmtVb9fTUYnvFsE-Zb2czFlpj7.png', desc: 'Understanding the technical differences when getting a screen replacement...' },
-            { title: "Why Cloud Backup is Your Best Friend", img: '/images/AB6AXuASWCntcai99GLRR7RZ8R2w-JSl-e8IsaiTHUnoZA8Esb5PMDtC2JvNgz3tC8svN1Z3aBk4eNaCN2BwpStMYrITk_D8ZzH11umhkveCo2om7-V2qKfl4ODd.png', desc: 'A technical guide on setting up fail-safe data redundancy for home users...' }
+            { title: "LCD vs OLED: Which Screen Should You Choose?", img: '/images/blog-lcd-vs-oled.png', desc: 'Understanding the technical differences when getting a screen replacement...' },
+            { title: "Why Cloud Backup is Your Best Friend", img: '/images/blog-cloud-backup.png', desc: 'A technical guide on setting up fail-safe data redundancy for home users...' }
           ].map((post, idx) => (
             <div key={idx} className="bg-white rounded-xl overflow-hidden border border-zinc-100 flex flex-col justify-between hover:shadow-xl transition-all duration-300 group">
               <div className="h-48 bg-zinc-100 overflow-hidden relative">

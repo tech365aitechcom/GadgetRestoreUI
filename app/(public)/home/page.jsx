@@ -577,7 +577,7 @@ export default function HomePage() {
                   </div>
                   <button
                     onClick={() =>
-                      router.push(`/orders/${activeOrder.ticketNumber}`)
+                      router.push(`/orders/detail?ticketNumber=${activeOrder.ticketNumber}`)
                     }
                     className='btn-accent'
                     style={{
@@ -1207,7 +1207,7 @@ export default function HomePage() {
                     </div>
                     <button
                       onClick={() =>
-                        router.push(`/orders/${activeOrder.ticketNumber}`)
+                        router.push(`/orders/detail?ticketNumber=${activeOrder.ticketNumber}`)
                       }
                       style={{
                         background: 'var(--color-btn-cta-bg)',

@@ -82,6 +82,11 @@ export const bookingService = {
       }
     });
 
+    // Debug: Log the complete payload before sending
+    console.log('📦 Complete Booking Payload:', JSON.stringify(payload, null, 2));
+    console.log('🏢 Service Centre ID:', payload.serviceCentre);
+    console.log('📅 Slot Data:', slot);
+
     const response = await api.post('/booking', payload, {
       timeout: 45000  // 45 seconds for booking creation (long-running operation)
     });
