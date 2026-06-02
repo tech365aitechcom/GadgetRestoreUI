@@ -198,6 +198,13 @@ export default function CustomerDetailsPage() {
         remarks,
         address,
         slot,
+        customerData: {
+          customerName: formData.fullName,
+          customerPhone: formData.mobile,
+          customerEmail: formData.email,
+          alternatePhone: formData.altContact,
+          devicePassword: formData.devicePassword,
+        },
       })
 
       console.log('Booking API Response:', result)
