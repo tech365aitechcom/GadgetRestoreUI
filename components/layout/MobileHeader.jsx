@@ -73,6 +73,7 @@ export default function MobileHeader({
       {/* Right side - Notification bell */}
       {showNotification ? (
         <button
+          onClick={() => router.push('/notifications')}
           className='bg-transparent border-0 cursor-pointer text-[#888] flex items-center w-9 h-9 justify-center rounded-full flex-shrink-0 relative'
           aria-label='Notifications'
         >

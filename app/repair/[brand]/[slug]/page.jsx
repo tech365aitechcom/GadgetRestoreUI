@@ -48,6 +48,15 @@ function parseSlug(slug) {
 export async function generateMetadata({ params }) {
   const brandRaw = await params.brand;
   const slugRaw = await params.slug;
+
+  // Handle undefined params (e.g., placeholder pages)
+  if (!brandRaw || !slugRaw) {
+    return {
+      title: 'Device Repair Services | Gadget Restore',
+      description: 'Professional device repair services',
+    }
+  }
+
   const brandName = brandRaw.charAt(0).toUpperCase() + brandRaw.slice(1).toLowerCase();
   
   const parsed = parseSlug(slugRaw);
@@ -78,7 +87,19 @@ export async function generateMetadata({ params }) {
 export default async function ModelOrRepairPage({ params }) {
   const brandRaw = await params.brand;
   const slugRaw = await params.slug;
-  
+
+  // Handle undefined params (e.g., placeholder pages) - redirect or show error
+  if (!brandRaw || !slugRaw || brandRaw === '_placeholder' || slugRaw === '_placeholder') {
+    return (
+      <div className="min-h-screen bg-[#07080e] text-white flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold mb-4">Page Not Found</h1>
+          <p>The repair page you're looking for doesn't exist.</p>
+        </div>
+      </div>
+    )
+  }
+
   const brandName = brandRaw.charAt(0).toUpperCase() + brandRaw.slice(1).toLowerCase();
   const parsed = parseSlug(slugRaw);
 

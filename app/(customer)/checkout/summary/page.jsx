@@ -170,7 +170,7 @@ export default function OrderSummaryPage() {
           MOBILE VIEW (<1024px)
           ════════════════════════════════════════════════════════════════ */}
       <div className='home-mobile lg:hidden min-h-[100svh] relative pb-[160px]' style={{ background: 'var(--color-content-bg)', color: 'var(--color-content-text)' }}>
-        <div className='relative z-10 pt-[58px] px-4'>
+        <div className='relative z-10 pt-6 px-5'>
           <h1 className='text-[28px] font-black tracking-tight uppercase leading-tight mb-6' style={{ color: 'var(--color-content-text)' }}>
             Order Summary
           </h1>
@@ -378,11 +378,11 @@ export default function OrderSummaryPage() {
           </div>
         </div>
 
-        <div className='fixed bottom-[50px] left-0 right-0 p-5 z-40' style={{ background: 'linear-gradient(to top, var(--color-content-bg) 60%, transparent)' }}>
+        <div className='fixed left-0 right-0 p-5 z-40' style={{ bottom: 'calc(var(--nav-height) + env(safe-area-inset-bottom, 0px))', background: 'linear-gradient(to top, var(--color-content-bg) 60%, transparent)' }}>
           <button
             onClick={handlePlaceOrder}
             disabled={isSubmitting || isLoading}
-            className='w-full h-[50px] rounded-[20px] text-[15px] font-black flex items-center justify-center gap-2 shadow-xl active:scale-95 transition-transform uppercase tracking-wider disabled:opacity-50 cursor-pointer'
+            className='w-full h-[50px] rounded-[20px] text-sm font-bold flex items-center justify-center gap-2 shadow-xl active:scale-95 transition-transform uppercase tracking-wider disabled:opacity-50 cursor-pointer'
             style={{ background: 'var(--theme-btn-primary-bg)', color: 'var(--theme-btn-primary-text)' }}
           >
             {isLoading

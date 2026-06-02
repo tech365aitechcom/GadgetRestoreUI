@@ -17,6 +17,15 @@ import RepairLandingClient from './RepairLandingClient';
 // Server-side dynamic metadata generation for SEO
 export async function generateMetadata({ params }) {
   const brandRaw = await params.brand;
+
+  // Handle undefined params (e.g., placeholder pages)
+  if (!brandRaw) {
+    return {
+      title: 'Device Repair Services | Gadget Restore',
+      description: 'Professional device repair services',
+    }
+  }
+
   const brandName = brandRaw.charAt(0).toUpperCase() + brandRaw.slice(1).toLowerCase();
   
   const title = `${brandName} Repair Services — Starting ₹999 | Gadget Restore`;
@@ -35,6 +44,19 @@ export async function generateMetadata({ params }) {
 
 export default async function BrandRepairPage({ params }) {
   const brandRaw = await params.brand;
+
+  // Handle undefined or placeholder params
+  if (!brandRaw || brandRaw === '_placeholder') {
+    return (
+      <div className="min-h-screen bg-[#07080e] text-white flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold mb-4">Page Not Found</h1>
+          <p>The brand page you're looking for doesn't exist.</p>
+        </div>
+      </div>
+    )
+  }
+
   const brandName = brandRaw.charAt(0).toUpperCase() + brandRaw.slice(1).toLowerCase();
 
   // Core structured Schema.org JSON-LD data

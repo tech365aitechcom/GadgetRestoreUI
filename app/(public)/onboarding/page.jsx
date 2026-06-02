@@ -9,17 +9,17 @@ const SLIDES = [
   {
     title: 'Reliable<br />Repairs You<br />Can Trust',
     description: "From minor fixes to major issues,<br />we've got your device covered.",
-    image: '/images/-original-imagtc3kfyhgfcvr 1.png',
+    image: '/images/onboarding-slide-1.png',
   },
   {
     title: 'Genuine Parts<br />Expert Technicians.',
     description: 'We use high-quality parts and industry<br />leading tools for the best results.',
-    image: '/images/6b7bf23b15c2ac21517dc925fd18d6cb32f6c7eb.png',
+    image: '/images/onboarding-slide-2.png',
   },
   {
     title: 'Quick. Easy.<br />Hassle-Free.',
     description: "Choose your device, issue and<br />we'll take care of the rest.",
-    image: '/images/09a267788a452b3b3a834a548b6252b68a3ce3c9.png',
+    image: '/images/onboarding-slide-3.png',
   },
 ];
 

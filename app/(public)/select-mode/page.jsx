@@ -424,7 +424,7 @@ export default function SelectModePage() {
         </div>
 
         <div style={{
-          position: 'fixed', bottom: 64, left: 0, right: 0,
+          position: 'fixed', bottom: 'calc(var(--nav-height) + env(safe-area-inset-bottom, 0px))', left: 0, right: 0,
           background: 'var(--color-content-surface)',
           borderTop: '1px solid var(--color-content-border)',
           padding: '12px 16px', zIndex: 90,
