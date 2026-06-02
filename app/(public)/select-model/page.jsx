@@ -48,7 +48,7 @@ export default function SelectModelPage() {
           DESKTOP  ≥1024px
           ════════════════════════════════════════════════════════════════ */}
       <div className="home-desktop">
-        <div className="page-container" style={{ paddingBottom: 48 }}>
+        <div className="p-8" style={{ paddingBottom: 48 }}>
 
           {/* Page header row */}
           <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 24, marginBottom: 28 }}>
@@ -86,7 +86,7 @@ export default function SelectModelPage() {
                   </div>
                 </div>
                 <div style={{ width: '100%', height: 3, borderRadius: 3, background: 'rgba(255,255,255,0.1)' }}>
-                  <div style={{ height: '100%', width: '40%', background: '#6C7BFF', borderRadius: 3 }} />
+                  <div style={{ height: '100%', width: '40%', background: 'var(--color-accent)', borderRadius: 3 }} />
                 </div>
               </button>
             </div>
@@ -121,44 +121,44 @@ export default function SelectModelPage() {
         {/* Content */}
         <div style={{ padding: '20px 16px', display: 'flex', flexDirection: 'column', gap: 16 }}>
 
-            {/* Brand chip + heading */}
-            <div>
-              {/* Selected brand chip */}
-              {brand.logo ? (
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
-                  <img src={brand.logo} alt={brandName} style={{ height: 28, objectFit: 'contain' }} />
-                  <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-content-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.07em' }}>{brandName}</span>
-                </div>
-              ) : (
-                <div style={{ marginBottom: 14 }}>
-                  <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--color-accent)', textTransform: 'uppercase', letterSpacing: '0.08em', background: 'rgba(108,123,255,0.1)', padding: '4px 12px', borderRadius: 999 }}>
-                    {brandName}
-                  </span>
-                </div>
-              )}
-
-              <h1 style={{ fontSize: 26, fontWeight: 900, letterSpacing: '-0.02em', textTransform: 'uppercase', color: 'var(--color-content-text)', marginBottom: 8 }}>
-                Select Model
-              </h1>
-              <p style={{ fontSize: 13, color: 'var(--color-content-text-secondary)', lineHeight: 1.65 }}>
-                Identify your {brandName} model to receive a precise technical evaluation and repair quote.
-              </p>
-            </div>
-
-            {/* Model grid */}
-            {error ? (
-              <div style={{ textAlign: 'center', padding: '32px', color: 'var(--color-danger)', fontWeight: 600 }}>{error}</div>
+          {/* Brand chip + heading */}
+          <div>
+            {/* Selected brand chip */}
+            {brand.logo ? (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
+                <img src={brand.logo} alt={brandName} style={{ height: 28, objectFit: 'contain' }} />
+                <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-content-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.07em' }}>{brandName}</span>
+              </div>
             ) : (
-              <ModelList
-                models={models}
-                isLoading={isLoading}
-                onSelectModel={handleSelectModel}
-                selectedModelId={selectedModel?._id}
-              />
+              <div style={{ marginBottom: 14 }}>
+                <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--color-accent)', textTransform: 'uppercase', letterSpacing: '0.08em', background: 'rgba(108,123,255,0.1)', padding: '4px 12px', borderRadius: 999 }}>
+                  {brandName}
+                </span>
+              </div>
             )}
 
-            {/* Can't Find */}
-            <CantFindBanner />
+            <h1 style={{ fontSize: 26, fontWeight: 900, letterSpacing: '-0.02em', textTransform: 'uppercase', color: 'var(--color-content-text)', marginBottom: 8 }}>
+              Select Model
+            </h1>
+            <p style={{ fontSize: 13, color: 'var(--color-content-text-secondary)', lineHeight: 1.65 }}>
+              Identify your {brandName} model to receive a precise technical evaluation and repair quote.
+            </p>
+          </div>
+
+          {/* Model grid */}
+          {error ? (
+            <div style={{ textAlign: 'center', padding: '32px', color: 'var(--color-danger)', fontWeight: 600 }}>{error}</div>
+          ) : (
+            <ModelList
+              models={models}
+              isLoading={isLoading}
+              onSelectModel={handleSelectModel}
+              selectedModelId={selectedModel?._id}
+            />
+          )}
+
+          {/* Can't Find */}
+          <CantFindBanner />
 
         </div>
 

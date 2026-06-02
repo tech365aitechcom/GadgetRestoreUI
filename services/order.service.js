@@ -19,6 +19,11 @@ export const orderService = {
     return response.data?.data?.orders || response.data?.orders || [];
   },
 
+  async getOrderDetails(ticketNumber) {
+    const response = await api.get(`/customer/orders/${encodeURIComponent(ticketNumber)}`);
+    return response.data?.data?.order || response.data?.order;
+  },
+
   async getApproval(ticketNumber) {
     const response = await api.get(`/customer/orders/${encodeURIComponent(ticketNumber)}/approval`);
     return response.data?.data?.approval || response.data?.approval;

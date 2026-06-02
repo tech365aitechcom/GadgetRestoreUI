@@ -1,5 +1,6 @@
 'use client'
 
+import { AuthProvider } from '@/context/AuthContext'
 import { BookingProvider } from '@/context/BookingContext'
 import { ToastProvider } from '@/components/ui/Toast'
 
@@ -9,9 +10,11 @@ import { ToastProvider } from '@/components/ui/Toast'
  */
 export default function Providers({ children }) {
   return (
-    <BookingProvider>
-      <ToastProvider />
-      {children}
-    </BookingProvider>
+    <AuthProvider>
+      <BookingProvider>
+        <ToastProvider />
+        {children}
+      </BookingProvider>
+    </AuthProvider>
   )
 }

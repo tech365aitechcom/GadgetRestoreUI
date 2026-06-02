@@ -26,12 +26,12 @@ import { TOKEN_COOKIE } from '@/lib/constants'
 /* ─── Helpers ────────────────────────────────────────────────────────────────── */
 function collectRepairTypeIds(symptoms) {
   const ids = new Set()
-  ;(symptoms || []).forEach((s) => {
-    ;(s.repairTypes || []).forEach((rt) => {
-      const id = typeof rt === 'object' ? rt._id : rt
-      if (id) ids.add(id)
+    ; (symptoms || []).forEach((s) => {
+      ; (s.repairTypes || []).forEach((rt) => {
+        const id = typeof rt === 'object' ? rt._id : rt
+        if (id) ids.add(id)
+      })
     })
-  })
   return [...ids]
 }
 
@@ -109,7 +109,9 @@ export default function PricingPage() {
       const rTypes = symp.repairTypes || []
       rTypes.forEach((rtId) => {
         const id = typeof rtId === 'object' ? rtId._id : rtId
-        const res = pricingResults.results.find((r) => r.repairTypeId === id)
+        // Coerce both sides to String — repairTypeId from API may be a plain string
+        // while rt._id from context could be a Mongoose ObjectId-derived string
+        const res = pricingResults.results.find((r) => String(r.repairTypeId) === String(id))
         if (!res || !res.available || !res.pricing) {
           sympIsVariable = true
         } else {
@@ -164,10 +166,10 @@ export default function PricingPage() {
           ══════════════════════════════════════════════════════ */}
       <div
         className='home-desktop'
-        style={{ background: '#0A0A0A', color: '#fff', minHeight: '100svh' }}
+        style={{ background: 'var(--color-content-bg)', color: 'var(--color-content-text)', minHeight: '100svh' }}
       >
         <div
-          className='page-container'
+          className='p-8'
           style={{ paddingBottom: 60, maxWidth: 1200 }}
         >
           <div style={{ marginBottom: 40, paddingTop: 20 }}>
@@ -180,7 +182,7 @@ export default function PricingPage() {
                 background: 'none',
                 border: 'none',
                 cursor: 'pointer',
-                color: '#888',
+                color: 'var(--color-content-text-secondary)',
                 fontSize: 12,
                 fontWeight: 600,
                 marginBottom: 24,
@@ -196,7 +198,7 @@ export default function PricingPage() {
                 fontSize: 44,
                 fontWeight: 900,
                 letterSpacing: '-0.03em',
-                color: '#fff',
+                color: 'var(--color-content-text)',
                 marginBottom: 12,
               }}
             >
@@ -205,20 +207,20 @@ export default function PricingPage() {
             <p
               style={{
                 fontSize: 16,
-                color: '#A0A0A0',
+                color: 'var(--color-content-text-secondary)',
                 lineHeight: 1.6,
                 maxWidth: 640,
               }}
             >
               Please review your selection before finalizing the booking.{' '}
-              <span style={{ color: '#fff', fontWeight: 600 }}>
+              <span style={{ color: 'var(--color-content-text)', fontWeight: 600 }}>
                 Quote ID: {quoteId}
               </span>
             </p>
           </div>
 
           {isLoading ? (
-            <div style={{ padding: 40, textAlign: 'center', color: '#fff' }}>
+            <div style={{ padding: 40, textAlign: 'center', color: 'var(--color-content-text)' }}>
               Loading your technical quote...
             </div>
           ) : error ? (
@@ -248,9 +250,9 @@ export default function PricingPage() {
                   {/* Device Card */}
                   <div
                     style={{
-                      background: '#141414',
+                      background: 'var(--color-content-card)',
                       borderRadius: 'var(--radius-card)',
-                      border: '1px solid #222',
+                      border: '1px solid var(--color-content-border)',
                       overflow: 'hidden',
                     }}
                   >
@@ -266,7 +268,7 @@ export default function PricingPage() {
                         style={{
                           width: 100,
                           height: 120,
-                          background: '#000',
+                          background: 'var(--theme-bg)',
                           borderRadius: 16,
                           display: 'flex',
                           alignItems: 'center',
@@ -283,8 +285,8 @@ export default function PricingPage() {
                         <div
                           style={{
                             display: 'inline-block',
-                            background: 'rgba(255,255,255,0.1)',
-                            color: '#fff',
+                            background: 'var(--color-content-border)',
+                            color: 'var(--color-content-text)',
                             fontSize: 9,
                             fontWeight: 800,
                             padding: '4px 10px',
@@ -300,7 +302,7 @@ export default function PricingPage() {
                           style={{
                             fontSize: 28,
                             fontWeight: 800,
-                            color: '#fff',
+                            color: 'var(--color-content-text)',
                             marginBottom: 6,
                           }}
                         >
@@ -309,7 +311,7 @@ export default function PricingPage() {
                         <div
                           style={{
                             fontSize: 13,
-                            color: '#888',
+                            color: 'var(--color-content-text-secondary)',
                             display: 'flex',
                             alignItems: 'center',
                             gap: 6,
@@ -325,18 +327,18 @@ export default function PricingPage() {
                         display: 'grid',
                         gridTemplateColumns: 'repeat(3, 1fr)',
                         gap: 1,
-                        background: '#222',
-                        borderTop: '1px solid #222',
+                        background: 'var(--color-content-border)',
+                        borderTop: '1px solid var(--color-content-border)',
                       }}
                     >
                       <div
-                        style={{ background: '#141414', padding: '20px 24px' }}
+                        style={{ background: 'var(--color-content-card)', padding: '20px 24px' }}
                       >
                         <div
                           style={{
                             fontSize: 10,
                             fontWeight: 700,
-                            color: '#888',
+                            color: 'var(--color-content-text-secondary)',
                             textTransform: 'uppercase',
                             letterSpacing: '0.05em',
                             marginBottom: 6,
@@ -351,7 +353,7 @@ export default function PricingPage() {
                           style={{
                             fontSize: 14,
                             fontWeight: 700,
-                            color: '#fff',
+                            color: 'var(--color-content-text)',
                           }}
                         >
                           {serviceMode === 'lab'
@@ -360,13 +362,13 @@ export default function PricingPage() {
                         </div>
                       </div>
                       <div
-                        style={{ background: '#141414', padding: '20px 24px' }}
+                        style={{ background: 'var(--color-content-card)', padding: '20px 24px' }}
                       >
                         <div
                           style={{
                             fontSize: 10,
                             fontWeight: 700,
-                            color: '#888',
+                            color: 'var(--color-content-text-secondary)',
                             textTransform: 'uppercase',
                             letterSpacing: '0.05em',
                             marginBottom: 6,
@@ -381,20 +383,20 @@ export default function PricingPage() {
                           style={{
                             fontSize: 14,
                             fontWeight: 700,
-                            color: '#fff',
+                            color: 'var(--color-content-text)',
                           }}
                         >
                           {serviceMode === 'lab' ? '48 Hours' : 'Today'}
                         </div>
                       </div>
                       <div
-                        style={{ background: '#141414', padding: '20px 24px' }}
+                        style={{ background: 'var(--color-content-card)', padding: '20px 24px' }}
                       >
                         <div
                           style={{
                             fontSize: 10,
                             fontWeight: 700,
-                            color: '#888',
+                            color: 'var(--color-content-text-secondary)',
                             textTransform: 'uppercase',
                             letterSpacing: '0.05em',
                             marginBottom: 6,
@@ -409,7 +411,7 @@ export default function PricingPage() {
                           style={{
                             fontSize: 14,
                             fontWeight: 700,
-                            color: '#fff',
+                            color: 'var(--color-content-text)',
                           }}
                         >
                           {partTier.defaultWarrantyMonths} Months
@@ -421,9 +423,9 @@ export default function PricingPage() {
                   {/* Diagnostic Summary */}
                   <div
                     style={{
-                      background: '#141414',
+                      background: 'var(--color-content-card)',
                       borderRadius: 'var(--radius-card)',
-                      border: '1px solid #222',
+                      border: '1px solid var(--color-content-border)',
                       padding: 32,
                     }}
                   >
@@ -431,7 +433,7 @@ export default function PricingPage() {
                       style={{
                         fontSize: 12,
                         fontWeight: 800,
-                        color: '#666',
+                        color: 'var(--color-content-text-secondary)',
                         textTransform: 'uppercase',
                         letterSpacing: '0.1em',
                         marginBottom: 24,
@@ -456,11 +458,11 @@ export default function PricingPage() {
                             paddingBottom: 16,
                             borderBottom:
                               i < symptoms.length - 1
-                                ? '1px solid #222'
+                                ? '1px solid var(--color-content-border)'
                                 : 'none',
                           }}
                         >
-                          <span style={{ fontSize: 14, color: '#E0E0E0' }}>
+                          <span style={{ fontSize: 14, color: 'var(--color-content-text)' }}>
                             {symp.name}
                           </span>
                           <span
@@ -484,10 +486,10 @@ export default function PricingPage() {
                 {/* Right Column: Quote */}
                 <div
                   style={{
-                    background: '#111',
+                    background: 'var(--color-content-card)',
                     borderRadius: 'var(--radius-card)',
                     padding: 40,
-                    border: '1px solid #222',
+                    border: '1px solid var(--color-content-border)',
                     position: 'sticky',
                     top: 40,
                     boxShadow: '0 20px 40px rgba(0,0,0,0.4)',
@@ -503,7 +505,7 @@ export default function PricingPage() {
                   >
                     <FileText size={20} color='var(--color-accent)' />
                     <h3
-                      style={{ fontSize: 18, fontWeight: 800, color: '#fff' }}
+                      style={{ fontSize: 18, fontWeight: 800, color: 'var(--color-content-text)' }}
                     >
                       Technical Quote
                     </h3>
@@ -515,7 +517,7 @@ export default function PricingPage() {
                       flexDirection: 'column',
                       gap: 24,
                       paddingBottom: 32,
-                      borderBottom: '1px solid #222',
+                      borderBottom: '1px solid var(--color-content-border)',
                     }}
                   >
                     {itemizedSymptoms.map((item, idx) => (
@@ -529,7 +531,7 @@ export default function PricingPage() {
                             idx < itemizedSymptoms.length - 1 ? 24 : 0,
                           borderBottom:
                             idx < itemizedSymptoms.length - 1
-                              ? '1px dashed #333'
+                              ? '1px dashed var(--color-content-border)'
                               : 'none',
                         }}
                       >
@@ -545,7 +547,7 @@ export default function PricingPage() {
                               style={{
                                 fontSize: 15,
                                 fontWeight: 700,
-                                color: '#fff',
+                                color: 'var(--color-content-text)',
                                 marginBottom: 6,
                               }}
                             >
@@ -592,7 +594,7 @@ export default function PricingPage() {
                             style={{
                               fontSize: 16,
                               fontWeight: 800,
-                              color: '#fff',
+                              color: 'var(--color-content-text)',
                             }}
                           >
                             {item.isVariable
@@ -607,7 +609,7 @@ export default function PricingPage() {
                               display: 'flex',
                               justifyContent: 'space-between',
                               fontSize: 12,
-                              color: '#888',
+                              color: 'var(--color-content-text-secondary)',
                             }}
                           >
                             <span>
@@ -626,7 +628,7 @@ export default function PricingPage() {
                     <div
                       style={{
                         padding: '24px 0',
-                        borderBottom: '1px solid #222',
+                        borderBottom: '1px solid var(--color-content-border)',
                       }}
                     >
                       <div
@@ -658,7 +660,7 @@ export default function PricingPage() {
                           <div
                             style={{
                               fontSize: 13,
-                              color: '#A0A0A0',
+                              color: 'var(--color-content-text-secondary)',
                               lineHeight: 1.5,
                             }}
                           >
@@ -676,7 +678,7 @@ export default function PricingPage() {
                       style={{
                         fontSize: 10,
                         fontWeight: 700,
-                        color: '#666',
+                        color: 'var(--color-content-text-secondary)',
                         textTransform: 'uppercase',
                         letterSpacing: '0.15em',
                         marginBottom: 8,
@@ -695,7 +697,7 @@ export default function PricingPage() {
                         style={{
                           fontSize: 48,
                           fontWeight: 900,
-                          color: '#fff',
+                          color: 'var(--color-content-text)',
                           letterSpacing: '-0.02em',
                           lineHeight: 1,
                         }}
@@ -709,7 +711,7 @@ export default function PricingPage() {
                                 style={{
                                   fontSize: 24,
                                   fontWeight: 600,
-                                  color: '#888',
+                                  color: 'var(--color-content-text-secondary)',
                                   marginRight: 8,
                                 }}
                               >
@@ -731,7 +733,7 @@ export default function PricingPage() {
               <div
                 style={{
                   marginTop: 24,
-                  background: '#fff',
+                  background: 'var(--theme-btn-primary-bg)',
                   borderRadius: 'var(--radius-card)',
                   padding: '24px 32px',
                   display: 'flex',
@@ -744,10 +746,10 @@ export default function PricingPage() {
                     display: 'flex',
                     alignItems: 'center',
                     gap: 12,
-                    color: '#666',
+                    color: 'var(--theme-btn-primary-text)',
                   }}
                 >
-                  <AlertCircle size={20} color='#888' />
+                  <AlertCircle size={20} color='var(--theme-btn-primary-text)' />
                   <span
                     style={{ fontSize: 13, fontWeight: 500, lineHeight: 1.5 }}
                   >
@@ -763,8 +765,8 @@ export default function PricingPage() {
                   style={{
                     height: 56,
                     padding: '0 40px',
-                    background: '#000',
-                    color: '#fff',
+                    background: 'var(--theme-btn-primary-text)',
+                    color: 'var(--theme-btn-primary-bg)',
                     border: 'none',
                     borderRadius: 'var(--radius-btn)',
                     fontWeight: 800,
@@ -803,14 +805,14 @@ export default function PricingPage() {
       <div
         className='home-mobile'
         style={{
-          background: '#0A0A0A',
-          color: '#fff',
+          background: 'var(--color-content-bg)',
+          color: 'var(--color-content-text)',
           minHeight: '100svh',
           paddingBottom: 160,
         }}
       >
         {isLoading ? (
-          <div style={{ padding: 40, textAlign: 'center', color: '#fff' }}>
+          <div style={{ padding: 40, textAlign: 'center', color: 'var(--color-content-text)' }}>
             Loading Quote...
           </div>
         ) : error ? (
@@ -838,14 +840,14 @@ export default function PricingPage() {
                   fontSize: 28,
                   fontWeight: 900,
                   letterSpacing: '-0.02em',
-                  color: '#fff',
+                  color: 'var(--color-content-text)',
                   marginBottom: 6,
                   textTransform: 'uppercase',
                 }}
               >
                 Review & Quote
               </h1>
-              <p style={{ fontSize: 13, color: '#A0A0A0', lineHeight: 1.5 }}>
+              <p style={{ fontSize: 13, color: 'var(--color-text-mid)', lineHeight: 1.5 }}>
                 Please review your selection before finalizing the booking.
               </p>
             </div>
@@ -853,9 +855,9 @@ export default function PricingPage() {
             {/* Device Summary Card */}
             <div
               style={{
-                background: '#141414',
+                background: 'var(--color-content-card)',
                 borderRadius: 'var(--radius-card)',
-                border: '1px solid #222',
+                border: '1px solid var(--color-content-border)',
                 overflow: 'hidden',
               }}
             >
@@ -865,14 +867,14 @@ export default function PricingPage() {
                   display: 'flex',
                   alignItems: 'center',
                   gap: 16,
-                  borderBottom: '1px solid #222',
+                  borderBottom: '1px solid var(--color-content-border)',
                 }}
               >
                 <div
                   style={{
                     width: 64,
                     height: 74,
-                    background: '#0A0A0A',
+                    background: 'var(--color-content-bg)',
                     borderRadius: 12,
                     display: 'flex',
                     alignItems: 'center',
@@ -890,13 +892,13 @@ export default function PricingPage() {
                     style={{
                       fontSize: 20,
                       fontWeight: 800,
-                      color: '#fff',
+                      color: 'var(--color-content-text)',
                       marginBottom: 4,
                     }}
                   >
                     {brand.name} {model.name}
                   </h2>
-                  <div style={{ fontSize: 12, color: '#888' }}>
+                  <div style={{ fontSize: 12, color: 'var(--color-content-text-secondary)' }}>
                     {symptoms.length} Selected Symptoms
                   </div>
                 </div>
@@ -917,11 +919,11 @@ export default function PricingPage() {
                     alignItems: 'center',
                   }}
                 >
-                  <span style={{ fontSize: 13, color: '#A0A0A0' }}>
+                  <span style={{ fontSize: 13, color: 'var(--color-content-text-secondary)' }}>
                     Part Type
                   </span>
                   <span
-                    style={{ fontSize: 14, fontWeight: 700, color: '#fff' }}
+                    style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-content-text)' }}
                   >
                     {partTier.tier}
                   </span>
@@ -933,11 +935,11 @@ export default function PricingPage() {
                     alignItems: 'center',
                   }}
                 >
-                  <span style={{ fontSize: 13, color: '#A0A0A0' }}>
+                  <span style={{ fontSize: 13, color: 'var(--color-content-text-secondary)' }}>
                     Repair Mode
                   </span>
                   <span
-                    style={{ fontSize: 14, fontWeight: 700, color: '#fff' }}
+                    style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-content-text)' }}
                   >
                     {serviceMode === 'lab' ? 'Pick & Drop' : 'Doorstep Repair'}
                   </span>
@@ -949,11 +951,11 @@ export default function PricingPage() {
                     alignItems: 'center',
                   }}
                 >
-                  <span style={{ fontSize: 13, color: '#A0A0A0' }}>
+                  <span style={{ fontSize: 13, color: 'var(--color-content-text-secondary)' }}>
                     Estimated Time
                   </span>
                   <span
-                    style={{ fontSize: 14, fontWeight: 700, color: '#fff' }}
+                    style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-content-text)' }}
                   >
                     {serviceMode === 'lab' ? '48 Hours' : 'Today'}
                   </span>
@@ -965,11 +967,11 @@ export default function PricingPage() {
                     alignItems: 'center',
                   }}
                 >
-                  <span style={{ fontSize: 13, color: '#A0A0A0' }}>
+                  <span style={{ fontSize: 13, color: 'var(--color-content-text-secondary)' }}>
                     Warranty
                   </span>
                   <span
-                    style={{ fontSize: 14, fontWeight: 700, color: '#fff' }}
+                    style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-content-text)' }}
                   >
                     {partTier.defaultWarrantyMonths} Months
                   </span>
@@ -980,9 +982,9 @@ export default function PricingPage() {
             {/* Quote Card */}
             <div
               style={{
-                background: '#141414',
+                background: 'var(--color-content-card)',
                 borderRadius: 'var(--radius-card)',
-                border: '1px solid #222',
+                border: '1px solid var(--color-content-border)',
                 padding: '24px 20px',
               }}
             >
@@ -991,7 +993,7 @@ export default function PricingPage() {
                   display: 'flex',
                   flexDirection: 'column',
                   gap: 20,
-                  borderBottom: '1px solid #222',
+                  borderBottom: '1px solid var(--color-content-border)',
                   paddingBottom: 24,
                   marginBottom: 24,
                 }}
@@ -1012,7 +1014,7 @@ export default function PricingPage() {
                         style={{
                           fontSize: 14,
                           fontWeight: 700,
-                          color: '#fff',
+                          color: 'var(--color-content-text)',
                           flex: 1,
                           paddingRight: 16,
                         }}
@@ -1020,7 +1022,7 @@ export default function PricingPage() {
                         {item.name}
                       </div>
                       <div
-                        style={{ fontSize: 14, fontWeight: 800, color: '#fff' }}
+                        style={{ fontSize: 14, fontWeight: 800, color: 'var(--color-content-text)' }}
                       >
                         {item.isVariable
                           ? 'Ask Admin'
@@ -1061,7 +1063,7 @@ export default function PricingPage() {
                           display: 'flex',
                           gap: 12,
                           fontSize: 11,
-                          color: '#888',
+                          color: 'var(--color-content-text-secondary)',
                           marginTop: 4,
                         }}
                       >
@@ -1095,7 +1097,7 @@ export default function PricingPage() {
                     style={{ flexShrink: 0, marginTop: 2 }}
                   />
                   <div
-                    style={{ fontSize: 12, color: '#E0E0E0', lineHeight: 1.5 }}
+                    style={{ fontSize: 12, color: 'var(--color-content-text)', lineHeight: 1.5 }}
                   >
                     <strong
                       style={{
@@ -1119,14 +1121,14 @@ export default function PricingPage() {
                   marginBottom: 16,
                 }}
               >
-                <span style={{ fontSize: 16, fontWeight: 800, color: '#fff' }}>
+                <span style={{ fontSize: 16, fontWeight: 800, color: 'var(--color-content-text)' }}>
                   Total Amount
                 </span>
                 <span
                   style={{
                     fontSize: 24,
                     fontWeight: 900,
-                    color: '#fff',
+                    color: 'var(--color-content-text)',
                     letterSpacing: '-0.02em',
                     lineHeight: 1,
                     textAlign: 'right',
@@ -1142,7 +1144,7 @@ export default function PricingPage() {
                             display: 'block',
                             fontSize: 11,
                             fontWeight: 600,
-                            color: '#888',
+                            color: 'var(--color-content-text-secondary)',
                             marginBottom: 4,
                           }}
                         >
@@ -1160,7 +1162,7 @@ export default function PricingPage() {
                   style={{
                     fontSize: 9,
                     fontWeight: 700,
-                    color: '#666',
+                    color: 'var(--color-content-text-secondary)',
                     textTransform: 'uppercase',
                     letterSpacing: '0.1em',
                     textAlign: 'right',
@@ -1181,10 +1183,10 @@ export default function PricingPage() {
               >
                 <AlertCircle
                   size={14}
-                  color='#666'
+                  color='var(--color-content-text-secondary)'
                   style={{ flexShrink: 0, marginTop: 2 }}
                 />
-                <div style={{ fontSize: 11, color: '#888', lineHeight: 1.4 }}>
+                <div style={{ fontSize: 11, color: 'var(--color-content-text-secondary)', lineHeight: 1.4 }}>
                   By continuing, you agree to our Service Terms & Genuine Part
                   Policy.
                 </div>
@@ -1196,9 +1198,9 @@ export default function PricingPage() {
                 style={{
                   width: '100%',
                   height: 56,
-                  background: '#000',
-                  color: '#fff',
-                  border: '1px solid #333',
+                  background: '#000000',
+                  color: '#ffffff',
+                  border: 'none',
                   borderRadius: 'var(--radius-btn)',
                   fontWeight: 800,
                   fontSize: 13,
