@@ -23,11 +23,12 @@ import {
   SUPPORT_PHONE,
   SUPPORT_EMAIL,
 } from '@/lib/constants'
-import authService from '@/services/auth.service'
+import { useAuth } from '@/context/AuthContext'
 import customerService from '@/services/customer.service'
 
 export default function ProfilePage() {
   const router = useRouter()
+  const { logout } = useAuth()
   const [isLoading, setIsLoading] = useState(true)
   const [userData, setUserData] = useState({
     name: '',
@@ -119,7 +120,7 @@ export default function ProfilePage() {
   }
 
   const handleLogout = () => {
-    authService.logout()
+    logout()
   }
 
   const handleToggleNotification = async (key) => {
