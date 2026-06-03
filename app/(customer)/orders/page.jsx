@@ -513,11 +513,8 @@ export default function OrdersPage() {
           {/* Header */}
           <div className='flex items-end justify-between mb-8'>
             <div>
-              <p className='text-[10px] uppercase tracking-[0.14em] text-[var(--theme-text-tertiary)] mb-2 font-bold'>
-                IN PROGRESS
-              </p>
               <h1 className='text-[28px] font-black text-[var(--theme-text-primary)]'>
-                My Repairs
+                My Orders
               </h1>
             </div>
           </div>

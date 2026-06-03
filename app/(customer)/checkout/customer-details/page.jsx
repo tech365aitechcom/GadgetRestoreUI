@@ -216,8 +216,8 @@ export default function CustomerDetailsPage() {
         throw new Error('Order was created without a tracking number.')
       }
 
-      // Redirect to order confirmation
-      const redirectUrl = `/order-confirmation/${encodeURIComponent(ticketNumber)}`
+      // Redirect to order confirmation (query-based for static export support)
+      const redirectUrl = `/order-confirmation?ticketNumber=${encodeURIComponent(ticketNumber)}`
       console.log('Redirecting to:', redirectUrl)
       router.push(redirectUrl)
     } catch (error) {

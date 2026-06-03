@@ -69,6 +69,9 @@ export function AuthProvider({ children }) {
   const logout = () => {
     Cookies.remove(TOKEN_COOKIE)
     setUser(null)
+    if (typeof window !== 'undefined') {
+      window.location.href = '/home'
+    }
   }
 
   return (
