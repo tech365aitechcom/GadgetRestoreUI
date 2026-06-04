@@ -220,8 +220,26 @@ export default function PricingPage() {
           </div>
 
           {isLoading ? (
-            <div style={{ padding: 40, textAlign: 'center', color: 'var(--color-content-text)' }}>
-              Loading your technical quote...
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: '1.2fr 1fr',
+                gap: 32,
+                alignItems: 'start',
+              }}
+            >
+              {/* Left column skeleton */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+                {/* Device card skeleton */}
+                <div className="skeleton" style={{ borderRadius: 'var(--radius-card)', height: 200 }} />
+                {/* Diagnostic summary skeleton */}
+                <div
+                  className="skeleton"
+                  style={{ borderRadius: 'var(--radius-card)', height: 180 }}
+                />
+              </div>
+              {/* Right column skeleton (sticky quote card) */}
+              <div className="skeleton" style={{ borderRadius: 'var(--radius-card)', height: 420 }} />
             </div>
           ) : error ? (
             <div
@@ -812,8 +830,23 @@ export default function PricingPage() {
         }}
       >
         {isLoading ? (
-          <div style={{ padding: 40, textAlign: 'center', color: 'var(--color-content-text)' }}>
-            Loading Quote...
+          <div
+            style={{
+              padding: '20px 16px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 24,
+            }}
+          >
+            {/* heading placeholder */}
+            <div>
+              <div className="skeleton" style={{ height: 32, width: '60%', borderRadius: 8, marginBottom: 10 }} />
+              <div className="skeleton" style={{ height: 16, width: '80%', borderRadius: 6 }} />
+            </div>
+            {/* Device summary card skeleton */}
+            <div className="skeleton" style={{ borderRadius: 'var(--radius-card)', height: 200 }} />
+            {/* Quote card skeleton */}
+            <div className="skeleton" style={{ borderRadius: 'var(--radius-card)', height: 320 }} />
           </div>
         ) : error ? (
           <div

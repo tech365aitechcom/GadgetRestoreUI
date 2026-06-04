@@ -184,9 +184,11 @@ export default function SchedulePage() {
             </h3>
             <div className='grid grid-cols-2 gap-3'>
               {isLoading ? (
-                <div className='col-span-2 text-center text-sm py-4' style={{ color: 'var(--color-content-text-secondary)' }}>
-                  Loading slots...
-                </div>
+                <>
+                  {[0, 1, 2, 3, 4, 5].map(i => (
+                    <div key={i} className="skeleton h-[52px] rounded-2xl" />
+                  ))}
+                </>
               ) : timeSlots.length > 0 ? (
                 timeSlots.map((t, idx) => {
                   const isSelected = selectedTimeSlot === t.time
@@ -383,7 +385,11 @@ export default function SchedulePage() {
 
             <div className='grid grid-cols-4 gap-4 mb-12'>
               {isLoading ? (
-                <div className='col-span-4' style={{ color: 'var(--color-content-text-secondary)' }}>Loading slots...</div>
+                <>
+                  {[0, 1, 2, 3, 4, 5, 6, 7].map(i => (
+                    <div key={i} className="skeleton h-14 rounded-xl" />
+                  ))}
+                </>
               ) : (
                 timeSlots.map((t, idx) => {
                   const isSelected = selectedTimeSlot === t.time

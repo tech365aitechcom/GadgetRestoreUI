@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Capacitor } from '@capacitor/core';
 import { Preferences } from '@capacitor/preferences';
@@ -47,13 +47,16 @@ export default function SplashOrLandingPage() {
   // Web Landing Page state
   const [activeFaq, setActiveFaq] = useState(0); // Open first one by default as shown in Figma
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [timeDropdownOpen, setTimeDropdownOpen] = useState(false);
+  const [timeDropdownRect, setTimeDropdownRect] = useState(null);
+  const timeButtonRef = useRef(null);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     phone: '',
     date: '',
     time: '',
-    service: 'Mobile Repair'
+    service: ''
   });
 
   // Booking Context
@@ -437,7 +440,7 @@ export default function SplashOrLandingPage() {
 
           <div className="flex flex-wrap gap-4">
             <button
-              onClick={() => handleBookNowCTA()}
+              onClick={() => router.push('/home')}
               className="bg-white text-black font-black tracking-wider text-xs px-8 py-4 rounded-none shadow-xl hover:bg-zinc-100 hover:scale-[1.02] active:scale-95 transition-all cursor-pointer"
             >
               EXPLORE MORE
@@ -764,10 +767,12 @@ export default function SplashOrLandingPage() {
                 />
                 <div className="relative">
                   <input
-                    type="text"
+                    type="date"
                     name="date"
-                    placeholder="Date"
-                    className="w-full h-14 bg-transparent border border-white/10 px-4 text-xs text-white placeholder-zinc-500 outline-none focus:border-white transition-colors"
+                    value={formData.date}
+                    onChange={handleInputChange}
+                    min={new Date().toISOString().split('T')[0]}
+                    className="w-full h-14 bg-transparent border border-white/10 px-4 text-xs text-white placeholder-zinc-500 outline-none focus:border-white transition-colors [color-scheme:dark] cursor-pointer"
                   />
                   <Calendar size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none" />
                 </div>
@@ -775,13 +780,67 @@ export default function SplashOrLandingPage() {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <div className="relative">
-                  <input
-                    type="text"
-                    name="time"
-                    placeholder="Time"
-                    className="w-full h-14 bg-transparent border border-white/10 px-4 text-xs text-white placeholder-zinc-500 outline-none focus:border-white transition-colors"
-                  />
-                  <Clock size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none" />
+                  {/* Custom time slot dropdown — avoids native select overflow on mobile */}
+                  <button
+                    ref={timeButtonRef}
+                    type="button"
+                    onClick={() => {
+                      if (timeButtonRef.current) {
+                        const r = timeButtonRef.current.getBoundingClientRect();
+                        setTimeDropdownRect(r);
+                      }
+                      setTimeDropdownOpen(v => !v);
+                    }}
+                    className="w-full h-14 bg-transparent border border-white/10 px-4 text-xs text-left outline-none focus:border-white transition-colors cursor-pointer flex items-center justify-between"
+                    style={{ color: formData.time ? '#fff' : '#71717a' }}
+                  >
+                    <span>{formData.time || 'Time Slot'}</span>
+                    <Clock size={16} className="text-zinc-500 shrink-0" />
+                  </button>
+
+                  {timeDropdownOpen && (
+                    <>
+                      {/* Backdrop to close on outside click */}
+                      <div
+                        className="fixed inset-0 z-40"
+                        onClick={() => setTimeDropdownOpen(false)}
+                      />
+                      {/* Scrollable panel — anchored directly below the trigger button */}
+                      <div
+                        className="fixed z-50 bg-[#07080e] border border-white/10 overflow-y-auto"
+                        style={{
+                          maxHeight: '240px',
+                          width: timeDropdownRect ? timeDropdownRect.width : 220,
+                          top: timeDropdownRect ? timeDropdownRect.bottom + 4 : 0,
+                          left: timeDropdownRect ? timeDropdownRect.left : 0,
+                        }}
+                      >
+                        {['09:00 AM','09:30 AM','10:00 AM','10:30 AM','11:00 AM','11:30 AM',
+                          '12:00 PM','12:30 PM','01:00 PM','01:30 PM','02:00 PM','02:30 PM',
+                          '03:00 PM','03:30 PM','04:00 PM','04:30 PM','05:00 PM','05:30 PM','06:00 PM'
+                        ].map(slot => (
+                          <button
+                            key={slot}
+                            type="button"
+                            onClick={() => {
+                              setFormData(prev => ({ ...prev, time: slot }));
+                              setTimeDropdownOpen(false);
+                            }}
+                            className="w-full px-4 py-3 text-xs text-left transition-colors cursor-pointer"
+                            style={{
+                              color: formData.time === slot ? '#fff' : '#a1a1aa',
+                              background: formData.time === slot ? 'rgba(255,255,255,0.08)' : 'transparent',
+                              borderBottom: '1px solid rgba(255,255,255,0.05)',
+                            }}
+                            onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.06)'}
+                            onMouseLeave={e => e.currentTarget.style.background = formData.time === slot ? 'rgba(255,255,255,0.08)' : 'transparent'}
+                          >
+                            {slot}
+                          </button>
+                        ))}
+                      </div>
+                    </>
+                  )}
                 </div>
                 <div className="relative">
                   <select
@@ -790,7 +849,7 @@ export default function SplashOrLandingPage() {
                     onChange={handleInputChange}
                     className="w-full h-14 bg-[#07080e] border border-white/10 px-4 text-xs text-white outline-none focus:border-white transition-colors appearance-none cursor-pointer"
                   >
-                    <option value="Mobile Repair">Select Service</option>
+                    <option value="" disabled>Select Service</option>
                     <option value="Mobile Repair">Mobile Repair</option>
                     <option value="iPad/Tablet Repair">iPad/Tablet Repair</option>
                     <option value="MacBook/Laptop Repair">MacBook/Laptop Repair</option>

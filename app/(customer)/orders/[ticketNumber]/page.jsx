@@ -147,12 +147,39 @@ export default function OrderDetailPage() {
 
   if (!order) {
     return (
-      <main className="min-h-[100svh] px-4 pt-20 text-[var(--theme-text-secondary)] bg-[var(--theme-bg)] flex items-center justify-center">
-        <div className="flex flex-col items-center gap-3">
-          <div className="w-8 h-8 rounded-full border-2 border-white/20 border-t-white animate-spin"></div>
-          <p className="text-sm font-medium tracking-wide">Loading order details...</p>
+      <>
+        {/* Mobile skeleton */}
+        <div className="lg:hidden min-h-[100svh] bg-[var(--theme-bg)] pt-6 px-5 pb-24">
+          <div className="mb-6">
+            <div className="skeleton h-8 w-40 rounded-lg mb-3" />
+            <div className="skeleton h-6 w-56 rounded-md mb-2" />
+            <div className="skeleton h-4 w-32 rounded" />
+          </div>
+          {/* Device card */}
+          <div className="skeleton rounded-2xl mb-8" style={{ height: 88 }} />
+          {/* Timeline card */}
+          <div className="skeleton rounded-3xl" style={{ height: 380 }} />
         </div>
-      </main>
+
+        {/* Desktop skeleton */}
+        <div className="hidden lg:block bg-[var(--theme-bg)] min-h-[calc(100vh-var(--topbar-height))] py-10 px-8">
+          <div className="skeleton h-4 w-48 rounded mb-6" />
+          <div className="flex items-start justify-between gap-6 border-b border-[var(--theme-border)] pb-8 mb-8">
+            <div>
+              <div className="skeleton h-9 w-80 rounded-lg mb-3" />
+              <div className="skeleton h-5 w-56 rounded" />
+            </div>
+          </div>
+          <div className="grid grid-cols-[1fr_360px] gap-10">
+            <div className="skeleton rounded-3xl" style={{ height: 500 }} />
+            <div className="flex flex-col gap-6">
+              <div className="skeleton rounded-3xl" style={{ height: 160 }} />
+              <div className="skeleton rounded-3xl" style={{ height: 120 }} />
+              <div className="skeleton rounded-3xl" style={{ height: 140 }} />
+            </div>
+          </div>
+        </div>
+      </>
     )
   }
 

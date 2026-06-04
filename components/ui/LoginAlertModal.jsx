@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { LogIn, ShieldAlert } from 'lucide-react';
+import { LogIn, ShieldAlert, X } from 'lucide-react';
 
 /**
  * LoginAlertModal - Shows an alert when user is not authenticated
@@ -41,8 +41,43 @@ export default function LoginAlertModal({ isOpen, onClose, redirectPath = null }
           style={{
             background: 'var(--color-content-card)',
             border: '1px solid var(--color-content-border)',
+            position: 'relative',
           }}
         >
+          {/* Close (X) button — only if onClose is provided */}
+          {onClose && (
+            <button
+              onClick={onClose}
+              aria-label="Close"
+              style={{
+                position: 'absolute',
+                top: 12,
+                right: 12,
+                zIndex: 10,
+                background: 'var(--color-content-border)',
+                border: 'none',
+                borderRadius: '50%',
+                width: 28,
+                height: 28,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                color: 'var(--color-content-text-secondary)',
+                transition: 'background 150ms ease, color 150ms ease',
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.background = 'var(--color-content-divider)';
+                e.currentTarget.style.color = 'var(--color-content-text)';
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.background = 'var(--color-content-border)';
+                e.currentTarget.style.color = 'var(--color-content-text-secondary)';
+              }}
+            >
+              <X size={14} strokeWidth={2.5} />
+            </button>
+          )}
           {/* Header with icon */}
           <div
             className="flex flex-col items-center justify-center pt-8 pb-6 px-6"

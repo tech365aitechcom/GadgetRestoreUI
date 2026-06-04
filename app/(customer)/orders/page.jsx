@@ -243,8 +243,13 @@ export default function OrdersPage() {
           ════════════════════════════════════════════════════════════════ */}
       <div className='lg:hidden min-h-[100svh] bg-[var(--theme-bg)] pb-20 px-5 pt-6'>
         {loading ? (
-          <div className='grid place-items-center min-h-[200px] rounded-2xl bg-[var(--theme-card)] border border-[var(--theme-border)] text-[var(--theme-text-secondary)]'>
-            Loading...
+          <div className="flex flex-col gap-3">
+            {/* Active order card skeleton */}
+            <div className="skeleton rounded-2xl" style={{ height: 220 }} />
+            {/* History skeleton rows */}
+            {[0, 1, 2].map(i => (
+              <div key={i} className="skeleton rounded-xl" style={{ height: 72 }} />
+            ))}
           </div>
         ) : error ? (
           <div className='grid place-items-center min-h-[200px] rounded-2xl bg-[var(--theme-card)] border border-[var(--theme-border)] text-red-400'>
@@ -520,8 +525,18 @@ export default function OrdersPage() {
           </div>
 
           {loading ? (
-            <div className='grid place-items-center min-h-[400px] rounded-2xl bg-[var(--theme-card)] border border-[var(--theme-border)] text-[var(--theme-text-secondary)]'>
-              Loading your orders...
+            <div className="grid grid-cols-12 gap-6">
+              {/* Left column — active order card */}
+              <div className="col-span-7 flex flex-col gap-6">
+                <div className="skeleton rounded-2xl" style={{ height: 340 }} />
+                {/* History table */}
+                <div className="skeleton rounded-2xl" style={{ height: 220 }} />
+              </div>
+              {/* Right column — stats */}
+              <div className="col-span-5 flex flex-col gap-6">
+                <div className="skeleton rounded-2xl" style={{ height: 160 }} />
+                <div className="skeleton rounded-2xl" style={{ height: 200 }} />
+              </div>
             </div>
           ) : error ? (
             <div className='grid place-items-center min-h-[400px] rounded-2xl bg-[var(--theme-card)] border border-[var(--theme-border)] text-red-400'>

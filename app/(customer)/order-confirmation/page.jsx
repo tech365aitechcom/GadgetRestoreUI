@@ -94,9 +94,44 @@ function OrderConfirmationContent() {
 
   if (loading) {
     return (
-      <div className="min-h-[100svh] bg-[var(--theme-bg)] flex items-center justify-center">
-        <div className="text-[var(--theme-text-secondary)] text-[14px]">Loading confirmation...</div>
-      </div>
+      <>
+        {/* ── Mobile Skeleton ── */}
+        <div className="lg:hidden min-h-[100svh] bg-[var(--theme-bg)] pt-6 px-5 pb-24 flex flex-col">
+          {/* Icon + heading */}
+          <div className="flex flex-col items-center mb-8">
+            <div className="skeleton w-16 h-16 rounded-2xl mb-5" />
+            <div className="skeleton h-7 w-52 rounded-lg mb-3" />
+            <div className="skeleton h-4 w-64 rounded-md" />
+          </div>
+          {/* Reference card */}
+          <div className="skeleton rounded-2xl mb-4" style={{ height: 96 }} />
+          {/* Device card */}
+          <div className="skeleton rounded-2xl mb-6" style={{ height: 88 }} />
+          {/* Buttons */}
+          <div className="flex flex-col gap-3">
+            <div className="skeleton h-12 rounded-xl" />
+            <div className="skeleton h-12 rounded-xl" />
+          </div>
+        </div>
+
+        {/* ── Desktop Skeleton ── */}
+        <div className="hidden lg:flex bg-[var(--theme-bg)] min-h-[calc(100vh-var(--topbar-height))] py-12 px-8 flex-col items-center">
+          <div className="max-w-[900px] w-full flex flex-col items-center">
+            <div className="skeleton w-[72px] h-[72px] rounded-2xl mb-5" />
+            <div className="skeleton h-8 w-72 rounded-lg mb-3" />
+            <div className="skeleton h-4 w-96 rounded-md mb-10" />
+            <div className="grid grid-cols-2 gap-6 w-full mb-8">
+              <div className="skeleton rounded-3xl" style={{ height: 220 }} />
+              <div className="skeleton rounded-3xl" style={{ height: 220 }} />
+            </div>
+            <div className="skeleton w-full rounded-2xl mb-8" style={{ height: 160 }} />
+            <div className="grid grid-cols-2 gap-4 w-full">
+              <div className="skeleton h-12 rounded-xl" />
+              <div className="skeleton h-12 rounded-xl" />
+            </div>
+          </div>
+        </div>
+      </>
     )
   }
 
@@ -423,8 +458,18 @@ function OrderConfirmationContent() {
 export default function OrderConfirmationPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-[100svh] bg-[var(--theme-bg)] flex items-center justify-center">
-        <div className="text-[var(--theme-text-secondary)] text-[14px]">Loading confirmation...</div>
+      <div className="min-h-[100svh] bg-[var(--theme-bg)] pt-6 px-5 pb-24 flex flex-col lg:hidden">
+        <div className="flex flex-col items-center mb-8">
+          <div className="skeleton w-16 h-16 rounded-2xl mb-5" />
+          <div className="skeleton h-7 w-52 rounded-lg mb-3" />
+          <div className="skeleton h-4 w-64 rounded-md" />
+        </div>
+        <div className="skeleton rounded-2xl mb-4" style={{ height: 96 }} />
+        <div className="skeleton rounded-2xl mb-6" style={{ height: 88 }} />
+        <div className="flex flex-col gap-3">
+          <div className="skeleton h-12 rounded-xl" />
+          <div className="skeleton h-12 rounded-xl" />
+        </div>
       </div>
     }>
       <OrderConfirmationContent />
