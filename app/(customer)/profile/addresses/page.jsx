@@ -38,14 +38,24 @@ export default function AddressesPage() {
   const fetchAddresses = async () => {
     try {
       setIsLoading(true)
-      const profile = await customerService.getProfile()
+      const response = await customerService.getAddresses()
+
+      // Handle different response structures
+      let addressesArray = []
+      if (response?.data?.addresses && Array.isArray(response.data.addresses)) {
+        addressesArray = response.data.addresses
+      } else if (Array.isArray(response?.data)) {
+        addressesArray = response.data
+      } else if (Array.isArray(response)) {
+        addressesArray = response
+      }
 
       // Map backend addresses to frontend format
-      const mappedAddresses = (profile.addresses || []).map((addr) => ({
+      const mappedAddresses = addressesArray.map((addr) => ({
         id: addr._id,
         label: addr.addressType || 'Other',
         icon: getIconFromType(addr.addressType),
-        name: profile.fullName || 'User',
+        name: addr.customerId?.fullName,
         street: [addr.addressLine1, addr.addressLine2, addr.landmark]
           .filter(Boolean)
           .join(', '),

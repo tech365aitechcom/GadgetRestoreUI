@@ -1,5 +1,6 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import {
   Home,
   ClipboardList,
@@ -10,9 +11,13 @@ import {
   Search,
   Plus,
 } from 'lucide-react'
-import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useAuth } from '@/context/AuthContext'
+import { useProtectedNavigation } from '@/hooks/useProtectedNavigation'
+import NotificationDrawer from '@/components/layout/NotificationDrawer'
+import LoginAlertModal from '@/components/ui/LoginAlertModal'
+import notificationService from '@/services/notification.service'
+import { setRouterInstance } from '@/lib/navigation'
 
 /**
  * AppShell — Responsive layout shell
@@ -23,12 +28,39 @@ export default function AppShell({ children, className = '' }) {
   const pathname = usePathname()
   const router = useRouter()
   const { user } = useAuth()
+  const { navigateTo, showLoginModal, setShowLoginModal, redirectPath } = useProtectedNavigation()
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false)
+  const [unreadCount, setUnreadCount] = useState(0)
+
+  // Register router instance for use in API interceptor
+  useEffect(() => {
+    setRouterInstance(router)
+  }, [router])
+
+  useEffect(() => {
+    // Only fetch notifications if user is authenticated
+    if (!user) return
+
+    const fetchUnreadCount = async () => {
+      try {
+        const res = await notificationService.getUnreadCount()
+        setUnreadCount(res?.data?.count ?? res?.count ?? 0)
+      } catch (err) {
+        // Set to 0 on error
+        setUnreadCount(0)
+      }
+    }
+    fetchUnreadCount()
+    // Fetch unread count every 30 seconds to keep drawer icon in sync
+    const interval = setInterval(fetchUnreadCount, 30000)
+    return () => clearInterval(interval)
+  }, [user])
 
   const navItems = [
     { href: '/home', label: 'Home', icon: Home },
     { href: '/orders', label: 'Orders', icon: ClipboardList },
     { href: '/profile', label: 'Profile', icon: User },
-    { href: '/settings', label: 'Settings', icon: Settings },
+    // { href: '/settings', label: 'Settings', icon: Settings },
   ]
 
   return (
@@ -59,9 +91,12 @@ export default function AppShell({ children, className = '' }) {
               pathname === item.href ||
               (item.href !== '/home' && pathname.startsWith(item.href))
             return (
-              <Link
+              <button
                 key={item.href}
-                href={item.href}
+                onClick={(e) => {
+                  e.preventDefault()
+                  navigateTo(item.href)
+                }}
                 className={`sidebar-nav-item${isActive ? ' active' : ''}`}
                 style={{
                   display: 'flex',
@@ -73,10 +108,14 @@ export default function AppShell({ children, className = '' }) {
                   color: isActive ? '#000000' : '#8A8A8A',
                   backgroundColor: isActive ? '#FFFFFF' : 'transparent',
                   transition: 'all 150ms ease',
+                  border: 'none',
+                  cursor: 'pointer',
+                  width: '100%',
+                  textAlign: 'left',
                 }}
               >
                 {item.label}
-              </Link>
+              </button>
             )
           })}
         </nav>
@@ -91,17 +130,20 @@ export default function AppShell({ children, className = '' }) {
             gap: 12,
           }}
         >
-          <img
-            src='/images/pragya.png'
-            alt='User Avatar'
+          <div
             style={{
               width: 34,
               height: 34,
               borderRadius: '50%',
-              objectFit: 'cover',
+              background: 'rgba(255, 255, 255, 0.1)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
               flexShrink: 0,
             }}
-          />
+          >
+            <User size={18} color='#fff' strokeWidth={2} />
+          </div>
           <span
             style={{
               fontSize: 13,
@@ -140,6 +182,7 @@ export default function AppShell({ children, className = '' }) {
           >
             <button
               aria-label='Notifications'
+              onClick={() => setIsNotificationOpen(true)}
               style={{
                 background: 'none',
                 border: 'none',
@@ -147,9 +190,25 @@ export default function AppShell({ children, className = '' }) {
                 color: 'var(--color-content-text-secondary)',
                 display: 'flex',
                 alignItems: 'center',
+                position: 'relative',
               }}
             >
               <Bell size={21} />
+              {unreadCount > 0 && (
+                <span
+                  style={{
+                    position: 'absolute',
+                    top: -2,
+                    right: -2,
+                    width: 7,
+                    height: 7,
+                    borderRadius: '50%',
+                    backgroundColor: 'var(--color-danger)',
+                    border: '1px solid var(--color-bg)',
+                  }}
+                  className='animate-pulse'
+                />
+              )}
             </button>
             <button
               aria-label='Help'
@@ -181,6 +240,17 @@ export default function AppShell({ children, className = '' }) {
 
         {children}
       </main>
+
+      <NotificationDrawer
+        isOpen={isNotificationOpen}
+        onClose={() => setIsNotificationOpen(false)}
+      />
+
+      <LoginAlertModal
+        isOpen={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+        redirectPath={redirectPath}
+      />
     </div>
   )
 }

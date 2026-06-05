@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   ArrowLeft,
-  Bell,
   Shield,
   Award,
   ChevronRight,
@@ -54,16 +53,18 @@ function collectRepairTypeIds(symptoms) {
 function TierCard({ tier, isSelected, availability, onSelect, compact = false }) {
   const style = TIER_STYLE[tier.tier] || TIER_STYLE.Pro;
   const avail = availability[tier.tier];
-  const unavailable = avail !== undefined && avail !== null && avail.available === false;
 
+  // Compute price first — used to decide whether to show the "not configured" error
   const totalPartsCost = avail?.totalPartsCost ?? null;
   const totalLabourCost = avail?.totalLabourCost ?? null;
   const hasPrice = totalPartsCost !== null && (totalPartsCost + totalLabourCost) > 0;
 
+  // Show "not configured" only when availability was checked AND returned false AND there is genuinely no price
+  const unavailable = avail !== undefined && avail !== null && avail.available === false && !hasPrice;
+
   return (
     <button
-      onClick={() => !unavailable && onSelect(tier)}
-      disabled={unavailable}
+      onClick={() => onSelect(tier)}
       aria-pressed={isSelected}
       style={{
         flex: 1,
@@ -74,8 +75,7 @@ function TierCard({ tier, isSelected, availability, onSelect, compact = false })
         borderRadius: 'var(--radius-card)',
         background: isSelected ? style.accentBg : 'var(--color-content-card)',
         padding: compact ? '18px 16px' : '26px 22px',
-        cursor: unavailable ? 'not-allowed' : 'pointer',
-        opacity: unavailable ? 0.45 : 1,
+        cursor: 'pointer',
         transition: 'all 0.2s ease',
         textAlign: 'left',
         outline: 'none',
@@ -155,7 +155,7 @@ function TierCard({ tier, isSelected, availability, onSelect, compact = false })
       {/* Price */}
       {unavailable ? (
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: 'var(--color-danger)' }}>
-          <AlertCircle size={13} /> Pricing unavailable for this combination
+          <AlertCircle size={13} /> Price not configured for this device and repair
         </div>
       ) : hasPrice ? (
         <div>
@@ -220,12 +220,13 @@ export default function SelectTierPage() {
 
   /* Restore context state */
   useEffect(() => {
+    // The context value can arrive after localStorage hydration.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (contextTier) setSelectedTier(contextTier);
   }, [contextTier]);
 
   /* Fetch part tiers from backend */
   useEffect(() => {
-    setIsLoadingTiers(true);
     catalogueService.getPartTiers()
       .then((data) => {
         const sorted = [...data].sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0));
@@ -241,6 +242,8 @@ export default function SelectTierPage() {
     const repairTypeIds = collectRepairTypeIds(symptoms);
     if (!repairTypeIds.length) return;
 
+    // Display progress while the async matrix lookup is in flight.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsCheckingPricing(true);
     Promise.all(
       tiers.map((tier) =>
@@ -290,7 +293,7 @@ export default function SelectTierPage() {
           DESKTOP ≥1024px
           ══════════════════════════════════════════════════════ */}
       <div className="home-desktop">
-        <div className="page-container" style={{ paddingBottom: 60 }}>
+        <div className="p-8" style={{ paddingBottom: 60 }}>
 
           {/* Back + breadcrumb */}
           <div style={{ marginBottom: 28 }}>
@@ -301,7 +304,7 @@ export default function SelectTierPage() {
               <ArrowLeft size={14} /> Back to Symptoms
             </button>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-              <span style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', background: '#111', color: '#fff', padding: '4px 12px', borderRadius: 999 }}>{categoryName}</span>
+              <span style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', background: 'var(--color-bg-700)', color: 'var(--color-btn-cta-bg)', padding: '4px 12px', borderRadius: 999 }}>{categoryName}</span>
               <span style={{ fontSize: 12, color: 'var(--color-content-text-secondary)' }}>/</span>
               <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-content-text-secondary)', textTransform: 'uppercase' }}>{brand.name}</span>
               <span style={{ fontSize: 12, color: 'var(--color-content-text-secondary)' }}>/</span>
@@ -349,7 +352,7 @@ export default function SelectTierPage() {
 
                 {/* Pricing disclaimer */}
                 {!isLoadingTiers && !isCheckingPricing && (
-                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: 9, padding: '12px 16px', background: 'rgba(108,123,255,0.04)', border: '1px solid rgba(108,123,255,0.14)', borderRadius: 10, fontSize: 12, color: 'var(--color-content-text-secondary)', lineHeight: 1.6, marginTop: 14 }}>
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: 9, padding: '12px 16px', background: 'var(--color-accent-tint-4)', border: '1px solid var(--color-accent-tint-14)', borderRadius: 10, fontSize: 12, color: 'var(--color-content-text-secondary)', lineHeight: 1.6, marginTop: 14 }}>
                     <Sparkles size={13} color="var(--color-accent)" style={{ marginTop: 1, flexShrink: 0 }} />
                     <span>Pricing is an estimate based on your symptoms. Final cost confirmed after device diagnosis at our service centre.</span>
                   </div>
@@ -438,125 +441,100 @@ export default function SelectTierPage() {
       {/* ══════════════════════════════════════════════════════
           MOBILE <1024px
           ══════════════════════════════════════════════════════ */}
-      <div className="home-mobile">
-        <div style={{ background: 'var(--color-content-bg)', minHeight: '100svh', paddingBottom: 160 }}>
+      <div className="home-mobile" style={{ background: 'var(--color-content-bg)', minHeight: '100svh', paddingBottom: 160 }}>
+        {/* Content */}
+        <div style={{ padding: '20px 16px', display: 'flex', flexDirection: 'column', gap: 24 }}>
 
-          {/* Top bar */}
-          <div className="top-bar">
-            <button onClick={() => router.push('/select-symptoms')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', width: 36, height: 36, borderRadius: '50%', flexShrink: 0 }} aria-label="Go back">
-              <ArrowLeft size={20} />
-            </button>
-            <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
-              <img src="/gadget-restore-logo.svg" alt="Gadget Restore" style={{ height: 28, objectFit: 'contain' }} />
+          {/* Page header */}
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 12, flexWrap: 'wrap' }}>
+              <span style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', background: 'var(--color-bg-700)', color: 'var(--color-btn-cta-bg)', padding: '4px 10px', borderRadius: 999 }}>{categoryName}</span>
+              <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--color-accent)', textTransform: 'uppercase', background: 'rgba(108,123,255,0.1)', padding: '4px 10px', borderRadius: 999 }}>{model.name}</span>
+              <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--color-content-text-secondary)', textTransform: 'uppercase', background: 'var(--color-content-card)', border: '1px solid var(--color-content-border)', padding: '4px 10px', borderRadius: 999 }}>{symptoms.length} symptom{symptoms.length > 1 ? 's' : ''}</span>
             </div>
-            <button style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#888', display: 'flex', alignItems: 'center', width: 36, height: 36, justifyContent: 'center', borderRadius: '50%' }} aria-label="Notifications">
-              <Bell size={20} />
-            </button>
+            <h1 style={{ fontSize: 24, fontWeight: 900, letterSpacing: '-0.02em', textTransform: 'uppercase', color: 'var(--color-content-text)', marginBottom: 4 }}>
+              Repair Options
+            </h1>
+            <p style={{ fontSize: 12, color: 'var(--color-content-text-secondary)', lineHeight: 1.6 }}>
+              Choose part quality, repair mode, and any notes before viewing pricing.
+            </p>
           </div>
 
-          {/* Step progress — step 4 of 5 */}
-          <div className="step-progress">
-            <div className="step-dot done" />
-            <div className="step-dot done" />
-            <div className="step-dot done" />
-            <div className="step-dot active" />
-            <div className="step-dot" />
-          </div>
-
-          {/* Content */}
-          <div style={{ padding: '20px 16px', display: 'flex', flexDirection: 'column', gap: 24 }}>
-
-            {/* Page header */}
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 12, flexWrap: 'wrap' }}>
-                <span style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', background: '#111', color: '#fff', padding: '4px 10px', borderRadius: 999 }}>{categoryName}</span>
-                <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--color-accent)', textTransform: 'uppercase', background: 'rgba(108,123,255,0.1)', padding: '4px 10px', borderRadius: 999 }}>{model.name}</span>
-                <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--color-content-text-secondary)', textTransform: 'uppercase', background: 'var(--color-content-card)', border: '1px solid var(--color-content-border)', padding: '4px 10px', borderRadius: 999 }}>{symptoms.length} symptom{symptoms.length > 1 ? 's' : ''}</span>
+          {/* ── 1. Part Quality ── */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            {isLoadingTiers && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                {[0, 1].map(i => <div key={i} className="skeleton" style={{ height: 200, borderRadius: 'var(--radius-card)' }} />)}
               </div>
-              <h1 style={{ fontSize: 24, fontWeight: 900, letterSpacing: '-0.02em', textTransform: 'uppercase', color: 'var(--color-content-text)', marginBottom: 4 }}>
-                Repair Options
-              </h1>
-              <p style={{ fontSize: 12, color: 'var(--color-content-text-secondary)', lineHeight: 1.6 }}>
-                Choose part quality, repair mode, and any notes before viewing pricing.
-              </p>
-            </div>
+            )}
+            {!isLoadingTiers && error && (
+              <div style={{ textAlign: 'center', padding: 24, color: 'var(--color-danger)', fontWeight: 600 }}>{error}</div>
+            )}
+            {!isLoadingTiers && !error && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                {tiers.map((tier) => (
+                  <TierCard
+                    key={tier._id}
+                    tier={tier}
+                    isSelected={selectedTier?._id === tier._id}
+                    availability={availability}
+                    onSelect={setSelectedTier}
+                    compact
+                  />
+                ))}
+              </div>
+            )}
 
-            {/* ── 1. Part Quality ── */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              {isLoadingTiers && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                  {[0, 1].map(i => <div key={i} className="skeleton" style={{ height: 200, borderRadius: 'var(--radius-card)' }} />)}
-                </div>
-              )}
-              {!isLoadingTiers && error && (
-                <div style={{ textAlign: 'center', padding: 24, color: 'var(--color-danger)', fontWeight: 600 }}>{error}</div>
-              )}
-              {!isLoadingTiers && !error && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                  {tiers.map((tier) => (
-                    <TierCard
-                      key={tier._id}
-                      tier={tier}
-                      isSelected={selectedTier?._id === tier._id}
-                      availability={availability}
-                      onSelect={setSelectedTier}
-                      compact
-                    />
-                  ))}
-                </div>
-              )}
-
-              {!isLoadingTiers && !isCheckingPricing && (
-                <div style={{ display: 'flex', alignItems: 'flex-start', gap: 7, padding: '10px 12px', background: 'rgba(108,123,255,0.04)', border: '1px solid rgba(108,123,255,0.12)', borderRadius: 9, fontSize: 11, color: 'var(--color-content-text-secondary)', lineHeight: 1.55 }}>
-                  <Sparkles size={11} color="var(--color-accent)" style={{ marginTop: 1, flexShrink: 0 }} />
-                  Pricing shown is an estimate. Final cost confirmed after device diagnosis.
-                </div>
-              )}
-            </div>
-
+            {!isLoadingTiers && !isCheckingPricing && (
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: 7, padding: '10px 12px', background: 'var(--color-accent-tint-4)', border: '1px solid var(--color-accent-tint-12)', borderRadius: 9, fontSize: 11, color: 'var(--color-content-text-secondary)', lineHeight: 1.55 }}>
+                <Sparkles size={11} color="var(--color-accent)" style={{ marginTop: 1, flexShrink: 0 }} />
+                Pricing shown is an estimate. Final cost confirmed after device diagnosis.
+              </div>
+            )}
           </div>
 
-          {/* Mobile sticky bottom CTA */}
-          <div style={{
-            position: 'fixed', bottom: 64, left: 0, right: 0,
-            background: 'var(--color-content-surface)',
-            borderTop: '1px solid var(--color-content-border)',
-            padding: '12px 16px', zIndex: 90,
-            display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12,
-            boxShadow: '0 -4px 10px rgba(0,0,0,0.04)',
-          }}>
-            <div>
-              <span style={{ display: 'block', fontSize: 10, fontWeight: 700, color: 'var(--color-content-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                {selectedTier ? `${selectedTier.tier} Parts` : 'Select part quality to continue'}
-              </span>
-              <span style={{ fontSize: 13, fontWeight: 800, color: canContinue ? (TIER_STYLE[selectedTier?.tier] || TIER_STYLE.Pro).accentColor : 'var(--color-content-text)' }}>
-                {canContinue
-                  ? (tierPrice && tierPrice > 0
-                    ? `~₹${tierPrice.toLocaleString('en-IN')}`
-                    : 'Continue to Repair Mode')
-                  : 'Choose Pro or Premium above'}
-              </span>
-            </div>
-            <button
-              onClick={handleContinue}
-              disabled={!canContinue}
-              style={{
-                height: 44, padding: '0 22px',
-                background: canContinue ? 'var(--color-accent)' : 'var(--color-content-divider)',
-                color: canContinue ? '#fff' : 'var(--color-content-text-secondary)',
-                border: 'none', borderRadius: 'var(--radius-btn)',
-                fontWeight: 700, fontSize: 13,
-                cursor: canContinue ? 'pointer' : 'not-allowed',
-                display: 'flex', alignItems: 'center', gap: 6,
-                transition: 'all 0.15s ease',
-              }}
-            >
-              Continue <ChevronRight size={14} />
-            </button>
-          </div>
-
-          <BottomNav />
         </div>
+
+        {/* Mobile sticky bottom CTA */}
+        <div style={{
+          position: 'fixed', bottom: 'calc(var(--nav-height) + env(safe-area-inset-bottom, 0px))', left: 0, right: 0,
+          background: 'var(--color-content-surface)',
+          borderTop: '1px solid var(--color-content-border)',
+          padding: '12px 16px', zIndex: 90,
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12,
+          boxShadow: '0 -4px 10px rgba(0,0,0,0.04)',
+        }}>
+          <div>
+            <span style={{ display: 'block', fontSize: 10, fontWeight: 700, color: 'var(--color-content-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              {selectedTier ? `${selectedTier.tier} Parts` : 'Select part quality to continue'}
+            </span>
+            <span style={{ fontSize: 13, fontWeight: 800, color: canContinue ? (TIER_STYLE[selectedTier?.tier] || TIER_STYLE.Pro).accentColor : 'var(--color-content-text)' }}>
+              {canContinue
+                ? (tierPrice && tierPrice > 0
+                  ? `~₹${tierPrice.toLocaleString('en-IN')}`
+                  : 'Continue to Repair Mode')
+                : 'Choose Pro or Premium above'}
+            </span>
+          </div>
+          <button
+            onClick={handleContinue}
+            disabled={!canContinue}
+            style={{
+              height: 44, padding: '0 22px',
+              background: canContinue ? 'var(--color-accent)' : 'var(--color-content-divider)',
+              color: canContinue ? '#fff' : 'var(--color-content-text-secondary)',
+              border: 'none', borderRadius: 'var(--radius-btn)',
+              fontWeight: 700, fontSize: 13,
+              cursor: canContinue ? 'pointer' : 'not-allowed',
+              display: 'flex', alignItems: 'center', gap: 6,
+              transition: 'all 0.15s ease',
+            }}
+          >
+            Continue <ChevronRight size={14} />
+          </button>
+        </div>
+
+        <BottomNav />
       </div>
 
     </AppShell>

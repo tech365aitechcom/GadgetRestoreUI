@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Bell, ScanLine } from 'lucide-react';
+import { ScanLine } from 'lucide-react';
 
 import AppShell from '@/components/layout/AppShell';
 import BottomNav from '@/components/ui/BottomNav';
@@ -46,7 +46,7 @@ export default function SelectBrandPage() {
           DESKTOP  ≥1024px
           ════════════════════════════════════════════════════════════════ */}
       <div className="home-desktop">
-        <div className="page-container" style={{ paddingBottom: 48 }}>
+        <div className="p-8" style={{ paddingBottom: 48 }}>
 
           {/* Page header row */}
           <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 24, marginBottom: 28 }}>
@@ -54,7 +54,7 @@ export default function SelectBrandPage() {
               {/* Category filter chip */}
               {category && (
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
-                  <span style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', background: '#111', color: '#fff', padding: '4px 14px', borderRadius: 999 }}>
+                  <span style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', background: 'var(--color-bg-700)', color: 'var(--color-btn-cta-bg)', padding: '4px 14px', borderRadius: 999 }}>
                     {category.name}
                   </span>
                   <button
@@ -92,7 +92,7 @@ export default function SelectBrandPage() {
                   </div>
                 </div>
                 <div style={{ width: '100%', height: 3, borderRadius: 3, background: 'rgba(255,255,255,0.1)' }}>
-                  <div style={{ height: '100%', width: '40%', background: '#6C7BFF', borderRadius: 3 }} />
+                  <div style={{ height: '100%', width: '40%', background: 'var(--color-accent)', borderRadius: 3 }} />
                 </div>
               </button>
             </div>
@@ -131,87 +131,58 @@ export default function SelectBrandPage() {
       {/* ════════════════════════════════════════════════════════════════
           MOBILE  <1024px
           ════════════════════════════════════════════════════════════════ */}
-      <div className="home-mobile">
-        <div style={{ background: 'var(--color-content-bg)', minHeight: '100svh', paddingBottom: 80 }}>
+      <div className="home-mobile" style={{ background: 'var(--color-content-bg)', minHeight: '100svh', paddingBottom: 80 }}>
+        {/* Content */}
+        <div style={{ padding: '20px 16px', display: 'flex', flexDirection: 'column', gap: 16 }}>
 
-          {/* Mobile Top Bar */}
-          <div className="top-bar">
-            <button
-              onClick={() => router.push('/home')}
-              style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', width: 36, height: 36, borderRadius: '50%', flexShrink: 0 }}
-              aria-label="Go back"
-            >
-              <ArrowLeft size={20} />
-            </button>
-            <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
-              <img src="/gadget-restore-logo.svg" alt="Gadget Restore" style={{ height: 28, objectFit: 'contain' }} />
-            </div>
-            <button style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#888', display: 'flex', alignItems: 'center', width: 36, height: 36, justifyContent: 'center', borderRadius: '50%' }} aria-label="Notifications">
-              <Bell size={20} />
-            </button>
-          </div>
-
-          {/* Step progress */}
-          <div className="step-progress">
-            <div className="step-dot active" />
-            <div className="step-dot" />
-            <div className="step-dot" />
-            <div className="step-dot" />
-            <div className="step-dot" />
-          </div>
-
-          {/* Content */}
-          <div style={{ padding: '20px 16px', display: 'flex', flexDirection: 'column', gap: 16 }}>
-
-            {/* Heading */}
-            <div>
-              {/* Category filter chip */}
-              {category && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-                  <span style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', background: '#111', color: '#fff', padding: '4px 12px', borderRadius: 999 }}>
-                    {category.name}
-                  </span>
-                  <button
-                    onClick={() => router.push('/home')}
-                    style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 11, color: 'var(--color-content-text-secondary)', textDecoration: 'underline', padding: 0 }}
-                  >
-                    Change
-                  </button>
-                </div>
-              )}
-              <h1 style={{ fontSize: 26, fontWeight: 900, letterSpacing: '-0.02em', textTransform: 'uppercase', color: 'var(--color-content-text)', marginBottom: 8 }}>
-                Select Brand
-              </h1>
-              <p style={{ fontSize: 13, color: 'var(--color-content-text-secondary)', lineHeight: 1.65 }}>
-                {category
-                  ? `Showing brands for ${category.name}. Use search to filter further.`
-                  : 'We support over 50+ manufacturers. Use the search bar for specific model compatibility or contact our technician team directly.'}
-              </p>
-            </div>
-
-
-            {/* Scan Serial */}
-            <ScanSerialButton />
-
-            {/* Can't Find card */}
-            <CantFindBanner />
-
-            {/* Brand grid */}
-            {error ? (
-              <div style={{ textAlign: 'center', padding: '32px', color: 'var(--color-danger)', fontWeight: 600 }}>{error}</div>
-            ) : (
-              <BrandGrid
-                brands={brands}
-                isLoading={isLoading}
-                onSelectBrand={handleSelectBrand}
-                selectedBrandId={selectedBrand?._id}
-              />
+          {/* Heading */}
+          <div>
+            {/* Category filter chip */}
+            {category && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+                <span style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', background: 'var(--color-bg-700)', color: 'var(--color-btn-cta-bg)', padding: '4px 12px', borderRadius: 999 }}>
+                  {category.name}
+                </span>
+                <button
+                  onClick={() => router.push('/home')}
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 11, color: 'var(--color-content-text-secondary)', textDecoration: 'underline', padding: 0 }}
+                >
+                  Change
+                </button>
+              </div>
             )}
-
+            <h1 style={{ fontSize: 26, fontWeight: 900, letterSpacing: '-0.02em', textTransform: 'uppercase', color: 'var(--color-content-text)', marginBottom: 8 }}>
+              Select Brand
+            </h1>
+            <p style={{ fontSize: 13, color: 'var(--color-content-text-secondary)', lineHeight: 1.65 }}>
+              {category
+                ? `Showing brands for ${category.name}. Use search to filter further.`
+                : 'We support over 50+ manufacturers. Use the search bar for specific model compatibility or contact our technician team directly.'}
+            </p>
           </div>
 
-          <BottomNav />
+
+          {/* Scan Serial */}
+          <ScanSerialButton />
+
+          {/* Can't Find card */}
+          <CantFindBanner />
+
+          {/* Brand grid */}
+          {error ? (
+            <div style={{ textAlign: 'center', padding: '32px', color: 'var(--color-danger)', fontWeight: 600 }}>{error}</div>
+          ) : (
+            <BrandGrid
+              brands={brands}
+              isLoading={isLoading}
+              onSelectBrand={handleSelectBrand}
+              selectedBrandId={selectedBrand?._id}
+            />
+          )}
+
         </div>
+
+        <BottomNav />
       </div>
 
     </AppShell>
