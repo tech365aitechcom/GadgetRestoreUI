@@ -731,8 +731,8 @@ export default function SelectSymptomsPage() {
               {/* OEM Quality Standards Banner */}
               <div
                 style={{
-                  background: 'var(--color-content-card)',
-                  border: '1px solid var(--color-content-border)',
+                  background: '#1E2024',
+                  border: '1px solid rgba(255, 255, 255, 0.08)',
                   borderRadius: 16,
                   padding: '40px 32px',
                   display: 'flex',
@@ -747,21 +747,21 @@ export default function SelectSymptomsPage() {
                 <div style={{ display: 'flex', gap: 16, alignItems: 'flex-start', flex: 1 }}>
                   <div
                     style={{
-                      color: 'var(--color-accent)',
+                      color: '#ffffff',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                       marginTop: 2,
                     }}
                   >
-                    <BadgeCheck size={24} color='white' />
+                    <BadgeCheck size={24} />
                   </div>
                   <div>
                     <h4
                       style={{
                         fontSize: 15,
                         fontWeight: 700,
-                        color: 'var(--color-content-text)',
+                        color: '#ffffff',
                         margin: '0 0 6px 0',
                       }}
                     >
@@ -770,7 +770,7 @@ export default function SelectSymptomsPage() {
                     <p
                       style={{
                         fontSize: 13,
-                        color: 'var(--color-content-text-secondary)',
+                        color: '#9CA3AF',
                         margin: 0,
                         lineHeight: 1.6,
                       }}
@@ -796,7 +796,7 @@ export default function SelectSymptomsPage() {
                       style={{
                         fontSize: 22,
                         fontWeight: 800,
-                        color: 'var(--color-content-text)',
+                        color: '#ffffff',
                         lineHeight: 1,
                       }}
                     >
@@ -807,7 +807,7 @@ export default function SelectSymptomsPage() {
                         fontSize: 9,
                         fontWeight: 700,
                         letterSpacing: '0.08em',
-                        color: 'var(--color-content-text-secondary)',
+                        color: '#9CA3AF',
                         textTransform: 'uppercase',
                         whiteSpace: 'nowrap',
                       }}
@@ -816,12 +816,12 @@ export default function SelectSymptomsPage() {
                     </span>
                   </div>
 
-                  {/* Divider line between stats if needed, or simple gap */}
+                  {/* Divider line between stats */}
                   <div
                     style={{
                       height: 32,
                       width: 1,
-                      background: 'var(--color-content-divider)',
+                      background: 'rgba(255, 255, 255, 0.12)',
                     }}
                   />
 
@@ -831,7 +831,7 @@ export default function SelectSymptomsPage() {
                       style={{
                         fontSize: 22,
                         fontWeight: 800,
-                        color: 'var(--color-content-text)',
+                        color: '#ffffff',
                         lineHeight: 1,
                       }}
                     >
@@ -842,7 +842,7 @@ export default function SelectSymptomsPage() {
                         fontSize: 9,
                         fontWeight: 700,
                         letterSpacing: '0.08em',
-                        color: 'var(--color-content-text-secondary)',
+                        color: '#9CA3AF',
                         textTransform: 'uppercase',
                         whiteSpace: 'nowrap',
                       }}
