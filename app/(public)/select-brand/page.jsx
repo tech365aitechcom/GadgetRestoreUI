@@ -41,150 +41,104 @@ export default function SelectBrandPage() {
 
   return (
     <AppShell>
-
-      {/* ════════════════════════════════════════════════════════════════
-          DESKTOP  ≥1024px
-          ════════════════════════════════════════════════════════════════ */}
-      <div className="home-desktop">
-        <div className="p-8" style={{ paddingBottom: 48 }}>
-
-          {/* Page header row */}
-          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 24, marginBottom: 28 }}>
-            <div>
+      <div className="w-full min-h-[100svh] lg:min-h-0 bg-[var(--color-content-bg)] lg:bg-transparent pb-20 lg:pb-12">
+        <div className="px-4 py-5 lg:p-8 flex flex-col gap-4 lg:gap-7">
+          
+          {/* Header Row */}
+          <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
+            
+            {/* Left: Category filter chip, Title, Description */}
+            <div className="flex-1">
               {/* Category filter chip */}
               {category && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
-                  <span style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', background: 'var(--color-bg-700)', color: 'var(--color-btn-cta-bg)', padding: '4px 14px', borderRadius: 999 }}>
+                <div className="flex items-center gap-2 mb-3.5">
+                  <span className="text-[10px] lg:text-[11px] font-bold text-[var(--color-btn-cta-bg)] bg-[var(--color-bg-700)] uppercase tracking-wider lg:tracking-widest px-3 lg:px-3.5 py-1 rounded-full">
                     {category.name}
                   </span>
                   <button
                     onClick={() => router.push('/home')}
-                    style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 11, color: 'var(--color-content-text-secondary)', textDecoration: 'underline', padding: 0 }}
+                    className="background-none border-none cursor-pointer text-xs text-[var(--color-content-text-secondary)] underline p-0 hover:text-[var(--color-content-text)] transition-colors"
                   >
-                    Change category
+                    Change<span className="hidden lg:inline"> category</span>
                   </button>
                 </div>
               )}
-              <h1 style={{ fontSize: 36, fontWeight: 900, letterSpacing: '-0.03em', color: 'var(--color-content-text)', textTransform: 'uppercase', marginBottom: 10 }}>
+
+              {/* Page Heading */}
+              <h1 className="text-[26px] lg:text-[36px] font-black tracking-tight lg:tracking-tighter text-[var(--color-content-text)] uppercase mb-2 lg:mb-2.5">
                 Select Brand
               </h1>
-              <p style={{ fontSize: 14, color: 'var(--color-content-text-secondary)', lineHeight: 1.65, maxWidth: 500 }}>
+              
+              {/* Description */}
+              <p className="text-sm text-[var(--color-content-text-secondary)] leading-relaxed max-w-[500px]">
                 {category
                   ? `Showing ${category.name} brands. Use the search bar to filter further or contact our technician team directly.`
                   : 'We support over 50+ manufacturers. Use the search bar for specific model compatibility or contact our technician team directly.'}
               </p>
             </div>
 
-            {/* Scan Serial — desktop right */}
-            <div style={{ minWidth: 220 }}>
+            {/* Right: Scan Serial card (Desktop only) */}
+            <div className="hidden lg:block min-w-[220px]">
               <button
-                className="scan-serial-card"
-                style={{ width: '100%', flexDirection: 'column', alignItems: 'flex-start', gap: 8, padding: '16px 20px' }}
+                className="scan-serial-card w-full flex flex-col items-start gap-2 p-4 px-5"
                 aria-label="Scan serial number"
               >
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+                <div className="flex items-center justify-between w-full">
                   <div>
-                    <span className="scan-serial-card-label">Auto-Detect</span>
-                    <span className="scan-serial-card-title">Scan Serial</span>
+                    <span className="scan-serial-card-label text-[9px] font-bold uppercase tracking-wider text-neutral-500">Auto-Detect</span>
+                    <span className="scan-serial-card-title text-base font-extrabold text-white">Scan Serial</span>
                   </div>
-                  <div className="scan-serial-icon">
+                  <div className="scan-serial-icon w-[42px] h-[42px] flex items-center justify-center bg-white/5 rounded-xl text-neutral-400">
                     <ScanLine size={20} />
                   </div>
                 </div>
-                <div style={{ width: '100%', height: 3, borderRadius: 3, background: 'rgba(255,255,255,0.1)' }}>
-                  <div style={{ height: '100%', width: '40%', background: 'var(--color-accent)', borderRadius: 3 }} />
+                <div className="w-full h-0.5 rounded-full bg-white/10 mt-1">
+                  <div className="h-full w-2/5 bg-[var(--color-accent)] rounded-full" />
                 </div>
               </button>
             </div>
+
           </div>
 
-          {/* Main content: Can't Find (left) + Brand Grid (right) */}
-          <div style={{ display: 'grid', gridTemplateColumns: '280px 1fr', gap: 24, alignItems: 'start' }}>
+          {/* Scan Serial Button (Mobile only) */}
+          <div className="lg:hidden">
+            <ScanSerialButton />
+          </div>
 
-            {/* Left: Can't Find card */}
-            <CantFindBanner />
+          {/* Main Grid Content: CantFind (left/order-3) + BrandGrid (right/order-4) */}
+          {error ? (
+            <div className="text-center p-8 lg:p-12 text-[var(--color-danger)] font-semibold">{error}</div>
+          ) : (
+            <div className="flex flex-col lg:grid lg:grid-cols-[280px_1fr] gap-4 lg:gap-6 items-start">
+              {/* Left Column on Desktop / Order 3 on Mobile */}
+              <div className="w-full order-3 lg:order-none">
+                <CantFindBanner />
+              </div>
 
-            {/* Right: Search + brand grid */}
-            <div>
-              <BrandGrid
-                brands={brands}
-                isLoading={isLoading}
-                onSelectBrand={handleSelectBrand}
-                selectedBrandId={selectedBrand?._id}
-              />
+              {/* Right Column on Desktop / Order 4 on Mobile */}
+              <div className="w-full order-4 lg:order-none">
+                <BrandGrid
+                  brands={brands}
+                  isLoading={isLoading}
+                  onSelectBrand={handleSelectBrand}
+                  selectedBrandId={selectedBrand?._id}
+                />
+              </div>
             </div>
-          </div>
+          )}
 
-          {/* Trust badges */}
-          <div style={{ marginTop: 32 }}>
+          {/* Trust badges (Desktop only) */}
+          <div className="hidden lg:block mt-8">
             <TrustBadges />
           </div>
 
-          {error && (
-            <div style={{ textAlign: 'center', padding: '32px', color: 'var(--color-danger)', fontWeight: 600 }}>
-              {error}
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* ════════════════════════════════════════════════════════════════
-          MOBILE  <1024px
-          ════════════════════════════════════════════════════════════════ */}
-      <div className="home-mobile" style={{ background: 'var(--color-content-bg)', minHeight: '100svh', paddingBottom: 80 }}>
-        {/* Content */}
-        <div style={{ padding: '20px 16px', display: 'flex', flexDirection: 'column', gap: 16 }}>
-
-          {/* Heading */}
-          <div>
-            {/* Category filter chip */}
-            {category && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-                <span style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', background: 'var(--color-bg-700)', color: 'var(--color-btn-cta-bg)', padding: '4px 12px', borderRadius: 999 }}>
-                  {category.name}
-                </span>
-                <button
-                  onClick={() => router.push('/home')}
-                  style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 11, color: 'var(--color-content-text-secondary)', textDecoration: 'underline', padding: 0 }}
-                >
-                  Change
-                </button>
-              </div>
-            )}
-            <h1 style={{ fontSize: 26, fontWeight: 900, letterSpacing: '-0.02em', textTransform: 'uppercase', color: 'var(--color-content-text)', marginBottom: 8 }}>
-              Select Brand
-            </h1>
-            <p style={{ fontSize: 13, color: 'var(--color-content-text-secondary)', lineHeight: 1.65 }}>
-              {category
-                ? `Showing brands for ${category.name}. Use search to filter further.`
-                : 'We support over 50+ manufacturers. Use the search bar for specific model compatibility or contact our technician team directly.'}
-            </p>
-          </div>
-
-
-          {/* Scan Serial */}
-          <ScanSerialButton />
-
-          {/* Can't Find card */}
-          <CantFindBanner />
-
-          {/* Brand grid */}
-          {error ? (
-            <div style={{ textAlign: 'center', padding: '32px', color: 'var(--color-danger)', fontWeight: 600 }}>{error}</div>
-          ) : (
-            <BrandGrid
-              brands={brands}
-              isLoading={isLoading}
-              onSelectBrand={handleSelectBrand}
-              selectedBrandId={selectedBrand?._id}
-            />
-          )}
-
         </div>
 
-        <BottomNav />
+        {/* Floating Bottom Nav (Mobile only) */}
+        <div className="lg:hidden">
+          <BottomNav />
+        </div>
       </div>
-
     </AppShell>
   );
 }
