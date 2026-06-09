@@ -11,6 +11,7 @@ import { CantFindBanner, ScanSerialButton } from '@/components/booking/BrandGrid
 import catalogueService from '@/services/catalogue.service';
 import { useBooking } from '@/context/BookingContext';
 import { getBrandLogo } from '@/lib/utils';
+import { useBookingGuard } from '@/hooks/useBookingGuard';
 
 
 export default function SelectModelPage() {
@@ -21,9 +22,7 @@ export default function SelectModelPage() {
   const [error, setError] = useState(null);
 
   // Guard: if no brand selected, redirect back
-  useEffect(() => {
-    if (!brand) router.replace('/select-brand');
-  }, [brand, router]);
+  const { isReady } = useBookingGuard({ brand: true });
 
   useEffect(() => {
     if (!brand) return;
@@ -39,7 +38,7 @@ export default function SelectModelPage() {
     router.push('/select-symptoms');
   };
 
-  if (!brand) return null;
+  if (!isReady) return null;
 
   const brandName = brand.name;
   const logoUrl = getBrandLogo(brandName, brand.logo);

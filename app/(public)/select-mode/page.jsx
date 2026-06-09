@@ -13,12 +13,15 @@ import {
   Lock,
   Award,
   Shield,
+  BadgeCheck,
+  Cpu,
 } from 'lucide-react';
 
 import AppShell from '@/components/layout/AppShell';
 import BottomNav from '@/components/ui/BottomNav';
 import { useBooking } from '@/context/BookingContext';
 import catalogueService from '@/services/catalogue.service';
+import { useBookingGuard } from '@/hooks/useBookingGuard';
 
 /* ─── Service mode config (Phase 1: Lab only) ───────────────────────────────── */
 const SERVICE_MODES = [
@@ -150,7 +153,7 @@ function RemarksField({ value, onChange }) {
   const isNearLimit = remaining < 80;
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 32 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 8, margin: '32px 0' }}>
       <h3 style={{ fontSize: 14, fontWeight: 800, textTransform: 'uppercase', color: 'var(--color-content-text)' }}>
         Additional Remarks (Optional)
       </h3>
@@ -206,16 +209,11 @@ export default function SelectModePage() {
     setRemarks,
   } = useBooking();
 
-  const [selectedMode, setSelectedMode] = useState('lab');
+  const [selectedMode, setSelectedMode] = useState('');
   const [remarksText, setRemarksText] = useState('');
 
   /* Guard */
-  useEffect(() => {
-    if (!brand) { router.replace('/select-brand'); return; }
-    if (!model) { router.replace('/select-model'); return; }
-    if (!symptoms?.length) { router.replace('/select-symptoms'); return; }
-    if (!partTier) { router.replace('/select-tier'); return; }
-  }, [brand, model, symptoms, partTier, router]);
+  const { isReady } = useBookingGuard({ brand: true, model: true, symptoms: true, partTier: true });
 
   /* Restore context state */
   useEffect(() => {
@@ -225,12 +223,20 @@ export default function SelectModePage() {
 
   /* Continue handler — routes to /pricing */
   const handleContinue = () => {
+    if (!selectedMode) return;
     setServiceMode(selectedMode);
     setRemarks(remarksText);
     router.push('/pricing');
   };
 
-  if (!brand || !model || !symptoms?.length || !partTier) return null;
+  const handleModeSelect = (modeId) => {
+    setSelectedMode(modeId);
+    setServiceMode(modeId);
+    setRemarks(remarksText);
+    router.push('/pricing');
+  };
+
+  if (!isReady) return null;
 
   return (
     <AppShell>
@@ -239,7 +245,7 @@ export default function SelectModePage() {
           DESKTOP ≥1024px
           ══════════════════════════════════════════════════════ */}
       <div className="home-desktop">
-        <div className="p-8" style={{ paddingBottom: 60, maxWidth: 1280 }}>
+        <div className="p-8" style={{ paddingBottom: 60, }}>
 
           <div style={{ marginBottom: 40 }}>
             <button
@@ -262,20 +268,21 @@ export default function SelectModePage() {
                 key={mode.id}
                 mode={mode}
                 isSelected={selectedMode === mode.id}
-                onSelect={setSelectedMode}
+                onSelect={handleModeSelect}
                 isMobile={false}
               />
             ))}
           </div>
+          <RemarksField value={remarksText} onChange={setRemarksText} />
 
           {/* Bottom Banner Area */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: 32, alignItems: 'stretch' }}>
+          <div style={{ alignItems: 'stretch' }}>
 
             {/* Left: Banner + Remarks */}
             <div style={{ display: 'flex', flexDirection: 'column' }}>
               <div style={{
                 background: 'var(--color-bg-300)',  /* #2B2B2B promotional banner bg */
-                borderRadius: 'var(--radius-card)',
+                borderRadius: '36px',
                 overflow: 'hidden',
                 display: 'flex',
                 color: 'var(--color-btn-cta-bg)',
@@ -293,84 +300,37 @@ export default function SelectModePage() {
                   </p>
                   <div style={{ display: 'flex', gap: 24 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                      <Award size={16} /> 12-Month Warranty
+                      <BadgeCheck size={16} /> 12-Month Warranty
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                      <Shield size={16} /> OEM Certified Parts
+                      <Cpu size={16} /> OEM Certified Parts
                     </div>
                   </div>
                 </div>
-                <div style={{ width: '35%', position: 'relative' }}>
-                  <div style={{ position: 'absolute', top: 0, left: 0, bottom: 0, width: 80, background: 'linear-gradient(to right, #2B2B2B, transparent)', zIndex: 1 }} />
-                  <img src="/images/service-mode-banner.png" alt="Precision Repair" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                <div style={{
+                  width: '35%',
+                  background: 'rgba(0, 0, 0, 0.25)',
+                  position: 'relative',
+                  boxSizing: 'border-box'
+                }}>
+                  <img
+                    src="/images/service-mode-banner.png"
+                    alt="Precision Repair"
+                    style={{
+                      position: 'absolute',
+                      top: '28px',
+                      bottom: '28px',
+                      left: '28px',
+                      right: '28px',
+                      width: 'calc(100% - 56px)',
+                      height: 'calc(100% - 56px)',
+                      objectFit: 'cover',
+                      borderRadius: '24px',
+                    }}
+                  />
                 </div>
               </div>
 
-              <RemarksField value={remarksText} onChange={setRemarksText} />
-            </div>
-
-            {/* Right: Summary panel */}
-            <div>
-              <div style={{ background: 'var(--color-content-card)', border: '1px solid var(--color-content-border)', borderRadius: 'var(--radius-card)', padding: 24, position: 'sticky', top: 96, boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
-                <h3 style={{ fontSize: 14, fontWeight: 800, textTransform: 'uppercase', color: 'var(--color-content-text)', marginBottom: 16, borderBottom: '1px solid var(--color-content-divider)', paddingBottom: 12 }}>
-                  Repair Summary
-                </h3>
-
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
-                  <div style={{ width: 38, height: 38, borderRadius: 8, background: 'var(--color-content-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-accent)' }}>
-                    <Smartphone size={18} />
-                  </div>
-                  <div>
-                    <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--color-content-text-secondary)', textTransform: 'uppercase', display: 'block' }}>{brand.name}</span>
-                    <span style={{ fontSize: 13, fontWeight: 800, color: 'var(--color-content-text)' }}>{model.name}</span>
-                  </div>
-                </div>
-
-                <div style={{ marginBottom: 14 }}>
-                  <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--color-content-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.06em', display: 'block', marginBottom: 5 }}>
-                    Symptoms ({symptoms.length})
-                  </span>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                    {symptoms.map(s => (
-                      <div key={s._id} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: 'var(--color-content-text)' }}>
-                        <Check size={11} strokeWidth={3} color="var(--color-accent)" />
-                        {s.name}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div style={{ background: 'var(--color-content-bg)', borderRadius: 10, padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 14 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ fontSize: 11, color: 'var(--color-content-text-secondary)' }}>Part Quality</span>
-                    <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-content-text)' }}>{partTier.tier} Parts</span>
-                  </div>
-                  <div style={{ height: 1, background: 'var(--color-content-divider)' }} />
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ fontSize: 11, color: 'var(--color-content-text-secondary)' }}>Repair Mode</span>
-                    <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-accent)' }}>
-                      {SERVICE_MODES.find(m => m.id === selectedMode)?.label}
-                    </span>
-                  </div>
-                </div>
-
-                <button
-                  onClick={handleContinue}
-                  style={{
-                    width: '100%',
-                    height: 'var(--btn-height-primary)',
-                    background: 'var(--color-accent)',
-                    color: '#fff',
-                    border: 'none', borderRadius: 'var(--radius-btn)',
-                    fontWeight: 700, fontSize: 14, cursor: 'pointer',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-                    transition: 'all 0.2s ease',
-                    boxShadow: '0 4px 16px rgba(108,123,255,0.25)',
-                  }}
-                >
-                  View Pricing <ChevronRight size={16} />
-                </button>
-              </div>
             </div>
           </div>
         </div>
@@ -396,7 +356,7 @@ export default function SelectModePage() {
                 key={mode.id}
                 mode={mode}
                 isSelected={selectedMode === mode.id}
-                onSelect={setSelectedMode}
+                onSelect={handleModeSelect}
                 isMobile={true}
               />
             ))}
@@ -404,7 +364,7 @@ export default function SelectModePage() {
 
           <div style={{
             background: 'var(--color-bg-300)',  /* #2B2B2B */
-            borderRadius: 'var(--radius-card)',
+            borderRadius: '24px',
             overflow: 'hidden',
             color: 'var(--color-btn-cta-bg)',
             marginTop: 16
@@ -417,6 +377,14 @@ export default function SelectModePage() {
               <p style={{ fontSize: 13, color: 'var(--color-text-soft)', lineHeight: 1.6, marginBottom: 20 }}>  {/* #CCCCCC → var(--color-text-soft) */}
                 Every repair is backed by a comprehensive 12-month warranty with OEM-grade components.
               </p>
+              <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                  <BadgeCheck size={14} /> 12-Month Warranty
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                  <Cpu size={14} /> OEM Certified Parts
+                </div>
+              </div>
             </div>
           </div>
 
@@ -436,19 +404,21 @@ export default function SelectModePage() {
               Service Mode
             </span>
             <span style={{ fontSize: 13, fontWeight: 800, color: 'var(--color-content-text)' }}>
-              {SERVICE_MODES.find(m => m.id === selectedMode)?.label}
+              {SERVICE_MODES.find(m => m.id === selectedMode)?.label || 'Select Mode'}
             </span>
           </div>
           <button
             onClick={handleContinue}
+            disabled={!selectedMode}
             style={{
               height: 44, padding: '0 22px',
-              background: 'var(--color-accent)',
-              color: '#fff',
+              background: selectedMode ? 'var(--color-accent)' : 'var(--color-content-border)',
+              color: selectedMode ? '#fff' : 'var(--color-content-text-secondary)',
               border: 'none', borderRadius: 'var(--radius-btn)',
-              fontWeight: 700, fontSize: 13, cursor: 'pointer',
+              fontWeight: 700, fontSize: 13, cursor: selectedMode ? 'pointer' : 'not-allowed',
               display: 'flex', alignItems: 'center', gap: 6,
               transition: 'all 0.15s ease',
+              opacity: selectedMode ? 1 : 0.6,
             }}
           >
             View Pricing <ChevronRight size={14} />

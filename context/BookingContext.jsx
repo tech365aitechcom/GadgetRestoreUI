@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useReducer, useEffect } from 'react';
+import { createContext, useContext, useReducer, useEffect, useState } from 'react';
 
 // ── State shape ─────────────────────────────────────────────────────────────
 const INITIAL_STATE = {
@@ -57,6 +57,7 @@ const BookingContext = createContext(null);
 
 export function BookingProvider({ children }) {
   const [state, dispatch] = useReducer(bookingReducer, INITIAL_STATE);
+  const [isRestored, setIsRestored] = useState(false);
 
   // Restore from localStorage on mount
   useEffect(() => {
@@ -66,6 +67,7 @@ export function BookingProvider({ children }) {
         dispatch({ type: 'RESTORE', payload: JSON.parse(saved) });
       }
     } catch (_) {}
+    setIsRestored(true);
   }, []);
 
   // Persist to localStorage on every change
@@ -98,7 +100,7 @@ export function BookingProvider({ children }) {
     state.serviceMode;
 
   return (
-    <BookingContext.Provider value={{ ...state, ...actions, canProceedToBook }}>
+    <BookingContext.Provider value={{ ...state, ...actions, canProceedToBook, isRestored }}>
       {children}
     </BookingContext.Provider>
   );

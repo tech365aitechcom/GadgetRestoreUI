@@ -90,6 +90,7 @@ export default function AppShell({ children, className = '' }) {
             const isActive =
               pathname === item.href ||
               (item.href !== '/home' && pathname.startsWith(item.href))
+            const Icon = item.icon
             return (
               <button
                 key={item.href}
@@ -101,6 +102,7 @@ export default function AppShell({ children, className = '' }) {
                 style={{
                   display: 'flex',
                   alignItems: 'center',
+                  gap: '12px',
                   padding: '12px 20px',
                   borderRadius: '12px',
                   fontSize: '13px',
@@ -114,6 +116,7 @@ export default function AppShell({ children, className = '' }) {
                   textAlign: 'left',
                 }}
               >
+                <Icon size={18} strokeWidth={isActive ? 2.5 : 2} />
                 {item.label}
               </button>
             )

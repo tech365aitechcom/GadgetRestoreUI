@@ -27,6 +27,7 @@ import BottomNav from '@/components/ui/BottomNav'
 import catalogueService from '@/services/catalogue.service'
 import { useBooking } from '@/context/BookingContext'
 import { getBrandLogo } from '@/lib/utils'
+import { useBookingGuard } from '@/hooks/useBookingGuard'
 
 
 // Helper to determine symptom icon dynamically based on name and properties
@@ -129,13 +130,7 @@ export default function SelectSymptomsPage() {
   const [error, setError] = useState(null)
 
   // Guard: If brand or model is not selected, send back to appropriate step
-  useEffect(() => {
-    if (!brand) {
-      router.replace('/select-brand')
-    } else if (!model) {
-      router.replace('/select-model')
-    }
-  }, [brand, model, router])
+  const { isReady } = useBookingGuard({ brand: true, model: true })
 
   // Fetch symptoms from backend on mount (or if model category resolved changes)
   useEffect(() => {
@@ -227,7 +222,7 @@ export default function SelectSymptomsPage() {
     router.push('/select-tier')
   }
 
-  if (!brand || !model) return null
+  if (!isReady) return null
 
   return (
     <AppShell>

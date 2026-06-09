@@ -560,7 +560,6 @@ export default function HomePage() {
                         marginBottom: 14,
                       }}
                     >
-                      {activeOrder.brandRef?.name || ''}{' '}
                       {activeOrder.modelRef?.name || 'Device'} —{' '}
                       {activeOrder.repairTypes?.[0]?.name ||
                         activeOrder.symptoms?.[0]?.name ||
@@ -577,7 +576,9 @@ export default function HomePage() {
                   </div>
                   <button
                     onClick={() =>
-                      router.push(`/orders/detail?ticketNumber=${activeOrder.ticketNumber}`)
+                      router.push(
+                        `/orders/detail?ticketNumber=${activeOrder.ticketNumber}`,
+                      )
                     }
                     className='btn-accent'
                     style={{
@@ -1156,7 +1157,6 @@ export default function HomePage() {
                           color: 'var(--color-btn-cta-bg)',
                         }}
                       >
-                        {activeOrder.brandRef?.name || ''}{' '}
                         {activeOrder.modelRef?.name || 'Device'}
                       </h4>
                     </div>
@@ -1207,7 +1207,9 @@ export default function HomePage() {
                     </div>
                     <button
                       onClick={() =>
-                        router.push(`/orders/detail?ticketNumber=${activeOrder.ticketNumber}`)
+                        router.push(
+                          `/orders/detail?ticketNumber=${activeOrder.ticketNumber}`,
+                        )
                       }
                       style={{
                         background: 'var(--color-btn-cta-bg)',
@@ -1677,7 +1679,8 @@ export default function HomePage() {
             onClick={handleStart}
             style={{
               position: 'fixed',
-              bottom: 'calc(var(--nav-height) + env(safe-area-inset-bottom, 0px) + 16px)',
+              bottom:
+                'calc(var(--nav-height) + env(safe-area-inset-bottom, 0px) + 16px)',
               right: 16,
               zIndex: 40,
               background: 'var(--color-accent)',
