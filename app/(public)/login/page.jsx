@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { ArrowLeft, Bell, ShieldCheck, Box, Compass } from 'lucide-react'
-import AppShell from '@/components/layout/AppShell'
 import authService from '@/services/auth.service'
 
 export default function LoginPage() {
@@ -117,7 +116,7 @@ export default function LoginPage() {
   }
 
   return (
-    <AppShell className='auth-page-shell'>
+    <>
       {/* ════════════════════════════════════════════════════════════════
           MOBILE VIEW (<1024px)
           ════════════════════════════════════════════════════════════════ */}
@@ -323,6 +322,6 @@ export default function LoginPage() {
           </div>
         </div>
       </div>
-    </AppShell>
+    </>
   )
 }

@@ -24,8 +24,6 @@ import {
   Watch,
 } from 'lucide-react'
 
-import AppShell from '@/components/layout/AppShell'
-import BottomNav from '@/components/ui/BottomNav'
 import catalogueService from '@/services/catalogue.service'
 import { useBooking } from '@/context/BookingContext'
 import customerService from '@/services/customer.service'
@@ -252,7 +250,7 @@ export default function HomePage() {
   }
 
   return (
-    <AppShell>
+    <>
       {/* ════════════════════════════════════════════════════════════════
           DESKTOP  — shown only at ≥1024 px via .home-desktop CSS class
           ════════════════════════════════════════════════════════════════ */}
@@ -1699,12 +1697,10 @@ export default function HomePage() {
           >
             <Plus size={17} /> Start Repair
           </button>
-
-          <BottomNav />
         </div>
         {/* end inner flex wrapper */}
       </div>
       {/* end .home-mobile */}
-    </AppShell>
+    </>
   )
 }

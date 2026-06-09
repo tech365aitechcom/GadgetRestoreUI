@@ -4,20 +4,14 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import {
   ArrowLeft,
-  Bell,
   ChevronRight,
   Shield,
-  Smartphone,
   Truck,
-  Home,
-  Check,
   AlertCircle,
   FileText,
   Clock,
 } from 'lucide-react'
 
-import AppShell from '@/components/layout/AppShell'
-import BottomNav from '@/components/ui/BottomNav'
 import { useBooking } from '@/context/BookingContext'
 import catalogueService from '@/services/catalogue.service'
 import Cookies from 'js-cookie'
@@ -181,373 +175,406 @@ export default function PricingPage() {
 
   if (isLoading) {
     return (
-      <AppShell>
-        <div
-          style={{
-            background: '#000000',
-            minHeight: '100svh',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: '#ffffff',
-          }}
-        >
-          <div style={{ textAlign: 'center' }}>
+      <>
+        {/* Desktop Skeleton */}
+        <div className='home-desktop'>
+          <div className='p-8' style={{ paddingBottom: 140 }}>
             <div
-              className='animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-accent mx-auto mb-4'
               style={{
-                borderColor:
-                  'var(--color-accent) transparent transparent transparent',
+                display: 'grid',
+                gridTemplateColumns: '1.2fr 1fr',
+                gap: 32,
+                alignItems: 'start',
               }}
-            ></div>
-            <p style={{ fontSize: 16, color: '#9CA3AF' }}>
-              Generating technical quote...
-            </p>
+            >
+              {/* Left Column Skeletons */}
+              <div
+                style={{ display: 'flex', flexDirection: 'column', gap: 24 }}
+              >
+                {/* Device Card Skeleton */}
+                <div
+                  className='skeleton'
+                  style={{
+                    height: 320,
+                    borderRadius: 'var(--radius-card)',
+                  }}
+                />
+                {/* Diagnostic Summary Skeleton */}
+                <div
+                  className='skeleton'
+                  style={{
+                    height: 240,
+                    borderRadius: 'var(--radius-card)',
+                  }}
+                />
+              </div>
+
+              {/* Right Column Quote Card Skeleton */}
+              <div
+                className='skeleton'
+                style={{
+                  height: 480,
+                  borderRadius: 'var(--radius-card)',
+                }}
+              />
+            </div>
           </div>
         </div>
-      </AppShell>
+
+        {/* Mobile Skeleton */}
+        <div
+          className='home-mobile'
+          style={{
+            background: 'var(--color-content-bg)',
+            minHeight: '100svh',
+            paddingBottom: 160,
+          }}
+        >
+          <div
+            style={{
+              padding: '20px 16px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 24,
+            }}
+          >
+            {/* Header Skeleton */}
+            <div>
+              <div
+                className='skeleton'
+                style={{
+                  height: 32,
+                  width: '60%',
+                  borderRadius: 8,
+                  marginBottom: 10,
+                }}
+              />
+              <div
+                className='skeleton'
+                style={{ height: 16, width: '80%', borderRadius: 6 }}
+              />
+            </div>
+            {/* Device Summary Card Skeleton */}
+            <div
+              className='skeleton'
+              style={{ borderRadius: 'var(--radius-card)', height: 280 }}
+            />
+            {/* Quote Card Skeleton */}
+            <div
+              className='skeleton'
+              style={{ borderRadius: 'var(--radius-card)', height: 360 }}
+            />
+          </div>
+        </div>
+      </>
     )
   }
 
   if (error) {
     return (
-      <AppShell>
-        <div
-          style={{
-            background: '#000000',
-            minHeight: '100svh',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: '#ffffff',
-          }}
-        >
-          <div style={{ textAlign: 'center', maxWidth: 400, padding: 24 }}>
-            <AlertCircle
-              size={48}
-              color='var(--color-danger)'
-              style={{ margin: '0 auto 16px auto' }}
-            />
-            <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 8 }}>
-              Quote Generation Failed
-            </h2>
-            <p style={{ fontSize: 14, color: '#9CA3AF', marginBottom: 24 }}>
-              {error}
-            </p>
-            <button
-              onClick={() => router.push('/select-mode')}
-              className='px-6 py-3 rounded-xl bg-accent text-white font-semibold'
-            >
-              Go Back
-            </button>
-          </div>
+      <div
+        style={{
+          background: '#000000',
+          minHeight: '100svh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          color: '#ffffff',
+        }}
+      >
+        <div style={{ textAlign: 'center', maxWidth: 400, padding: 24 }}>
+          <AlertCircle
+            size={48}
+            color='var(--color-danger)'
+            style={{ margin: '0 auto 16px auto' }}
+          />
+          <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 8 }}>
+            Quote Generation Failed
+          </h2>
+          <p style={{ fontSize: 14, color: '#9CA3AF', marginBottom: 24 }}>
+            {error}
+          </p>
+          <button
+            onClick={() => router.push('/select-mode')}
+            className='px-6 py-3 rounded-xl bg-accent text-white font-semibold'
+          >
+            Go Back
+          </button>
         </div>
-      </AppShell>
+      </div>
     )
   }
 
   return (
-    <AppShell>
-      <div className='min-h-screen bg-black text-white w-full max-w-full'>
-        {/* Main Content Area */}
-        <div className='p-4 sm:p-6 lg:p-8 pb-36 lg:pb-16 w-full max-w-7xl'>
-          {/* Back link & Header */}
-          <div className='mb-8 lg:mb-10 pt-4 lg:pt-5'>
-            <button
-              onClick={() => router.push('/select-mode')}
-              className='hidden md:inline-flex items-center gap-1.5 bg-transparent border-none cursor-pointer text-gray-400 hover:text-white text-xs font-semibold uppercase tracking-wider mb-6 p-0 transition-colors'
-            >
-              <ArrowLeft size={14} /> Back to Service Mode
-            </button>
-            <h1 className='text-2xl sm:text-3xl lg:text-5xl font-black tracking-tight text-white mb-2 lg:mb-3 uppercase lg:normal-case'>
-              Review & Quote
-            </h1>
-            <p className='text-xs sm:text-sm lg:text-base text-gray-400 leading-relaxed max-w-2xl m-0'>
-              <span className='lg:inline hidden'>
-                Please review your selection before finalizing the booking.{' '}
-              </span>
-              <span className='lg:hidden inline'>
-                Please review your selection
-              </span>
-              <span className='text-white font-semibold block sm:inline mt-1 sm:mt-0 lg:ml-1'>
-                Quote ID: {quoteId}
-              </span>
-            </p>
-          </div>
+    <div className='min-h-screen bg-black text-white w-full max-w-full'>
+      {/* Main Content Area */}
+      <div className='p-4 sm:p-6 lg:p-8 pb-36 lg:pb-16 w-full max-w-7xl'>
+        {/* Back link & Header */}
+        <div className='mb-8 lg:mb-10 pt-4 lg:pt-5'>
+          <button
+            onClick={() => router.push('/select-mode')}
+            className='hidden md:inline-flex items-center gap-1.5 bg-transparent border-none cursor-pointer text-gray-400 hover:text-white text-xs font-semibold uppercase tracking-wider mb-6 p-0 transition-colors'
+          >
+            <ArrowLeft size={14} /> Back to Service Mode
+          </button>
+          <h1 className='text-2xl sm:text-3xl lg:text-5xl font-black tracking-tight text-white mb-2 lg:mb-3 uppercase lg:normal-case'>
+            Review & Quote
+          </h1>
+          <p className='text-xs sm:text-sm lg:text-base text-gray-400 leading-relaxed max-w-2xl m-0'>
+            <span className='lg:inline hidden'>
+              Please review your selection before finalizing the booking.{' '}
+            </span>
+            <span className='lg:hidden inline'>
+              Please review your selection
+            </span>
+            <span className='text-white font-semibold block sm:inline mt-1 sm:mt-0 lg:ml-1'>
+              Quote ID: {quoteId}
+            </span>
+          </p>
+        </div>
 
-          {/* Responsive Layout Grid */}
-          <div className='grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] gap-6 lg:gap-8'>
-            {/* Left Column (Device Card & Diagnostic Summary) */}
-            <div className='flex flex-col gap-6'>
-              {/* Device Card */}
-              <div className='bg-[#16171B] rounded-3xl border border-white/5 overflow-hidden'>
-                {/* Mobile Device Header (Horizontal) */}
-                <div className='flex items-center gap-4 p-5 border-b border-white/5 lg:hidden'>
-                  <div className='w-16 h-[74px] bg-[#1F222A] rounded-xl flex items-center justify-center shrink-0'>
-                    <img
-                      src={modelImg}
-                      alt={model.name}
-                      className='w-full h-full object-cover rounded-xl'
-                    />
-                  </div>
-                  <div>
-                    <h2 className='text-lg font-extrabold text-white mb-1'>
-                      {brand.name} {model.name}
-                    </h2>
-                    {symptoms.length > 0 && (
-                      <div className='text-xs text-gray-400'>
-                        {symptoms[0].name}
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Desktop Device Header (Hero Image) */}
-                <div className='hidden lg:flex bg-[#1F222A] h-60 relative items-center justify-center border-b border-white/5'>
-                  <div className='absolute top-4 left-4 bg-black text-white text-[9px] font-extrabold px-2.5 py-1 rounded tracking-wider uppercase'>
-                    Priority Service
-                  </div>
+        {/* Responsive Layout Grid */}
+        <div className='grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] gap-6 lg:gap-8'>
+          {/* Left Column (Device Card & Diagnostic Summary) */}
+          <div className='flex flex-col gap-6'>
+            {/* Device Card */}
+            <div className='bg-[#16171B] rounded-3xl border border-white/5 overflow-hidden'>
+              {/* Mobile Device Header (Horizontal) */}
+              <div className='flex items-center gap-4 p-5 border-b border-white/5 lg:hidden'>
+                <div className='w-16 h-[74px] bg-[#1F222A] rounded-xl flex items-center justify-center shrink-0'>
                   <img
                     src={modelImg}
                     alt={model.name}
-                    className='w-full h-full object-contain'
+                    className='w-full h-full object-cover rounded-xl'
                   />
                 </div>
-
-                {/* Desktop Details Body */}
-                <div className='p-6 hidden lg:block'>
-                  <div className='flex justify-between items-start mb-6'>
-                    <div>
-                      <h2 className='text-2xl font-extrabold text-white mb-1.5'>
-                        {model.name}
-                      </h2>
-                      <div className='text-xs text-gray-400'>
-                        Model: A{model.index}
-                      </div>
+                <div>
+                  <h2 className='text-lg font-extrabold text-white mb-1'>
+                    {brand.name} {model.name}
+                  </h2>
+                  {symptoms.length > 0 && (
+                    <div className='text-xs text-gray-400'>
+                      {symptoms[0].name}
                     </div>
-                    {symptoms.length > 0 && (
-                      <div className='bg-white/5 border border-white/15 text-white text-[10px] font-extrabold px-3 py-1.5 rounded-md tracking-wide uppercase'>
-                        {symptoms[0].name}
-                      </div>
-                    )}
-                  </div>
+                  )}
+                </div>
+              </div>
 
-                  <div className='h-px bg-white/5 -mx-6 mb-5' />
+              {/* Desktop Device Header (Hero Image) */}
+              <div className='hidden lg:flex bg-[#1F222A] h-60 relative items-center justify-center border-b border-white/5'>
+                <div className='absolute top-4 left-4 bg-black text-white text-[9px] font-extrabold px-2.5 py-1 rounded tracking-wider uppercase'>
+                  Priority Service
+                </div>
+                <img
+                  src={modelImg}
+                  alt={model.name}
+                  className='w-full h-full object-contain'
+                />
+              </div>
 
-                  {/* Desktop 3-column Grid Parameters */}
-                  <div className='grid grid-cols-3 gap-4'>
-                    <div>
-                      <div className='text-[9px] font-bold text-gray-400 uppercase tracking-wider mb-1.5 flex items-center gap-1.5'>
-                        <Truck size={12} className='text-gray-400' /> Repair
-                        Mode
-                      </div>
-                      <div className='text-sm font-bold text-white'>
-                        {serviceMode === 'lab'
-                          ? 'Pick & Drop'
-                          : 'Doorstep Repair'}
-                      </div>
-                    </div>
-                    <div>
-                      <div className='text-[9px] font-bold text-gray-400 uppercase tracking-wider mb-1.5 flex items-center gap-1.5'>
-                        <Clock size={12} className='text-gray-400' /> Est.
-                        Repair Time
-                      </div>
-                      <div className='text-sm font-bold text-white'>
-                        {serviceMode === 'lab' ? '48 Hours' : '2 - 3 Hours'}
-                      </div>
-                    </div>
-                    <div>
-                      <div className='text-[9px] font-bold text-gray-400 uppercase tracking-wider mb-1.5 flex items-center gap-1.5'>
-                        <Shield size={12} className='text-gray-400' /> Warranty
-                      </div>
-                      <div className='text-sm font-bold text-white'>
-                        {partTier.defaultWarrantyMonths} Months
-                      </div>
+              {/* Desktop Details Body */}
+              <div className='p-6 hidden lg:block'>
+                <div className='flex justify-between items-start mb-6'>
+                  <div>
+                    <h2 className='text-2xl font-extrabold text-white mb-1.5'>
+                      {model.name}
+                    </h2>
+                    <div className='text-xs text-gray-400'>
+                      Model: A{model.index}
                     </div>
                   </div>
+                  {symptoms.length > 0 && (
+                    <div className='bg-white/5 border border-white/15 text-white text-[10px] font-extrabold px-3 py-1.5 rounded-md tracking-wide uppercase'>
+                      {symptoms[0].name}
+                    </div>
+                  )}
                 </div>
 
-                {/* Mobile Details Body */}
-                <div className='p-5 lg:hidden flex flex-col gap-3.5'>
-                  <div className='flex justify-between items-center'>
-                    <span className='text-xs text-gray-400'>Part Type</span>
-                    <span className='text-sm font-bold text-white'>
-                      {partTier.tier}
-                    </span>
-                  </div>
-                  <div className='flex justify-between items-center'>
-                    <span className='text-xs text-gray-400'>Repair Mode</span>
-                    <span className='text-sm font-bold text-white'>
+                <div className='h-px bg-white/5 -mx-6 mb-5' />
+
+                {/* Desktop 3-column Grid Parameters */}
+                <div className='grid grid-cols-3 gap-4'>
+                  <div>
+                    <div className='text-[9px] font-bold text-gray-400 uppercase tracking-wider mb-1.5 flex items-center gap-1.5'>
+                      <Truck size={12} className='text-gray-400' /> Repair Mode
+                    </div>
+                    <div className='text-sm font-bold text-white'>
                       {serviceMode === 'lab'
                         ? 'Pick & Drop'
                         : 'Doorstep Repair'}
-                    </span>
+                    </div>
                   </div>
-                  <div className='flex justify-between items-center'>
-                    <span className='text-xs text-gray-400'>
-                      Estimated Time
-                    </span>
-                    <span className='text-sm font-bold text-white'>
+                  <div>
+                    <div className='text-[9px] font-bold text-gray-400 uppercase tracking-wider mb-1.5 flex items-center gap-1.5'>
+                      <Clock size={12} className='text-gray-400' /> Est. Repair
+                      Time
+                    </div>
+                    <div className='text-sm font-bold text-white'>
                       {serviceMode === 'lab' ? '48 Hours' : '2 - 3 Hours'}
-                    </span>
+                    </div>
                   </div>
-                  <div className='flex justify-between items-center'>
-                    <span className='text-xs text-gray-400'>Warranty</span>
-                    <span className='text-sm font-bold text-white'>
+                  <div>
+                    <div className='text-[9px] font-bold text-gray-400 uppercase tracking-wider mb-1.5 flex items-center gap-1.5'>
+                      <Shield size={12} className='text-gray-400' /> Warranty
+                    </div>
+                    <div className='text-sm font-bold text-white'>
                       {partTier.defaultWarrantyMonths} Months
-                    </span>
+                    </div>
                   </div>
                 </div>
               </div>
 
-              {/* Desktop Diagnostic Summary Card */}
-              <div className='bg-[#16171B] rounded-3xl border border-white/5 p-8 hidden lg:block'>
-                <h3 className='text-[11px] font-extrabold text-gray-400 uppercase tracking-widest mb-5'>
-                  Diagnostic Summary
-                </h3>
-                <div className='flex flex-col gap-4'>
-                  {symptoms.map((symp, i) => (
-                    <div
-                      key={i}
-                      className={`flex justify-between items-center pb-4 ${
-                        i < symptoms.length - 1 ? 'border-b border-white/5' : ''
-                      }`}
-                    >
-                      <span className='text-sm text-white'>{symp.name}</span>
-                      <span className='text-[10px] font-extrabold text-[#EF4444] tracking-wider uppercase'>
-                        FAIL
-                      </span>
-                    </div>
-                  ))}
+              {/* Mobile Details Body */}
+              <div className='p-5 lg:hidden flex flex-col gap-3.5'>
+                <div className='flex justify-between items-center'>
+                  <span className='text-xs text-gray-400'>Part Type</span>
+                  <span className='text-sm font-bold text-white'>
+                    {partTier.tier}
+                  </span>
+                </div>
+                <div className='flex justify-between items-center'>
+                  <span className='text-xs text-gray-400'>Repair Mode</span>
+                  <span className='text-sm font-bold text-white'>
+                    {serviceMode === 'lab' ? 'Pick & Drop' : 'Doorstep Repair'}
+                  </span>
+                </div>
+                <div className='flex justify-between items-center'>
+                  <span className='text-xs text-gray-400'>Estimated Time</span>
+                  <span className='text-sm font-bold text-white'>
+                    {serviceMode === 'lab' ? '48 Hours' : '2 - 3 Hours'}
+                  </span>
+                </div>
+                <div className='flex justify-between items-center'>
+                  <span className='text-xs text-gray-400'>Warranty</span>
+                  <span className='text-sm font-bold text-white'>
+                    {partTier.defaultWarrantyMonths} Months
+                  </span>
                 </div>
               </div>
             </div>
 
-            {/* Right Column (Quote Details) */}
-            <div className='bg-[#16171B] rounded-3xl border border-white/5 p-5 lg:p-8 lg:sticky lg:top-10 flex flex-col justify-between lg:h-full'>
-              <div>
-                {/* Quote Header (Desktop only) */}
-                <div className='hidden lg:flex items-center gap-3 mb-8'>
-                  <FileText
-                    size={20}
-                    style={{ color: 'var(--color-accent)' }}
-                  />
-                  <h3 className='text-base font-extrabold text-white uppercase tracking-wider'>
-                    Technical Quote
-                  </h3>
-                </div>
-
-                {/* Quote Breakdowns */}
-                <div className='flex flex-col gap-5 lg:gap-6 pb-5 lg:pb-6 border-b border-white/5'>
-                  {/* Part Price */}
-                  <div>
-                    <div className='text-[9px] font-bold text-gray-400 uppercase tracking-wider mb-1 hidden lg:block'>
-                      Service Line Item
-                    </div>
-                    <div className='flex justify-between items-center'>
-                      <span className='text-xs lg:text-sm font-semibold text-gray-400 lg:text-white'>
-                        <span className='lg:hidden'>Part Price</span>
-                        <span className='hidden lg:inline'>
-                          Part Price ({partTier.tier} Display)
-                        </span>
-                      </span>
-                      <span className='text-sm lg:text-base font-bold lg:font-extrabold text-white'>
-                        ₹{partsCost.toLocaleString('en-IN')}
-                      </span>
-                    </div>
+            {/* Desktop Diagnostic Summary Card */}
+            <div className='bg-[#16171B] rounded-3xl border border-white/5 p-8 hidden lg:block'>
+              <h3 className='text-[11px] font-extrabold text-gray-400 uppercase tracking-widest mb-5'>
+                Diagnostic Summary
+              </h3>
+              <div className='flex flex-col gap-4'>
+                {symptoms.map((symp, i) => (
+                  <div
+                    key={i}
+                    className={`flex justify-between items-center pb-4 ${
+                      i < symptoms.length - 1 ? 'border-b border-white/5' : ''
+                    }`}
+                  >
+                    <span className='text-sm text-white'>{symp.name}</span>
+                    <span className='text-[10px] font-extrabold text-[#EF4444] tracking-wider uppercase'>
+                      FAIL
+                    </span>
                   </div>
-
-                  {/* Labor Charges */}
-                  <div>
-                    <div className='text-[9px] font-bold text-gray-400 uppercase tracking-wider mb-1 hidden lg:block'>
-                      Service Line Item
-                    </div>
-                    <div className='flex justify-between items-center'>
-                      <span className='text-xs lg:text-sm font-semibold text-gray-400 lg:text-white'>
-                        Labor Charges
-                      </span>
-                      <span className='text-sm lg:text-base font-bold lg:font-extrabold text-white'>
-                        ₹{labourCost.toLocaleString('en-IN')}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Grand Total Area */}
-              <div className='pt-5 lg:pt-6'>
-                <div className='text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1.5 hidden lg:block'>
-                  Grand Total
-                </div>
-                <div className='flex justify-between items-end mb-2 lg:mb-0'>
-                  <span className='text-sm lg:text-base font-extrabold text-white lg:hidden'>
-                    Total Amount
-                  </span>
-                  <span className='text-2xl lg:text-4xl font-black text-white tracking-tight leading-none'>
-                    ₹{totalAmount.toLocaleString('en-IN')}
-                  </span>
-                  <span className='text-[9px] font-bold text-gray-400 uppercase tracking-wider hidden lg:inline-block ml-2'>
-                    Incl. All Taxes
-                  </span>
-                </div>
-
-                {/* Mobile price disclaimer */}
-                <div className='text-[9px] font-bold text-gray-400 uppercase tracking-widest text-right mb-5 lg:hidden'>
-                  * FINAL PRICE MAY VARY AFTER DIAGNOSIS
-                </div>
-
-                {/* Mobile Agreement Text */}
-                <div className='flex items-start gap-2.5 lg:hidden'>
-                  <AlertCircle
-                    size={14}
-                    className='text-gray-400 shrink-0 mt-0.5'
-                  />
-                  <div className='text-[11px] text-gray-400 leading-relaxed'>
-                    By continuing, you agree to our Service Terms & Genuine Part
-                    Policy.
-                  </div>
-                </div>
+                ))}
               </div>
             </div>
           </div>
 
-          {/* Desktop Bottom Action Bar */}
-          <div className='mt-8 bg-white rounded-3xl p-6 lg:p-8 justify-between items-center hidden lg:flex'>
-            <div className='flex items-center gap-3 text-[#1E2024]'>
-              <AlertCircle size={20} className='text-[#1E2024]' />
-              <span className='text-xs font-semibold leading-relaxed'>
-                By continuing, you agree to our Service Terms & Genuine Part
-                Policy.
-              </span>
+          {/* Right Column (Quote Details) */}
+          <div className='bg-[#16171B] rounded-3xl border border-white/5 p-5 lg:p-8 lg:sticky lg:top-10 flex flex-col justify-between lg:h-full'>
+            <div>
+              {/* Quote Header (Desktop only) */}
+              <div className='hidden lg:flex items-center gap-3 mb-8'>
+                <FileText size={20} style={{ color: 'var(--color-accent)' }} />
+                <h3 className='text-base font-extrabold text-white uppercase tracking-wider'>
+                  Technical Quote
+                </h3>
+              </div>
+
+              {/* Quote Breakdowns */}
+              <div className='flex flex-col gap-5 lg:gap-6 pb-5 lg:pb-6 border-b border-white/5'>
+                {/* Part Price */}
+                <div>
+                  <div className='text-[9px] font-bold text-gray-400 uppercase tracking-wider mb-1 hidden lg:block'>
+                    Service Line Item
+                  </div>
+                  <div className='flex justify-between items-center'>
+                    <span className='text-xs lg:text-sm font-semibold text-gray-400 lg:text-white'>
+                      <span className='lg:hidden'>Part Price</span>
+                      <span className='hidden lg:inline'>
+                        Part Price ({partTier.tier} Display)
+                      </span>
+                    </span>
+                    <span className='text-sm lg:text-base font-bold lg:font-extrabold text-white'>
+                      ₹{partsCost.toLocaleString('en-IN')}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Labor Charges */}
+                <div>
+                  <div className='text-[9px] font-bold text-gray-400 uppercase tracking-wider mb-1 hidden lg:block'>
+                    Service Line Item
+                  </div>
+                  <div className='flex justify-between items-center'>
+                    <span className='text-xs lg:text-sm font-semibold text-gray-400 lg:text-white'>
+                      Labor Charges
+                    </span>
+                    <span className='text-sm lg:text-base font-bold lg:font-extrabold text-white'>
+                      ₹{labourCost.toLocaleString('en-IN')}
+                    </span>
+                  </div>
+                </div>
+              </div>
             </div>
 
-            <button
-              onClick={handleConfirm}
-              disabled={!canProceedToBook}
-              className={`h-14 px-10 bg-black text-white font-extrabold text-xs uppercase tracking-wider rounded-[var(--radius-btn)] flex items-center justify-center gap-3 transition-opacity ${
-                canProceedToBook
-                  ? 'cursor-pointer hover:opacity-90'
-                  : 'cursor-not-allowed opacity-50'
-              }`}
-            >
-              Confirm & Continue <ChevronRight size={18} />
-            </button>
+            {/* Grand Total Area */}
+            <div className='pt-5 lg:pt-6'>
+              <div className='text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1.5 hidden lg:block'>
+                Grand Total
+              </div>
+              <div className='flex justify-between items-end mb-2 lg:mb-0'>
+                <span className='text-sm lg:text-base font-extrabold text-white lg:hidden'>
+                  Total Amount
+                </span>
+                <span className='text-2xl lg:text-4xl font-black text-white tracking-tight leading-none'>
+                  ₹{totalAmount.toLocaleString('en-IN')}
+                </span>
+                <span className='text-[9px] font-bold text-gray-400 uppercase tracking-wider hidden lg:inline-block ml-2'>
+                  Incl. All Taxes
+                </span>
+              </div>
+
+              {/* Mobile price disclaimer */}
+              <div className='text-[9px] font-bold text-gray-400 uppercase tracking-widest text-right mb-5 lg:hidden'>
+                * FINAL PRICE MAY VARY AFTER DIAGNOSIS
+              </div>
+
+              {/* Mobile Agreement Text */}
+              <div className='flex items-start gap-2.5 lg:hidden'>
+                <AlertCircle
+                  size={14}
+                  className='text-gray-400 shrink-0 mt-0.5'
+                />
+                <div className='text-[11px] text-gray-400 leading-relaxed'>
+                  By continuing, you agree to our Service Terms & Genuine Part
+                  Policy.
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Mobile Sticky Action Bar */}
-        <div
-          className='fixed left-0 right-0 p-4 z-40 lg:hidden'
-          style={{
-            bottom:
-              'calc(var(--nav-height) + env(safe-area-inset-bottom, 0px))',
-            background: 'linear-gradient(to top, #000000 70%, transparent)',
-          }}
-        >
+        {/* Desktop Bottom Action Bar */}
+        <div className='mt-8 bg-white rounded-3xl p-6 lg:p-8 justify-between items-center hidden lg:flex'>
+          <div className='flex items-center gap-3 text-[#1E2024]'>
+            <AlertCircle size={20} className='text-[#1E2024]' />
+            <span className='text-xs font-semibold leading-relaxed'>
+              By continuing, you agree to our Service Terms & Genuine Part
+              Policy.
+            </span>
+          </div>
+
           <button
             onClick={handleConfirm}
             disabled={!canProceedToBook}
-            className={`w-full h-14 bg-white text-black font-extrabold text-sm uppercase tracking-wider rounded-2xl flex items-center justify-center gap-2 shadow-lg transition-opacity ${
+            className={`h-14 px-10 bg-black text-white font-extrabold text-xs uppercase tracking-wider rounded-[var(--radius-btn)] flex items-center justify-center gap-3 transition-opacity ${
               canProceedToBook
                 ? 'cursor-pointer hover:opacity-90'
                 : 'cursor-not-allowed opacity-50'
@@ -556,9 +583,28 @@ export default function PricingPage() {
             Confirm & Continue <ChevronRight size={18} />
           </button>
         </div>
-
-        <BottomNav />
       </div>
-    </AppShell>
+
+      {/* Mobile Sticky Action Bar */}
+      <div
+        className='fixed left-0 right-0 p-4 z-40 lg:hidden'
+        style={{
+          bottom: 'calc(var(--nav-height) + env(safe-area-inset-bottom, 0px))',
+          background: 'linear-gradient(to top, #000000 70%, transparent)',
+        }}
+      >
+        <button
+          onClick={handleConfirm}
+          disabled={!canProceedToBook}
+          className={`w-full h-14 bg-white text-black font-extrabold text-sm uppercase tracking-wider rounded-2xl flex items-center justify-center gap-2 shadow-lg transition-opacity ${
+            canProceedToBook
+              ? 'cursor-pointer hover:opacity-90'
+              : 'cursor-not-allowed opacity-50'
+          }`}
+        >
+          Confirm & Continue <ChevronRight size={18} />
+        </button>
+      </div>
+    </div>
   )
 }

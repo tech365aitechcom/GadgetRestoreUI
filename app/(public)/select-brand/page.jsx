@@ -4,8 +4,6 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ScanLine } from 'lucide-react';
 
-import AppShell from '@/components/layout/AppShell';
-import BottomNav from '@/components/ui/BottomNav';
 import BrandGrid, { CantFindBanner, TrustBadges, ScanSerialButton } from '@/components/booking/BrandGrid';
 import catalogueService from '@/services/catalogue.service';
 import { useBooking } from '@/context/BookingContext';
@@ -40,8 +38,7 @@ export default function SelectBrandPage() {
   };
 
   return (
-    <AppShell>
-      <div className="w-full min-h-[100svh] lg:min-h-0 bg-[var(--color-content-bg)] lg:bg-transparent pb-20 lg:pb-12">
+    <div className="w-full min-h-[100svh] lg:min-h-0 bg-[var(--color-content-bg)] lg:bg-transparent pb-20 lg:pb-12">
         <div className="px-4 py-5 lg:p-8 flex flex-col gap-4 lg:gap-7">
           
           {/* Header Row */}
@@ -133,12 +130,6 @@ export default function SelectBrandPage() {
           </div>
 
         </div>
-
-        {/* Floating Bottom Nav (Mobile only) */}
-        <div className="lg:hidden">
-          <BottomNav />
-        </div>
       </div>
-    </AppShell>
   );
 }

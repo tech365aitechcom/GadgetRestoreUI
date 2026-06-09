@@ -4,8 +4,6 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, ScanLine } from 'lucide-react';
 
-import AppShell from '@/components/layout/AppShell';
-import BottomNav from '@/components/ui/BottomNav';
 import ModelList from '@/components/booking/ModelList';
 import { CantFindBanner, ScanSerialButton } from '@/components/booking/BrandGrid';
 import catalogueService from '@/services/catalogue.service';
@@ -45,8 +43,7 @@ export default function SelectModelPage() {
 
 
   return (
-    <AppShell>
-      <div className="w-full min-h-[100svh] lg:min-h-0 bg-[var(--color-content-bg)] lg:bg-transparent pb-20 lg:pb-12">
+    <div className="w-full min-h-[100svh] lg:min-h-0 bg-[var(--color-content-bg)] lg:bg-transparent pb-20 lg:pb-12">
         <div className="px-4 py-5 lg:p-8 flex flex-col gap-4 lg:gap-7">
           
           {/* Header Row */}
@@ -143,12 +140,6 @@ export default function SelectModelPage() {
           </div>
 
         </div>
-
-        {/* Floating Bottom Nav (Mobile only) */}
-        <div className="lg:hidden">
-          <BottomNav />
-        </div>
       </div>
-    </AppShell>
   );
 }

@@ -3,7 +3,6 @@
 import { Suspense, useState, useEffect, useRef } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { ArrowLeft, Bell, Lock, Shield } from 'lucide-react'
-import AppShell from '@/components/layout/AppShell'
 import authService from '@/services/auth.service'
 
 function VerifyOtpContent() {
@@ -178,7 +177,7 @@ function VerifyOtpContent() {
   }
 
   return (
-    <AppShell className='auth-page-shell'>
+    <>
       {/* ════════════════════════════════════════════════════════════════
           MOBILE VIEW (<1024px)
           ════════════════════════════════════════════════════════════════ */}
@@ -375,7 +374,7 @@ function VerifyOtpContent() {
           </div>
         </div>
       </div>
-    </AppShell>
+    </>
   )
 }
 

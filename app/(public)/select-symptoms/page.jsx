@@ -22,8 +22,6 @@ import {
   BadgeCheck,
 } from 'lucide-react'
 
-import AppShell from '@/components/layout/AppShell'
-import BottomNav from '@/components/ui/BottomNav'
 import catalogueService from '@/services/catalogue.service'
 import { useBooking } from '@/context/BookingContext'
 import { getBrandLogo } from '@/lib/utils'
@@ -225,7 +223,7 @@ export default function SelectSymptomsPage() {
   if (!isReady) return null
 
   return (
-    <AppShell>
+    <>
       {/* ════════════════════════════════════════════════════════════════
           DESKTOP  ≥1024px
           ════════════════════════════════════════════════════════════════ */}
@@ -1448,8 +1446,6 @@ export default function SelectSymptomsPage() {
             Continue <ChevronRight size={14} />
           </button>
         </div>
-
-        <BottomNav />
       </div>
 
       {/* Styles for simple keyframe animations */}
@@ -1501,6 +1497,6 @@ export default function SelectSymptomsPage() {
           filter: grayscale(100%) opacity(0.6) brightness(0);
         }
       `}</style>
-    </AppShell>
+    </>
   )
 }

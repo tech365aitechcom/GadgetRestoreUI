@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import AppShell from '@/components/layout/AppShell';
+import BottomNav from '@/components/ui/BottomNav';
 import MobileHeader from '@/components/layout/MobileHeader';
 import StepIndicator from '@/components/layout/StepIndicator';
 import { useAuth } from '@/context/AuthContext';
@@ -33,7 +35,7 @@ export default function PublicLayout({ children }) {
   }, [user]);
 
   return (
-    <>
+    <AppShell>
       {/* Mobile header and step indicator - only visible on mobile */}
       <div className="home-mobile" style={{ position: 'sticky', top: 0, zIndex: 100, paddingTop: 0, display: 'flex', flexDirection: 'column', backgroundColor: '#111111' }}>
         <MobileHeader unreadCount={unreadCount} />
@@ -41,6 +43,8 @@ export default function PublicLayout({ children }) {
       </div>
 
       {children}
-    </>
+
+      <BottomNav />
+    </AppShell>
   );
 }

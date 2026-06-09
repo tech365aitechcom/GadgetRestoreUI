@@ -14,8 +14,6 @@ import {
   Sparkles,
 } from 'lucide-react'
 
-import AppShell from '@/components/layout/AppShell'
-import BottomNav from '@/components/ui/BottomNav'
 import catalogueService from '@/services/catalogue.service'
 import { useBooking } from '@/context/BookingContext'
 import { useBookingGuard } from '@/hooks/useBookingGuard'
@@ -449,7 +447,7 @@ export default function SelectTierPage() {
   ]
 
   return (
-    <AppShell>
+    <>
       <style>{`
         .tier-card-btn {
           transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
@@ -1104,9 +1102,7 @@ export default function SelectTierPage() {
             CONTINUE <span style={{ fontSize: 14 }}>→</span>
           </button>
         </div>
-
-        <BottomNav />
       </div>
-    </AppShell>
+    </>
   )
 }
