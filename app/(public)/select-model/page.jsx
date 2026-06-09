@@ -4,12 +4,13 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, ScanLine } from 'lucide-react';
 
-import AppShell from '@/components/layout/AppShell';
-import BottomNav from '@/components/ui/BottomNav';
 import ModelList from '@/components/booking/ModelList';
 import { CantFindBanner, ScanSerialButton } from '@/components/booking/BrandGrid';
 import catalogueService from '@/services/catalogue.service';
 import { useBooking } from '@/context/BookingContext';
+import { getBrandLogo } from '@/lib/utils';
+import { useBookingGuard } from '@/hooks/useBookingGuard';
+
 
 export default function SelectModelPage() {
   const router = useRouter();
@@ -19,9 +20,7 @@ export default function SelectModelPage() {
   const [error, setError] = useState(null);
 
   // Guard: if no brand selected, redirect back
-  useEffect(() => {
-    if (!brand) router.replace('/select-brand');
-  }, [brand, router]);
+  const { isReady } = useBookingGuard({ brand: true });
 
   useEffect(() => {
     if (!brand) return;
@@ -37,66 +36,90 @@ export default function SelectModelPage() {
     router.push('/select-symptoms');
   };
 
-  if (!brand) return null;
+  if (!isReady) return null;
 
   const brandName = brand.name;
+  const logoUrl = getBrandLogo(brandName, brand.logo);
+
 
   return (
-    <AppShell>
-
-      {/* ════════════════════════════════════════════════════════════════
-          DESKTOP  ≥1024px
-          ════════════════════════════════════════════════════════════════ */}
-      <div className="home-desktop">
-        <div className="page-container" style={{ paddingBottom: 48 }}>
-
-          {/* Page header row */}
-          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 24, marginBottom: 28 }}>
-            <div>
-              {/* Back link */}
+    <div className="w-full min-h-[100svh] lg:min-h-0 bg-[var(--color-content-bg)] lg:bg-transparent pb-20 lg:pb-12">
+        <div className="px-4 py-5 lg:p-8 flex flex-col gap-4 lg:gap-7">
+          
+          {/* Header Row */}
+          <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
+            
+            {/* Left: Brand logo chip, Back link, Title, Description */}
+            <div className="flex-1">
+              {/* Back to Brands (Desktop only) */}
               <button
                 onClick={() => router.push('/select-brand')}
-                style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-content-text-secondary)', fontSize: 12, fontWeight: 600, marginBottom: 14, padding: 0, textTransform: 'uppercase', letterSpacing: '0.07em' }}
+                className="hidden lg:inline-flex items-center gap-1.5 bg-none border-none cursor-pointer text-[var(--color-content-text-secondary)] text-xs font-semibold uppercase tracking-wider mb-3.5 p-0 hover:text-[var(--color-content-text)] transition-colors"
               >
                 <ArrowLeft size={14} /> Back to Brands
               </button>
 
-              <h1 style={{ fontSize: 36, fontWeight: 900, letterSpacing: '-0.03em', color: 'var(--color-content-text)', textTransform: 'uppercase', marginBottom: 10 }}>
+              {/* Selected Brand logo/chip (Mobile only) */}
+              <div className="lg:hidden mb-3.5">
+                {logoUrl ? (
+                  <div className="flex items-center gap-2.5">
+                    <img
+                      src={logoUrl}
+                      alt={brandName}
+                      className="h-7 object-contain"
+                      style={{
+                        filter: ['google', 'realme'].includes(brandName.toLowerCase())
+                          ? 'none'
+                          : 'var(--brand-logo-filter)',
+                      }}
+                    />
+                    <span className="text-xs font-semibold text-[var(--color-content-text-secondary)] uppercase tracking-wider">{brandName}</span>
+                  </div>
+                ) : (
+                  <span className="text-[11px] font-bold text-[var(--color-accent)] uppercase tracking-widest bg-[rgba(108,123,255,0.1)] px-3 py-1 rounded-full">
+                    {brandName}
+                  </span>
+                )}
+              </div>
+
+              {/* Page Heading */}
+              <h1 className="text-[26px] lg:text-[36px] font-black tracking-tight lg:tracking-tighter text-[var(--color-content-text)] uppercase mb-2 lg:mb-2.5">
                 Select Model
               </h1>
-              <p style={{ fontSize: 14, color: 'var(--color-content-text-secondary)', lineHeight: 1.65, maxWidth: 500 }}>
+              <p className="text-sm text-[var(--color-content-text-secondary)] leading-relaxed max-w-[500px]">
                 Identify your {brandName} model to receive a precise technical evaluation and repair quote.
               </p>
             </div>
 
-            {/* Scan Serial card — desktop right */}
-            <div style={{ minWidth: 220 }}>
+            {/* Right: Scan Serial card (Desktop only) */}
+            <div className="hidden lg:block min-w-[220px]">
               <button
-                className="scan-serial-card"
-                style={{ width: '100%', flexDirection: 'column', alignItems: 'flex-start', gap: 8, padding: '16px 20px' }}
+                className="scan-serial-card w-full flex flex-col items-start gap-2 p-4 px-5"
                 aria-label="Scan serial number"
               >
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+                <div className="flex items-center justify-between w-full">
                   <div>
-                    <span className="scan-serial-card-label">Auto-Detect</span>
-                    <span className="scan-serial-card-title">Scan Serial</span>
+                    <span className="scan-serial-card-label text-[9px] font-bold uppercase tracking-wider text-neutral-500">Auto-Detect</span>
+                    <span className="scan-serial-card-title text-base font-extrabold text-white">Scan Serial</span>
                   </div>
-                  <div className="scan-serial-icon">
+                  <div className="scan-serial-icon w-[42px] h-[42px] flex items-center justify-center bg-white/5 rounded-xl text-neutral-400">
                     <ScanLine size={20} />
                   </div>
                 </div>
-                <div style={{ width: '100%', height: 3, borderRadius: 3, background: 'rgba(255,255,255,0.1)' }}>
-                  <div style={{ height: '100%', width: '40%', background: '#6C7BFF', borderRadius: 3 }} />
+                <div className="w-full h-0.5 rounded-full bg-white/10 mt-1">
+                  <div className="h-full w-2/5 bg-[var(--color-accent)] rounded-full" />
                 </div>
               </button>
             </div>
+
           </div>
 
-          {/* Model grid — full width */}
+          {/* Model grid container */}
           {error ? (
-            <div style={{ textAlign: 'center', padding: '48px', color: 'var(--color-danger)', fontWeight: 600 }}>{error}</div>
+            <div className="text-center p-8 lg:p-12 text-[var(--color-danger)] font-semibold">{error}</div>
           ) : (
-            <div style={{ background: 'var(--color-content-card)', border: '1px solid var(--color-content-border)', borderRadius: 20, padding: 24 }}>
+            /* Desktop gets card container card; mobile displays ModelList directly */
+            <div className="lg:bg-[var(--color-content-card)] lg:border lg:border-[var(--color-content-border)] lg:rounded-[20px] lg:p-6">
               <ModelList
                 models={models}
                 isLoading={isLoading}
@@ -106,65 +129,17 @@ export default function SelectModelPage() {
             </div>
           )}
 
-          {/* Can't find — full width at bottom */}
-          <div style={{ marginTop: 24 }}>
-            <CantFindBanner desktop />
+          {/* Can't Find Banner */}
+          <div>
+            <div className="hidden lg:block">
+              <CantFindBanner desktop />
+            </div>
+            <div className="block lg:hidden">
+              <CantFindBanner />
+            </div>
           </div>
 
         </div>
       </div>
-
-      {/* ════════════════════════════════════════════════════════════════
-          MOBILE  <1024px
-          ════════════════════════════════════════════════════════════════ */}
-      <div className="home-mobile" style={{ background: 'var(--color-content-bg)', minHeight: '100svh', paddingBottom: 80 }}>
-        {/* Content */}
-        <div style={{ padding: '20px 16px', display: 'flex', flexDirection: 'column', gap: 16 }}>
-
-            {/* Brand chip + heading */}
-            <div>
-              {/* Selected brand chip */}
-              {brand.logo ? (
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
-                  <img src={brand.logo} alt={brandName} style={{ height: 28, objectFit: 'contain' }} />
-                  <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-content-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.07em' }}>{brandName}</span>
-                </div>
-              ) : (
-                <div style={{ marginBottom: 14 }}>
-                  <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--color-accent)', textTransform: 'uppercase', letterSpacing: '0.08em', background: 'rgba(108,123,255,0.1)', padding: '4px 12px', borderRadius: 999 }}>
-                    {brandName}
-                  </span>
-                </div>
-              )}
-
-              <h1 style={{ fontSize: 26, fontWeight: 900, letterSpacing: '-0.02em', textTransform: 'uppercase', color: 'var(--color-content-text)', marginBottom: 8 }}>
-                Select Model
-              </h1>
-              <p style={{ fontSize: 13, color: 'var(--color-content-text-secondary)', lineHeight: 1.65 }}>
-                Identify your {brandName} model to receive a precise technical evaluation and repair quote.
-              </p>
-            </div>
-
-            {/* Model grid */}
-            {error ? (
-              <div style={{ textAlign: 'center', padding: '32px', color: 'var(--color-danger)', fontWeight: 600 }}>{error}</div>
-            ) : (
-              <ModelList
-                models={models}
-                isLoading={isLoading}
-                onSelectModel={handleSelectModel}
-                selectedModelId={selectedModel?._id}
-              />
-            )}
-
-            {/* Can't Find */}
-            <CantFindBanner />
-
-        </div>
-
-        <BottomNav />
-      </div>
-
-    </AppShell>
   );
 }

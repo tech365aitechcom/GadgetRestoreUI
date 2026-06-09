@@ -23,13 +23,14 @@ import {
   SUPPORT_PHONE,
   SUPPORT_EMAIL,
 } from '@/lib/constants'
-import authService from '@/services/auth.service'
+import { useAuth } from '@/context/AuthContext'
 import customerService from '@/services/customer.service'
 import notificationService from '@/services/notification.service'
 import pushNotificationService from '@/services/push-notification.service'
 
 export default function ProfilePage() {
   const router = useRouter()
+  const { logout } = useAuth()
   const [isLoading, setIsLoading] = useState(true)
   const [userData, setUserData] = useState({
     name: '',
@@ -122,7 +123,7 @@ export default function ProfilePage() {
   }, [fetchProfileData, router])
 
   const handleLogout = () => {
-    authService.logout()
+    logout()
   }
 
   const handleToggleNotification = async (key) => {
@@ -440,7 +441,7 @@ export default function ProfilePage() {
               />
             </button>
 
-            <button
+            {/* <button
               onClick={() => router.push('/profile/security')}
               className='w-full flex items-center gap-3 p-4 bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-xl hover:bg-[var(--theme-btn-secondary-hover)] active:scale-[0.98] transition-all'
             >
@@ -478,7 +479,7 @@ export default function ProfilePage() {
                 size={18}
                 className='text-[var(--theme-text-disabled)]'
               />
-            </button>
+            </button> */}
 
             <button
               onClick={handleLogout}
@@ -567,9 +568,9 @@ export default function ProfilePage() {
                 >
                   Edit Profile
                 </button>
-                <button className='btn-secondary text-[13px] px-5 h-[42px]'>
+                {/* <button className='btn-secondary text-[13px] px-5 h-[42px]'>
                   Security Log
-                </button>
+                </button> */}
               </div>
             </div>
           </div>

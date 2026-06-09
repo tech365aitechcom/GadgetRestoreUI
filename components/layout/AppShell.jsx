@@ -11,10 +11,11 @@ import {
   Search,
   Plus,
 } from 'lucide-react'
-import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useAuth } from '@/context/AuthContext'
+import { useProtectedNavigation } from '@/hooks/useProtectedNavigation'
 import NotificationDrawer from '@/components/layout/NotificationDrawer'
+import LoginAlertModal from '@/components/ui/LoginAlertModal'
 import notificationService from '@/services/notification.service'
 import { setRouterInstance } from '@/lib/navigation'
 
@@ -27,6 +28,8 @@ export default function AppShell({ children, className = '' }) {
   const pathname = usePathname()
   const router = useRouter()
   const { user } = useAuth()
+  const { navigateTo, showLoginModal, setShowLoginModal, redirectPath } =
+    useProtectedNavigation()
   const [isNotificationOpen, setIsNotificationOpen] = useState(false)
   const [unreadCount, setUnreadCount] = useState(0)
 
@@ -58,7 +61,7 @@ export default function AppShell({ children, className = '' }) {
     { href: '/home', label: 'Home', icon: Home },
     { href: '/orders', label: 'Orders', icon: ClipboardList },
     { href: '/profile', label: 'Profile', icon: User },
-    { href: '/settings', label: 'Settings', icon: Settings },
+    // { href: '/settings', label: 'Settings', icon: Settings },
   ]
 
   return (
@@ -66,82 +69,47 @@ export default function AppShell({ children, className = '' }) {
       {/* ── Dark Sidebar — shown only on desktop via CSS ── */}
       <aside className='desktop-sidebar'>
         {/* Logo */}
-        <div style={{ padding: '24px 20px 20px' }}>
+        <div className='pt-6 px-5 pb-5'>
           <img
             src='/gadget-restore-logo.svg'
             alt='Gadget Restore'
-            style={{ height: 44, width: 'auto', objectFit: 'contain' }}
+            className='h-11 w-auto object-contain'
           />
         </div>
 
         {/* Nav links */}
-        <nav
-          style={{
-            flex: 1,
-            padding: '8px 12px',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 4,
-          }}
-        >
+        <nav className='flex-1 py-2 px-3 flex flex-col gap-1'>
           {navItems.map((item) => {
             const isActive =
               pathname === item.href ||
               (item.href !== '/home' && pathname.startsWith(item.href))
+            const Icon = item.icon
             return (
-              <Link
+              <button
                 key={item.href}
-                href={item.href}
-                className={`sidebar-nav-item${isActive ? ' active' : ''}`}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  padding: '12px 20px',
-                  borderRadius: '12px',
-                  fontSize: '13px',
-                  fontWeight: isActive ? '800' : '500',
-                  color: isActive ? '#000000' : '#8A8A8A',
-                  backgroundColor: isActive ? '#FFFFFF' : 'transparent',
-                  transition: 'all 150ms ease',
+                onClick={(e) => {
+                  e.preventDefault()
+                  navigateTo(item.href)
                 }}
+                className={`flex items-center gap-3 py-3 px-5 rounded-xl border-none cursor-pointer w-full text-sm text-left transition-all duration-150 ${
+                  isActive
+                    ? 'font-extrabold text-black bg-white'
+                    : 'font-bold text-[#8A8A8A] bg-transparent hover:text-white hover:bg-white/6'
+                }`}
               >
+                <Icon size={18} strokeWidth={isActive ? 2.5 : 2} />
                 {item.label}
-              </Link>
+              </button>
             )
           })}
         </nav>
 
         {/* User snippet */}
-        <div
-          style={{
-            padding: '16px 20px',
-            borderTop: '1px solid var(--color-divider)',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 12,
-          }}
-        >
-          <img
-            src='/images/Guest.png'
-            alt='User Avatar'
-            style={{
-              width: 34,
-              height: 34,
-              borderRadius: '50%',
-              objectFit: 'cover',
-              flexShrink: 0,
-            }}
-          />
-          <span
-            style={{
-              fontSize: 13,
-              fontWeight: 500,
-              color: '#fff',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap',
-            }}
-          >
+        <div className='py-4 px-5 border-t border-divider flex items-center gap-3'>
+          <div className='w-8.5 h-8.5 rounded-full bg-white/10 flex items-center justify-center shrink-0'>
+            <User size={18} color='#fff' strokeWidth={2} />
+          </div>
+          <span className='text-[13px] font-medium text-white overflow-hidden text-ellipsis whitespace-nowrap'>
             Hi {user?.name || 'Guest'}
           </span>
         </div>
@@ -160,66 +128,26 @@ export default function AppShell({ children, className = '' }) {
               readOnly
             />
           </div>
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 20,
-              marginLeft: 'auto',
-            }}
-          >
+          <div className='flex items-center gap-5 ml-auto'>
             <button
               aria-label='Notifications'
               onClick={() => setIsNotificationOpen(true)}
-              style={{
-                background: 'none',
-                border: 'none',
-                cursor: 'pointer',
-                color: 'var(--color-content-text-secondary)',
-                display: 'flex',
-                alignItems: 'center',
-                position: 'relative',
-              }}
+              className='bg-transparent border-none cursor-pointer text-content-text-secondary flex items-center relative'
             >
               <Bell size={21} />
               {unreadCount > 0 && (
-                <span
-                  style={{
-                    position: 'absolute',
-                    top: -2,
-                    right: -2,
-                    width: 7,
-                    height: 7,
-                    borderRadius: '50%',
-                    backgroundColor: 'var(--color-danger)',
-                    border: '1px solid var(--color-bg)',
-                  }}
-                  className='animate-pulse'
-                />
+                <span className='absolute -top-0.5 -right-0.5 w-1.75 h-1.75 rounded-full bg-danger border border-bg animate-pulse' />
               )}
             </button>
             <button
               aria-label='Help'
-              style={{
-                background: 'none',
-                border: 'none',
-                cursor: 'pointer',
-                color: 'var(--color-content-text-secondary)',
-                display: 'flex',
-                alignItems: 'center',
-              }}
+              className='bg-transparent border-none cursor-pointer text-content-text-secondary flex items-center'
             >
               <HelpCircle size={21} />
             </button>
             <button
               onClick={() => router.push('/select-brand')}
-              className='btn-primary'
-              style={{
-                height: 38,
-                fontSize: 13,
-                padding: '0 18px',
-                borderRadius: 10,
-              }}
+              className='btn-primary h-9.5 text-[13px] px-4.5 rounded-[10px]'
             >
               New Repair <Plus size={14} />
             </button>
@@ -232,6 +160,12 @@ export default function AppShell({ children, className = '' }) {
       <NotificationDrawer
         isOpen={isNotificationOpen}
         onClose={() => setIsNotificationOpen(false)}
+      />
+
+      <LoginAlertModal
+        isOpen={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+        redirectPath={redirectPath}
       />
     </div>
   )

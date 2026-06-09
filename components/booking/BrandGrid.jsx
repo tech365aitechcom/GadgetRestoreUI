@@ -3,6 +3,8 @@
 import { useState, useMemo } from 'react';
 import { Search, ScanLine } from 'lucide-react';
 import Skeleton from '@/components/ui/Skeleton';
+import { getBrandLogo } from '@/lib/utils';
+
 
 /* ── Gear SVG (reusable decoration) ─────────────────────────────────────── */
 const GearDecoration = () => (
@@ -130,6 +132,7 @@ export default function BrandGrid({ brands = [], isLoading, onSelectBrand, selec
         >
           {filtered.map((brand) => {
             const isSelected = selectedBrandId === brand._id;
+            const logoUrl = getBrandLogo(brand.name, brand.logo);
             return (
               <button
                 key={brand._id}
@@ -138,18 +141,25 @@ export default function BrandGrid({ brands = [], isLoading, onSelectBrand, selec
                 aria-pressed={isSelected}
               >
                 <div className="brand-card-logo">
-                  {brand.logo ? (
+                  {logoUrl ? (
                     <img
-                      src={brand.logo}
+                      src={logoUrl}
                       alt={brand.name}
-                      style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                      style={{
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'contain',
+                        filter: ['google', 'realme'].includes(brand.name.toLowerCase())
+                          ? 'none'
+                          : 'var(--brand-logo-filter)',
+                      }}
                       loading="lazy"
                       onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }}
                     />
                   ) : null}
                   <span
                     style={{
-                      display: brand.logo ? 'none' : 'flex',
+                      display: logoUrl ? 'none' : 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                       width: '100%',

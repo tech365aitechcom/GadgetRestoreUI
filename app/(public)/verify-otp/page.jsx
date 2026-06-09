@@ -3,7 +3,6 @@
 import { Suspense, useState, useEffect, useRef } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { ArrowLeft, Bell, Lock, Shield } from 'lucide-react'
-import AppShell from '@/components/layout/AppShell'
 import authService from '@/services/auth.service'
 
 function VerifyOtpContent() {
@@ -35,6 +34,13 @@ function VerifyOtpContent() {
 
   const inputRefs = useRef([])
 
+  // Auto-focus first input on mount
+  useEffect(() => {
+    if (inputRefs.current[0]) {
+      inputRefs.current[0].focus()
+    }
+  }, [])
+
   // Resend Timer Countdown
   useEffect(() => {
     if (resendTimer <= 0) return
@@ -59,7 +65,10 @@ function VerifyOtpContent() {
 
     // Auto-focus next input if we typed a digit
     if (cleanValue && index < 5) {
-      inputRefs.current[index + 1]?.focus()
+      // Use setTimeout to ensure the focus happens after the state update
+      setTimeout(() => {
+        inputRefs.current[index + 1]?.focus()
+      }, 0)
     }
   }
 
@@ -168,48 +177,11 @@ function VerifyOtpContent() {
   }
 
   return (
-    <AppShell className='auth-page-shell'>
+    <>
       {/* ════════════════════════════════════════════════════════════════
           MOBILE VIEW (<1024px)
           ════════════════════════════════════════════════════════════════ */}
       <div className='home-mobile lg:hidden min-h-[100svh] relative overflow-hidden bg-[#0D0E12]'>
-        {/* Mobile Top Bar */}
-        <div
-          className='top-bar flex items-center justify-between px-4 py-3 fixed top-0 left-0 right-0 z-50'
-          style={{ backgroundColor: 'transparent', borderBottom: 'none' }}
-        >
-          <button
-            onClick={() => router.push('/login')}
-            className='w-9 h-9 rounded-full text-white flex items-center justify-center hover:bg-white/10 active:scale-95 transition-all'
-            style={{
-              backgroundColor: 'rgba(28, 29, 34, 0.75)',
-              border: '1px solid rgba(255, 255, 255, 0.05)',
-            }}
-            aria-label='Go back to login'
-          >
-            <ArrowLeft size={16} />
-          </button>
-
-          <div className='flex-1 flex justify-center'>
-            <img
-              src='/gadget-restore-logo.svg'
-              alt='Gadget Restore'
-              className='h-7 object-contain'
-            />
-          </div>
-
-          <button
-            className='w-9 h-9 rounded-full text-white flex items-center justify-center hover:bg-white/10 active:scale-95 transition-all'
-            style={{
-              backgroundColor: 'rgba(28, 29, 34, 0.75)',
-              border: '1px solid rgba(255, 255, 255, 0.05)',
-            }}
-            aria-label='Notifications'
-          >
-            <Bell size={16} />
-          </button>
-        </div>
-
         {/* Backdrop elements */}
         <div className='auth-bg-mobile absolute inset-0 z-0'>
           <img
@@ -252,7 +224,10 @@ function VerifyOtpContent() {
                     ref={(el) => (inputRefs.current[idx] = el)}
                     onChange={(e) => handleOtpChange(idx, e.target.value)}
                     onKeyDown={(e) => handleKeyDown(idx, e)}
-                    onFocus={() => setFocusedIndex(idx)}
+                    onFocus={(e) => {
+                      setFocusedIndex(idx)
+                      e.target.select()
+                    }}
                     className='otp-box-mobile w-11 h-12 bg-white/[0.04] border border-white/10 rounded text-white text-center text-xl font-bold outline-none focus:border-white/40 transition-colors'
                     style={{
                       borderBottom:
@@ -352,6 +327,7 @@ function VerifyOtpContent() {
                     ref={(el) => (inputRefs.current[idx] = el)}
                     onChange={(e) => handleOtpChange(idx, e.target.value)}
                     onKeyDown={(e) => handleKeyDown(idx, e)}
+                    onFocus={(e) => e.target.select()}
                     placeholder='·'
                     className='otp-box-desktop w-12 h-[60px] bg-[#F2F2F5] border-0 rounded text-center text-xl font-bold text-[#111111] outline-none focus:bg-[#EAEAEF] transition-colors'
                   />
@@ -398,7 +374,7 @@ function VerifyOtpContent() {
           </div>
         </div>
       </div>
-    </AppShell>
+    </>
   )
 }
 

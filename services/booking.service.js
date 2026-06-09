@@ -36,20 +36,58 @@ export const bookingService = {
     remarks,
     address,
     slot,
+    customerData,
   }) {
-    const response = await api.post('/booking', {
+    const payload = {
+      // Customer Information (Required)
+      customerName: customerData?.customerName,
+      customerPhone: customerData?.customerPhone,
+      customerEmail: customerData?.customerEmail,
+
+      // Device Information (Required)
       brandId: brand._id,
       modelId: model._id,
+
+      // Repair Information (Required)
       symptomIds: symptoms.map((symptom) => symptom._id),
       repairTypeIds: collectRepairTypeIds(symptoms),
+      symptomDescription: remarks || undefined,
+
+      // Part & Service Details
       partTier: partTier.tier,
+
+      // Booking Details
       source: 'App',
       bookingType: 'Pickup',
-      symptomDescription: remarks || undefined,
-      address: toBookingAddress(address),
       slotDate: slot?.date,
       slotTime: slot?.timeSlot,
-    }, {
+
+      // Service Center (from schedule page)
+      serviceCentre: slot?.centreId || undefined,
+
+      // Address (for Pickup)
+      address: toBookingAddress(address),
+
+      // Optional Customer Fields
+      alternatePhone: customerData?.alternatePhone || undefined,
+
+      // Device Password (optional but important)
+      devicePassword: customerData?.devicePassword || undefined,
+    };
+
+    // Remove undefined values to keep payload clean
+    Object.keys(payload).forEach(key => {
+      if (payload[key] === undefined) {
+        delete payload[key];
+      }
+    });
+
+    // Debug: Log the complete payload before sending
+    console.log('📦 Complete Booking Payload:', JSON.stringify(payload, null, 2));
+    console.log('🏢 Service Centre ID:', payload.serviceCentre);
+    console.log('📅 Slot Data:', slot);
+
+    const response = await api.post('/booking', payload, {
       timeout: 45000  // 45 seconds for booking creation (long-running operation)
     });
 

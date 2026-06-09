@@ -3,12 +3,14 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { ArrowLeft, Bell, ShieldCheck, Box, Compass } from 'lucide-react'
-import AppShell from '@/components/layout/AppShell'
 import authService from '@/services/auth.service'
 
 export default function LoginPage() {
   const router = useRouter()
-  const searchParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null
+  const searchParams =
+    typeof window !== 'undefined'
+      ? new URLSearchParams(window.location.search)
+      : null
   const [phone, setPhone] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
@@ -90,15 +92,17 @@ export default function LoginPage() {
       }
 
       // Check if there's a redirect URL from query params or session storage
-      let redirectUrl = null;
+      let redirectUrl = null
       if (typeof window !== 'undefined') {
         // Priority: query param > session storage
-        redirectUrl = searchParams?.get('redirect') || sessionStorage.getItem('gr_redirect_after_login');
+        redirectUrl =
+          searchParams?.get('redirect') ||
+          sessionStorage.getItem('gr_redirect_after_login')
       }
 
       const verifyUrl = redirectUrl
         ? `/verify-otp?phone=${encodeURIComponent(cleanMobile)}&redirect=${encodeURIComponent(redirectUrl)}`
-        : `/verify-otp?phone=${encodeURIComponent(cleanMobile)}`;
+        : `/verify-otp?phone=${encodeURIComponent(cleanMobile)}`
       router.push(verifyUrl)
     } catch (err) {
       setError(err.message || 'Failed to send OTP. Please try again.')
@@ -112,42 +116,11 @@ export default function LoginPage() {
   }
 
   return (
-    <AppShell className='auth-page-shell'>
+    <>
       {/* ════════════════════════════════════════════════════════════════
           MOBILE VIEW (<1024px)
           ════════════════════════════════════════════════════════════════ */}
       <div className='home-mobile lg:hidden min-h-svh relative overflow-hidden bg-[#0D0E12]'>
-        {/* Mobile Top Bar */}
-        <div
-          className='top-bar flex items-center justify-between px-4 py-3 fixed top-0 left-0 right-0 z-50'
-          style={{ backgroundColor: 'transparent', borderBottom: 'none' }}
-        >
-          <button
-            onClick={() => router.back()}
-            className='w-9 h-9 rounded-full text-white flex items-center justify-center hover:bg-white/10 active:scale-95 transition-all'
-            style={{ backgroundColor: 'rgba(28, 29, 34, 0.75)', border: '1px solid rgba(255, 255, 255, 0.05)' }}
-            aria-label='Go back'
-          >
-            <ArrowLeft size={16} />
-          </button>
-
-          <div className='flex-1 flex justify-center'>
-            <img
-              src='/gadget-restore-logo.svg'
-              alt='Gadget Restore'
-              className='h-7 object-contain'
-            />
-          </div>
-
-          <button
-            className='w-9 h-9 rounded-full text-white flex items-center justify-center hover:bg-white/10 active:scale-95 transition-all'
-            style={{ backgroundColor: 'rgba(28, 29, 34, 0.75)', border: '1px solid rgba(255, 255, 255, 0.05)' }}
-            aria-label='Notifications'
-          >
-            <Bell size={16} />
-          </button>
-        </div>
-
         {/* Backdrop elements */}
         <div className='auth-bg-mobile absolute inset-0 z-0'>
           <img
@@ -166,7 +139,7 @@ export default function LoginPage() {
             </h2>
             <p className='text-[13px] text-white/65 leading-relaxed mb-6'>
               Please enter your phone number to secure <br /> your technical
-              appointment and track your  <br />  repair status.
+              appointment and track your <br /> repair status.
             </p>
 
             <form onSubmit={handleSubmit}>
@@ -197,7 +170,7 @@ export default function LoginPage() {
               </button>
             </form>
 
-            <div className="flex justify-center mt-5">
+            <div className='flex justify-center mt-5'>
               <button
                 onClick={handleSkip}
                 className='bg-transparent border-0 cursor-pointer text-white/65 hover:text-white text-[13px] font-semibold px-2 py-1 transition-colors'
@@ -240,8 +213,8 @@ export default function LoginPage() {
             {/* Auth State */}
             <div className='step-item flex flex-col items-center w-[70px] relative'>
               {/* Top Black Dot */}
-              <div className="w-4 h-4 rounded-full border border-black flex items-center justify-center">
-                <div className="w-2.5 h-2.5 rounded-full bg-black" />
+              <div className='w-4 h-4 rounded-full border border-black flex items-center justify-center'>
+                <div className='w-2.5 h-2.5 rounded-full bg-black' />
               </div>
 
               <div className='step-dot active-dot w-2.5 h-2.5 rounded-full bg-black' />
@@ -257,7 +230,6 @@ export default function LoginPage() {
             <div className='step-item flex flex-col items-center w-[70px] relative'>
               {/* Top Black Dot */}
               <div className='w-2.5 h-2.5 rounded-full bg-[#71717A] mb-2' />
-
 
               <div className='step-dot w-2.5 h-2.5 rounded-full bg-neutral-300' />
 
@@ -326,7 +298,6 @@ export default function LoginPage() {
               </span>
             </div>
 
-
             <div className='flex flex-col items-center gap-3'>
               <div className='w-9 h-9 rounded-full bg-black/5 flex items-center justify-center'>
                 <Box size={17} color='#333333' strokeWidth={2.2} />
@@ -337,7 +308,6 @@ export default function LoginPage() {
                 Parts
               </span>
             </div>
-
 
             <div className='flex flex-col items-center gap-3'>
               <div className='w-9 h-9 rounded-full bg-black/5 flex items-center justify-center'>
@@ -352,6 +322,6 @@ export default function LoginPage() {
           </div>
         </div>
       </div>
-    </AppShell>
+    </>
   )
 }
