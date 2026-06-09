@@ -243,12 +243,16 @@ export default function OrdersPage() {
           ════════════════════════════════════════════════════════════════ */}
       <div className='lg:hidden min-h-[100svh] bg-[var(--theme-bg)] pb-20 px-5 pt-6'>
         {loading ? (
-          <div className="flex flex-col gap-3">
+          <div className='flex flex-col gap-3'>
             {/* Active order card skeleton */}
-            <div className="skeleton rounded-2xl" style={{ height: 220 }} />
+            <div className='skeleton rounded-2xl' style={{ height: 220 }} />
             {/* History skeleton rows */}
-            {[0, 1, 2].map(i => (
-              <div key={i} className="skeleton rounded-xl" style={{ height: 72 }} />
+            {[0, 1, 2].map((i) => (
+              <div
+                key={i}
+                className='skeleton rounded-xl'
+                style={{ height: 72 }}
+              />
             ))}
           </div>
         ) : error ? (
@@ -287,10 +291,7 @@ export default function OrdersPage() {
                         {currentOrder.ticketNumber?.split('-').pop()}
                       </p>
                       <h3 className='text-[18px] font-extrabold text-[var(--theme-text-primary)]'>
-                        {[
-                          currentOrder.brandRef?.name,
-                          currentOrder.modelRef?.name,
-                        ]
+                        {[currentOrder.modelRef?.name]
                           .filter(Boolean)
                           .join(' ') || 'Device Repair'}
                       </h3>
@@ -525,17 +526,17 @@ export default function OrdersPage() {
           </div>
 
           {loading ? (
-            <div className="grid grid-cols-12 gap-6">
+            <div className='grid grid-cols-12 gap-6'>
               {/* Left column — active order card */}
-              <div className="col-span-7 flex flex-col gap-6">
-                <div className="skeleton rounded-2xl" style={{ height: 340 }} />
+              <div className='col-span-7 flex flex-col gap-6'>
+                <div className='skeleton rounded-2xl' style={{ height: 340 }} />
                 {/* History table */}
-                <div className="skeleton rounded-2xl" style={{ height: 220 }} />
+                <div className='skeleton rounded-2xl' style={{ height: 220 }} />
               </div>
               {/* Right column — stats */}
-              <div className="col-span-5 flex flex-col gap-6">
-                <div className="skeleton rounded-2xl" style={{ height: 160 }} />
-                <div className="skeleton rounded-2xl" style={{ height: 200 }} />
+              <div className='col-span-5 flex flex-col gap-6'>
+                <div className='skeleton rounded-2xl' style={{ height: 160 }} />
+                <div className='skeleton rounded-2xl' style={{ height: 200 }} />
               </div>
             </div>
           ) : error ? (
@@ -576,10 +577,7 @@ export default function OrdersPage() {
                             {currentOrder.ticketNumber?.split('-').pop()}
                           </p>
                           <h2 className='text-[24px] font-black text-[var(--theme-text-primary)] mb-2'>
-                            {[
-                              currentOrder.brandRef?.name,
-                              currentOrder.modelRef?.name,
-                            ]
+                            {[currentOrder.modelRef?.name]
                               .filter(Boolean)
                               .join(' ') || 'Device Repair'}
                           </h2>
