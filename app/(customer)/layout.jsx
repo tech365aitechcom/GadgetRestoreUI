@@ -3,6 +3,7 @@
 import AppShell from '@/components/layout/AppShell';
 import BottomNav from '@/components/ui/BottomNav';
 import MobileHeader from '@/components/layout/MobileHeader';
+import PushNotificationRegistrar from '@/components/notifications/PushNotificationRegistrar';
 
 /**
  * Layout for authenticated customer routes (Home, Orders, Profile).
@@ -12,6 +13,7 @@ import MobileHeader from '@/components/layout/MobileHeader';
 export default function CustomerLayout({ children }) {
   return (
     <AppShell className="bg-[var(--color-bg-card)] sm:bg-[var(--color-bg)]">
+      <PushNotificationRegistrar />
       {/* Mobile Header - visible only on mobile */}
       <div className="lg:hidden">
         <MobileHeader showNotification={true} />

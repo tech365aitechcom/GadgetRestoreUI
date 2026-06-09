@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import {
   User,
@@ -25,6 +25,8 @@ import {
 } from '@/lib/constants'
 import authService from '@/services/auth.service'
 import customerService from '@/services/customer.service'
+import notificationService from '@/services/notification.service'
+import pushNotificationService from '@/services/push-notification.service'
 
 export default function ProfilePage() {
   const router = useRouter()
@@ -51,18 +53,7 @@ export default function ProfilePage() {
     pushNotifications: true,
   })
 
-  useEffect(() => {
-    // Check if user is authenticated
-    const token = Cookies.get(TOKEN_COOKIE)
-    if (!token) {
-      router.push('/login')
-      return
-    }
-
-    fetchProfileData()
-  }, [router])
-
-  const fetchProfileData = async () => {
+  const fetchProfileData = useCallback(async () => {
     try {
       setIsLoading(true)
       const profile = await customerService.getProfile()
@@ -116,7 +107,19 @@ export default function ProfilePage() {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [])
+
+  useEffect(() => {
+    // Check if user is authenticated
+    const token = Cookies.get(TOKEN_COOKIE)
+    if (!token) {
+      router.push('/login')
+      return
+    }
+
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- initial async profile sync for this route
+    fetchProfileData()
+  }, [fetchProfileData, router])
 
   const handleLogout = () => {
     authService.logout()
@@ -124,6 +127,15 @@ export default function ProfilePage() {
 
   const handleToggleNotification = async (key) => {
     const newValue = !notifications[key]
+
+    if (key === 'pushNotifications' && newValue) {
+      try {
+        await pushNotificationService.requestAndRegister()
+      } catch (error) {
+        toast.error(error.message || 'Push notifications could not be enabled')
+        return
+      }
+    }
 
     // Optimistically update UI
     setNotifications((prev) => ({
@@ -135,6 +147,13 @@ export default function ProfilePage() {
       await customerService.updatePreferences({
         [key]: newValue,
       })
+      if (key === 'pushNotifications' && !newValue) {
+        try {
+          await pushNotificationService.unregister()
+        } catch (error) {
+          console.warn('Push unregister failed:', error.message)
+        }
+      }
       toast.success('Notification preference updated')
     } catch (error) {
       // Revert on error
@@ -143,6 +162,44 @@ export default function ProfilePage() {
         [key]: !newValue,
       }))
       toast.error('Failed to update preference')
+    }
+  }
+
+  const handleRegisterBrowserPush = async () => {
+    try {
+      await pushNotificationService.requestAndRegister()
+      await customerService.updatePreferences({ pushNotifications: true })
+      setNotifications((prev) => ({
+        ...prev,
+        pushNotifications: true,
+      }))
+      toast.success('Browser push enabled for this device')
+    } catch (error) {
+      toast.error(error.message || 'Push notifications could not be enabled')
+    }
+  }
+
+  const handleSendTestPush = async () => {
+    try {
+      const response = await notificationService.sendTestPush()
+      const result = response.data || {}
+
+      if (result.success) {
+        await pushNotificationService.showLocalNotification('Gadget Restore test notification', {
+          body: 'Push notification display is working on this browser.',
+        })
+        toast.success('Test push sent. Check your browser notifications.')
+        return
+      }
+
+      const reasonMap = {
+        customer_preference_disabled: 'Push preference is disabled. Enable it first.',
+        firebase_not_configured: 'Backend Firebase credentials are not configured.',
+        no_registered_devices: 'This browser is not registered yet. Click Enable this device first.',
+      }
+      toast.error(reasonMap[result.reason] || 'Test push was not sent.')
+    } catch (error) {
+      toast.error(error.message || 'Failed to send test push')
     }
   }
 
@@ -754,6 +811,22 @@ export default function ProfilePage() {
                     />
                   </button>
                 </div>
+              </div>
+              <div className='grid grid-cols-1 sm:grid-cols-2 gap-2 mb-4'>
+                <button
+                  type='button'
+                  onClick={handleRegisterBrowserPush}
+                  className='rounded-xl bg-white/10 border border-white/10 px-4 py-3 text-[13px] font-semibold text-[var(--theme-text-primary)] hover:bg-white/15 transition-colors'
+                >
+                  Enable this device
+                </button>
+                <button
+                  type='button'
+                  onClick={handleSendTestPush}
+                  className='rounded-xl bg-[var(--theme-btn-primary-bg)] px-4 py-3 text-[13px] font-semibold text-[var(--theme-btn-primary-text)] hover:opacity-90 transition-opacity'
+                >
+                  Send test push
+                </button>
               </div>
               <div className='space-y-2'>
                 <button

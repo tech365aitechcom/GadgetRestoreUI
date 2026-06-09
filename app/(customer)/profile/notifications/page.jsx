@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { Bell, MessageSquare, Mail, Smartphone } from 'lucide-react'
 import TopBar from '@/components/ui/TopBar'
@@ -8,6 +8,8 @@ import Cookies from 'js-cookie'
 import { TOKEN_COOKIE } from '@/lib/constants'
 import toast from 'react-hot-toast'
 import customerService from '@/services/customer.service'
+import pushNotificationService from '@/services/push-notification.service'
+import notificationService from '@/services/notification.service'
 
 export default function NotificationsPage() {
   const router = useRouter()
@@ -19,17 +21,7 @@ export default function NotificationsPage() {
     pushNotifications: true,
   })
 
-  useEffect(() => {
-    const token = Cookies.get(TOKEN_COOKIE)
-    if (!token) {
-      router.push('/login')
-      return
-    }
-
-    fetchNotificationPreferences()
-  }, [router])
-
-  const fetchNotificationPreferences = async () => {
+  const fetchNotificationPreferences = useCallback(async () => {
     try {
       setIsLoading(true)
       const profile = await customerService.getProfile()
@@ -49,10 +41,30 @@ export default function NotificationsPage() {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [])
+
+  useEffect(() => {
+    const token = Cookies.get(TOKEN_COOKIE)
+    if (!token) {
+      router.push('/login')
+      return
+    }
+
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- initial async profile sync for this route
+    fetchNotificationPreferences()
+  }, [fetchNotificationPreferences, router])
 
   const handleToggleNotification = async (key) => {
     const newValue = !notifications[key]
+
+    if (key === 'pushNotifications' && newValue) {
+      try {
+        await pushNotificationService.requestAndRegister()
+      } catch (error) {
+        toast.error(error.message || 'Push notifications could not be enabled')
+        return
+      }
+    }
 
     // Optimistically update UI
     setNotifications((prev) => ({
@@ -64,6 +76,13 @@ export default function NotificationsPage() {
       await customerService.updatePreferences({
         [key]: newValue,
       })
+      if (key === 'pushNotifications' && !newValue) {
+        try {
+          await pushNotificationService.unregister()
+        } catch (error) {
+          console.warn('Push unregister failed:', error.message)
+        }
+      }
       toast.success('Notification preference updated')
     } catch (error) {
       // Revert on error
@@ -72,6 +91,41 @@ export default function NotificationsPage() {
         [key]: !newValue,
       }))
       toast.error('Failed to update preference')
+    }
+  }
+
+  const handleRegisterBrowserPush = async () => {
+    try {
+      await pushNotificationService.requestAndRegister()
+      await customerService.updatePreferences({ pushNotifications: true })
+      setNotifications((prev) => ({
+        ...prev,
+        pushNotifications: true,
+      }))
+      toast.success('Browser push enabled for this device')
+    } catch (error) {
+      toast.error(error.message || 'Push notifications could not be enabled')
+    }
+  }
+
+  const handleSendTestPush = async () => {
+    try {
+      const response = await notificationService.sendTestPush()
+      const result = response.data || {}
+
+      if (result.success) {
+        toast.success('Test push sent. Check your browser notifications.')
+        return
+      }
+
+      const reasonMap = {
+        customer_preference_disabled: 'Push preference is disabled. Enable it first.',
+        firebase_not_configured: 'Backend Firebase credentials are not configured.',
+        no_registered_devices: 'This browser is not registered yet. Click Enable this device first.',
+      }
+      toast.error(reasonMap[result.reason] || 'Test push was not sent.')
+    } catch (error) {
+      toast.error(error.message || 'Failed to send test push')
     }
   }
 
@@ -239,6 +293,22 @@ export default function NotificationsPage() {
                   />
                 </button>
               </div>
+            </div>
+            <div className='flex flex-col sm:flex-row gap-2'>
+              <button
+                type='button'
+                onClick={handleRegisterBrowserPush}
+                className='flex-1 rounded-xl bg-white/10 border border-white/10 px-4 py-3 text-[13px] font-semibold text-[var(--theme-text-primary)] hover:bg-white/15 transition-colors'
+              >
+                Enable this device
+              </button>
+              <button
+                type='button'
+                onClick={handleSendTestPush}
+                className='flex-1 rounded-xl bg-[var(--theme-btn-primary-bg)] px-4 py-3 text-[13px] font-semibold text-[var(--theme-btn-primary-text)] hover:opacity-90 transition-opacity'
+              >
+                Send test push
+              </button>
             </div>
           </div>
 
@@ -423,6 +493,22 @@ export default function NotificationsPage() {
                     Get instant push alerts on your device for real-time repair
                     status updates
                   </div>
+                  <div className='mt-4 flex flex-col sm:flex-row gap-2'>
+                    <button
+                      type='button'
+                      onClick={handleRegisterBrowserPush}
+                      className='rounded-xl bg-white/10 border border-white/10 px-4 py-3 text-[13px] font-semibold text-[var(--theme-text-primary)] hover:bg-white/15 transition-colors'
+                    >
+                      Enable this device
+                    </button>
+                    <button
+                      type='button'
+                      onClick={handleSendTestPush}
+                      className='rounded-xl bg-[var(--theme-btn-primary-bg)] px-4 py-3 text-[13px] font-semibold text-[var(--theme-btn-primary-text)] hover:opacity-90 transition-opacity'
+                    >
+                      Send test push
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -432,7 +518,7 @@ export default function NotificationsPage() {
               <div className='text-[13px] text-blue-200 leading-relaxed'>
                 <strong>Recommended:</strong> Enable WhatsApp or SMS
                 notifications to receive timely updates on your repair progress.
-                You'll be notified at each stage from pickup to delivery.
+                You&apos;ll be notified at each stage from pickup to delivery.
               </div>
             </div>
           </div>
