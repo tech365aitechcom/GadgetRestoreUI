@@ -25,6 +25,7 @@ import {
 } from '@/lib/constants'
 import { useAuth } from '@/context/AuthContext'
 import customerService from '@/services/customer.service'
+import Skeleton from '@/components/ui/Skeleton'
 
 export default function ProfilePage() {
   const router = useRouter()
@@ -165,14 +166,93 @@ export default function ProfilePage() {
 
   if (isLoading) {
     return (
-      <div className='min-h-screen bg-[var(--theme-bg)] flex items-center justify-center'>
-        <div className='text-center'>
-          <div className='w-12 h-12 border-3 border-(--theme-border-strong) border-t-[var(--theme-text-primary)] rounded-full animate-spin mx-auto mb-4' />
-          <p className='text-[14px] text-[var(--theme-text-secondary)]'>
-            Loading profile...
-          </p>
+      <>
+        {/* ── Mobile Skeleton ── */}
+        <div className='lg:hidden min-h-screen bg-[var(--theme-bg)] pb-24 px-5 pt-6'>
+          <Skeleton className='h-7 w-28 rounded-lg mb-6' />
+
+          <div className='flex flex-col items-center text-center mb-6'>
+            <Skeleton className='w-32 h-32 rounded-2xl mb-4' />
+            <Skeleton className='h-5 w-40 rounded-lg mb-2' />
+            <Skeleton className='h-4 w-48 rounded-md mb-3' />
+          </div>
+
+          <div className='space-y-6'>
+            <div>
+              <Skeleton className='h-3 w-28 rounded mb-3' />
+              <div className='space-y-2'>
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <Skeleton key={i} className='h-[72px] w-full rounded-xl' />
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <Skeleton className='h-3 w-20 rounded mb-3' />
+              <div className='space-y-2'>
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <Skeleton key={i} className='h-[72px] w-full rounded-xl' />
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
+
+        {/* ── Desktop Skeleton ── */}
+        <div className='hidden lg:block min-h-[calc(100vh-var(--topbar-height))] bg-[var(--theme-bg)] px-6 py-8'>
+          {/* Profile Card Header Skeleton */}
+          <div className='bg-[var(--theme-card)] rounded-2xl border border-[var(--theme-border)] p-8 mb-6 shadow-sm flex items-start gap-6'>
+            <Skeleton className='w-32 h-32 rounded-2xl' />
+            <div className='flex-1 space-y-3 pt-2'>
+              <Skeleton className='h-8 w-56 rounded-lg' />
+              <Skeleton className='h-4 w-44 rounded-md' />
+              <Skeleton className='h-[42px] w-32 rounded-lg mt-2' />
+            </div>
+          </div>
+
+          {/* Grid Skeleton */}
+          <div className='grid grid-cols-2 gap-6'>
+            {/* Left Card */}
+            <div className='bg-[var(--theme-card)] rounded-2xl border border-[var(--theme-border)] p-6 shadow-sm space-y-5'>
+              <Skeleton className='h-6 w-36 rounded-lg mb-2' />
+              <div className='space-y-3'>
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <div key={i} className='flex items-center gap-4 p-2'>
+                    <Skeleton className='w-11 h-11 rounded-xl' />
+                    <div className='flex-1 space-y-2'>
+                      <Skeleton className='h-4 w-32 rounded' />
+                      <Skeleton className='h-3.5 w-48 rounded' />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Right Card */}
+            <div className='space-y-6'>
+              <div className='bg-[var(--theme-card)] rounded-2xl border border-[var(--theme-border)] p-6 shadow-sm space-y-5'>
+                <Skeleton className='h-6 w-44 rounded-lg mb-2' />
+                <Skeleton className='h-4 w-full rounded-md' />
+                <div className='space-y-3'>
+                  {Array.from({ length: 3 }).map((_, i) => (
+                    <div
+                      key={i}
+                      className='flex items-center gap-4 p-4 bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl'
+                    >
+                      <Skeleton className='w-10 h-10 rounded-lg' />
+                      <div className='flex-1 space-y-2'>
+                        <Skeleton className='h-4 w-24 rounded' />
+                        <Skeleton className='h-3.5 w-32 rounded' />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <Skeleton className='h-[54px] w-full rounded-2xl' />
+            </div>
+          </div>
+        </div>
+      </>
     )
   }
 
@@ -252,48 +332,6 @@ export default function ProfilePage() {
               </div>
             </div>
           </div>
-
-          {/* Stats Row - Desktop */}
-          <div className='flex gap-4 mt-8 pt-6 border-t border-[var(--theme-border)]'>
-            <div className='flex-1 bg-[var(--theme-card-darker)] rounded-xl p-5 border border-[var(--theme-border)]'>
-              <div className='text-[10px] font-bold text-[var(--theme-text-disabled)] tracking-[0.1em] uppercase mb-2'>
-                TOTAL REPAIRS
-              </div>
-              <div className='text-[32px] font-extrabold text-(--theme-text-primary)'>
-                {userData.totalRepairs}
-              </div>
-              <div className='text-[12px] text-[var(--theme-text-secondary)] mt-1'>
-                +{userData.repairsLastMonth} from last month
-              </div>
-            </div>
-
-            <div className='flex-1 bg-(--theme-btn-primary-bg) rounded-xl p-5 border border-[var(--theme-border)] relative overflow-hidden text-[var(--theme-btn-primary-text)]'>
-              <div className='absolute inset-0 bg-gradient-to-br from-black/5 to-transparent' />
-              <div className='relative'>
-                <div className='text-[10px] font-bold text-[var(--theme-btn-primary-text)] tracking-[0.1em] uppercase mb-2'>
-                  CURRENT STATUS
-                </div>
-                <div className='text-[24px] font-extrabold text-[var(--theme-btn-primary-text)] mb-1'>
-                  {userData.currentStatus}
-                </div>
-                <div className='text-[12px] text-[var(--theme-btn-primary-text)]'>
-                  {userData.currentDevice}
-                </div>
-              </div>
-            </div>
-
-            <div className='flex-1 bg-[var(--theme-card-darker)] rounded-xl p-5 border border-[var(--theme-border)]'>
-              <div className='text-[10px] font-bold text-[var(--theme-text-disabled)] tracking-[0.1em] uppercase mb-2'>
-                WARRANTY COVERAGE
-              </div>
-              <div className='text-[32px] font-extrabold text-(--theme-text-primary)'>
-                {userData.warrantyMonths}m
-              </div>
-              <div className='text-[12px] text-[var(--theme-text-secondary)] mt-1'>
-                {userData.warrantyExpiry}
-              </div>
-            </div>
-          </div>
         </div>
 
         {/* Mobile Profile Card */}
@@ -336,45 +374,6 @@ export default function ProfilePage() {
           <p className='text-[13px] text-[var(--theme-text-secondary)] mb-3'>
             {userData.email}
           </p>
-
-          {/* <div className='inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-(--theme-btn-secondary-bg) border border-(--theme-border-strong)'>
-            <Shield size={12} className='text-[var(--theme-text-secondary)]' />
-            <span className='text-[10px] font-bold tracking-wider'>
-              {userData.membershipType}
-            </span>
-          </div> */}
-        </div>
-
-        {/* Stats - Mobile */}
-        <div className='lg:hidden grid grid-cols-3 gap-3 mb-6'>
-          <div className='bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-xl p-3 text-center'>
-            <div className='text-[22px] font-extrabold mb-0.5'>
-              {userData.totalRepairs}
-            </div>
-            <div className='text-[9px] font-bold text-[var(--theme-text-disabled)] tracking-wider uppercase'>
-              REPAIRS
-            </div>
-          </div>
-          <div className='bg-(--theme-btn-primary-bg) border border-[var(--theme-border)] rounded-xl p-3 text-center text-[var(--theme-btn-primary-text)]'>
-            <div className='flex items-center justify-center mb-1'>
-              <Clock
-                size={18}
-                className='text-[var(--theme-btn-primary-text)]'
-              />
-            </div>
-            <div className='text-[9px] font-bold text-[var(--theme-btn-primary-text)] tracking-wider uppercase'>
-              ACTIVE
-            </div>
-          </div>
-          <div className='bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-xl p-3 text-center'>
-            <div className='text-[22px] font-extrabold mb-0.5'>
-              {userData.warrantyMonths}
-              <span className='text-[14px]'>m</span>
-            </div>
-            <div className='text-[9px] font-bold text-[var(--theme-text-disabled)] tracking-wider uppercase'>
-              WARRANTY
-            </div>
-          </div>
         </div>
       </div>
 
@@ -383,7 +382,6 @@ export default function ProfilePage() {
         {/* Account Settings */}
         <div className='mb-6 lg:mb-0 lg:bg-[var(--theme-card)] lg:rounded-2xl lg:border lg:border-[var(--theme-border)] lg:p-6 lg:shadow-sm'>
           <h3 className='text-[11px] lg:text-[18px] font-bold lg:font-extrabold text-[var(--theme-text-disabled)] lg:text-(--theme-text-primary) tracking-[0.1em] lg:tracking-normal uppercase lg:normal-case mb-3 lg:mb-5'>
-            {' '}
             Account Settings
           </h3>
           <div className='space-y-2'>
@@ -402,7 +400,7 @@ export default function ProfilePage() {
                   Personal Information
                 </div>
                 <div className='hidden lg:block text-[12px] text-[var(--theme-text-secondary)]'>
-                  Manage your name, email, and biometric data
+                  Manage your name and email address
                 </div>
               </div>
               <ChevronRight
@@ -413,7 +411,7 @@ export default function ProfilePage() {
 
             <button
               onClick={() => router.push('/profile/addresses')}
-              className='w-full flex items-center gap-3 lg:gap-4 p-4 bg-[var(--theme-card)] lg:bg-transparent border border-[var(--theme-border)] lg:border-0 rounded-xl hover:bg-(--theme-btn-secondary-hover) active:scale-[0.98] lg:active:scale-[0.99] transition-all group'
+              className='w-full flex items-center gap-3 p-4 bg-[var(--theme-card)] lg:bg-transparent border border-[var(--theme-border)] lg:border-0 rounded-xl hover:bg-(--theme-btn-secondary-hover) active:scale-[0.98] lg:active:scale-[0.99] transition-all group'
             >
               <div className='w-9 h-9 lg:w-11 lg:h-11 rounded-lg lg:rounded-xl bg-(--theme-btn-secondary-bg) flex items-center justify-center shrink-0 group-hover:bg-(--theme-btn-secondary-hover) transition-colors'>
                 <MapPin
@@ -439,7 +437,7 @@ export default function ProfilePage() {
 
             <button
               onClick={() => router.push('/orders')}
-              className='w-full flex items-center gap-3 lg:gap-4 p-4 bg-[var(--theme-card)] lg:bg-transparent border border-[var(--theme-border)] lg:border-0 rounded-xl hover:bg-(--theme-btn-secondary-hover) active:scale-[0.98] lg:active:scale-[0.99] transition-all group'
+              className='w-full flex items-center gap-3 p-4 bg-[var(--theme-card)] lg:bg-transparent border border-[var(--theme-border)] lg:border-0 rounded-xl hover:bg-(--theme-btn-secondary-hover) active:scale-[0.98] lg:active:scale-[0.99] transition-all group'
             >
               <div className='w-9 h-9 lg:w-11 lg:h-11 rounded-lg lg:rounded-xl bg-(--theme-btn-secondary-bg) flex items-center justify-center shrink-0 group-hover:bg-(--theme-btn-secondary-hover) transition-colors'>
                 <Clock
@@ -463,12 +461,76 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        {/* Notifications & Support - Desktop in card, Mobile simple */}
+        {/* Support & Application */}
         <div className='lg:space-y-6'>
-          {/* Mobile: Notifications Link */}
+          {/* Mobile: Support Section */}
           <div className='lg:hidden mb-6'>
             <h3 className='text-[11px] font-bold text-[var(--theme-text-disabled)] tracking-[0.1em] uppercase mb-3'>
-              APPLICATION
+              Support
+            </h3>
+            <div className='space-y-2'>
+              <a
+                href={SUPPORT_WHATSAPP}
+                target='_blank'
+                rel='noopener noreferrer'
+                className='w-full flex items-center gap-3 p-4 bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-xl hover:bg-(--theme-btn-secondary-hover) active:scale-[0.98] transition-all group'
+              >
+                <div className='w-9 h-9 rounded-lg bg-green-500/10 flex items-center justify-center shrink-0 group-hover:bg-green-500/20 transition-colors'>
+                  <MessageCircle size={18} className='text-green-500' />
+                </div>
+                <div className='flex-1 text-left'>
+                  <div className='text-[14px] font-semibold text-(--theme-text-primary)'>
+                    WhatsApp Chat
+                  </div>
+                </div>
+                <ChevronRight
+                  size={18}
+                  className='text-[var(--theme-text-disabled)]'
+                />
+              </a>
+
+              <a
+                href={SUPPORT_PHONE}
+                className='w-full flex items-center gap-3 p-4 bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-xl hover:bg-(--theme-btn-secondary-hover) active:scale-[0.98] transition-all group'
+              >
+                <div className='w-9 h-9 rounded-lg bg-blue-500/10 flex items-center justify-center shrink-0 group-hover:bg-blue-500/20 transition-colors'>
+                  <Phone size={18} className='text-blue-500' />
+                </div>
+                <div className='flex-1 text-left'>
+                  <div className='text-[14px] font-semibold text-(--theme-text-primary)'>
+                    Phone Support
+                  </div>
+                </div>
+                <ChevronRight
+                  size={18}
+                  className='text-[var(--theme-text-disabled)]'
+                />
+              </a>
+
+              <a
+                href={SUPPORT_EMAIL}
+                className='w-full flex items-center gap-3 p-4 bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-xl hover:bg-(--theme-btn-secondary-hover) active:scale-[0.98] transition-all group'
+              >
+                <div className='w-9 h-9 rounded-lg bg-purple-500/10 flex items-center justify-center shrink-0 group-hover:bg-purple-500/20 transition-colors'>
+                  <Mail size={18} className='text-purple-500' />
+                </div>
+                <div className='flex-1 text-left'>
+                  <div className='text-[14px] font-semibold text-(--theme-text-primary)'>
+                    Email Support
+                  </div>
+                </div>
+                <ChevronRight
+                  size={18}
+                  className='text-[var(--theme-text-disabled)]'
+                />
+              </a>
+            </div>
+          </div>
+
+          {/* Mobile: Application Section */}
+          <div className='lg:hidden mb-6'>
+            <h3 className='text-[11px] font-bold text-[var(--theme-text-disabled)] tracking-[0.1em] uppercase mb-3'>
+              Application
             </h3>
             <div className='space-y-2'>
               <button
@@ -506,148 +568,84 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          {/* Desktop: Notifications Card */}
+          {/* Desktop: Support Card */}
           <div className='hidden lg:block bg-[var(--theme-card)] rounded-2xl border border-[var(--theme-border)] p-6 shadow-sm'>
             <h2 className='text-[18px] font-extrabold text-(--theme-text-primary) mb-5 flex items-center gap-2'>
-              <Bell size={20} />
-              Notifications
+              <MessageCircle
+                size={20}
+                className='text-[var(--theme-btn-primary-bg)]'
+              />
+              Customer Support
             </h2>
-            <div className='space-y-4 mb-4'>
-              <div className='flex items-center justify-between'>
-                <div>
-                  <div className='text-[13px] font-semibold text-(--theme-text-primary)'>
-                    WhatsApp Notifications
-                  </div>
-                </div>
-                <button
-                  onClick={() =>
-                    handleToggleNotification('whatsappNotifications')
-                  }
-                  className={`relative w-12 h-7 rounded-full transition-colors ${
-                    notifications.whatsappNotifications
-                      ? 'bg-(--theme-btn-primary-bg)'
-                      : 'bg-white/10'
-                  }`}
-                >
-                  <div
-                    className={`absolute w-5 h-5 rounded-full top-1 transition-transform ${
-                      notifications.whatsappNotifications
-                        ? 'translate-x-6 bg-black'
-                        : 'translate-x-1 bg-(--theme-btn-primary-bg)'
-                    }`}
-                  />
-                </button>
-              </div>
-
-              <div className='flex items-center justify-between'>
-                <div>
-                  <div className='text-[13px] font-semibold text-(--theme-text-primary)'>
-                    SMS Notifications
-                  </div>
-                </div>
-                <button
-                  onClick={() => handleToggleNotification('smsNotifications')}
-                  className={`relative w-12 h-7 rounded-full transition-colors ${
-                    notifications.smsNotifications
-                      ? 'bg-(--theme-btn-primary-bg)'
-                      : 'bg-white/10'
-                  }`}
-                >
-                  <div
-                    className={`absolute w-5 h-5 rounded-full top-1 transition-transform ${
-                      notifications.smsNotifications
-                        ? 'translate-x-6 bg-black'
-                        : 'translate-x-1 bg-(--theme-btn-primary-bg)'
-                    }`}
-                  />
-                </button>
-              </div>
-
-              <div className='flex items-center justify-between'>
-                <div>
-                  <div className='text-[13px] font-semibold text-(--theme-text-primary)'>
-                    Email Notifications
-                  </div>
-                </div>
-                <button
-                  onClick={() => handleToggleNotification('emailNotifications')}
-                  className={`relative w-12 h-7 rounded-full transition-colors ${
-                    notifications.emailNotifications
-                      ? 'bg-(--theme-btn-primary-bg)'
-                      : 'bg-white/10'
-                  }`}
-                >
-                  <div
-                    className={`absolute w-5 h-5 rounded-full top-1 transition-transform ${
-                      notifications.emailNotifications
-                        ? 'translate-x-6 bg-black'
-                        : 'translate-x-1 bg-(--theme-btn-primary-bg)'
-                    }`}
-                  />
-                </button>
-              </div>
-
-              <div className='flex items-center justify-between'>
-                <div>
-                  <div className='text-[13px] font-semibold text-(--theme-text-primary)'>
-                    Push Notifications
-                  </div>
-                </div>
-                <button
-                  onClick={() => handleToggleNotification('pushNotifications')}
-                  className={`relative w-12 h-7 rounded-full transition-colors ${
-                    notifications.pushNotifications
-                      ? 'bg-(--theme-btn-primary-bg)'
-                      : 'bg-white/10'
-                  }`}
-                >
-                  <div
-                    className={`absolute w-5 h-5 rounded-full top-1 transition-transform ${
-                      notifications.pushNotifications
-                        ? 'translate-x-6 bg-black'
-                        : 'translate-x-1 bg-(--theme-btn-primary-bg)'
-                    }`}
-                  />
-                </button>
-              </div>
-            </div>
-            <div className='space-y-2'>
-              <button
-                onClick={() => handleContactSupport('whatsapp')}
-                className='w-full flex items-center gap-3 p-4 bg-(--theme-btn-secondary-bg) border border-(--theme-border-strong) rounded-xl hover:bg-(--theme-btn-secondary-hover) active:scale-[0.99] transition-all'
+            <p className='text-[13px] text-[var(--theme-text-secondary)] mb-6'>
+              Have questions or need assistance with your repair? Reach out to
+              us through any of the channels below.
+            </p>
+            <div className='space-y-3'>
+              <a
+                href={SUPPORT_WHATSAPP}
+                target='_blank'
+                rel='noopener noreferrer'
+                className='w-full flex items-center gap-4 p-4 bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl hover:bg-(--theme-btn-secondary-hover) hover:border-[var(--theme-border-strong)] active:scale-[0.99] transition-all group'
               >
-                <div className='w-10 h-10 rounded-xl bg-(--theme-btn-secondary-bg) flex items-center justify-center'>
-                  <MessageCircle
-                    size={20}
-                    className='text-(--theme-text-primary)'
-                  />
+                <div className='w-10 h-10 rounded-lg bg-green-500/10 flex items-center justify-center shrink-0 group-hover:bg-green-500/20 transition-colors'>
+                  <MessageCircle size={20} className='text-green-500' />
                 </div>
                 <div className='flex-1 text-left'>
-                  <div className='text-[13px] font-semibold'>
-                    Live Assistant
+                  <div className='text-[14px] font-semibold text-(--theme-text-primary)'>
+                    WhatsApp Chat
+                  </div>
+                  <div className='text-[12px] text-[var(--theme-text-secondary)]'>
+                    Chat with our support team
                   </div>
                 </div>
                 <ChevronRight
                   size={18}
                   className='text-[var(--theme-text-disabled)]'
                 />
-              </button>
+              </a>
 
-              <button
-                onClick={() => handleContactSupport('phone')}
-                className='w-full flex items-center gap-3 p-4 bg-(--theme-btn-secondary-bg) border border-(--theme-border-strong) rounded-xl hover:bg-(--theme-btn-secondary-hover) active:scale-[0.99] transition-all'
+              <a
+                href={SUPPORT_PHONE}
+                className='w-full flex items-center gap-4 p-4 bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl hover:bg-(--theme-btn-secondary-hover) hover:border-[var(--theme-border-strong)] active:scale-[0.99] transition-all group'
               >
-                <div className='w-10 h-10 rounded-xl bg-(--theme-btn-secondary-bg) flex items-center justify-center'>
-                  <Phone size={20} className='text-(--theme-text-primary)' />
+                <div className='w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center shrink-0 group-hover:bg-blue-500/20 transition-colors'>
+                  <Phone size={20} className='text-blue-500' />
                 </div>
                 <div className='flex-1 text-left'>
-                  <div className='text-[13px] font-semibold'>Help Center</div>
+                  <div className='text-[14px] font-semibold text-(--theme-text-primary)'>
+                    Phone Number
+                  </div>
+                  <div className='text-[12px] text-[var(--theme-text-secondary)]'>
+                    Call +91 99999 99999
+                  </div>
                 </div>
                 <ChevronRight
                   size={18}
                   className='text-[var(--theme-text-disabled)]'
                 />
-              </button>
+              </a>
+
+              <a
+                href={SUPPORT_EMAIL}
+                className='w-full flex items-center gap-4 p-4 bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl hover:bg-(--theme-btn-secondary-hover) hover:border-[var(--theme-border-strong)] active:scale-[0.99] transition-all group'
+              >
+                <div className='w-10 h-10 rounded-lg bg-purple-500/10 flex items-center justify-center shrink-0 group-hover:bg-purple-500/20 transition-colors'>
+                  <Mail size={20} className='text-purple-500' />
+                </div>
+                <div className='flex-1 text-left'>
+                  <div className='text-[14px] font-semibold text-(--theme-text-primary)'>
+                    Email Support
+                  </div>
+                  <div className='text-[12px] text-[var(--theme-text-secondary)]'>
+                    support@gadgetrestore.in
+                  </div>
+                </div>
+                <ChevronRight
+                  size={18}
+                  className='text-[var(--theme-text-disabled)]'
+                />
+              </a>
             </div>
           </div>
 
@@ -656,7 +654,7 @@ export default function ProfilePage() {
             onClick={handleLogout}
             className='hidden lg:block w-full bg-red-500/5 border border-red-500/20 rounded-2xl p-4 text-red-500 font-bold text-[13px] hover:bg-red-500/10 active:scale-[0.99] transition-all shadow-sm'
           >
-            Sign Out of Precision Portal
+            Sign Out of Gadget Restore
           </button>
         </div>
       </div>

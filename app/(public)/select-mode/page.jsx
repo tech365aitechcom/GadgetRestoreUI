@@ -30,7 +30,6 @@ const SERVICE_MODES = [
     icon: <Truck size={24} strokeWidth={1.5} />,
     active: true,
     badges: ['Secure', 'Convenient'],
-    est: 'Est. Delivery: 48h',
   },
   {
     id: 'doorstep',
@@ -39,7 +38,6 @@ const SERVICE_MODES = [
     icon: <Home size={24} strokeWidth={1.5} />,
     active: false,
     badges: ['Premium Service', 'Fastest'],
-    est: 'Est. Start: Today',
   },
 ];
 
@@ -91,10 +89,7 @@ function ServiceModeCard({ mode, isSelected, onSelect }) {
           </div>
         </div>
 
-        <div className="w-full flex items-center justify-between mt-1 lg:mt-2 border-t pt-3.5 lg:pt-5" style={{ borderColor: 'var(--color-content-border)' }}>
-          <span className="text-xs lg:text-[13px] font-bold" style={{ color: 'var(--color-content-text)' }}>
-            {mode.est}
-          </span>
+        <div className="w-full flex items-center justify-end mt-1 lg:mt-2 border-t pt-3.5 lg:pt-5" style={{ borderColor: 'var(--color-content-border)' }}>
           <ChevronRight size={16} strokeWidth={2} color="var(--color-content-text)" className="lg:w-[18px] lg:h-[18px]" />
         </div>
       </div>
@@ -119,7 +114,7 @@ function RemarksField({ value, onChange }) {
   return (
     <div className="flex flex-col gap-2 my-8">
       <h3 className="text-sm font-extrabold uppercase" style={{ color: 'var(--color-content-text)' }}>
-        Additional Remarks (Optional)
+        Remarks (Optional)
       </h3>
       <div className="relative">
         <textarea

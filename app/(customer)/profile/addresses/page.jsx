@@ -16,6 +16,7 @@ import Cookies from 'js-cookie'
 import { TOKEN_COOKIE } from '@/lib/constants'
 import toast from 'react-hot-toast'
 import customerService from '@/services/customer.service'
+import Skeleton from '@/components/ui/Skeleton'
 
 export default function AddressesPage() {
   const router = useRouter()
@@ -155,14 +156,91 @@ export default function AddressesPage() {
 
   if (isLoading) {
     return (
-      <div className='min-h-screen bg-[var(--theme-bg)] flex items-center justify-center'>
-        <div className='text-center'>
-          <div className='w-12 h-12 border-3 border-[var(--theme-border-strong)] border-t-white rounded-full animate-spin mx-auto mb-4' />
-          <p className='text-[14px] text-[var(--theme-text-secondary)]'>
-            Loading addresses...
-          </p>
+      <>
+        {/* ── Mobile Skeleton ── */}
+        <div className='lg:hidden min-h-screen bg-[var(--theme-bg)] pb-24'>
+          <TopBar title='My Addresses' />
+          <div className='p-5 space-y-4'>
+            {/* Add Address button placeholder */}
+            <Skeleton className='w-full h-[52px] rounded-lg' />
+
+            {/* Address cards placeholders */}
+            <div className='space-y-3'>
+              {Array.from({ length: 2 }).map((_, i) => (
+                <div
+                  key={i}
+                  className='bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-xl p-4 space-y-4'
+                >
+                  <div className='flex items-start gap-3'>
+                    <Skeleton className='w-10 h-10 rounded-lg' />
+                    <div className='flex-1 space-y-2'>
+                      <Skeleton className='h-4 w-24 rounded' />
+                      <Skeleton className='h-3.5 w-16 rounded' />
+                    </div>
+                  </div>
+                  <div className='space-y-2'>
+                    <Skeleton className='h-3.5 w-full rounded' />
+                    <Skeleton className='h-3.5 w-3/4 rounded' />
+                  </div>
+                  <div className='flex gap-2 pt-2'>
+                    <Skeleton className='h-[40px] flex-1 rounded-lg' />
+                    <Skeleton className='h-[40px] flex-1 rounded-lg' />
+                    <Skeleton className='h-[40px] w-12 rounded-lg' />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
-      </div>
+
+        {/* ── Desktop Skeleton ── */}
+        <div className='hidden lg:block min-h-[calc(100vh-var(--topbar-height))] bg-[var(--theme-bg)]'>
+          <div className='px-12 py-8'>
+            {/* Breadcrumb skeleton */}
+            <div className='flex items-center gap-2 mb-6'>
+              <Skeleton className='h-4 w-12 rounded' />
+              <span className='text-[var(--theme-placeholder)]'>/</span>
+              <Skeleton className='h-4 w-28 rounded' />
+            </div>
+
+            {/* Header skeleton */}
+            <div className='flex items-center justify-between mb-6'>
+              <div className='space-y-2'>
+                <Skeleton className='h-7 w-48 rounded-lg' />
+                <Skeleton className='h-4 w-36 rounded-md' />
+              </div>
+              <Skeleton className='h-[46px] w-36 rounded-lg' />
+            </div>
+
+            {/* Addresses Grid skeleton */}
+            <div className='grid grid-cols-3 gap-4'>
+              {Array.from({ length: 3 }).map((_, i) => (
+                <div
+                  key={i}
+                  className='bg-[var(--theme-card)] rounded-2xl border border-[var(--theme-border)] p-6 shadow-sm space-y-5'
+                >
+                  <div className='flex items-start gap-3'>
+                    <Skeleton className='w-12 h-12 rounded-xl' />
+                    <div className='flex-1 space-y-2'>
+                      <Skeleton className='h-4 w-28 rounded' />
+                      <Skeleton className='h-3.5 w-20 rounded' />
+                    </div>
+                  </div>
+                  <div className='space-y-2'>
+                    <Skeleton className='h-3.5 w-full rounded' />
+                    <Skeleton className='h-3.5 w-2/3 rounded' />
+                  </div>
+                  <div className='flex gap-2 pt-2'>
+                    <Skeleton className='h-[40px] flex-1 rounded-lg' />
+                    <Skeleton className='h-[40px] flex-1 rounded-lg' />
+                    <Skeleton className='h-[40px] w-12 rounded-lg' />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </>
     )
   }
 

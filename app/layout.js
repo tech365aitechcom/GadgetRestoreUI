@@ -22,13 +22,13 @@ export const metadata = {
     'Book professional mobile repair. Pick up, repair at lab, delivered back. Screen, battery and more.',
   keywords: 'mobile repair, phone repair, screen replacement, battery replacement',
   authors: [{ name: 'Gadget Restore' }],
-  themeColor: '#050505',
 };
 
 export const viewport = {
   width: 'device-width',
   initialScale: 1,
   viewportFit: 'cover',
+  themeColor: '#050505',
 };
 
 export default function RootLayout({ children }) {

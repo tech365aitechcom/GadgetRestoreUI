@@ -9,6 +9,7 @@ import { TOKEN_COOKIE } from '@/lib/constants'
 import toast from 'react-hot-toast'
 import customerService from '@/services/customer.service'
 import { useAuth } from '@/context/AuthContext'
+import Skeleton from '@/components/ui/Skeleton'
 
 export default function PersonalInfoPage() {
   const router = useRouter()
@@ -125,14 +126,78 @@ export default function PersonalInfoPage() {
 
   if (isFetching) {
     return (
-      <div className='min-h-screen bg-[var(--theme-bg)] flex items-center justify-center'>
-        <div className='text-center'>
-          <div className='w-12 h-12 border-3 border-[var(--theme-border-strong)] border-t-white rounded-full animate-spin mx-auto mb-4' />
-          <p className='text-[14px] text-[var(--theme-text-secondary)]'>
-            Loading...
-          </p>
+      <>
+        {/* ── Mobile Skeleton ── */}
+        <div className='lg:hidden min-h-screen bg-[var(--theme-bg)] pb-24'>
+          <TopBar title='Personal Information' />
+          <div className='p-5 space-y-6'>
+            {/* Info Alert skeleton */}
+            <div className='bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-xl p-4 flex gap-3'>
+              <Skeleton circle className='w-5 h-5' />
+              <div className='flex-1 space-y-2'>
+                <Skeleton className='h-3 w-full' />
+                <Skeleton className='h-3 w-4/5' />
+              </div>
+            </div>
+
+            {/* Form Fields skeletons */}
+            <div className='space-y-5'>
+              {Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className='space-y-2'>
+                  <Skeleton className='h-3 w-24 rounded' />
+                  <Skeleton className='h-[52px] w-full rounded-lg' />
+                </div>
+              ))}
+              <Skeleton className='h-[52px] w-full rounded-lg mt-8' />
+            </div>
+          </div>
         </div>
-      </div>
+
+        {/* ── Desktop Skeleton ── */}
+        <div className='hidden lg:block min-h-[calc(100vh-var(--topbar-height))] bg-[var(--theme-bg)]'>
+          <div className='px-12 py-8'>
+            {/* Breadcrumb skeleton */}
+            <div className='flex items-center gap-2 mb-6'>
+              <Skeleton className='h-4 w-12 rounded' />
+              <span className='text-[var(--theme-placeholder)]'>/</span>
+              <Skeleton className='h-4 w-32 rounded' />
+            </div>
+
+            {/* Card skeleton */}
+            <div className='bg-[var(--theme-card)] rounded-2xl border border-[var(--theme-border)] p-8 shadow-sm space-y-6'>
+              <div className='space-y-2'>
+                <Skeleton className='h-7 w-48 rounded-lg' />
+                <Skeleton className='h-4 w-64 rounded-md' />
+              </div>
+
+              {/* Info Alert skeleton */}
+              <div className='bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl p-4 flex gap-3'>
+                <Skeleton circle className='w-5 h-5' />
+                <div className='flex-1 space-y-2'>
+                  <Skeleton className='h-3 w-full' />
+                  <Skeleton className='h-3 w-5/6' />
+                </div>
+              </div>
+
+              {/* Form Fields skeletons */}
+              <div className='space-y-6'>
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <div key={i} className='space-y-2'>
+                    <Skeleton className='h-3 w-28 rounded' />
+                    <Skeleton className='h-[54px] w-full rounded-lg' />
+                  </div>
+                ))}
+
+                {/* Buttons skeleton */}
+                <div className='flex gap-3 pt-4'>
+                  <Skeleton className='h-[54px] flex-1 rounded-lg' />
+                  <Skeleton className='h-[54px] flex-1 rounded-lg' />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </>
     )
   }
 
@@ -269,7 +334,7 @@ export default function PersonalInfoPage() {
               Personal Information
             </h1>
             <p className='text-[13px] text-[var(--theme-text-secondary)] mb-8'>
-              Manage your name, email, and biometric data
+              Manage your name and email address
             </p>
 
             {/* Info Alert */}

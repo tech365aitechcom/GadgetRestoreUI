@@ -3,8 +3,18 @@
 import { useEffect, useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import {
-  ArrowLeft, Check, User, Truck, RefreshCw, ClipboardCheck,
-  ShieldCheck, Smartphone, Headphones
+  ArrowLeft,
+  Check,
+  User,
+  Truck,
+  RefreshCw,
+  ClipboardCheck,
+  ShieldCheck,
+  Headphones,
+  Clock,
+  AlertCircle,
+  ChevronDown,
+  ChevronUp,
 } from 'lucide-react'
 import bookingService from '@/services/booking.service'
 import orderService from '@/services/order.service'
@@ -12,6 +22,8 @@ import DiagnosisApprovalCard from '@/components/orders/DiagnosisApprovalCard'
 import InvoiceCard from '@/components/orders/InvoiceCard'
 import WarrantyCard from '@/components/orders/WarrantyCard'
 import PartnerCard from '@/components/orders/PartnerCard'
+import Skeleton from '@/components/ui/Skeleton'
+import ErrorState from '@/components/ui/ErrorState'
 
 function formatCurrency(amount) {
   if (!amount && amount !== 0) return '₹0'
@@ -32,44 +44,214 @@ function formatDate(dateString) {
   })
 }
 
-// 6 major milestone definitions from UI Mockup
+// Detailed 18-step timeline definitions matching backend statuses
+const detailedTimeline = [
+  {
+    status: 'ORDER_PLACED',
+    title: 'Order Placed',
+    description: 'Your repair request has been submitted.',
+    icon: Check,
+  },
+  {
+    status: 'CS_CONFIRMATION_PENDING',
+    title: 'Awaiting Confirmation',
+    description: 'Our team is reviewing your booking.',
+    icon: Clock,
+  },
+  {
+    status: 'CS_CONFIRMED',
+    title: 'Booking Confirmed',
+    description: 'Your booking has been confirmed by our team.',
+    icon: Check,
+  },
+  {
+    status: 'PICKUP_ASSIGNED',
+    title: 'Pickup Scheduled',
+    description: 'A pickup partner has been assigned.',
+    icon: User,
+  },
+  {
+    status: 'PICKUP_EN_ROUTE',
+    title: 'Pickup En Route',
+    description: 'Our partner is on the way to collect your device.',
+    icon: Truck,
+  },
+  {
+    status: 'PICKUP_COMPLETED',
+    title: 'Device Collected',
+    description: 'Your device has been picked up successfully.',
+    icon: Check,
+  },
+  {
+    status: 'DEVICE_PICKED_UP',
+    title: 'In Transit to Service Center',
+    description: 'Your device is being transported.',
+    icon: Truck,
+  },
+  {
+    status: 'DEVICE_AT_CENTRE',
+    title: 'Arrived at Service Center',
+    description: 'Your device has reached our facility.',
+    icon: ClipboardCheck,
+  },
+  {
+    status: 'RECEIVED_AT_CENTRE',
+    title: 'Received & Logged',
+    description: 'Device checked-in and assigned to technician.',
+    icon: Check,
+  },
+  {
+    status: 'DIAGNOSIS_PENDING',
+    title: 'Diagnosis Queued',
+    description: 'Awaiting diagnosis by our expert.',
+    icon: Clock,
+  },
+  {
+    status: 'DIAGNOSIS_IN_PROGRESS',
+    title: 'Diagnosis in Progress',
+    description: 'Technician is diagnosing your device.',
+    icon: RefreshCw,
+  },
+  {
+    status: 'DIAGNOSIS_COMPLETED',
+    title: 'Diagnosis Complete',
+    description: 'Issue identified and cost estimated.',
+    icon: Check,
+  },
+  {
+    status: 'CUSTOMER_APPROVAL_PENDING',
+    title: 'Awaiting Your Approval',
+    description: 'Please review and approve the diagnosis.',
+    icon: AlertCircle,
+  },
+  {
+    status: 'CUSTOMER_APPROVED',
+    title: 'Repair Approved',
+    description: 'You approved the repair. Work will begin soon.',
+    icon: Check,
+  },
+  {
+    status: 'REPAIR_IN_PROGRESS',
+    title: 'Repair in Progress',
+    description: 'Technician is repairing your device.',
+    icon: RefreshCw,
+  },
+  {
+    status: 'REPAIR_COMPLETED',
+    title: 'Repair Complete',
+    description: 'Repair finished. Undergoing quality check.',
+    icon: Check,
+  },
+  {
+    status: 'FQC_PENDING',
+    title: 'Quality Check Pending',
+    description: 'Device awaiting final quality inspection.',
+    icon: Clock,
+  },
+  {
+    status: 'FQC_PASSED',
+    title: 'Quality Check Passed',
+    description: 'Your device passed all quality checks.',
+    icon: ShieldCheck,
+  },
+  {
+    status: 'PAYMENT_PENDING',
+    title: 'Payment Pending',
+    description: 'Awaiting payment to complete the order.',
+    icon: Clock,
+  },
+  {
+    status: 'PAYMENT_COMPLETED',
+    title: 'Payment Received',
+    description: 'Payment confirmed. Preparing for delivery.',
+    icon: Check,
+  },
+  {
+    status: 'DELIVERY_ASSIGNED',
+    title: 'Delivery Scheduled',
+    description: 'Delivery partner has been assigned.',
+    icon: User,
+  },
+  {
+    status: 'OUT_FOR_DELIVERY',
+    title: 'Out for Delivery',
+    description: 'Your device is on its way to you.',
+    icon: Truck,
+  },
+  {
+    status: 'DELIVERED',
+    title: 'Delivered',
+    description: 'Your device has been successfully delivered.',
+    icon: ShieldCheck,
+  },
+  {
+    status: 'CANCELLED',
+    title: 'Cancelled',
+    description: 'This repair order was cancelled.',
+    icon: AlertCircle,
+  },
+]
+
+// 6 major milestone definitions for simplified view (keeping for compatibility)
 const milestones = [
   {
     title: 'Booking Confirmed',
-    description: 'System validated order details and booking has been registered successfully.',
+    description:
+      'System validated order details and booking has been registered successfully.',
     icon: Check,
-    statuses: ['ORDER_PLACED', 'CS_CONFIRMED']
+    statuses: ['ORDER_PLACED', 'CS_CONFIRMATION_PENDING', 'CS_CONFIRMED'],
   },
   {
     title: 'Technician Assigned',
     description: 'A technician has been allocated to your device.',
     icon: User,
-    statuses: ['PICKUP_ASSIGNED', 'PICKUP_IN_PROGRESS']
+    statuses: ['PICKUP_ASSIGNED', 'PICKUP_EN_ROUTE'],
   },
   {
     title: 'Device Picked Up',
-    description: 'Your device is in transit or has safely arrived at our service centre.',
+    description:
+      'Your device is in transit or has safely arrived at our service centre.',
     icon: Truck,
-    statuses: ['PICKUP_COMPLETED', 'DEVICE_PICKED_UP', 'DEVICE_AT_CENTRE', 'RECEIVED_AT_CENTRE']
+    statuses: [
+      'PICKUP_COMPLETED',
+      'DEVICE_PICKED_UP',
+      'DEVICE_AT_CENTRE',
+      'RECEIVED_AT_CENTRE',
+    ],
   },
   {
     title: 'Repair in Progress',
-    description: 'The technician is diagnosing or executing the repairs on your device.',
+    description:
+      'The technician is diagnosing or executing the repairs on your device.',
     icon: RefreshCw,
-    statuses: ['DIAGNOSIS_PENDING', 'DIAGNOSIS_IN_PROGRESS', 'DIAGNOSIS_COMPLETE', 'CUSTOMER_APPROVED', 'REPAIR_IN_PROGRESS']
+    statuses: [
+      'DIAGNOSIS_PENDING',
+      'DIAGNOSIS_IN_PROGRESS',
+      'DIAGNOSIS_COMPLETED',
+      'CUSTOMER_APPROVAL_PENDING',
+      'CUSTOMER_APPROVED',
+      'REPAIR_IN_PROGRESS',
+    ],
   },
   {
     title: 'Repair Completed',
-    description: 'Repair has been successfully finished and passed the quality assurance check.',
+    description:
+      'Repair has been successfully finished and passed the quality assurance check.',
     icon: ClipboardCheck,
-    statuses: ['REPAIR_COMPLETED', 'QC_PASSED', 'PAYMENT_PENDING', 'PAYMENT_COMPLETED']
+    statuses: [
+      'REPAIR_COMPLETED',
+      'FQC_PENDING',
+      'FQC_PASSED',
+      'PAYMENT_PENDING',
+      'PAYMENT_COMPLETED',
+    ],
   },
   {
     title: 'Delivered',
     description: 'Your device has been delivered back to you.',
     icon: ShieldCheck,
-    statuses: ['DELIVERY_ASSIGNED', 'DELIVERY_IN_PROGRESS', 'DELIVERED']
-  }
+    statuses: ['DELIVERY_ASSIGNED', 'OUT_FOR_DELIVERY', 'DELIVERED'],
+  },
 ]
 
 function OrderDetailContent() {
@@ -82,6 +264,8 @@ function OrderDetailContent() {
   const [warranty, setWarranty] = useState(null)
   const [error, setError] = useState('')
   const [reloadVersion, setReloadVersion] = useState(0)
+  const [expandedSteps, setExpandedSteps] = useState(new Set())
+  const [showDetailedTimeline, setShowDetailedTimeline] = useState(false)
 
   useEffect(() => {
     let isMounted = true
@@ -125,12 +309,17 @@ function OrderDetailContent() {
     // Dynamically adjust polling frequency:
     // Near real-time location mapping updates every 5 seconds during active transits.
     const activeTracking = () => {
-      const status = order?.repairStatus;
-      return ['PICKUP_IN_PROGRESS', 'PICKUP_EN_ROUTE', 'DELIVERY_IN_PROGRESS', 'OUT_FOR_DELIVERY'].includes(status);
-    };
+      const status = order?.repairStatus
+      return [
+        'PICKUP_IN_PROGRESS',
+        'PICKUP_EN_ROUTE',
+        'DELIVERY_IN_PROGRESS',
+        'OUT_FOR_DELIVERY',
+      ].includes(status)
+    }
 
-    const delay = activeTracking() ? 5000 : 30000;
-    const intervalId = window.setInterval(loadOrder, delay);
+    const delay = activeTracking() ? 5000 : 30000
+    const intervalId = window.setInterval(loadOrder, delay)
 
     return () => {
       isMounted = false
@@ -140,12 +329,13 @@ function OrderDetailContent() {
 
   if (error) {
     return (
-      <main className="min-h-[100svh] px-4 pt-20 text-[var(--theme-text-primary)] bg-[var(--theme-bg)] flex flex-col items-center justify-center">
-        <p className="text-red-400 font-bold mb-4">{error}</p>
-        <button onClick={() => router.back()} className="btn-secondary flex items-center gap-2">
-          <ArrowLeft size={16} /> Go Back
-        </button>
-      </main>
+      <ErrorState
+        title='Unable to load order'
+        message={error}
+        buttonText='Go Back'
+        onButtonClick={() => router.back()}
+        fullScreen={true}
+      />
     )
   }
 
@@ -153,33 +343,33 @@ function OrderDetailContent() {
     return (
       <>
         {/* Mobile skeleton */}
-        <div className="lg:hidden min-h-[100svh] bg-[var(--theme-bg)] pt-6 px-5 pb-24">
-          <div className="mb-6">
-            <div className="skeleton h-8 w-40 rounded-lg mb-3" />
-            <div className="skeleton h-6 w-56 rounded-md mb-2" />
-            <div className="skeleton h-4 w-32 rounded" />
+        <div className='lg:hidden min-h-[100svh] bg-[var(--theme-bg)] pt-6 px-5 pb-24'>
+          <div className='mb-6'>
+            <Skeleton className='h-8 w-40 rounded-lg mb-3' />
+            <Skeleton className='h-6 w-56 rounded-md mb-2' />
+            <Skeleton className='h-4 w-32 rounded' />
           </div>
           {/* Device card */}
-          <div className="skeleton rounded-2xl mb-8" style={{ height: 88 }} />
+          <Skeleton className='rounded-2xl mb-8 h-[88px]' />
           {/* Timeline card */}
-          <div className="skeleton rounded-3xl" style={{ height: 380 }} />
+          <Skeleton className='rounded-3xl h-[380px]' />
         </div>
 
         {/* Desktop skeleton */}
-        <div className="hidden lg:block bg-[var(--theme-bg)] min-h-[calc(100vh-var(--topbar-height))] py-10 px-8">
-          <div className="skeleton h-4 w-48 rounded mb-6" />
-          <div className="flex items-start justify-between gap-6 border-b border-[var(--theme-border)] pb-8 mb-8">
+        <div className='hidden lg:block bg-[var(--theme-bg)] min-h-[calc(100vh-var(--topbar-height))] py-10 px-8'>
+          <Skeleton className='h-4 w-48 rounded mb-6' />
+          <div className='flex items-start justify-between gap-6 border-b border-[var(--theme-border)] pb-8 mb-8'>
             <div>
-              <div className="skeleton h-9 w-80 rounded-lg mb-3" />
-              <div className="skeleton h-5 w-56 rounded" />
+              <Skeleton className='h-9 w-80 rounded-lg mb-3' />
+              <Skeleton className='h-5 w-56 rounded' />
             </div>
           </div>
-          <div className="grid grid-cols-[1fr_360px] gap-10">
-            <div className="skeleton rounded-3xl" style={{ height: 500 }} />
-            <div className="flex flex-col gap-6">
-              <div className="skeleton rounded-3xl" style={{ height: 160 }} />
-              <div className="skeleton rounded-3xl" style={{ height: 120 }} />
-              <div className="skeleton rounded-3xl" style={{ height: 140 }} />
+          <div className='grid grid-cols-[1fr_360px] gap-10'>
+            <Skeleton className='rounded-3xl h-[500px]' />
+            <div className='flex flex-col gap-6'>
+              <Skeleton className='rounded-3xl h-[160px]' />
+              <Skeleton className='rounded-3xl h-[120px]' />
+              <Skeleton className='rounded-3xl h-[140px]' />
             </div>
           </div>
         </div>
@@ -187,8 +377,23 @@ function OrderDetailContent() {
     )
   }
 
-  const deviceName = [order.brandRef?.name, order.modelRef?.name].filter(Boolean).join(' ') || 'Repair Device'
-  const repairType = order.repairTypes?.map((repair) => repair.name).join(' + ') || 'Inspection and Diagnosis'
+  const getFallbackDeviceImage = () => {
+    const brandName = order.brandRef?.name?.toLowerCase() || ''
+    if (brandName.includes('apple') || brandName.includes('iphone')) {
+      return '/images/default-apple.png'
+    }
+    return '/images/default-android.png'
+  }
+
+  // Fix duplicated brand name - check if model already includes brand
+  const brandName = order.brandRef?.name || ''
+  const modelName = order.modelRef?.name || ''
+  const deviceName = modelName.toLowerCase().startsWith(brandName.toLowerCase())
+    ? modelName
+    : [brandName, modelName].filter(Boolean).join(' ') || 'Repair Device'
+  const repairType =
+    order.repairTypes?.map((repair) => repair.name).join(' + ') ||
+    'Inspection and Diagnosis'
 
   // Map backend status to active milestone index (0 to 5)
   const getActiveStageIndex = (status) => {
@@ -217,7 +422,7 @@ function OrderDetailContent() {
 
       DELIVERY_ASSIGNED: 5,
       DELIVERY_IN_PROGRESS: 5,
-      DELIVERED: 5
+      DELIVERED: 5,
     }
     return mapping[status] !== undefined ? mapping[status] : 0
   }
@@ -231,7 +436,7 @@ function OrderDetailContent() {
 
     const entry = [...order.repairStatusHistory]
       .reverse()
-      .find(h => targetStatuses.includes(h.status))
+      .find((h) => targetStatuses.includes(h.status))
 
     if (entry) {
       return new Date(entry.timestamp).toLocaleDateString('en-US', {
@@ -239,7 +444,7 @@ function OrderDetailContent() {
         day: 'numeric',
         hour: '2-digit',
         minute: '2-digit',
-        hour12: true
+        hour12: true,
       })
     }
 
@@ -249,7 +454,7 @@ function OrderDetailContent() {
         day: 'numeric',
         hour: '2-digit',
         minute: '2-digit',
-        hour12: true
+        hour12: true,
       })
     }
 
@@ -276,59 +481,260 @@ function OrderDetailContent() {
       DELIVERY_ASSIGNED: 'Delivery Scheduled',
       DELIVERY_IN_PROGRESS: 'Out for Delivery',
       DELIVERED: 'Delivered',
-      CANCELLED: 'Cancelled'
+      CANCELLED: 'Cancelled',
     }
     return labels[status] || 'Processing'
+  }
+
+  // Get timeline entry details for a status
+  const getTimelineDetails = (status) => {
+    if (!order?.timeline) return null
+
+    // Find timeline entries for this status
+    const entries = order.timeline.filter((entry) => entry.status === status)
+    if (entries.length === 0) return null
+
+    // Return the most recent entry
+    const latestEntry = entries[entries.length - 1]
+    return {
+      timestamp: latestEntry.timestamp,
+      actorType: latestEntry.actorType || 'System',
+      actorName:
+        latestEntry.actorIdentity?.name || latestEntry.actorType || 'System',
+      notes: latestEntry.notes,
+    }
+  }
+
+  // Check if a status has been completed
+  const isStatusCompleted = (status) => {
+    if (!order?.repairStatusHistory) return false
+    return order.repairStatusHistory.some((entry) => entry.status === status)
+  }
+
+  // Get filtered timeline steps based on current status
+  const getActiveTimelineSteps = () => {
+    if (!order) return []
+
+    // Get all steps that have been completed
+    const completedStatuses = new Set(
+      order.repairStatusHistory?.map((entry) => entry.status) || [],
+    )
+
+    // Filter timeline to only show relevant steps
+    return detailedTimeline.filter((step) => {
+      // Always show completed steps
+      if (completedStatuses.has(step.status)) return true
+
+      // Show current step
+      if (step.status === order.repairStatus) return true
+
+      // For future steps, only show the immediate next one
+      const currentIndex = detailedTimeline.findIndex(
+        (s) => s.status === order.repairStatus,
+      )
+      const stepIndex = detailedTimeline.findIndex(
+        (s) => s.status === step.status,
+      )
+
+      // Show next step only
+      return stepIndex === currentIndex + 1
+    })
+  }
+
+  const toggleStepExpansion = (status) => {
+    setExpandedSteps((prev) => {
+      const next = new Set(prev)
+      if (next.has(status)) {
+        next.delete(status)
+      } else {
+        next.add(status)
+      }
+      return next
+    })
+  }
+
+  // Render a detailed timeline step with expansion
+  const renderDetailedTimelineStep = (step, index, isLast) => {
+    const isCompleted = isStatusCompleted(step.status)
+    const isCurrent = step.status === order.repairStatus
+    const isFuture = !isCompleted && !isCurrent
+    const timelineDetails = getTimelineDetails(step.status)
+    const isExpanded = expandedSteps.has(step.status)
+    const hasDetails =
+      timelineDetails &&
+      (timelineDetails.notes || timelineDetails.actorName !== 'System')
+
+    const StepIcon = step.icon
+
+    return (
+      <div
+        key={step.status}
+        className='flex gap-4 lg:gap-6 relative min-h-[48px] lg:min-h-[56px]'
+      >
+        {/* Timeline vertical bar */}
+        {!isLast && (
+          <div
+            className={`absolute left-[15px] lg:left-[17px] top-8 lg:top-9 bottom-[-32px] lg:bottom-[-40px] w-[2.5px] rounded-full transition-colors duration-300 ${
+              isCompleted ? 'bg-green-500' : 'bg-[var(--theme-border)]'
+            }`}
+          ></div>
+        )}
+
+        {/* Bullet indicator */}
+        <div className='relative z-10 shrink-0'>
+          {isCompleted ? (
+            <div className='w-8 h-8 lg:w-9 lg:h-9 rounded-full bg-green-500 flex items-center justify-center shadow-lg shadow-green-500/10 text-white'>
+              <Check size={16} className='lg:w-[18px] lg:h-[18px] stroke-[3]' />
+            </div>
+          ) : isCurrent ? (
+            <div className='w-8 h-8 lg:w-9 lg:h-9 rounded-full border-2 border-white bg-black flex items-center justify-center shadow-md animate-pulse'>
+              <div className='w-2.5 h-2.5 rounded-full bg-white'></div>
+            </div>
+          ) : (
+            <div className='w-8 h-8 lg:w-9 lg:h-9 rounded-full bg-[var(--theme-card-darker)] border border-[var(--theme-border)] flex items-center justify-center text-[var(--theme-text-tertiary)]'>
+              <StepIcon
+                size={14}
+                className='lg:w-[15px] lg:h-[15px] opacity-40'
+              />
+            </div>
+          )}
+        </div>
+
+        {/* Step Content */}
+        <div className='flex-1 min-w-0 pt-0.5'>
+          <div className='flex items-center justify-between gap-2 flex-wrap mb-1'>
+            <h4
+              className={`text-[14px] lg:text-[15px] font-extrabold lg:font-black tracking-tight ${
+                isFuture ? 'text-[var(--theme-text-tertiary)]' : 'text-white'
+              }`}
+            >
+              {step.title}
+            </h4>
+            {isCurrent && (
+              <span className='text-[8px] font-black uppercase tracking-widest px-2 lg:px-2.5 py-0.5 rounded-full lg:rounded bg-white text-black leading-none shrink-0'>
+                ACTIVE NOW
+              </span>
+            )}
+          </div>
+
+          {/* Timestamp */}
+          {(isCompleted || isCurrent) && timelineDetails && (
+            <p className='text-[10px] text-[var(--theme-text-tertiary)] font-semibold lg:font-bold uppercase tracking-wider mb-1.5 lg:mb-2'>
+              {new Date(timelineDetails.timestamp).toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true,
+              })}
+            </p>
+          )}
+
+          {/* Description */}
+          {!isFuture && (
+            <p className='text-[12px] lg:text-[13px] text-[var(--theme-text-secondary)] leading-relaxed font-medium max-w-[560px]'>
+              {step.description}
+            </p>
+          )}
+
+          {/* Expandable Details */}
+          {hasDetails && (isCompleted || isCurrent) && (
+            <div className='mt-2'>
+              <button
+                onClick={() => toggleStepExpansion(step.status)}
+                className='flex items-center gap-1.5 text-[11px] font-bold text-[var(--theme-text-primary)] hover:text-white transition-colors'
+              >
+                {isExpanded ? (
+                  <ChevronUp size={14} />
+                ) : (
+                  <ChevronDown size={14} />
+                )}
+                {isExpanded ? 'Hide Details' : 'Show Details'}
+              </button>
+
+              {isExpanded && (
+                <div className='mt-2 p-3 bg-[var(--theme-card-darker)] border border-[var(--theme-border)] rounded-xl'>
+                  <div className='space-y-2'>
+                    <div className='flex items-center justify-between text-[11px]'>
+                      <span className='text-[var(--theme-text-tertiary)]'>
+                        Updated by:
+                      </span>
+                      <span className='font-semibold text-[var(--theme-text-primary)]'>
+                        {timelineDetails.actorName}
+                      </span>
+                    </div>
+                    {timelineDetails.notes && (
+                      <div className='text-[11px] pt-2 border-t border-[var(--theme-border)]'>
+                        <span className='text-[var(--theme-text-tertiary)] block mb-1'>
+                          Notes:
+                        </span>
+                        <p className='text-[var(--theme-text-secondary)]'>
+                          {timelineDetails.notes}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+    )
   }
 
   return (
     <>
       {/* 📱 MOBILE VIEW (<1024px) */}
-      <div className="lg:hidden min-h-[100svh] bg-[var(--theme-bg)] pt-6 px-5 pb-24 text-[var(--theme-text-primary)]">
+      <div className='lg:hidden min-h-[100svh] bg-[var(--theme-bg)] pt-6 px-5 pb-24 text-[var(--theme-text-primary)]'>
         {/* TRACK ORDER heading */}
-        <div className="mb-6">
-          <h1 className="text-[26px] font-black tracking-tight mb-2 text-white">TRACK ORDER</h1>
-          <span className="text-[10px] uppercase font-extrabold tracking-wider px-3 py-1 rounded-full bg-[var(--theme-card-darker)] border border-[var(--theme-border)] text-[var(--theme-text-tertiary)] inline-block mb-3">
+        <div className='mb-6'>
+          <h1 className='text-[26px] font-black tracking-tight mb-2 text-white'>
+            TRACK ORDER
+          </h1>
+          <span className='text-[10px] uppercase font-extrabold tracking-wider px-3 py-1 rounded-full bg-[var(--theme-card-darker)] border border-[var(--theme-border)] text-[var(--theme-text-tertiary)] inline-block mb-3'>
             CURRENT STATUS
           </span>
-          <h2 className="text-[22px] font-black text-white leading-tight mb-1">
+          <h2 className='text-[22px] font-black text-white leading-tight mb-1'>
             {getDisplayStatusLabel(order.repairStatus)}
           </h2>
-          <p className="text-[12px] font-mono text-[var(--theme-text-tertiary)]">
+          <p className='text-[12px] font-mono text-[var(--theme-text-tertiary)]'>
             Order ID: {order.ticketNumber}
           </p>
         </div>
 
         {/* Device Information Card */}
-        <div className="bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-2xl p-4 mb-8 shadow-lg flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3 flex-1 min-w-0">
-            <div className="w-[64px] h-[64px] bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl flex items-center justify-center shrink-0 overflow-hidden p-1.5 shadow-inner">
-              {order.modelRef?.images?.[0] ? (
-                <img src={order.modelRef.images[0]} alt={deviceName} className="w-full h-full object-contain" />
-              ) : (
-                <Smartphone className="w-6 h-6 text-[var(--theme-text-tertiary)]" />
-              )}
+        <div className='bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-2xl p-4 mb-8 shadow-lg flex items-center justify-between gap-4'>
+          <div className='flex items-center gap-3 flex-1 min-w-0'>
+            <div className='w-[64px] h-[64px] bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl flex items-center justify-center shrink-0 overflow-hidden p-1.5 shadow-inner'>
+              <img
+                src={order.modelRef?.image || getFallbackDeviceImage()}
+                alt={deviceName}
+                className='w-full h-full object-contain'
+              />
             </div>
 
-            <div className="flex flex-col min-w-0 flex-1">
-              <h3 className="text-[14px] font-extrabold text-white leading-tight truncate">
+            <div className='flex flex-col min-w-0 flex-1'>
+              <h3 className='text-[14px] font-extrabold text-white leading-tight truncate'>
                 {deviceName}
               </h3>
-              <p className="text-[11px] text-[var(--theme-text-secondary)] mt-0.5 truncate">
+              <p className='text-[11px] text-[var(--theme-text-secondary)] mt-0.5 truncate'>
                 {repairType}
               </p>
             </div>
           </div>
 
-          <div className="shrink-0 text-right">
+          <div className='shrink-0 text-right'>
             {order.finalCost ? (
-              <p className="text-[14px] font-black text-white">
+              <p className='text-[14px] font-black text-white'>
                 {formatCurrency(order.finalCost)}
               </p>
             ) : (
-              <p className="text-[12px] font-bold text-[var(--theme-text-tertiary)]">TBD</p>
+              <p className='text-[12px] font-bold text-[var(--theme-text-tertiary)]'>
+                TBD
+              </p>
             )}
-            <p className="text-[9px] uppercase tracking-wider text-[var(--theme-text-tertiary)] font-bold mt-0.5">
+            <p className='text-[9px] uppercase tracking-wider text-[var(--theme-text-tertiary)] font-bold mt-0.5'>
               ESTIMATE
             </p>
           </div>
@@ -336,7 +742,7 @@ function OrderDetailContent() {
 
         {/* Status Alerts (Approval / Cancellation) */}
         {order.repairStatus === 'CUSTOMER_APPROVAL_PENDING' && (
-          <div className="mb-6">
+          <div className='mb-6'>
             <DiagnosisApprovalCard
               ticketNumber={ticketNumber}
               approval={approval}
@@ -346,101 +752,152 @@ function OrderDetailContent() {
         )}
 
         {order.repairStatus === 'CANCELLED' && (
-          <div className="bg-red-500/10 border border-red-500/20 rounded-2xl p-4 mb-6">
-            <p className="text-red-400 text-sm font-semibold">This booking has been cancelled.</p>
+          <div className='bg-red-500/10 border border-red-500/20 rounded-2xl p-4 mb-6'>
+            <p className='text-red-400 text-sm font-semibold'>
+              This booking has been cancelled.
+            </p>
             {order.cancellationReason && (
-              <p className="text-red-300/80 text-xs mt-1">Reason: {order.cancellationReason}</p>
+              <p className='text-red-300/80 text-xs mt-1'>
+                Reason: {order.cancellationReason}
+              </p>
             )}
           </div>
         )}
 
         {/* Mobile Vertical Timeline */}
-        <div className="bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-3xl p-6 mb-6 shadow-sm">
-          <div className="flex flex-col gap-8 relative">
-            {milestones.map((m, idx) => {
-              const isCompleted = idx < activeStageIndex || order.repairStatus === 'DELIVERED'
-              const isActive = idx === activeStageIndex && order.repairStatus !== 'DELIVERED' && order.repairStatus !== 'CANCELLED'
-              const isFuture = idx > activeStageIndex && order.repairStatus !== 'DELIVERED'
-              const timestamp = getStageTimestamp(idx)
+        <div className='bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-3xl p-6 mb-6 shadow-sm'>
+          {/* Timeline View Toggle */}
+          <div className='flex items-center justify-between mb-6 pb-4 border-b border-[var(--theme-border)]'>
+            <h3 className='text-[11px] font-black uppercase tracking-wider text-white'>
+              {showDetailedTimeline ? 'Detailed Timeline' : 'Progress Overview'}
+            </h3>
+            <button
+              onClick={() => setShowDetailedTimeline(!showDetailedTimeline)}
+              className='text-[10px] font-bold text-[var(--theme-text-primary)] hover:text-white transition-colors px-3 py-1.5 bg-[var(--theme-card-darker)] border border-[var(--theme-border)] rounded-lg'
+            >
+              {showDetailedTimeline ? 'Show Summary' : 'Show All Steps'}
+            </button>
+          </div>
 
-              const StepIcon = m.icon
+          <div className='flex flex-col gap-8 relative'>
+            {showDetailedTimeline
+              ? // Detailed Timeline (18 steps)
+                getActiveTimelineSteps().map((step, idx, arr) =>
+                  renderDetailedTimelineStep(step, idx, idx === arr.length - 1),
+                )
+              : // Summary Timeline (6 milestones)
+                milestones.map((m, idx) => {
+                  const isCompleted =
+                    idx < activeStageIndex || order.repairStatus === 'DELIVERED'
+                  const isActive =
+                    idx === activeStageIndex &&
+                    order.repairStatus !== 'DELIVERED' &&
+                    order.repairStatus !== 'CANCELLED'
+                  const isFuture =
+                    idx > activeStageIndex && order.repairStatus !== 'DELIVERED'
+                  const timestamp = getStageTimestamp(idx)
 
-              return (
-                <div key={idx} className="flex gap-4 relative min-h-[48px]">
-                  {/* Timeline vertical bar */}
-                  {idx < milestones.length - 1 && (
-                    <div
-                      className={`absolute left-[15px] top-8 bottom-[-32px] w-[2.5px] rounded-full transition-colors duration-300 ${idx < activeStageIndex ? 'bg-green-500' : 'bg-[var(--theme-border)]'
-                        }`}
-                    ></div>
-                  )}
+                  const StepIcon = m.icon
 
-                  {/* Bullet indicator */}
-                  <div className="relative z-10 shrink-0">
-                    {isCompleted ? (
-                      <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center shadow-lg shadow-green-500/10 text-white">
-                        <Check size={16} className="stroke-[3]" />
-                      </div>
-                    ) : isActive ? (
-                      <div className="w-8 h-8 rounded-full border-2 border-white bg-black flex items-center justify-center shadow-md animate-pulse">
-                        <div className="w-2.5 h-2.5 rounded-full bg-white"></div>
-                      </div>
-                    ) : (
-                      <div className="w-8 h-8 rounded-full bg-[var(--theme-card-darker)] border border-[var(--theme-border)] flex items-center justify-center text-[var(--theme-text-tertiary)]">
-                        <StepIcon size={14} className="opacity-40" />
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Step Description */}
-                  <div className="flex-1 min-w-0 pt-0.5">
-                    <div className="flex items-center justify-between gap-2 flex-wrap mb-1">
-                      <h4 className={`text-[14px] font-extrabold ${isFuture ? 'text-[var(--theme-text-tertiary)]' : 'text-white'}`}>
-                        {m.title}
-                      </h4>
-                      {isActive && (
-                        <span className="text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full bg-white text-black leading-none">
-                          ACTIVE NOW
-                        </span>
+                  return (
+                    <div key={idx} className='flex gap-4 relative min-h-[48px]'>
+                      {/* Timeline vertical bar */}
+                      {idx < milestones.length - 1 && (
+                        <div
+                          className={`absolute left-[15px] top-8 bottom-[-32px] w-[2.5px] rounded-full transition-colors duration-300 ${
+                            idx < activeStageIndex
+                              ? 'bg-green-500'
+                              : 'bg-[var(--theme-border)]'
+                          }`}
+                        ></div>
                       )}
+
+                      {/* Bullet indicator with green checkmark for completed */}
+                      <div className='relative z-10 shrink-0'>
+                        {isCompleted ? (
+                          <div className='w-8 h-8 rounded-full bg-green-500 flex items-center justify-center shadow-lg shadow-green-500/10 text-white'>
+                            <Check size={16} className='stroke-[3]' />
+                          </div>
+                        ) : isActive ? (
+                          <div className='w-8 h-8 rounded-full border-2 border-white bg-black flex items-center justify-center shadow-md animate-pulse'>
+                            <div className='w-2.5 h-2.5 rounded-full bg-white'></div>
+                          </div>
+                        ) : (
+                          <div className='w-8 h-8 rounded-full bg-[var(--theme-card-darker)] border border-[var(--theme-border)] flex items-center justify-center text-[var(--theme-text-tertiary)]'>
+                            <StepIcon size={14} className='opacity-40' />
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Step Description */}
+                      <div className='flex-1 min-w-0 pt-0.5'>
+                        <div className='flex items-center justify-between gap-2 flex-wrap mb-1'>
+                          <h4
+                            className={`text-[14px] font-extrabold ${isFuture ? 'text-[var(--theme-text-tertiary)]' : 'text-white'}`}
+                          >
+                            {m.title}
+                          </h4>
+                          {isActive && (
+                            <span className='text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full bg-white text-black leading-none'>
+                              ACTIVE NOW
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Show timestamp on completed or active */}
+                        {(isCompleted || isActive) && timestamp && (
+                          <p className='text-[10px] text-[var(--theme-text-tertiary)] font-semibold uppercase tracking-wider mb-1.5'>
+                            {timestamp}
+                          </p>
+                        )}
+
+                        {/* Detailed info only for active or completed */}
+                        {!isFuture && (
+                          <p className='text-[12px] text-[var(--theme-text-secondary)] leading-relaxed font-medium'>
+                            {m.description}
+                          </p>
+                        )}
+                      </div>
                     </div>
-
-                    {/* Show timestamp on completed or active */}
-                    {(isCompleted || isActive) && timestamp && (
-                      <p className="text-[10px] text-[var(--theme-text-tertiary)] font-semibold uppercase tracking-wider mb-1.5">
-                        {timestamp}
-                      </p>
-                    )}
-
-                    {/* Detailed info only for active or completed */}
-                    {!isFuture && (
-                      <p className="text-[12px] text-[var(--theme-text-secondary)] leading-relaxed font-medium">
-                        {m.description}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              )
-            })}
+                  )
+                })}
           </div>
         </div>
 
         {/* Partner Cards on Mobile */}
-        {['PICKUP_ASSIGNED', 'PICKUP_IN_PROGRESS', 'PICKUP_EN_ROUTE'].includes(order.repairStatus) && (
-          <div className="mb-6">
+        {['PICKUP_ASSIGNED', 'PICKUP_IN_PROGRESS', 'PICKUP_EN_ROUTE'].includes(
+          order.repairStatus,
+        ) && (
+          <div className='mb-6'>
             <PartnerCard
-              title="Pickup Partner"
-              partner={order.pickupPartner ? { ...order.pickupPartner, eta: order.pickupEta } : null}
-              showMap={['PICKUP_IN_PROGRESS', 'PICKUP_EN_ROUTE'].includes(order.repairStatus)}
+              title='Pickup Partner'
+              partner={
+                order.pickupPartner
+                  ? { ...order.pickupPartner, eta: order.pickupEta }
+                  : null
+              }
+              showMap={['PICKUP_IN_PROGRESS', 'PICKUP_EN_ROUTE'].includes(
+                order.repairStatus,
+              )}
             />
           </div>
         )}
-        {['DELIVERY_ASSIGNED', 'DELIVERY_IN_PROGRESS', 'OUT_FOR_DELIVERY'].includes(order.repairStatus) && (
-          <div className="mb-6">
+        {[
+          'DELIVERY_ASSIGNED',
+          'DELIVERY_IN_PROGRESS',
+          'OUT_FOR_DELIVERY',
+        ].includes(order.repairStatus) && (
+          <div className='mb-6'>
             <PartnerCard
-              title="Delivery Partner"
-              partner={order.deliveryPartner ? { ...order.deliveryPartner, eta: order.deliveryEta } : null}
-              showMap={['DELIVERY_IN_PROGRESS', 'OUT_FOR_DELIVERY'].includes(order.repairStatus)}
+              title='Delivery Partner'
+              partner={
+                order.deliveryPartner
+                  ? { ...order.deliveryPartner, eta: order.deliveryEta }
+                  : null
+              }
+              showMap={['DELIVERY_IN_PROGRESS', 'OUT_FOR_DELIVERY'].includes(
+                order.repairStatus,
+              )}
             />
           </div>
         )}
@@ -452,15 +909,15 @@ function OrderDetailContent() {
         )}
 
         {/* Mobile Help CTA */}
-        <div className="flex flex-col items-center gap-3 mt-8">
-          <p className="text-[10px] font-extrabold uppercase tracking-widest text-[var(--theme-text-tertiary)]">
+        <div className='flex flex-col items-center gap-3 mt-8'>
+          <p className='text-[10px] font-extrabold uppercase tracking-widest text-[var(--theme-text-tertiary)]'>
             AVAILABLE 24/7 FOR SUPPORT
           </p>
           <a
-            href="https://wa.me/919999999999"
-            target="_blank"
-            rel="noreferrer"
-            className="w-full h-12 bg-white text-black font-black rounded-2xl text-[12px] uppercase tracking-wider hover:opacity-90 active:scale-[0.99] transition-all flex items-center justify-center gap-2 shadow-lg"
+            href='https://wa.me/918800003785'
+            target='_blank'
+            rel='noreferrer'
+            className='w-full h-12 bg-white text-black font-black rounded-2xl text-[12px] uppercase tracking-wider hover:opacity-90 active:scale-[0.99] transition-all flex items-center justify-center gap-2 shadow-lg'
           >
             <Headphones size={15} />
             Need Help?
@@ -468,47 +925,49 @@ function OrderDetailContent() {
         </div>
       </div>
 
-
       {/* 🖥️ DESKTOP VIEW (≥1024px) */}
-      <div className="hidden lg:block bg-[var(--theme-bg)] min-h-[calc(100vh-var(--topbar-height))] py-10 px-8 text-[var(--theme-text-primary)]">
-        <div className="w-full">
-
+      <div className='hidden lg:block bg-[var(--theme-bg)] min-h-[calc(100vh-var(--topbar-height))] py-10 px-8 text-[var(--theme-text-primary)]'>
+        <div className='w-full'>
           {/* Breadcrumb Navigation */}
-          <div className="flex items-center gap-2 mb-6">
-            <span className="text-[10px] uppercase font-extrabold tracking-wider text-[var(--theme-text-tertiary)]">
+          <div className='flex items-center gap-2 mb-6'>
+            <span className='text-[10px] uppercase font-extrabold tracking-wider text-[var(--theme-text-tertiary)]'>
               ACTIVE REPAIRS
             </span>
-            <span className="text-[10px] text-[var(--theme-text-tertiary)]">/</span>
-            <span className="text-[10px] uppercase font-mono font-extrabold tracking-wider text-white">
+            <span className='text-[10px] text-[var(--theme-text-tertiary)]'>
+              /
+            </span>
+            <span className='text-[10px] uppercase font-mono font-extrabold tracking-wider text-white'>
               {order.ticketNumber}
             </span>
           </div>
 
           {/* Large Title Row */}
-          <div className="flex items-start justify-between gap-6 border-b border-[var(--theme-border)] pb-8 mb-8">
+          <div className='flex items-start justify-between gap-6 border-b border-[var(--theme-border)] pb-8 mb-8'>
             <div>
-              <div className="flex items-center gap-3 mb-2 flex-wrap">
-                <h1 className="text-[34px] font-black text-white tracking-tight leading-none">
-                  {order.repairTypes?.[0]?.name ? `Repairing ${order.repairTypes[0].name}` : 'Repairing Device'}
+              <div className='flex items-center gap-3 mb-2 flex-wrap'>
+                <h1 className='text-[34px] font-black text-white tracking-tight leading-none'>
+                  {order.repairTypes?.[0]?.name
+                    ? `Repairing ${order.repairTypes[0].name}`
+                    : 'Repairing Device'}
                 </h1>
-                <span className="bg-green-500 text-black text-[9px] font-black uppercase tracking-widest px-2.5 py-0.5 rounded-sm">
+                <span className='bg-green-500 text-black text-[9px] font-black uppercase tracking-widest px-2.5 py-0.5 rounded-sm'>
                   LIVE
                 </span>
               </div>
-              <p className="text-[15px] font-bold text-[var(--theme-text-secondary)]">
+              <p className='text-[15px] font-bold text-[var(--theme-text-secondary)]'>
                 {deviceName} — {repairType}
               </p>
             </div>
 
             {/* Estimated Completion Card - renders only when dynamic estimatedDeliveryDate is available */}
             {order.estimatedDeliveryDate && (
-              <div className="bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-2xl px-6 py-4 text-right shadow-sm shrink-0 flex items-center gap-4">
-                <div className="w-[1.5px] h-10 bg-[var(--theme-border)]"></div>
+              <div className='bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-2xl px-6 py-4 text-right shadow-sm shrink-0 flex items-center gap-4'>
+                <div className='w-[1.5px] h-10 bg-[var(--theme-border)]'></div>
                 <div>
-                  <p className="text-[8px] uppercase tracking-widest text-[var(--theme-text-tertiary)] font-black leading-none mb-1.5">
+                  <p className='text-[8px] uppercase tracking-widest text-[var(--theme-text-tertiary)] font-black leading-none mb-1.5'>
                     ESTIMATED COMPLETION
                   </p>
-                  <p className="text-[16px] font-black text-white leading-none">
+                  <p className='text-[16px] font-black text-white leading-none'>
                     {formatDate(order.estimatedDeliveryDate)}
                   </p>
                 </div>
@@ -518,7 +977,7 @@ function OrderDetailContent() {
 
           {/* Status Alerts (Approval / Cancellation) on Desktop */}
           {order.repairStatus === 'CUSTOMER_APPROVAL_PENDING' && (
-            <div className="mb-8">
+            <div className='mb-8'>
               <DiagnosisApprovalCard
                 ticketNumber={ticketNumber}
                 approval={approval}
@@ -527,112 +986,175 @@ function OrderDetailContent() {
             </div>
           )}
 
-
           {order.repairStatus === 'CANCELLED' && (
-            <div className="bg-red-500/10 border border-red-500/20 rounded-3xl p-6 mb-8 flex items-center justify-between">
+            <div className='bg-red-500/10 border border-red-500/20 rounded-3xl p-6 mb-8 flex items-center justify-between'>
               <div>
-                <h4 className="text-red-400 font-extrabold text-base">Booking Cancelled</h4>
-                <p className="text-red-300/80 text-sm mt-1">cancellation reason: {order.cancellationReason || 'Requested by support/customer'}</p>
+                <h4 className='text-red-400 font-extrabold text-base'>
+                  Booking Cancelled
+                </h4>
+                <p className='text-red-300/80 text-sm mt-1'>
+                  cancellation reason:{' '}
+                  {order.cancellationReason || 'Requested by support/customer'}
+                </p>
               </div>
-              <button onClick={() => router.back()} className="btn-secondary !h-10 !px-4">
+              <button
+                onClick={() => router.back()}
+                className='btn-secondary !h-10 !px-4'
+              >
                 Back to Orders
               </button>
             </div>
           )}
 
           {/* Main 2-Column Grid Layout */}
-          <div className="grid grid-cols-[1fr_360px] gap-10">
-
+          <div className='grid grid-cols-[1fr_360px] gap-10'>
             {/* Left Column: Vertical Milestones Timeline */}
-            <div className="flex flex-col gap-10">
-              <div className="bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-3xl p-8 shadow-sm">
-                <h3 className="text-sm font-black uppercase tracking-wider text-white mb-8 border-b border-[var(--theme-border)] pb-4">
-                  REPAIR MILESTONES & TIMELINE
-                </h3>
+            <div className='flex flex-col gap-10'>
+              <div className='bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-3xl p-8 shadow-sm'>
+                <div className='flex items-center justify-between mb-8 border-b border-[var(--theme-border)] pb-4'>
+                  <h3 className='text-sm font-black uppercase tracking-wider text-white'>
+                    {showDetailedTimeline
+                      ? 'DETAILED TIMELINE'
+                      : 'REPAIR MILESTONES & TIMELINE'}
+                  </h3>
+                  <button
+                    onClick={() =>
+                      setShowDetailedTimeline(!showDetailedTimeline)
+                    }
+                    className='text-[11px] font-bold text-[var(--theme-text-primary)] hover:text-white transition-colors px-4 py-2 bg-[var(--theme-card-darker)] border border-[var(--theme-border)] rounded-xl'
+                  >
+                    {showDetailedTimeline ? 'Show Summary' : 'Show All Steps'}
+                  </button>
+                </div>
 
-                <div className="flex flex-col gap-10 relative">
-                  {milestones.map((m, idx) => {
-                    const isCompleted = idx < activeStageIndex || order.repairStatus === 'DELIVERED'
-                    const isActive = idx === activeStageIndex && order.repairStatus !== 'DELIVERED' && order.repairStatus !== 'CANCELLED'
-                    const isFuture = idx > activeStageIndex && order.repairStatus !== 'DELIVERED'
-                    const timestamp = getStageTimestamp(idx)
-                    const StepIcon = m.icon
+                <div className='flex flex-col gap-10 relative'>
+                  {showDetailedTimeline
+                    ? // Detailed Timeline (18 steps)
+                      getActiveTimelineSteps().map((step, idx, arr) =>
+                        renderDetailedTimelineStep(
+                          step,
+                          idx,
+                          idx === arr.length - 1,
+                        ),
+                      )
+                    : // Summary Timeline (6 milestones)
+                      milestones.map((m, idx) => {
+                        const isCompleted =
+                          idx < activeStageIndex ||
+                          order.repairStatus === 'DELIVERED'
+                        const isActive =
+                          idx === activeStageIndex &&
+                          order.repairStatus !== 'DELIVERED' &&
+                          order.repairStatus !== 'CANCELLED'
+                        const isFuture =
+                          idx > activeStageIndex &&
+                          order.repairStatus !== 'DELIVERED'
+                        const timestamp = getStageTimestamp(idx)
+                        const StepIcon = m.icon
 
-                    return (
-                      <div key={idx} className="flex gap-6 relative min-h-[56px]">
-                        {/* Timeline vertical bar */}
-                        {idx < milestones.length - 1 && (
+                        return (
                           <div
-                            className={`absolute left-[17px] top-9 bottom-[-40px] w-[2.5px] rounded-full transition-colors duration-300 ${idx < activeStageIndex ? 'bg-green-500' : 'bg-[var(--theme-border)]'
-                              }`}
-                          ></div>
-                        )}
-
-                        {/* Bullet indicator */}
-                        <div className="relative z-10 shrink-0">
-                          {isCompleted ? (
-                            <div className="w-9 h-9 rounded-full bg-green-500 flex items-center justify-center shadow-lg shadow-green-500/10 text-white">
-                              <Check size={18} className="stroke-[3]" />
-                            </div>
-                          ) : isActive ? (
-                            <div className="w-9 h-9 rounded-full border-2 border-white bg-black flex items-center justify-center shadow-md animate-pulse">
-                              <div className="w-2.5 h-2.5 rounded-full bg-white"></div>
-                            </div>
-                          ) : (
-                            <div className="w-9 h-9 rounded-full bg-[var(--theme-card-darker)] border border-[var(--theme-border)] flex items-center justify-center text-[var(--theme-text-tertiary)]">
-                              <StepIcon size={15} className="opacity-40" />
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Detailed Content */}
-                        <div className="flex-1 min-w-0 pt-0.5">
-                          <div className="flex items-center justify-between gap-4 mb-1">
-                            <h4 className={`text-[15px] font-black tracking-tight ${isFuture ? 'text-[var(--theme-text-tertiary)]' : 'text-white'}`}>
-                              {m.title}
-                            </h4>
-                            {isActive && (
-                              <span className="text-[8px] font-black uppercase tracking-widest px-2.5 py-0.5 rounded bg-white text-black leading-none shrink-0">
-                                ACTIVE NOW
-                              </span>
+                            key={idx}
+                            className='flex gap-6 relative min-h-[56px]'
+                          >
+                            {/* Timeline vertical bar */}
+                            {idx < milestones.length - 1 && (
+                              <div
+                                className={`absolute left-[17px] top-9 bottom-[-40px] w-[2.5px] rounded-full transition-colors duration-300 ${
+                                  idx < activeStageIndex
+                                    ? 'bg-green-500'
+                                    : 'bg-[var(--theme-border)]'
+                                }`}
+                              ></div>
                             )}
+
+                            {/* Bullet indicator with green checkmark for completed */}
+                            <div className='relative z-10 shrink-0'>
+                              {isCompleted ? (
+                                <div className='w-9 h-9 rounded-full bg-green-500 flex items-center justify-center shadow-lg shadow-green-500/10 text-white'>
+                                  <Check size={18} className='stroke-[3]' />
+                                </div>
+                              ) : isActive ? (
+                                <div className='w-9 h-9 rounded-full border-2 border-white bg-black flex items-center justify-center shadow-md animate-pulse'>
+                                  <div className='w-2.5 h-2.5 rounded-full bg-white'></div>
+                                </div>
+                              ) : (
+                                <div className='w-9 h-9 rounded-full bg-[var(--theme-card-darker)] border border-[var(--theme-border)] flex items-center justify-center text-[var(--theme-text-tertiary)]'>
+                                  <StepIcon size={15} className='opacity-40' />
+                                </div>
+                              )}
+                            </div>
+
+                            {/* Detailed Content */}
+                            <div className='flex-1 min-w-0 pt-0.5'>
+                              <div className='flex items-center justify-between gap-4 mb-1'>
+                                <h4
+                                  className={`text-[15px] font-black tracking-tight ${isFuture ? 'text-[var(--theme-text-tertiary)]' : 'text-white'}`}
+                                >
+                                  {m.title}
+                                </h4>
+                                {isActive && (
+                                  <span className='text-[8px] font-black uppercase tracking-widest px-2.5 py-0.5 rounded bg-white text-black leading-none shrink-0'>
+                                    ACTIVE NOW
+                                  </span>
+                                )}
+                              </div>
+
+                              {(isCompleted || isActive) && timestamp && (
+                                <p className='text-[10px] text-[var(--theme-text-tertiary)] font-bold uppercase tracking-wider mb-2'>
+                                  {timestamp}
+                                </p>
+                              )}
+
+                              {!isFuture && (
+                                <p className='text-[13px] text-[var(--theme-text-secondary)] leading-relaxed font-medium max-w-[560px]'>
+                                  {m.description}
+                                </p>
+                              )}
+                            </div>
                           </div>
-
-                          {(isCompleted || isActive) && timestamp && (
-                            <p className="text-[10px] text-[var(--theme-text-tertiary)] font-bold uppercase tracking-wider mb-2">
-                              {timestamp}
-                            </p>
-                          )}
-
-                          {!isFuture && (
-                            <p className="text-[13px] text-[var(--theme-text-secondary)] leading-relaxed font-medium max-w-[560px]">
-                              {m.description}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                    )
-                  })}
+                        )
+                      })}
                 </div>
               </div>
             </div>
 
             {/* Right Column: Stacked Action/Document Cards */}
-            <div className="flex flex-col gap-6">
-
+            <div className='flex flex-col gap-6'>
               {/* Partner Cards on Desktop */}
-              {['PICKUP_ASSIGNED', 'PICKUP_IN_PROGRESS', 'PICKUP_EN_ROUTE'].includes(order.repairStatus) && (
+              {[
+                'PICKUP_ASSIGNED',
+                'PICKUP_IN_PROGRESS',
+                'PICKUP_EN_ROUTE',
+              ].includes(order.repairStatus) && (
                 <PartnerCard
-                  title="Pickup Partner Assigned"
-                  partner={order.pickupPartner ? { ...order.pickupPartner, eta: order.pickupEta } : null}
-                  showMap={['PICKUP_IN_PROGRESS', 'PICKUP_EN_ROUTE'].includes(order.repairStatus)}
+                  title='Pickup Partner Assigned'
+                  partner={
+                    order.pickupPartner
+                      ? { ...order.pickupPartner, eta: order.pickupEta }
+                      : null
+                  }
+                  showMap={['PICKUP_IN_PROGRESS', 'PICKUP_EN_ROUTE'].includes(
+                    order.repairStatus,
+                  )}
                 />
               )}
-              {['DELIVERY_ASSIGNED', 'DELIVERY_IN_PROGRESS', 'OUT_FOR_DELIVERY'].includes(order.repairStatus) && (
+              {[
+                'DELIVERY_ASSIGNED',
+                'DELIVERY_IN_PROGRESS',
+                'OUT_FOR_DELIVERY',
+              ].includes(order.repairStatus) && (
                 <PartnerCard
-                  title="Delivery Partner Assigned"
-                  partner={order.deliveryPartner ? { ...order.deliveryPartner, eta: order.deliveryEta } : null}
-                  showMap={['DELIVERY_IN_PROGRESS', 'OUT_FOR_DELIVERY'].includes(order.repairStatus)}
+                  title='Delivery Partner Assigned'
+                  partner={
+                    order.deliveryPartner
+                      ? { ...order.deliveryPartner, eta: order.deliveryEta }
+                      : null
+                  }
+                  showMap={[
+                    'DELIVERY_IN_PROGRESS',
+                    'OUT_FOR_DELIVERY',
+                  ].includes(order.repairStatus)}
                 />
               )}
 
@@ -643,26 +1165,26 @@ function OrderDetailContent() {
               )}
 
               {/* Dynamic Support CTA */}
-              <div className="bg-black border border-[var(--theme-border)] rounded-3xl p-6 shadow-lg">
-                <h4 className="text-[16px] font-black text-white leading-tight mb-2">Need Help?</h4>
-                <p className="text-[11px] text-[var(--theme-text-secondary)] leading-relaxed font-medium mb-5">
-                  Speak directly with our support lead or operations team about this repair.
+              <div className='bg-black border border-[var(--theme-border)] rounded-3xl p-6 shadow-lg'>
+                <h4 className='text-[16px] font-black text-white leading-tight mb-2'>
+                  Need Help?
+                </h4>
+                <p className='text-[11px] text-[var(--theme-text-secondary)] leading-relaxed font-medium mb-5'>
+                  Speak directly with our support lead or operations team about
+                  this repair.
                 </p>
                 <a
-                  href="https://wa.me/919999999999"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="w-full bg-white text-black py-3 rounded-xl text-[11px] font-black uppercase tracking-wider text-center hover:opacity-90 active:scale-95 transition-all flex items-center justify-center gap-1.5"
+                  href='https://wa.me/918800003785'
+                  target='_blank'
+                  rel='noreferrer'
+                  className='w-full bg-white text-black py-3 rounded-xl text-[11px] font-black uppercase tracking-wider text-center hover:opacity-90 active:scale-95 transition-all flex items-center justify-center gap-1.5'
                 >
-                  <Headphones size={13} className="stroke-[2.5]" />
+                  <Headphones size={13} className='stroke-[2.5]' />
                   CHAT SUPPORT
                 </a>
               </div>
-
             </div>
-
           </div>
-
         </div>
       </div>
     </>
@@ -671,17 +1193,19 @@ function OrderDetailContent() {
 
 export default function OrderDetailPage() {
   return (
-    <Suspense fallback={
-      <div className="lg:hidden min-h-[100svh] bg-[var(--theme-bg)] pt-6 px-5 pb-24">
-        <div className="mb-6">
-          <div className="skeleton h-8 w-40 rounded-lg mb-3" />
-          <div className="skeleton h-6 w-56 rounded-md mb-2" />
-          <div className="skeleton h-4 w-32 rounded" />
+    <Suspense
+      fallback={
+        <div className='lg:hidden min-h-[100svh] bg-[var(--theme-bg)] pt-6 px-5 pb-24'>
+          <div className='mb-6'>
+            <div className='skeleton h-8 w-40 rounded-lg mb-3' />
+            <div className='skeleton h-6 w-56 rounded-md mb-2' />
+            <div className='skeleton h-4 w-32 rounded' />
+          </div>
+          <div className='skeleton rounded-2xl mb-8' style={{ height: 88 }} />
+          <div className='skeleton rounded-3xl' style={{ height: 380 }} />
         </div>
-        <div className="skeleton rounded-2xl mb-8" style={{ height: 88 }} />
-        <div className="skeleton rounded-3xl" style={{ height: 380 }} />
-      </div>
-    }>
+      }
+    >
       <OrderDetailContent />
     </Suspense>
   )

@@ -144,7 +144,7 @@ export default function AddressPage() {
 
   const handleAddNewAddress = async () => {
     if (!validateForm()) {
-      toast.error('Please fix the errors before saving')
+      toast.error('Please fill in all required fields')
       return
     }
 
@@ -467,116 +467,11 @@ export default function AddressPage() {
 
   return (
     <div className='address-page-shell'>
-      {/* ════════════════════════════════════════════════════════════════
-          MOBILE VIEW (<1024px)
-          ════════════════════════════════════════════════════════════════ */}
-      <div className='home-mobile lg:hidden min-h-[100svh] relative overflow-hidden' style={{ background: 'var(--color-content-card)' }}>
-        {/* Content */}
-        <div className='relative z-10 pb-[180px] rounded-t-[30px]' style={{ background: 'var(--color-content-bg)' }}>
-          <div className='px-5 pt-6 pb-4'>
-            <h1 className='text-2xl font-black tracking-tight uppercase leading-tight mb-1' style={{ color: 'var(--color-content-text)' }}>
-              Select Address
-            </h1>
-            <p className='text-sm' style={{ color: 'var(--color-content-text-secondary)' }}>
-              Choose a convenient address for your repair.
-            </p>
-          </div>
-
-          {/* Map Preview */}
-          <div className='px-5 mb-8'>
-            <div className='w-full h-[180px] rounded-3xl overflow-hidden relative shadow-lg' style={{ background: 'var(--theme-bg)' }}>
-              <img
-                src='/images/dark-map-placeholder.png'
-                alt='Map'
-                className='w-full h-full object-cover opacity-60'
-                onError={(e) => {
-                  e.target.style.display = 'none'
-                  e.target.parentElement.style.background = '#222'
-                }}
-              />
-              <div className='absolute inset-x-0 bottom-4 flex justify-center'>
-                <div className='bg-white rounded-full px-4 py-2 flex items-center gap-2 shadow-xl'>
-                  <MapPin size={16} color='black' />
-                  <span className='text-xs font-bold text-black uppercase tracking-wide'>
-                    PRECISION VALLEY, CA
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Addresses */}
-          <div className='px-5 mb-8'>
-            <div className='flex justify-between items-center mb-4'>
-              <h3 className='text-sm font-bold mb-4' style={{ color: 'var(--color-content-text)' }}>
-                Saved Addresses
-              </h3>
-              <span className='text-[11px] font-bold uppercase tracking-wider' style={{ color: 'var(--color-content-text-secondary)' }}>
-                {addresses.length} LOCATIONS
-              </span>
-            </div>
-
-            {addresses.length === 0 ? (
-              <div className='text-center py-8 rounded-2xl' style={{ background: 'var(--color-content-card)', border: '1px solid var(--color-content-border)' }}>
-                <MapPin size={40} className='text-[#444] mx-auto mb-3' />
-                <p className='text-[14px] mb-2' style={{ color: 'var(--color-content-text-secondary)' }}>
-                  No saved addresses
-                </p>
-                <p className='text-[12px]' style={{ color: 'var(--color-content-text-secondary)' }}>
-                  Add your first address below
-                </p>
-              </div>
-            ) : (
-              addresses.map((addr) => <AddressCard key={addr.id} addr={addr} />)
-            )}
-
-            <button
-              onClick={() => setIsAddingNew(true)}
-              className='w-full h-[60px] rounded-2xl flex items-center justify-center gap-2 font-bold text-[13px] uppercase tracking-wide hover:opacity-80 mt-2 transition-colors'
-              style={{ border: '1px dashed var(--color-content-border)', color: 'var(--color-content-text-secondary)' }}
-            >
-              <Plus size={18} /> Add New Address
-            </button>
-          </div>
-
-          {/* Delivery Notes */}
-          <div className='px-5 mb-8'>
-            <h3 className='text-[11px] font-bold uppercase tracking-wider mb-3' style={{ color: 'var(--color-content-text-secondary)' }}>
-              DELIVERY NOTES (OPTIONAL)
-            </h3>
-            <textarea
-              value={deliveryNotes}
-              onChange={(e) => setDeliveryNotes(e.target.value)}
-              placeholder='Access codes, gate instructions...'
-              className='w-full h-20 rounded-xl p-4 text-[13px] resize-none outline-none transition-all'
-              style={{ background: 'var(--color-content-card)', border: '1px solid var(--color-content-border)', color: 'var(--color-content-text)' }}
-            />
-          </div>
-
-          {/* Confirm Button Fixed Bottom */}
-          <div className='fixed left-0 right-0 p-5 z-40 pointer-events-none' style={{ bottom: 'calc(var(--nav-height) + env(safe-area-inset-bottom, 0px))', background: 'linear-gradient(to top, var(--color-content-bg) 60%, transparent)' }}>
-            <button
-              onClick={handleConfirm}
-              disabled={!selectedAddressId}
-              className='w-full h-[50px] rounded-[20px] text-sm font-bold flex items-center justify-center gap-2 shadow-xl active:scale-95 transition-transform pointer-events-auto'
-              style={{
-                background: selectedAddressId ? 'var(--theme-btn-primary-bg)' : 'var(--color-content-border)',
-                color: selectedAddressId ? 'var(--theme-btn-primary-text)' : 'var(--color-content-text-secondary)',
-              }}
-            >
-              Confirm Address <ArrowLeft className='rotate-180' size={16} />
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* ════════════════════════════════════════════════════════════════
-          DESKTOP VIEW (≥1024px)
-          ════════════════════════════════════════════════════════════════ */}
-      <div className='home-desktop hidden lg:block min-h-[calc(100vh-var(--topbar-height))]' style={{ background: 'var(--theme-bg)' }}>
-        <div className='p-8 flex h-[calc(100vh-var(--topbar-height))]'>
-          {/* Left side - MAP */}
-          <div className='w-[55%] relative' style={{ background: 'var(--color-content-bg)' }}>
+      {/* Unified Responsive Layout */}
+      <div className='min-h-[100svh] lg:min-h-[calc(100vh-var(--topbar-height))]' style={{ background: 'var(--theme-bg)' }}>
+        <div className='lg:p-8 lg:flex lg:h-[calc(100vh-var(--topbar-height))]'>
+          {/* Map Section - Desktop Only */}
+          <div className='hidden lg:block lg:w-[55%] relative' style={{ background: 'var(--color-content-bg)' }}>
             <img
               src='/images/dark-map-placeholder.png'
               alt='Map'
@@ -607,70 +502,121 @@ export default function AddressPage() {
             </div>
           </div>
 
-          {/* Right side - FORM */}
-          <div className='w-[45%] p-12 overflow-y-auto' style={{ background: 'var(--color-content-bg)', borderLeft: '1px solid var(--color-content-border)' }}>
-            <h1 className='text-[42px] font-black tracking-tight leading-none mb-3' style={{ color: 'var(--color-content-text)' }}>
-              Select Service Address
-            </h1>
-            <p className='text-[15px] mb-12 max-w-[85%]' style={{ color: 'var(--color-content-text-secondary)' }}>
-              Choose a saved location or add a new one for your technical
-              service appointment.
-            </p>
+          {/* Content Section - Mobile Full Width, Desktop Right Side */}
+          <div className='relative pb-[180px] lg:pb-0 lg:w-[45%] lg:p-12 lg:overflow-y-auto rounded-t-[30px] lg:rounded-none' style={{ background: 'var(--color-content-bg)', borderLeft: '0 lg:1px solid var(--color-content-border)' }}>
+            {/* Header */}
+            <div className='px-5 pt-6 pb-4 lg:px-0 lg:pt-0 lg:pb-12'>
+              <h1 className='text-2xl lg:text-[42px] font-black tracking-tight uppercase lg:normal-case leading-tight lg:leading-none mb-1 lg:mb-3' style={{ color: 'var(--color-content-text)' }}>
+                Select {!('ontouchstart' in window) && 'Service '}Address
+              </h1>
+              <p className='text-sm lg:text-[15px] lg:max-w-[85%]' style={{ color: 'var(--color-content-text-secondary)' }}>
+                <span className='lg:hidden'>Choose a convenient address for your repair.</span>
+                <span className='hidden lg:inline'>Choose a saved location or add a new one for your technical service appointment.</span>
+              </p>
+            </div>
 
-            <div className='mb-10'>
-              <h3 className='text-[11px] font-bold uppercase tracking-[0.1em] mb-4' style={{ color: 'var(--color-content-text-secondary)' }}>
-                SAVED ADDRESSES
-              </h3>
+            {/* Map Preview - Mobile Only */}
+            <div className='px-5 mb-8 lg:hidden'>
+              <div className='w-full h-[180px] rounded-3xl overflow-hidden relative shadow-lg' style={{ background: 'var(--theme-bg)' }}>
+                <img
+                  src='/images/dark-map-placeholder.png'
+                  alt='Map'
+                  className='w-full h-full object-cover opacity-60'
+                  onError={(e) => {
+                    e.target.style.display = 'none'
+                    e.target.parentElement.style.background = '#222'
+                  }}
+                />
+                <div className='absolute inset-x-0 bottom-4 flex justify-center'>
+                  <div className='bg-white rounded-full px-4 py-2 flex items-center gap-2 shadow-xl'>
+                    <MapPin size={16} color='black' />
+                    <span className='text-xs font-bold text-black uppercase tracking-wide'>
+                      PRECISION VALLEY, CA
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Addresses Section */}
+            <div className='px-5 lg:px-0 mb-8 lg:mb-10'>
+              <div className='flex justify-between items-center mb-4'>
+                <h3 className='text-sm lg:text-[11px] font-bold lg:uppercase lg:tracking-[0.1em]' style={{ color: 'var(--color-content-text)' }}>
+                  <span className='lg:hidden'>Saved Addresses</span>
+                  <span className='hidden lg:inline' style={{ color: 'var(--color-content-text-secondary)' }}>SAVED ADDRESSES</span>
+                </h3>
+                <span className='text-[11px] font-bold uppercase tracking-wider lg:hidden' style={{ color: 'var(--color-content-text-secondary)' }}>
+                  {addresses.length} LOCATIONS
+                </span>
+              </div>
 
               {addresses.length === 0 ? (
-                <div className='text-center py-12 rounded-2xl' style={{ background: 'var(--color-content-card)', border: '1px solid var(--color-content-border)' }}>
-                  <MapPin size={48} className='text-[#444] mx-auto mb-4' />
-                  <p className='text-[15px] mb-2' style={{ color: 'var(--color-content-text-secondary)' }}>
+                <div className='text-center py-8 lg:py-12 rounded-2xl' style={{ background: 'var(--color-content-card)', border: '1px solid var(--color-content-border)' }}>
+                  <MapPin size={40} className='lg:w-12 lg:h-12 text-[#444] mx-auto mb-3 lg:mb-4' />
+                  <p className='text-[14px] lg:text-[15px] mb-2' style={{ color: 'var(--color-content-text-secondary)' }}>
                     No saved addresses
                   </p>
-                  <p className='text-[13px]' style={{ color: 'var(--color-content-text-secondary)' }}>
+                  <p className='text-[12px] lg:text-[13px]' style={{ color: 'var(--color-content-text-secondary)' }}>
                     Add your first address below
                   </p>
                 </div>
               ) : (
-                addresses.map((addr) => (
-                  <AddressCard key={addr.id} addr={addr} />
-                ))
+                addresses.map((addr) => <AddressCard key={addr.id} addr={addr} />)
               )}
 
               <button
-                onClick={() => setIsAddingNew(true)}
-                className='w-full h-16 rounded-xl flex items-center justify-center gap-3 font-bold text-[14px] hover:opacity-80 transition-colors mt-2'
-                style={{ border: '2px dashed var(--color-content-border)', color: 'var(--color-content-text-secondary)' }}
+                onClick={() => {
+                  setNewAddress({
+                    addressType: 'Home',
+                    addressLine1: '',
+                    addressLine2: '',
+                    landmark: '',
+                    pincode: '',
+                    city: '',
+                    state: '',
+                    setAsDefault: false,
+                  })
+                  setErrors({})
+                  setIsEditingAddress(null)
+                  setIsAddingNew(true)
+                }}
+                className='w-full h-[60px] lg:h-16 rounded-2xl lg:rounded-xl flex items-center justify-center gap-2 lg:gap-3 font-bold text-[13px] lg:text-[14px] uppercase tracking-wide hover:opacity-80 mt-2 transition-colors'
+                style={{ border: '1px lg:2px dashed var(--color-content-border)', color: 'var(--color-content-text-secondary)' }}
               >
                 <Plus size={18} /> Add New Address
               </button>
             </div>
 
-            <div className='mb-10'>
-              <h3 className='text-[11px] font-bold uppercase tracking-[0.1em] mb-4' style={{ color: 'var(--color-content-text-secondary)' }}>
+            {/* Delivery Notes */}
+            <div className='px-5 lg:px-0 mb-8 lg:mb-10'>
+              <h3 className='text-[11px] font-bold uppercase tracking-wider lg:tracking-[0.1em] mb-3 lg:mb-4' style={{ color: 'var(--color-content-text-secondary)' }}>
                 DELIVERY NOTES (OPTIONAL)
               </h3>
               <textarea
                 value={deliveryNotes}
                 onChange={(e) => setDeliveryNotes(e.target.value)}
                 placeholder='Access codes, gate instructions...'
-                className='w-full h-24 rounded-2xl p-5 text-[14px] resize-none outline-none transition-all'
+                className='w-full h-20 lg:h-24 rounded-xl lg:rounded-2xl p-4 lg:p-5 text-[13px] lg:text-[14px] resize-none outline-none transition-all'
                 style={{ background: 'var(--color-content-card)', border: '1px solid var(--color-content-border)', color: 'var(--color-content-text)' }}
               />
             </div>
 
-            <button
-              onClick={handleConfirm}
-              disabled={!selectedAddressId}
-              className='w-full h-[64px] rounded-[20px] text-[15px] font-black uppercase tracking-[0.1em] flex items-center justify-center gap-3 shadow-xl transition-colors cursor-pointer'
-              style={{
-                background: selectedAddressId ? 'var(--theme-btn-primary-bg)' : 'var(--color-content-border)',
-                color: selectedAddressId ? 'var(--theme-btn-primary-text)' : 'var(--color-content-text-secondary)',
-              }}
-            >
-              CONFIRM ADDRESS <ArrowLeft className='rotate-180' size={18} />
-            </button>
+            {/* Confirm Button - Fixed on Mobile, Static on Desktop */}
+            <div className='fixed lg:static left-0 right-0 p-5 lg:p-0 z-40 pointer-events-none lg:pointer-events-auto' style={{ bottom: 'calc(var(--nav-height) + env(safe-area-inset-bottom, 0px))', background: 'linear-gradient(to top, var(--color-content-bg) 60%, transparent)' }}>
+              <button
+                onClick={handleConfirm}
+                disabled={!selectedAddressId}
+                className='w-full h-[50px] lg:h-[64px] rounded-[20px] text-sm lg:text-[15px] font-bold lg:font-black uppercase lg:tracking-[0.1em] flex items-center justify-center gap-2 lg:gap-3 shadow-xl active:scale-95 lg:active:scale-100 transition-transform lg:transition-colors pointer-events-auto cursor-pointer'
+                style={{
+                  background: selectedAddressId ? 'var(--theme-btn-primary-bg)' : 'var(--color-content-border)',
+                  color: selectedAddressId ? 'var(--theme-btn-primary-text)' : 'var(--color-content-text-secondary)',
+                }}
+              >
+                <span className='lg:hidden'>Confirm Address</span>
+                <span className='hidden lg:inline'>CONFIRM ADDRESS</span>
+                <ArrowLeft className='rotate-180' size={16} />
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -737,7 +683,7 @@ export default function AddressPage() {
                 <input
                   type='text'
                   value={newAddress.addressLine1}
-                  onChange={(e) => handleChange('addressLine1', e.target.value)}
+                  onChange={(e) => handleChange('addressLine1', e.target.value.slice(0, 100))}
                   className={`w-full h-[52px] rounded-lg text-[15px] px-4 outline-none transition-colors`}
                   style={{
                     background: 'var(--color-content-card)',
@@ -745,6 +691,7 @@ export default function AddressPage() {
                     color: 'var(--color-content-text)',
                   }}
                   placeholder='House/Flat no., Building name'
+                  maxLength={100}
                 />
                 {errors.addressLine1 && (
                   <span className='block text-xs text-red-400 mt-2'>
@@ -761,10 +708,11 @@ export default function AddressPage() {
                 <input
                   type='text'
                   value={newAddress.addressLine2}
-                  onChange={(e) => handleChange('addressLine2', e.target.value)}
+                  onChange={(e) => handleChange('addressLine2', e.target.value.slice(0, 200))}
                   className='w-full h-[52px] rounded-lg text-[15px] px-4 outline-none transition-colors'
                   style={{ background: 'var(--color-content-card)', border: '1px solid var(--color-content-border)', color: 'var(--color-content-text)' }}
                   placeholder='Road name, Area, Colony'
+                  maxLength={200}
                 />
               </div>
 

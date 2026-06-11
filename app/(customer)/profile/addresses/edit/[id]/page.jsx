@@ -6,6 +6,7 @@ import { Save } from 'lucide-react'
 import TopBar from '@/components/ui/TopBar'
 import toast from 'react-hot-toast'
 import customerService from '@/services/customer.service'
+import Skeleton from '@/components/ui/Skeleton'
 
 export default function EditAddressPage() {
   const router = useRouter()
@@ -148,14 +149,133 @@ export default function EditAddressPage() {
 
   if (isFetching) {
     return (
-      <div className='min-h-screen bg-[var(--theme-bg)] flex items-center justify-center'>
-        <div className='text-center'>
-          <div className='w-12 h-12 border-3 border-[var(--theme-border-strong)] border-t-white rounded-full animate-spin mx-auto mb-4' />
-          <p className='text-[14px] text-[var(--theme-text-secondary)]'>
-            Loading address...
-          </p>
+      <>
+        {/* ── Mobile Skeleton ── */}
+        <div className='lg:hidden min-h-screen bg-[var(--theme-bg)] pb-24'>
+          <TopBar title='Edit Address' />
+          <div className='p-5 space-y-5'>
+            {/* Address Type skeleton */}
+            <div className='space-y-2'>
+              <Skeleton className='h-3 w-24 rounded' />
+              <div className='flex gap-2'>
+                <Skeleton className='h-[44px] flex-1 rounded-lg' />
+                <Skeleton className='h-[44px] flex-1 rounded-lg' />
+                <Skeleton className='h-[44px] flex-1 rounded-lg' />
+              </div>
+            </div>
+
+            {/* Address Lines skeleton */}
+            <div className='space-y-2'>
+              <Skeleton className='h-3 w-28 rounded' />
+              <Skeleton className='h-[52px] w-full rounded-lg' />
+            </div>
+            <div className='space-y-2'>
+              <Skeleton className='h-3 w-28 rounded' />
+              <Skeleton className='h-[52px] w-full rounded-lg' />
+            </div>
+            <div className='space-y-2'>
+              <Skeleton className='h-3 w-20 rounded' />
+              <Skeleton className='h-[52px] w-full rounded-lg' />
+            </div>
+
+            {/* Grid fields skeleton */}
+            <div className='grid grid-cols-2 gap-3'>
+              <div className='space-y-2'>
+                <Skeleton className='h-3 w-16 rounded' />
+                <Skeleton className='h-[52px] w-full rounded-lg' />
+              </div>
+              <div className='space-y-2'>
+                <Skeleton className='h-3 w-16 rounded' />
+                <Skeleton className='h-[52px] w-full rounded-lg' />
+              </div>
+            </div>
+
+            {/* State skeleton */}
+            <div className='space-y-2'>
+              <Skeleton className='h-3 w-16 rounded' />
+              <Skeleton className='h-[52px] w-full rounded-lg' />
+            </div>
+
+            {/* Set as Default checkbox skeleton */}
+            <Skeleton className='h-[56px] w-full rounded-xl' />
+
+            {/* Submit button skeleton */}
+            <Skeleton className='h-[52px] w-full rounded-lg mt-8' />
+          </div>
         </div>
-      </div>
+
+        {/* ── Desktop Skeleton ── */}
+        <div className='hidden lg:block min-h-[calc(100vh-var(--topbar-height))] bg-[var(--theme-bg)]'>
+          <div className='px-12 py-8'>
+            {/* Breadcrumb skeleton */}
+            <div className='flex items-center gap-2 mb-6'>
+              <Skeleton className='h-4 w-12 rounded' />
+              <span className='text-[var(--theme-placeholder)]'>/</span>
+              <Skeleton className='h-4 w-16 rounded' />
+              <span className='text-[var(--theme-placeholder)]'>/</span>
+              <Skeleton className='h-4 w-24 rounded' />
+            </div>
+
+            {/* Card skeleton */}
+            <div className='bg-[var(--theme-card)] rounded-2xl border border-[var(--theme-border)] p-8 shadow-sm space-y-6'>
+              <div className='space-y-2'>
+                <Skeleton className='h-7 w-40 rounded-lg' />
+                <Skeleton className='h-4 w-52 rounded-md' />
+              </div>
+
+              {/* Form fields skeleton */}
+              <div className='space-y-6'>
+                {/* Address Type skeleton */}
+                <div className='space-y-2'>
+                  <Skeleton className='h-3 w-28 rounded' />
+                  <div className='flex gap-2'>
+                    <Skeleton className='h-[48px] flex-1 rounded-lg' />
+                    <Skeleton className='h-[48px] flex-1 rounded-lg' />
+                    <Skeleton className='h-[48px] flex-1 rounded-lg' />
+                  </div>
+                </div>
+
+                {/* Form Inputs Grid skeleton */}
+                <div className='grid grid-cols-2 gap-4'>
+                  <div className='space-y-2'>
+                    <Skeleton className='h-3.5 w-32 rounded' />
+                    <Skeleton className='h-[54px] w-full rounded-lg' />
+                  </div>
+                  <div className='space-y-2'>
+                    <Skeleton className='h-3.5 w-32 rounded' />
+                    <Skeleton className='h-[54px] w-full rounded-lg' />
+                  </div>
+                  <div className='space-y-2'>
+                    <Skeleton className='h-3.5 w-20 rounded' />
+                    <Skeleton className='h-[54px] w-full rounded-lg' />
+                  </div>
+                  <div className='space-y-2'>
+                    <Skeleton className='h-3.5 w-20 rounded' />
+                    <Skeleton className='h-[54px] w-full rounded-lg' />
+                  </div>
+                  <div className='space-y-2'>
+                    <Skeleton className='h-3.5 w-16 rounded' />
+                    <Skeleton className='h-[54px] w-full rounded-lg' />
+                  </div>
+                  <div className='space-y-2'>
+                    <Skeleton className='h-3.5 w-16 rounded' />
+                    <Skeleton className='h-[54px] w-full rounded-lg' />
+                  </div>
+                </div>
+
+                {/* Default checkbox skeleton */}
+                <Skeleton className='h-[56px] w-full rounded-xl' />
+
+                {/* Buttons skeleton */}
+                <div className='flex gap-3 pt-4'>
+                  <Skeleton className='h-[54px] flex-1 rounded-lg' />
+                  <Skeleton className='h-[54px] flex-1 rounded-lg' />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </>
     )
   }
 
@@ -200,13 +320,14 @@ export default function EditAddressPage() {
               <input
                 type='text'
                 value={formData.addressLine1}
-                onChange={(e) => handleChange('addressLine1', e.target.value)}
+                onChange={(e) => handleChange('addressLine1', e.target.value.slice(0, 100))}
                 className={`w-full h-[52px] bg-[var(--theme-input-bg)] border ${
                   errors.addressLine1
                     ? 'border-red-500/50'
                     : 'border-[var(--theme-border-strong)]'
                 } rounded-lg text-[var(--theme-text-primary)] text-[15px] font-medium px-4 outline-none focus:border-[var(--theme-input-border-focus)] transition-colors`}
                 placeholder='House/Flat no., Building name'
+                maxLength={100}
               />
               {errors.addressLine1 && (
                 <span className='block text-xs text-red-400 mt-2'>
@@ -223,9 +344,10 @@ export default function EditAddressPage() {
               <input
                 type='text'
                 value={formData.addressLine2}
-                onChange={(e) => handleChange('addressLine2', e.target.value)}
+                onChange={(e) => handleChange('addressLine2', e.target.value.slice(0, 200))}
                 className='w-full h-[52px] bg-[var(--theme-input-bg)] border border-[var(--theme-border-strong)] rounded-lg text-[var(--theme-text-primary)] text-[15px] font-medium px-4 outline-none focus:border-[var(--theme-input-border-focus)] transition-colors'
                 placeholder='Road name, Area, Colony'
+                maxLength={200}
               />
             </div>
 

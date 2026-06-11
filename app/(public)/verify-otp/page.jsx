@@ -4,6 +4,7 @@ import { Suspense, useState, useEffect, useRef } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { ArrowLeft, Bell, Lock, Shield } from 'lucide-react'
 import authService from '@/services/auth.service'
+import { OTP_RESEND_SECONDS } from '@/lib/constants'
 
 function VerifyOtpContent() {
   const router = useRouter()
@@ -29,7 +30,7 @@ function VerifyOtpContent() {
   const [otp, setOtp] = useState(['', '', '', '', '', ''])
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
-  const [resendTimer, setResendTimer] = useState(119) // 01:59 = 119 seconds
+  const [resendTimer, setResendTimer] = useState(OTP_RESEND_SECONDS)
   const [focusedIndex, setFocusedIndex] = useState(0)
 
   const inputRefs = useRef([])
@@ -57,15 +58,26 @@ function VerifyOtpContent() {
   }
 
   const handleOtpChange = (index, value) => {
-    // Only allow single digit numeric input
-    const cleanValue = value.replace(/\D/g, '').slice(-1)
+    const digitsOnly = value.replace(/\D/g, '')
+
+    // Check if the value is a full 6-digit OTP code (autofill support)
+    if (digitsOnly.length === 6) {
+      const newOtp = digitsOnly.split('')
+      setOtp(newOtp)
+      setTimeout(() => {
+        inputRefs.current[5]?.focus()
+      }, 0)
+      return
+    }
+
+    // Normal single digit handling
+    const cleanValue = digitsOnly.slice(-1)
     const newOtp = [...otp]
     newOtp[index] = cleanValue
     setOtp(newOtp)
 
     // Auto-focus next input if we typed a digit
     if (cleanValue && index < 5) {
-      // Use setTimeout to ensure the focus happens after the state update
       setTimeout(() => {
         inputRefs.current[index + 1]?.focus()
       }, 0)
@@ -100,6 +112,7 @@ function VerifyOtpContent() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+
     const code = otp.join('')
     if (code.length < 6) {
       setError('Please enter all 6 digits of the code')
@@ -111,6 +124,11 @@ function VerifyOtpContent() {
 
     try {
       await authService.verifyOtp(phone, code)
+      
+      // On success: clear local storage tracking
+      localStorage.removeItem(`gr_otp_attempts_${phone}`)
+      localStorage.removeItem(`gr_otp_blocked_${phone}`)
+
       // Save authenticated phone for checkout flow
       if (typeof window !== 'undefined') {
         localStorage.setItem('gr_authenticated_phone', phone)
@@ -161,7 +179,7 @@ function VerifyOtpContent() {
 
     try {
       const result = await authService.sendOtp(phone)
-      setResendTimer(119) // reset timer
+      setResendTimer(OTP_RESEND_SECONDS) // reset timer
       setOtp(['', '', '', '', '', '']) // clear OTP boxes
       inputRefs.current[0]?.focus()
       alert(
@@ -170,7 +188,7 @@ function VerifyOtpContent() {
           : 'A new verification code has been sent.',
       )
     } catch (err) {
-      setError('Failed to resend code. Please try again.')
+      setError(err.message || 'Failed to resend code. Please try again.')
     } finally {
       setIsLoading(false)
     }
@@ -204,7 +222,7 @@ function VerifyOtpContent() {
             <p className='text-[13px] text-white/65 leading-relaxed mb-6'>
               Enter the 6-digit verification code sent to your device for{' '}
               <strong className='text-white font-semibold'>
-                {phone || '+1 (555) 012-3456'}
+                {phone ? `+91 ${phone}` : '+91 99999 99999'}
               </strong>
             </p>
 
@@ -219,7 +237,7 @@ function VerifyOtpContent() {
                     type='text'
                     pattern='[0-9]*'
                     inputMode='numeric'
-                    maxLength={1}
+                    maxLength={6}
                     value={digit}
                     ref={(el) => (inputRefs.current[idx] = el)}
                     onChange={(e) => handleOtpChange(idx, e.target.value)}
@@ -306,7 +324,7 @@ function VerifyOtpContent() {
 
           <p className='text-sm text-[#6B6B6B] leading-relaxed mb-10 text-center max-w-[420px]'>
             Enter the 6-digit verification code sent to your registered mobile
-            number.
+            number {phone ? `(+91 ${phone})` : ''}.
           </p>
 
           {/* Card */}
@@ -322,7 +340,7 @@ function VerifyOtpContent() {
                     type='text'
                     pattern='[0-9]*'
                     inputMode='numeric'
-                    maxLength={1}
+                    maxLength={6}
                     value={digit}
                     ref={(el) => (inputRefs.current[idx] = el)}
                     onChange={(e) => handleOtpChange(idx, e.target.value)}

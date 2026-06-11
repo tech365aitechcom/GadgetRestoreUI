@@ -14,6 +14,7 @@ export default function LoginPage() {
   const [phone, setPhone] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
+  const [errorCountdown, setErrorCountdown] = useState(null)
 
   // Store redirect URL from query params on mount
   useEffect(() => {
@@ -25,43 +26,34 @@ export default function LoginPage() {
     }
   }, [])
 
-  const formatPhoneNumber = (value) => {
-    // Keep only numbers
-    const cleanValue = value.replace(/\D/g, '')
-
-    // Format as US number +1 (555) 000-0000 or general format
-    if (cleanValue.length <= 3) {
-      return cleanValue
-    } else if (cleanValue.length <= 6) {
-      return `(${cleanValue.slice(0, 3)}) ${cleanValue.slice(3)}`
-    } else if (cleanValue.length <= 10) {
-      return `(${cleanValue.slice(0, 3)}) ${cleanValue.slice(3, 6)}-${cleanValue.slice(6)}`
-    } else {
-      // If user inputs country code too
-      const countryCode =
-        cleanValue.length > 10
-          ? `+${cleanValue.slice(0, cleanValue.length - 10)} `
-          : ''
-      const mainNumber = cleanValue.slice(cleanValue.length - 10)
-      return `${countryCode}(${mainNumber.slice(0, 3)}) ${mainNumber.slice(3, 6)}-${mainNumber.slice(6)}`
-    }
-  }
+  useEffect(() => {
+    if (errorCountdown === null || errorCountdown <= 0) return
+    const timer = setInterval(() => {
+      setErrorCountdown((prev) => {
+        if (prev <= 1) {
+          setError('')
+          return null
+        }
+        return prev - 1
+      })
+    }, 1000)
+    return () => clearInterval(timer)
+  }, [errorCountdown])
 
   const handlePhoneChange = (e) => {
     const rawVal = e.target.value
-    // Strip everything except digits and "+"
-    const numeric = rawVal.replace(/[^\d+]/g, '')
+    // Strip everything except digits
+    const numeric = rawVal.replace(/\D/g, '')
+    // Limit to 10 digits
+    const cleanValue = numeric.slice(0, 10)
+    setPhone(cleanValue)
+  }
 
-    // Format for display
-    if (numeric.startsWith('+1')) {
-      const main = numeric.slice(2)
-      setPhone('+1 ' + formatPhoneNumber(main))
-    } else if (numeric.startsWith('1') && numeric.length > 1) {
-      setPhone('+1 ' + formatPhoneNumber(numeric.slice(1)))
-    } else {
-      // If it doesn't have +1, automatically prepend or format as typed
-      setPhone(formatPhoneNumber(numeric))
+  const getDisplayError = () => {
+    if (error && errorCountdown !== null) {
+      return `Please wait ${errorCountdown} seconds before requesting another OTP.`
     }
+    return error
   }
 
   const handleSubmit = async (e) => {
@@ -73,12 +65,10 @@ export default function LoginPage() {
 
     setIsLoading(true)
     setError('')
+    setErrorCountdown(null)
 
-    // Normalize phone number (digits only)
-    const normalizedPhone = phone.replace(/\D/g, '')
-    const cleanMobile =
-      normalizedPhone.length > 10 ? normalizedPhone.slice(-10) : normalizedPhone
-    if (cleanMobile.length < 10) {
+    const cleanMobile = phone.replace(/\D/g, '')
+    if (cleanMobile.length !== 10) {
       setError('Please enter a valid 10-digit phone number')
       setIsLoading(false)
       return
@@ -105,7 +95,14 @@ export default function LoginPage() {
         : `/verify-otp?phone=${encodeURIComponent(cleanMobile)}`
       router.push(verifyUrl)
     } catch (err) {
-      setError(err.message || 'Failed to send OTP. Please try again.')
+      const errMsg = err.message || 'Failed to send OTP. Please try again.'
+      const match = errMsg.match(/Please wait (\d+) seconds/i)
+      if (match) {
+        setErrorCountdown(parseInt(match[1], 10))
+      } else {
+        setErrorCountdown(null)
+      }
+      setError(errMsg)
     } finally {
       setIsLoading(false)
     }
@@ -147,23 +144,29 @@ export default function LoginPage() {
                 <label className='block text-[10px] font-bold text-white/50 tracking-[0.08em] mb-2 uppercase'>
                   PHONE NUMBER
                 </label>
-                <input
-                  type='text'
-                  value={phone}
-                  onChange={handlePhoneChange}
-                  placeholder='+1 (555) 000-0000'
-                  className='w-full h-[52px] bg-white/[0.04] border border-white/10 rounded text-white text-base font-medium px-4 outline-none focus:border-white/40 transition-colors'
-                />
+                <div className='flex gap-2 items-center'>
+                  <div className='flex items-center justify-center h-[52px] bg-white/[0.04] border border-white/10 rounded text-white text-base font-medium px-3.5 select-none'>
+                    +91
+                  </div>
+                  <input
+                    type='tel'
+                    value={phone}
+                    onChange={handlePhoneChange}
+                    maxLength={10}
+                    placeholder='Enter 10-digit number'
+                    className='flex-1 h-[52px] bg-white/[0.04] border border-white/10 rounded text-white text-base font-medium px-4 outline-none focus:border-white/40 transition-colors'
+                  />
+                </div>
                 {error && (
                   <span className='block text-xs text-red-500 mt-2 font-medium'>
-                    {error}
+                    {getDisplayError()}
                   </span>
                 )}
               </div>
 
               <button
                 type='submit'
-                disabled={isLoading}
+                disabled={isLoading || errorCountdown !== null}
                 className='w-full h-[52px] bg-white hover:bg-neutral-100 disabled:opacity-70 text-black rounded text-[15px] font-bold cursor-pointer flex items-center justify-center transition-all duration-200'
               >
                 {isLoading ? 'Sending OTP...' : 'Continue'}
@@ -254,23 +257,29 @@ export default function LoginPage() {
                 <label className='block text-[9.5px] font-bold text-[#000000] tracking-[0.12em] mb-2 uppercase'>
                   PHONE NUMBER
                 </label>
-                <input
-                  type='text'
-                  value={phone}
-                  onChange={handlePhoneChange}
-                  placeholder='+1 (555) 000-0000'
-                  className='w-full h-[60px] bg-[#F8F8F8] border border-[#E8E8E8] rounded text-black text-[15px] font-normal px-4 outline-none focus:border-[#D0D0D0] focus:bg-[#FEFEFE] transition-all placeholder:text-[#B0B0B0]'
-                />
+                <div className='flex gap-2 items-center'>
+                  <div className='flex items-center justify-center h-[60px] bg-[#F8F8F8] border border-[#E8E8E8] rounded text-[#111111] text-[15px] font-semibold px-4 select-none'>
+                    +91
+                  </div>
+                  <input
+                    type='tel'
+                    value={phone}
+                    onChange={handlePhoneChange}
+                    maxLength={10}
+                    placeholder='Enter 10-digit number'
+                    className='flex-1 h-[60px] bg-[#F8F8F8] border border-[#E8E8E8] rounded text-black text-[15px] font-normal px-4 outline-none focus:border-[#D0D0D0] focus:bg-[#FEFEFE] transition-all placeholder:text-[#B0B0B0]'
+                  />
+                </div>
                 {error && (
                   <span className='block text-xs text-red-500 mt-2 font-semibold'>
-                    {error}
+                    {getDisplayError()}
                   </span>
                 )}
               </div>
 
               <button
                 type='submit'
-                disabled={isLoading}
+                disabled={isLoading || errorCountdown !== null}
                 className='w-full h-[60px] bg-black hover:bg-[#222] disabled:opacity-75 text-white rounded text-[13px] font-bold tracking-[0.05em] uppercase cursor-pointer flex items-center justify-center transition-all'
               >
                 {isLoading ? 'Sending OTP...' : 'Continue'}

@@ -1,13 +1,44 @@
 import api from './api';
+import { Capacitor } from '@capacitor/core';
 
 async function downloadDocument(path, filename) {
   const response = await api.get(path, { responseType: 'blob' });
-  const url = window.URL.createObjectURL(response.data);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = filename;
-  link.click();
-  window.URL.revokeObjectURL(url);
+  const blob = response.data;
+
+  // Check if we're running on a native mobile platform (iOS or Android)
+  const isNativeMobile = Capacitor.isNativePlatform();
+
+  if (isNativeMobile) {
+    // For native mobile apps, open in new tab to allow native handling
+    const url = window.URL.createObjectURL(blob);
+    const newWindow = window.open(url, '_blank');
+
+    // If popup blocked, fallback to current window
+    if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
+      window.location.href = url;
+    }
+
+    // Clean up after a delay to ensure the download starts
+    setTimeout(() => {
+      window.URL.revokeObjectURL(url);
+    }, 100);
+  } else {
+    // Web browser: use traditional download approach
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+
+    // Append to body, click, then remove (more reliable)
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    // Clean up
+    setTimeout(() => {
+      window.URL.revokeObjectURL(url);
+    }, 100);
+  }
 }
 
 export const orderService = {

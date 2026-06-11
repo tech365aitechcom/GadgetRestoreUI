@@ -16,6 +16,8 @@ import { useBooking } from '@/context/BookingContext'
 import catalogueService from '@/services/catalogue.service'
 import Cookies from 'js-cookie'
 import { TOKEN_COOKIE } from '@/lib/constants'
+import Skeleton from '@/components/ui/Skeleton'
+import ErrorState from '@/components/ui/ErrorState'
 
 /* ─── Helpers ────────────────────────────────────────────────────────────────── */
 function collectRepairTypeIds(symptoms) {
@@ -98,6 +100,7 @@ export default function PricingPage() {
     let sympParts = 0
     let sympLabour = 0
     let sympIsVariable = false
+    let sympWarrantyMonths = 0
 
     if (hasPricingData) {
       const rTypes = symp.repairTypes || []
@@ -111,6 +114,11 @@ export default function PricingPage() {
         } else {
           sympParts += res.pricing.partsCost || 0
           sympLabour += res.pricing.labourCost || 0
+          // Get warranty from pricing matrix (use maximum if multiple repairs)
+          sympWarrantyMonths = Math.max(
+            sympWarrantyMonths,
+            res.pricing.warrantyMonths || 0,
+          )
         }
       })
     } else {
@@ -129,6 +137,7 @@ export default function PricingPage() {
       partsCost: sympParts,
       labourCost: sympLabour,
       total: sympParts + sympLabour,
+      warrantyMonths: sympWarrantyMonths,
     }
   })
 
@@ -144,6 +153,13 @@ export default function PricingPage() {
     0,
   )
   const totalAmount = partsCost + labourCost
+
+  // Calculate warranty (use maximum warranty from all repairs)
+  const warrantyMonths =
+    itemizedSymptoms.reduce(
+      (max, item) => Math.max(max, item.warrantyMonths || 0),
+      0, // Start with 0, find maximum from actual pricing
+    ) || partTier.defaultWarrantyMonths || 0 // Fallback to tier default only if all are 0
 
   const brandName = (brand?.name || '').toLowerCase()
   const isApple =
@@ -175,133 +191,43 @@ export default function PricingPage() {
 
   if (isLoading) {
     return (
-      <>
-        {/* Desktop Skeleton */}
-        <div className='home-desktop'>
-          <div className='p-8' style={{ paddingBottom: 140 }}>
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: '1.2fr 1fr',
-                gap: 32,
-                alignItems: 'start',
-              }}
-            >
-              {/* Left Column Skeletons */}
-              <div
-                style={{ display: 'flex', flexDirection: 'column', gap: 24 }}
-              >
-                {/* Device Card Skeleton */}
-                <div
-                  className='skeleton'
-                  style={{
-                    height: 320,
-                    borderRadius: 'var(--radius-card)',
-                  }}
-                />
-                {/* Diagnostic Summary Skeleton */}
-                <div
-                  className='skeleton'
-                  style={{
-                    height: 240,
-                    borderRadius: 'var(--radius-card)',
-                  }}
-                />
-              </div>
+      <div className='min-h-screen bg-black text-white w-full max-w-full'>
+        <div className='p-4 sm:p-6 lg:p-8 pb-36 lg:pb-16 w-full max-w-7xl'>
+          {/* Header Skeleton */}
+          <div className='mb-8 lg:mb-10 pt-4 lg:pt-5'>
+            <Skeleton className='hidden md:block mb-6 w-[120px] h-3' />
+            <Skeleton className='mb-2 lg:mb-3 w-3/5 h-8 lg:h-12' />
+            <Skeleton className='w-4/5 lg:w-1/2 h-4' />
+          </div>
 
-              {/* Right Column Quote Card Skeleton */}
-              <div
-                className='skeleton'
-                style={{
-                  height: 480,
-                  borderRadius: 'var(--radius-card)',
-                }}
-              />
+          {/* Responsive Layout Grid */}
+          <div className='grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] gap-6 lg:gap-8'>
+            {/* Left Column Skeletons */}
+            <div className='flex flex-col gap-6'>
+              {/* Device Card Skeleton */}
+              <Skeleton className='h-[280px] lg:h-80 rounded-3xl' />
+              {/* Diagnostic Summary Skeleton (Desktop only) */}
+              <Skeleton className='hidden lg:block h-60 rounded-3xl' />
             </div>
+
+            {/* Right Column Quote Card Skeleton */}
+            <Skeleton className='h-[360px] lg:h-96 rounded-3xl' />
           </div>
         </div>
-
-        {/* Mobile Skeleton */}
-        <div
-          className='home-mobile'
-          style={{
-            background: 'var(--color-content-bg)',
-            minHeight: '100svh',
-            paddingBottom: 160,
-          }}
-        >
-          <div
-            style={{
-              padding: '20px 16px',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 24,
-            }}
-          >
-            {/* Header Skeleton */}
-            <div>
-              <div
-                className='skeleton'
-                style={{
-                  height: 32,
-                  width: '60%',
-                  borderRadius: 8,
-                  marginBottom: 10,
-                }}
-              />
-              <div
-                className='skeleton'
-                style={{ height: 16, width: '80%', borderRadius: 6 }}
-              />
-            </div>
-            {/* Device Summary Card Skeleton */}
-            <div
-              className='skeleton'
-              style={{ borderRadius: 'var(--radius-card)', height: 280 }}
-            />
-            {/* Quote Card Skeleton */}
-            <div
-              className='skeleton'
-              style={{ borderRadius: 'var(--radius-card)', height: 360 }}
-            />
-          </div>
-        </div>
-      </>
+      </div>
     )
   }
 
   if (error) {
     return (
-      <div
-        style={{
-          background: '#000000',
-          minHeight: '100svh',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          color: '#ffffff',
-        }}
-      >
-        <div style={{ textAlign: 'center', maxWidth: 400, padding: 24 }}>
-          <AlertCircle
-            size={48}
-            color='var(--color-danger)'
-            style={{ margin: '0 auto 16px auto' }}
-          />
-          <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 8 }}>
-            Quote Generation Failed
-          </h2>
-          <p style={{ fontSize: 14, color: '#9CA3AF', marginBottom: 24 }}>
-            {error}
-          </p>
-          <button
-            onClick={() => router.push('/select-mode')}
-            className='px-6 py-3 rounded-xl bg-accent text-white font-semibold'
-          >
-            Go Back
-          </button>
-        </div>
-      </div>
+      <ErrorState
+        fullScreen
+        title='Quote Generation Failed'
+        message={error}
+        buttonText='Go Back'
+        onButtonClick={() => router.push('/select-mode')}
+        icon={<AlertCircle size={48} className='text-red-500' />}
+      />
     )
   }
 
@@ -383,11 +309,6 @@ export default function PricingPage() {
                       Model: A{model.index}
                     </div>
                   </div>
-                  {symptoms.length > 0 && (
-                    <div className='bg-white/5 border border-white/15 text-white text-[10px] font-extrabold px-3 py-1.5 rounded-md tracking-wide uppercase'>
-                      {symptoms[0].name}
-                    </div>
-                  )}
                 </div>
 
                 <div className='h-px bg-white/5 -mx-6 mb-5' />
@@ -418,7 +339,7 @@ export default function PricingPage() {
                       <Shield size={12} className='text-gray-400' /> Warranty
                     </div>
                     <div className='text-sm font-bold text-white'>
-                      {partTier.defaultWarrantyMonths} Months
+                      {warrantyMonths} Months
                     </div>
                   </div>
                 </div>
@@ -439,15 +360,9 @@ export default function PricingPage() {
                   </span>
                 </div>
                 <div className='flex justify-between items-center'>
-                  <span className='text-xs text-gray-400'>Estimated Time</span>
-                  <span className='text-sm font-bold text-white'>
-                    {serviceMode === 'lab' ? '48 Hours' : '2 - 3 Hours'}
-                  </span>
-                </div>
-                <div className='flex justify-between items-center'>
                   <span className='text-xs text-gray-400'>Warranty</span>
                   <span className='text-sm font-bold text-white'>
-                    {partTier.defaultWarrantyMonths} Months
+                    {warrantyMonths} Months
                   </span>
                 </div>
               </div>
@@ -487,51 +402,83 @@ export default function PricingPage() {
                 </h3>
               </div>
 
-              {/* Quote Breakdowns */}
+              {/* Quote Breakdowns - Itemized per Symptom/Repair */}
               <div className='flex flex-col gap-5 lg:gap-6 pb-5 lg:pb-6 border-b border-white/5'>
-                {/* Part Price */}
-                <div>
-                  <div className='text-[9px] font-bold text-gray-400 uppercase tracking-wider mb-1 hidden lg:block'>
-                    Service Line Item
-                  </div>
-                  <div className='flex justify-between items-center'>
-                    <span className='text-xs lg:text-sm font-semibold text-gray-400 lg:text-white'>
-                      <span className='lg:hidden'>Part Price</span>
-                      <span className='hidden lg:inline'>
-                        Part Price ({partTier.tier} Display)
-                      </span>
-                    </span>
-                    <span className='text-sm lg:text-base font-bold lg:font-extrabold text-white'>
-                      ₹{partsCost.toLocaleString('en-IN')}
-                    </span>
-                  </div>
-                </div>
+                {itemizedSymptoms.map((symptom, index) => (
+                  <div key={index} className='flex flex-col gap-3'>
+                    {/* Symptom Name Header */}
+                    {itemizedSymptoms.length > 1 && (
+                      <div className='text-[10px] font-bold text-gray-500 uppercase tracking-wider'>
+                        {symptom.name}
+                      </div>
+                    )}
 
-                {/* Labor Charges */}
-                <div>
-                  <div className='text-[9px] font-bold text-gray-400 uppercase tracking-wider mb-1 hidden lg:block'>
-                    Service Line Item
+                    {/* Part Cost */}
+                    {!symptom.isVariable && symptom.partsCost > 0 && (
+                      <div>
+                        <div className='text-[9px] font-bold text-gray-400 uppercase tracking-wider mb-1 hidden lg:block'>
+                          Service Charge
+                        </div>
+                        <div className='flex justify-between items-center'>
+                          <span className='text-xs lg:text-sm font-semibold text-gray-400 lg:text-white'>
+                            <span className='lg:hidden'>Part Price</span>
+                            <span className='hidden lg:inline'>
+                              Part Price ({partTier.tier} {symptom.name})
+                            </span>
+                          </span>
+                          <span className='text-sm lg:text-base font-bold lg:font-extrabold text-white'>
+                            ₹{symptom.partsCost.toLocaleString('en-IN')}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Labour Cost */}
+                    {!symptom.isVariable && symptom.labourCost > 0 && (
+                      <div>
+                        <div className='text-[9px] font-bold text-gray-400 uppercase tracking-wider mb-1 hidden lg:block'>
+                          Service Charge
+                        </div>
+                        <div className='flex justify-between items-center'>
+                          <span className='text-xs lg:text-sm font-semibold text-gray-400 lg:text-white'>
+                            Labor Charges ({symptom.name})
+                          </span>
+                          <span className='text-sm lg:text-base font-bold lg:font-extrabold text-white'>
+                            ₹{symptom.labourCost.toLocaleString('en-IN')}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Variable Pricing Indicator */}
+                    {symptom.isVariable && (
+                      <div>
+                        <div className='text-[9px] font-bold text-gray-400 uppercase tracking-wider mb-1 hidden lg:block'>
+                          Service Charge
+                        </div>
+                        <div className='flex justify-between items-center'>
+                          <span className='text-xs lg:text-sm font-semibold text-gray-400 lg:text-white'>
+                            {symptom.name}
+                          </span>
+                          <span className='text-xs lg:text-sm font-semibold text-yellow-500'>
+                            Estimate Required
+                          </span>
+                        </div>
+                      </div>
+                    )}
                   </div>
-                  <div className='flex justify-between items-center'>
-                    <span className='text-xs lg:text-sm font-semibold text-gray-400 lg:text-white'>
-                      Labor Charges
-                    </span>
-                    <span className='text-sm lg:text-base font-bold lg:font-extrabold text-white'>
-                      ₹{labourCost.toLocaleString('en-IN')}
-                    </span>
-                  </div>
-                </div>
+                ))}
               </div>
             </div>
 
-            {/* Grand Total Area */}
+            {/* Subtotal Area */}
             <div className='pt-5 lg:pt-6'>
               <div className='text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1.5 hidden lg:block'>
-                Grand Total
+                Subtotal
               </div>
               <div className='flex justify-between items-end mb-2 lg:mb-0'>
                 <span className='text-sm lg:text-base font-extrabold text-white lg:hidden'>
-                  Total Amount
+                  Subtotal
                 </span>
                 <span className='text-2xl lg:text-4xl font-black text-white tracking-tight leading-none'>
                   ₹{totalAmount.toLocaleString('en-IN')}

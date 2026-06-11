@@ -1,14 +1,10 @@
 import api from './api';
 
 export const slotService = {
-  /**
-   * Fetch available slots for the next N days.
-   * @param {number} days - Number of days to fetch slots for (default 7)
-   */
-  async getAvailableSlotsForNextDays(days = 7) {
+  async getAvailableSlotsForNextDays(days = 7, centreId = null) {
     try {
       const response = await api.get('/slot/available/next-days', {
-        params: { days }
+        params: { days, centreId: centreId || undefined }
       });
       // Expected backend response: { success: true, data: { dates: [...] } }
       return response.data.data || response.data || [];

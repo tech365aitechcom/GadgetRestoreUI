@@ -2,18 +2,10 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ScanLine } from 'lucide-react';
 
-import BrandGrid, { CantFindBanner, TrustBadges, ScanSerialButton } from '@/components/booking/BrandGrid';
+import BrandGrid, { TrustBadges } from '@/components/booking/BrandGrid';
 import catalogueService from '@/services/catalogue.service';
 import { useBooking } from '@/context/BookingContext';
-
-/* ── Shared "Can't Find" Gear SVG ─────────────────────────────────────────── */
-const GearSVG = () => (
-  <svg viewBox="0 0 24 24" fill="currentColor" style={{ width: '100%', height: '100%' }}>
-    <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.06-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.488.488 0 0 0-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 0 0-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.73 8.87a.488.488 0 0 0 .12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.06.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .43-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.49-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z" />
-  </svg>
-);
 
 export default function SelectBrandPage() {
   const router = useRouter();
@@ -74,54 +66,18 @@ export default function SelectBrandPage() {
               </p>
             </div>
 
-            {/* Right: Scan Serial card (Desktop only) */}
-            <div className="hidden lg:block min-w-[220px]">
-              <button
-                className="scan-serial-card w-full flex flex-col items-start gap-2 p-4 px-5"
-                aria-label="Scan serial number"
-              >
-                <div className="flex items-center justify-between w-full">
-                  <div>
-                    <span className="scan-serial-card-label text-[9px] font-bold uppercase tracking-wider text-neutral-500">Auto-Detect</span>
-                    <span className="scan-serial-card-title text-base font-extrabold text-white">Scan Serial</span>
-                  </div>
-                  <div className="scan-serial-icon w-[42px] h-[42px] flex items-center justify-center bg-white/5 rounded-xl text-neutral-400">
-                    <ScanLine size={20} />
-                  </div>
-                </div>
-                <div className="w-full h-0.5 rounded-full bg-white/10 mt-1">
-                  <div className="h-full w-2/5 bg-[var(--color-accent)] rounded-full" />
-                </div>
-              </button>
-            </div>
-
           </div>
 
-          {/* Scan Serial Button (Mobile only) */}
-          <div className="lg:hidden">
-            <ScanSerialButton />
-          </div>
-
-          {/* Main Grid Content: CantFind (left/order-3) + BrandGrid (right/order-4) */}
+          {/* Main Grid Content: BrandGrid */}
           {error ? (
             <div className="text-center p-8 lg:p-12 text-[var(--color-danger)] font-semibold">{error}</div>
           ) : (
-            <div className="flex flex-col lg:grid lg:grid-cols-[280px_1fr] gap-4 lg:gap-6 items-start">
-              {/* Left Column on Desktop / Order 3 on Mobile */}
-              <div className="w-full order-3 lg:order-none">
-                <CantFindBanner />
-              </div>
-
-              {/* Right Column on Desktop / Order 4 on Mobile */}
-              <div className="w-full order-4 lg:order-none">
-                <BrandGrid
-                  brands={brands}
-                  isLoading={isLoading}
-                  onSelectBrand={handleSelectBrand}
-                  selectedBrandId={selectedBrand?._id}
-                />
-              </div>
-            </div>
+            <BrandGrid
+              brands={brands}
+              isLoading={isLoading}
+              onSelectBrand={handleSelectBrand}
+              selectedBrandId={selectedBrand?._id}
+            />
           )}
 
           {/* Trust badges (Desktop only) */}
