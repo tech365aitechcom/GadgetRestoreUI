@@ -3,6 +3,7 @@
 import { useState, useMemo } from 'react'
 import { Search, ScanLine } from 'lucide-react'
 import Skeleton from '@/components/ui/Skeleton'
+import OptimizedImage from '@/components/ui/OptimizedImage'
 import { getBrandLogo } from '@/lib/utils'
 
 /* ── Gear SVG (reusable decoration) ─────────────────────────────────────── */
@@ -201,41 +202,35 @@ export default function BrandGrid({
               >
                 <div className='brand-card-logo'>
                   {logoUrl ? (
-                    <img
+                    <OptimizedImage
                       src={logoUrl}
                       alt={brand.name}
+                      showSkeleton={false}
                       style={{
-                        width: '100%',
-                        height: '100%',
-                        objectFit: 'contain',
                         filter: ['google', 'realme'].includes(
                           brand.name.toLowerCase(),
                         )
                           ? 'none'
                           : 'var(--brand-logo-filter)',
                       }}
-                      loading='lazy'
-                      onError={(e) => {
-                        e.target.style.display = 'none'
-                        e.target.nextSibling.style.display = 'flex'
-                      }}
                     />
-                  ) : null}
-                  <span
-                    style={{
-                      display: logoUrl ? 'none' : 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      width: '100%',
-                      height: '100%',
-                      fontSize: 22,
-                      fontWeight: 900,
-                      color: 'var(--color-content-text-secondary)',
-                      letterSpacing: '-0.02em',
-                    }}
-                  >
-                    {brand.name.substring(0, 2).toUpperCase()}
-                  </span>
+                  ) : (
+                    <span
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        width: '100%',
+                        height: '100%',
+                        fontSize: 22,
+                        fontWeight: 900,
+                        color: 'var(--color-content-text-secondary)',
+                        letterSpacing: '-0.02em',
+                      }}
+                    >
+                      {brand.name.substring(0, 2).toUpperCase()}
+                    </span>
+                  )}
                 </div>
                 <span className='brand-card-name'>{brand.name}</span>
               </button>

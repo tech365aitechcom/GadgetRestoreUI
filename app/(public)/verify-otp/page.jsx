@@ -32,8 +32,10 @@ function VerifyOtpContent() {
   const [error, setError] = useState('')
   const [resendTimer, setResendTimer] = useState(OTP_RESEND_SECONDS)
   const [focusedIndex, setFocusedIndex] = useState(0)
+  const [otpString, setOtpString] = useState('')
 
   const inputRefs = useRef([])
+  const hiddenInputRef = useRef(null)
 
   // Auto-focus first input on mount
   useEffect(() => {
@@ -57,37 +59,92 @@ function VerifyOtpContent() {
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
   }
 
+  // For mobile - single input approach
+  const handleOtpStringChange = (value) => {
+    const digitsOnly = value.replace(/\D/g, '').slice(0, 6)
+    setOtpString(digitsOnly)
+
+    // Update individual boxes
+    const newOtp = Array(6).fill('')
+    for (let i = 0; i < digitsOnly.length; i++) {
+      newOtp[i] = digitsOnly[i]
+    }
+    setOtp(newOtp)
+    setFocusedIndex(Math.min(digitsOnly.length, 5))
+  }
+
+  // For desktop - individual inputs
   const handleOtpChange = (index, value) => {
     const digitsOnly = value.replace(/\D/g, '')
 
-    // Check if the value is a full 6-digit OTP code (autofill support)
-    if (digitsOnly.length === 6) {
-      const newOtp = digitsOnly.split('')
+    // If input is being cleared
+    if (!digitsOnly) {
+      const newOtp = [...otp]
+      newOtp[index] = ''
       setOtp(newOtp)
-      setTimeout(() => {
-        inputRefs.current[5]?.focus()
-      }, 0)
       return
     }
 
-    // Normal single digit handling
-    const cleanValue = digitsOnly.slice(-1)
+    // Check if the value is a full 6-digit OTP code (autofill/paste support)
+    if (digitsOnly.length === 6) {
+      const newOtp = digitsOnly.split('').slice(0, 6)
+      setOtp(newOtp)
+      // Focus last input after filling all
+      setTimeout(() => {
+        inputRefs.current[5]?.focus()
+        inputRefs.current[5]?.blur()
+      }, 50)
+      return
+    }
+
+    // Handle multiple digits (paste or fast typing)
+    if (digitsOnly.length > 1) {
+      const newOtp = [...otp]
+      const digits = digitsOnly.split('')
+
+      // Fill from current index onwards
+      for (let i = 0; i < digits.length && index + i < 6; i++) {
+        newOtp[index + i] = digits[i]
+      }
+
+      setOtp(newOtp)
+
+      // Focus the next empty input or last filled input
+      const nextIndex = Math.min(index + digits.length, 5)
+      setTimeout(() => {
+        inputRefs.current[nextIndex]?.focus()
+      }, 50)
+      return
+    }
+
+    // Normal single digit handling - take only the last character typed
+    const newDigit = digitsOnly.charAt(digitsOnly.length - 1)
     const newOtp = [...otp]
-    newOtp[index] = cleanValue
+    newOtp[index] = newDigit
     setOtp(newOtp)
 
     // Auto-focus next input if we typed a digit
-    if (cleanValue && index < 5) {
-      setTimeout(() => {
+    if (newDigit && index < 5) {
+      // Use a very short delay to allow state to update
+      requestAnimationFrame(() => {
         inputRefs.current[index + 1]?.focus()
-      }, 0)
+      })
     }
   }
 
   const handleKeyDown = (index, e) => {
-    // Move to previous input on Backspace if current is empty
-    if (e.key === 'Backspace' && !otp[index] && index > 0) {
-      inputRefs.current[index - 1]?.focus()
+    // Move to previous input on Backspace
+    if (e.key === 'Backspace') {
+      if (!otp[index] && index > 0) {
+        // If current is empty, move to previous
+        inputRefs.current[index - 1]?.focus()
+      } else if (otp[index]) {
+        // If current has value, clear it
+        const newOtp = [...otp]
+        newOtp[index] = ''
+        setOtp(newOtp)
+        e.preventDefault()
+      }
     }
   }
 
@@ -227,31 +284,46 @@ function VerifyOtpContent() {
             </p>
 
             <form onSubmit={handleSubmit}>
+              {/* Hidden input for mobile typing */}
+              <input
+                ref={hiddenInputRef}
+                type='tel'
+                inputMode='numeric'
+                pattern='[0-9]*'
+                autoComplete='one-time-code'
+                value={otpString}
+                onChange={(e) => handleOtpStringChange(e.target.value)}
+                maxLength={6}
+                style={{
+                  position: 'absolute',
+                  opacity: 0,
+                  pointerEvents: 'none',
+                  width: 1,
+                  height: 1,
+                }}
+                autoFocus
+              />
+
+              {/* Visual OTP boxes */}
               <div
                 className='flex justify-between gap-2 mb-6 ltr'
-                onPaste={handlePaste}
+                onClick={() => hiddenInputRef.current?.focus()}
               >
                 {otp.map((digit, idx) => (
-                  <input
+                  <div
                     key={idx}
-                    type='text'
-                    pattern='[0-9]*'
-                    inputMode='numeric'
-                    maxLength={6}
-                    value={digit}
-                    ref={(el) => (inputRefs.current[idx] = el)}
-                    onChange={(e) => handleOtpChange(idx, e.target.value)}
-                    onKeyDown={(e) => handleKeyDown(idx, e)}
-                    onFocus={(e) => {
-                      setFocusedIndex(idx)
-                      e.target.select()
-                    }}
-                    className='otp-box-mobile w-11 h-12 bg-white/[0.04] border border-white/10 rounded text-white text-center text-xl font-bold outline-none focus:border-white/40 transition-colors'
+                    className='otp-box-mobile w-11 h-12 bg-white/[0.04] border border-white/10 rounded text-white text-center text-xl font-bold flex items-center justify-center cursor-pointer transition-colors'
                     style={{
                       borderBottom:
                         focusedIndex === idx ? '2px solid #ffffff' : 'none',
+                      borderColor:
+                        focusedIndex === idx
+                          ? 'rgba(255,255,255,0.4)'
+                          : 'rgba(255,255,255,0.1)',
                     }}
-                  />
+                  >
+                    {digit}
+                  </div>
                 ))}
               </div>
 
@@ -340,7 +412,6 @@ function VerifyOtpContent() {
                     type='text'
                     pattern='[0-9]*'
                     inputMode='numeric'
-                    maxLength={6}
                     value={digit}
                     ref={(el) => (inputRefs.current[idx] = el)}
                     onChange={(e) => handleOtpChange(idx, e.target.value)}

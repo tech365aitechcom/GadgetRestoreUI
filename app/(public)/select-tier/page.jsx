@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import {
   ArrowLeft,
@@ -344,6 +344,11 @@ export default function SelectTierPage() {
     symptoms: true,
   })
 
+  // Memoize repair type IDs to avoid recalculation
+  const repairTypeIds = useMemo(() => {
+    return collectRepairTypeIds(symptoms)
+  }, [symptoms])
+
   /* Restore context state */
   useEffect(() => {
     if (contextTier) setSelectedTier(contextTier)
@@ -365,38 +370,37 @@ export default function SelectTierPage() {
 
   /* Check pricing availability once tiers + symptoms are ready */
   useEffect(() => {
-    if (!tiers.length || !symptoms?.length || !brand || !model) return
-    const repairTypeIds = collectRepairTypeIds(symptoms)
+    if (!tiers.length || !repairTypeIds.length || !brand || !model) return
     if (!repairTypeIds.length) return
 
     setIsCheckingPricing(true)
 
-    // Get available tiers for each repair to enable smart fallback
-    catalogueService
+    // Optimized: Run both API calls in parallel instead of sequential
+    const tierDataPromise = catalogueService
       .getAvailableTiers({
         brandId: brand._id,
         modelId: model._id,
         repairTypeIds,
       })
-      .then((tierData) => {
-        // Check pricing for each tier with fallback awareness
-        return Promise.all(
-          tiers.map((tier) =>
-            catalogueService
-              .checkPricingAvailability({
-                brandId: brand._id,
-                modelId: model._id,
-                repairTypeIds,
-                partTier: tier.tier,
-              })
-              .then((result) => ({ tier: tier.tier, result, tierData }))
-              .catch(() => ({ tier: tier.tier, result: null, tierData })),
-          ),
-        )
-      })
-      .then((results) => {
+      .catch(() => null) // Graceful fallback
+
+    const pricingPromises = tiers.map((tier) =>
+      catalogueService
+        .checkPricingAvailability({
+          brandId: brand._id,
+          modelId: model._id,
+          repairTypeIds,
+          partTier: tier.tier,
+        })
+        .then((result) => ({ tier: tier.tier, result }))
+        .catch(() => ({ tier: tier.tier, result: null })),
+    )
+
+    // Wait for all requests in parallel
+    Promise.all([tierDataPromise, ...pricingPromises])
+      .then(([tierData, ...pricingResults]) => {
         const avail = {}
-        results.forEach(({ tier: tierName, result, tierData }) => {
+        pricingResults.forEach(({ tier: tierName, result }) => {
           if (result?.results) {
             avail[tierName] = {
               available: result.allAvailable,
@@ -419,40 +423,8 @@ export default function SelectTierPage() {
       })
       .catch((error) => {
         console.error('Error checking pricing:', error)
-        // Fallback to old behavior if getAvailableTiers fails
-        return Promise.all(
-          tiers.map((tier) =>
-            catalogueService
-              .checkPricingAvailability({
-                brandId: brand._id,
-                modelId: model._id,
-                repairTypeIds,
-                partTier: tier.tier,
-              })
-              .then((result) => ({ tier: tier.tier, result }))
-              .catch(() => ({ tier: tier.tier, result: null })),
-          ),
-        ).then((results) => {
-          const avail = {}
-          results.forEach(({ tier: tierName, result }) => {
-            if (result?.results) {
-              avail[tierName] = {
-                available: result.allAvailable,
-                totalPartsCost: result.results.reduce(
-                  (s, r) => s + (r.pricing?.partsCost || 0),
-                  0,
-                ),
-                totalLabourCost: result.results.reduce(
-                  (s, r) => s + (r.pricing?.labourCost || 0),
-                  0,
-                ),
-              }
-            } else {
-              avail[tierName] = null
-            }
-          })
-          setAvailability(avail)
-        })
+        // Even on error, try to show partial data
+        setAvailability({})
       })
       .finally(() => setIsCheckingPricing(false))
   }, [tiers, symptoms, brand, model])
@@ -556,7 +528,7 @@ export default function SelectTierPage() {
 
           {/* Cards Grid */}
           <div>
-            {isLoadingTiers && (
+            {(isLoadingTiers || isCheckingPricing) && (
               <div
                 style={{
                   display: 'grid',
@@ -573,7 +545,7 @@ export default function SelectTierPage() {
                 ))}
               </div>
             )}
-            {!isLoadingTiers && error && (
+            {!isLoadingTiers && !isCheckingPricing && error && (
               <div
                 style={{
                   textAlign: 'center',
@@ -585,7 +557,7 @@ export default function SelectTierPage() {
                 {error}
               </div>
             )}
-            {!isLoadingTiers && !error && (
+            {!isLoadingTiers && !isCheckingPricing && !error && (
               <div
                 style={{
                   display: 'grid',
@@ -928,7 +900,7 @@ export default function SelectTierPage() {
 
           {/* List layout of row items */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            {isLoadingTiers && (
+            {(isLoadingTiers || isCheckingPricing) && (
               <div
                 style={{ display: 'flex', flexDirection: 'column', gap: 12 }}
               >
@@ -941,7 +913,7 @@ export default function SelectTierPage() {
                 ))}
               </div>
             )}
-            {!isLoadingTiers && error && (
+            {!isLoadingTiers && !isCheckingPricing && error && (
               <div
                 style={{
                   textAlign: 'center',
@@ -953,7 +925,7 @@ export default function SelectTierPage() {
                 {error}
               </div>
             )}
-            {!isLoadingTiers && !error && (
+            {!isLoadingTiers && !isCheckingPricing && !error && (
               <div
                 style={{ display: 'flex', flexDirection: 'column', gap: 12 }}
               >
@@ -992,6 +964,7 @@ export default function SelectTierPage() {
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'space-between',
+                        gap: 12,
                         cursor: isDisabled ? 'not-allowed' : 'pointer',
                         outline: 'none',
                         textAlign: 'left',

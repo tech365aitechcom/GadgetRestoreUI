@@ -19,11 +19,6 @@ import LoginAlertModal from '@/components/ui/LoginAlertModal'
 import notificationService from '@/services/notification.service'
 import { setRouterInstance } from '@/lib/navigation'
 
-/**
- * AppShell — Responsive layout shell
- * Desktop (≥1024px): Dark sidebar + Light top bar + Light content
- * Mobile  (<1024px): Light content only, bottom nav handled in page
- */
 export default function AppShell({ children, className = '' }) {
   const pathname = usePathname()
   const router = useRouter()
