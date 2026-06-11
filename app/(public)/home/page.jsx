@@ -3,31 +3,31 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
-import Cookies from 'js-cookie'
 import {
-  Bell,
   Search,
   Smartphone,
   Laptop,
   BatteryCharging,
   Microscope,
-  Play,
-  Scan,
-  BookOpen,
-  FileText,
-  History,
   Sparkles,
   Plus,
-  ArrowRight,
   ChevronRight,
   Tablet,
   Watch,
 } from 'lucide-react'
-
 import catalogueService from '@/services/catalogue.service'
 import { useBooking } from '@/context/BookingContext'
 import customerService from '@/services/customer.service'
 import { useAuth } from '@/context/AuthContext'
+import Skeleton from '@/components/ui/Skeleton'
+import ErrorState from '@/components/ui/ErrorState'
+import {
+  DEFAULT_MANUALS,
+  POPULAR_SERVICES,
+  getDeviceManuals,
+  getDisplayStatusLabel,
+  getProgressFill,
+} from '@/lib/homeData'
 
 /* ─── style helpers ─────────────────────────────────────────────────────── */
 const S = {
@@ -60,78 +60,6 @@ const S = {
   },
 }
 
-const getDisplayStatusLabel = (status) => {
-  switch (status) {
-    case 'ORDER_PLACED':
-      return 'Order Placed'
-    case 'CS_CONFIRMED':
-      return 'Booking Confirmed'
-    case 'PICKUP_ASSIGNED':
-      return 'Pickup Scheduled'
-    case 'PICKUP_IN_PROGRESS':
-      return 'Pickup En Route'
-    case 'PICKUP_EN_ROUTE':
-      return 'Pickup En Route'
-    case 'DEVICE_PICKED_UP':
-      return 'Device Picked Up'
-    case 'RECEIVED_AT_CENTRE':
-      return 'At Service Centre'
-    case 'DIAGNOSIS_IN_PROGRESS':
-      return 'Under Diagnosis'
-    case 'DIAGNOSIS_COMPLETE':
-      return 'Diagnosis Complete'
-    case 'CUSTOMER_APPROVAL_PENDING':
-      return 'Approval Pending'
-    case 'CUSTOMER_APPROVED':
-      return 'Repair Authorized'
-    case 'REPAIR_IN_PROGRESS':
-      return 'Repair in Progress'
-    case 'REPAIR_COMPLETED':
-      return 'Repair Completed'
-    case 'DELIVERY_ASSIGNED':
-      return 'Delivery Scheduled'
-    case 'DELIVERY_IN_PROGRESS':
-      return 'Out for Delivery'
-    case 'OUT_FOR_DELIVERY':
-      return 'Out for Delivery'
-    default:
-      return 'In Progress'
-  }
-}
-
-const getProgressFill = (status) => {
-  switch (status) {
-    case 'ORDER_PLACED':
-      return '16%'
-    case 'CS_CONFIRMED':
-      return '30%'
-    case 'PICKUP_ASSIGNED':
-      return '40%'
-    case 'PICKUP_IN_PROGRESS':
-      return '50%'
-    case 'PICKUP_EN_ROUTE':
-      return '50%'
-    case 'DEVICE_PICKED_UP':
-      return '60%'
-    case 'RECEIVED_AT_CENTRE':
-      return '65%'
-    case 'DIAGNOSIS_IN_PROGRESS':
-      return '70%'
-    case 'DIAGNOSIS_COMPLETE':
-      return '75%'
-    case 'CUSTOMER_APPROVAL_PENDING':
-      return '80%'
-    case 'CUSTOMER_APPROVED':
-      return '85%'
-    case 'REPAIR_IN_PROGRESS':
-      return '90%'
-    case 'REPAIR_COMPLETED':
-      return '95%'
-    default:
-      return '65%'
-  }
-}
-
 export default function HomePage() {
   const router = useRouter()
   const { reset, setCategory } = useBooking()
@@ -140,23 +68,7 @@ export default function HomePage() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(null)
   const [activeOrder, setActiveOrder] = useState(null)
-  const [manuals, setManuals] = useState([
-    {
-      label: 'iPhone Display Repair SOP',
-      sub: 'Standard operating manual',
-      Icon: BookOpen,
-    },
-    {
-      label: 'Li-ion Battery Safety SOP',
-      sub: 'Handling and thermal safety',
-      Icon: FileText,
-    },
-    {
-      label: 'Soldering & Micro-jumpers Guide',
-      sub: 'Logic board diagnostic standard',
-      Icon: History,
-    },
-  ])
+  const [manuals, setManuals] = useState(DEFAULT_MANUALS)
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -206,23 +118,7 @@ export default function HomePage() {
 
           const latestDevice = active || list[0]
           if (latestDevice) {
-            setManuals([
-              {
-                label: `${latestDevice.modelRef?.name} Screen Guide`,
-                sub: 'Intake and glass separation SOP',
-                Icon: BookOpen,
-              },
-              {
-                label: `${latestDevice.modelRef?.name} Battery SOP`,
-                sub: 'Safe extraction and adhesive release',
-                Icon: FileText,
-              },
-              {
-                label: `${latestDevice.modelRef?.name} Tear-down Index`,
-                sub: 'Complete components map',
-                Icon: History,
-              },
-            ])
+            setManuals(getDeviceManuals(latestDevice))
           }
         }
       } catch (err) {
@@ -250,288 +146,131 @@ export default function HomePage() {
   }
 
   return (
-    <>
-      {/* ════════════════════════════════════════════════════════════════
-          DESKTOP  — shown only at ≥1024 px via .home-desktop CSS class
-          ════════════════════════════════════════════════════════════════ */}
-      <div className='home-desktop'>
-        <div className='p-8' style={{ paddingBottom: 48 }}>
-          {/* Welcome row */}
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'flex-start',
-              justifyContent: 'space-between',
-              marginBottom: 28,
-            }}
-          >
+    <div
+      className='lg:p-8 p-0 min-h-svh pb-20'
+      style={{
+        background: 'var(--color-content-bg)',
+      }}
+    >
+      <div
+        className='flex flex-col lg:gap-7 gap-3'
+        style={{ padding: 'var(--spacing-container, 0)' }}
+      >
+        {/* Welcome header - DESKTOP ONLY */}
+        <div className='hidden lg:block mb-7'>
+          <div className='flex items-start justify-between'>
             <div>
               <h1
-                style={{
-                  fontSize: 24,
-                  fontWeight: 800,
-                  color: 'var(--color-content-text)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 8,
-                  marginBottom: 6,
-                }}
+                className='text-2xl font-extrabold flex items-center gap-2 mb-1.5'
+                style={{ color: 'var(--color-content-text)' }}
               >
                 Welcome back, {user?.name || 'Guest'}&nbsp;
                 <span
-                  style={{
-                    display: 'inline-block',
-                    animation: 'bounce 1s infinite',
-                  }}
+                  className='inline-block'
+                  style={{ animation: 'bounce 1s infinite' }}
                 >
                   👋
                 </span>
               </h1>
               <p
-                style={{
-                  fontSize: 13,
-                  color: 'var(--color-content-text-secondary)',
-                }}
+                className='text-[13px]'
+                style={{ color: 'var(--color-content-text-secondary)' }}
               >
                 Here is what's happening in your workshop today.
               </p>
             </div>
-            <div style={{ display: 'flex', gap: 12, flexShrink: 0 }}>
-              <div className='stat-card'>
-                <div className='stat-card-label'>Queue Size</div>
-                <div className='stat-card-value'>12</div>
-              </div>
-              <div className='stat-card'>
-                <div className='stat-card-label'>Avg Turnaround</div>
-                <div className='stat-card-value'>4.2h</div>
-              </div>
-            </div>
           </div>
+        </div>
 
-          {/* Hero Banner */}
+        {/* Search bar - MOBILE ONLY */}
+        <div className='lg:hidden block pt-17 px-4 pb-0'>
           <div
+            onClick={handleStart}
+            className='flex items-center gap-2.5 py-3 px-4 rounded-xl cursor-pointer'
             style={{
-              position: 'relative',
-              borderRadius: 20,
-              overflow: 'hidden',
-              marginBottom: 28,
-              minHeight: 260,
-              background: 'var(--color-bg-900)',
-              display: 'flex',
-              alignItems: 'center',
+              background: 'var(--color-content-card)',
+              border: '1px solid var(--color-content-border)',
             }}
           >
-            <div style={{ position: 'absolute', inset: 0 }}>
+            <Search size={16} color='var(--color-content-text-secondary)' />
+            <span
+              className='text-sm'
+              style={{ color: 'var(--color-content-text-secondary)' }}
+            >
+              Search device or issue...
+            </span>
+          </div>
+        </div>
+
+        {/* Hero Banner - DESKTOP ONLY */}
+        <div className='hidden lg:block mb-7'>
+          <div
+            className='relative rounded-[20px] overflow-hidden min-h-65 flex items-center'
+            style={{ background: 'var(--color-bg-900)' }}
+          >
+            <div className='absolute inset-0'>
               <Image
                 src='/images/home-banner-top.png'
                 alt='Workshop'
                 width={1200}
                 height={260}
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  objectFit: 'cover',
-                  opacity: 0.45,
-                }}
+                className='w-full h-full object-cover opacity-45'
                 priority
               />
               <div
+                className='absolute inset-0'
                 style={{
-                  position: 'absolute',
-                  inset: 0,
                   background:
                     'linear-gradient(90deg,rgba(5,5,5,0.95) 40%,rgba(5,5,5,0.25) 100%)',
                 }}
               />
             </div>
-            <div
-              style={{
-                position: 'relative',
-                zIndex: 1,
-                padding: '40px 48px',
-                maxWidth: 520,
-              }}
-            >
+            <div className='relative z-1 py-10 px-12 max-w-130'>
               <span
+                className='inline-block text-white text-[9px] font-bold tracking-[0.12em] uppercase px-3 py-1 rounded-full mb-4'
                 style={{
-                  display: 'inline-block',
                   background: 'var(--color-overlay-white-10)',
                   border: '1px solid rgba(255,255,255,0.2)',
-                  color: '#ffffff',
-                  fontSize: 9,
-                  fontWeight: 700,
-                  letterSpacing: '0.12em',
-                  textTransform: 'uppercase',
-                  padding: '4px 12px',
-                  borderRadius: 999,
-                  marginBottom: 16,
                 }}
               >
                 Special Offer
               </span>
-              <h2
-                style={{
-                  fontSize: 36,
-                  fontWeight: 800,
-                  color: '#ffffff',
-                  lineHeight: 1.2,
-                  marginBottom: 12,
-                }}
-              >
+              <h2 className='text-4xl font-extrabold text-white leading-tight mb-3'>
                 Get 20% Off on First Repair
               </h2>
-              <p
-                style={{
-                  fontSize: 14,
-                  color: 'rgba(255,255,255,0.75)',
-                  marginBottom: 28,
-                  lineHeight: 1.6,
-                }}
-              >
+              <p className='text-sm leading-relaxed mb-7 text-white/75'>
                 Exclusive offer for new service registrations. Boost your
                 conversion rates today.
               </p>
               <button
                 onClick={handleStart}
-                style={{
-                  background: '#ffffff',
-                  color: '#000000',
-                  border: 'none',
-                  borderRadius: 12,
-                  padding: '13px 28px',
-                  fontWeight: 700,
-                  fontSize: 13,
-                  letterSpacing: '0.06em',
-                  textTransform: 'uppercase',
-                  cursor: 'pointer',
-                }}
+                className='bg-white text-black border-0 rounded-xl py-3.25 px-7 font-bold text-[13px] tracking-wider uppercase cursor-pointer'
               >
-                Claim Offer
+                Book Now
               </button>
-              <div style={{ marginTop: 14 }}>
-                <span
-                  style={{
-                    fontSize: 10,
-                    color: 'rgba(255,255,255,0.45)',
-                    fontWeight: 700,
-                    letterSpacing: '0.1em',
-                    textTransform: 'uppercase',
-                  }}
-                >
+              <div className='mt-3.5 '>
+                <span className='text-[10px] bg-black border border-white py-1 px-4 text-white rounded-full font-bold tracking-widest uppercase'>
                   Limited Offer
                 </span>
               </div>
             </div>
           </div>
+        </div>
 
-          {/* 3-column cards row */}
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: '1fr 1fr 1fr',
-              gap: 20,
-              marginBottom: 28,
-            }}
-          >
-            {/* Scan Serial */}
-            <div
-              className='card'
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'space-between',
-                gap: 20,
-                padding: 24,
-                cursor: 'pointer',
-              }}
-              onClick={handleStart}
-            >
-              <div>
-                <div
-                  style={{
-                    width: 44,
-                    height: 44,
-                    borderRadius: 12,
-                    background: 'var(--color-content-bg)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: 'var(--color-content-text-secondary)',
-                    marginBottom: 16,
-                  }}
-                >
-                  <Scan size={22} />
-                </div>
-                <h3
-                  style={{
-                    fontWeight: 700,
-                    fontSize: 15,
-                    color: 'var(--color-content-text)',
-                    marginBottom: 8,
-                  }}
-                >
-                  Scan Serial
-                </h3>
-                <p
-                  style={{
-                    fontSize: 13,
-                    color: 'var(--color-content-text-secondary)',
-                    lineHeight: 1.55,
-                  }}
-                >
-                  Identify and log device technical specifications instantly via
-                  barcode scanner.
-                </p>
-              </div>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation()
-                  handleStart()
-                }}
-                className='btn-primary'
-                style={{
-                  width: '100%',
-                  height: 42,
-                  fontSize: 12,
-                  letterSpacing: '0.06em',
-                  textTransform: 'uppercase',
-                }}
-              >
-                Start Scan <ArrowRight size={14} />
-              </button>
-            </div>
-
-            {/* Active Repair */}
-            <div
-              className='card'
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'space-between',
-                gap: 20,
-                padding: 24,
-              }}
-            >
+        {/* Active Repair & Manuals Grid */}
+        <div className='lg:px-0 px-4'>
+          {/* DESKTOP: 2-column grid */}
+          <div className='hidden lg:grid lg:grid-cols-2 lg:gap-5 lg:mb-7'>
+            {/* Active Repair - DESKTOP */}
+            <div className='card flex flex-col justify-between gap-5 p-6'>
               {activeOrder ? (
                 <>
                   <div>
-                    <div
-                      style={{
-                        display: 'flex',
-                        alignItems: 'flex-start',
-                        justifyContent: 'space-between',
-                        marginBottom: 16,
-                      }}
-                    >
+                    <div className='flex items-start justify-between mb-4'>
                       <div
+                        className='w-11 h-11 rounded-xl flex items-center justify-center'
                         style={{
-                          width: 44,
-                          height: 44,
-                          borderRadius: 12,
                           background: 'var(--color-content-bg)',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
                           color: 'var(--color-content-text-secondary)',
                         }}
                       >
@@ -542,21 +281,14 @@ export default function HomePage() {
                       </span>
                     </div>
                     <h3
-                      style={{
-                        fontWeight: 700,
-                        fontSize: 15,
-                        color: 'var(--color-content-text)',
-                        marginBottom: 6,
-                      }}
+                      className='font-bold text-[15px] mb-1.5'
+                      style={{ color: 'var(--color-content-text)' }}
                     >
                       Active Repair
                     </h3>
                     <p
-                      style={{
-                        fontSize: 12,
-                        color: 'var(--color-content-text-secondary)',
-                        marginBottom: 14,
-                      }}
+                      className='text-xs mb-3.5'
+                      style={{ color: 'var(--color-content-text-secondary)' }}
                     >
                       {activeOrder.modelRef?.name || 'Device'} —{' '}
                       {activeOrder.repairTypes?.[0]?.name ||
@@ -578,14 +310,7 @@ export default function HomePage() {
                         `/orders/detail?ticketNumber=${activeOrder.ticketNumber}`,
                       )
                     }
-                    className='btn-accent'
-                    style={{
-                      width: '100%',
-                      height: 42,
-                      fontSize: 12,
-                      letterSpacing: '0.06em',
-                      textTransform: 'uppercase',
-                    }}
+                    className='btn-accent w-full h-10.5 text-xs tracking-wider uppercase'
                   >
                     Track Order
                   </button>
@@ -593,23 +318,11 @@ export default function HomePage() {
               ) : (
                 <>
                   <div>
-                    <div
-                      style={{
-                        display: 'flex',
-                        alignItems: 'flex-start',
-                        justifyContent: 'space-between',
-                        marginBottom: 16,
-                      }}
-                    >
+                    <div className='flex items-start justify-between mb-4'>
                       <div
+                        className='w-11 h-11 rounded-xl flex items-center justify-center'
                         style={{
-                          width: 44,
-                          height: 44,
-                          borderRadius: 12,
                           background: 'var(--color-content-bg)',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
                           color: 'var(--color-content-text-secondary)',
                         }}
                       >
@@ -626,21 +339,14 @@ export default function HomePage() {
                       </span>
                     </div>
                     <h3
-                      style={{
-                        fontWeight: 700,
-                        fontSize: 15,
-                        color: 'var(--color-content-text)',
-                        marginBottom: 6,
-                      }}
+                      className='font-bold text-[15px] mb-1.5'
+                      style={{ color: 'var(--color-content-text)' }}
                     >
                       Start a Repair
                     </h3>
                     <p
-                      style={{
-                        fontSize: 12,
-                        color: 'var(--color-content-text-secondary)',
-                        marginBottom: 14,
-                      }}
+                      className='text-xs mb-3.5'
+                      style={{ color: 'var(--color-content-text-secondary)' }}
                     >
                       No active repair in progress. Book a premium repair
                       service now.
@@ -651,14 +357,7 @@ export default function HomePage() {
                   </div>
                   <button
                     onClick={handleStart}
-                    className='btn-accent'
-                    style={{
-                      width: '100%',
-                      height: 42,
-                      fontSize: 12,
-                      letterSpacing: '0.06em',
-                      textTransform: 'uppercase',
-                    }}
+                    className='btn-accent w-full h-10.5 text-xs tracking-wider uppercase'
                   >
                     Book Service
                   </button>
@@ -666,32 +365,20 @@ export default function HomePage() {
               )}
             </div>
 
-            {/* Repair Manuals */}
-            <div className='card' style={{ padding: 24 }}>
+            {/* Repair Manuals - DESKTOP ONLY */}
+            <div className='card p-6'>
               <h3
-                style={{
-                  fontWeight: 700,
-                  fontSize: 15,
-                  color: 'var(--color-content-text)',
-                  marginBottom: 18,
-                }}
+                className='font-bold text-[15px] mb-4.5'
+                style={{ color: 'var(--color-content-text)' }}
               >
                 Repair Manuals
               </h3>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <div className='flex flex-col gap-1.5'>
                 {manuals.map(({ label, sub, Icon }) => (
                   <a
                     key={label}
                     href='#'
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 12,
-                      padding: '10px 10px',
-                      borderRadius: 10,
-                      textDecoration: 'none',
-                      transition: 'background 150ms ease',
-                    }}
+                    className='flex items-center gap-3 p-2.5 rounded-[10px] no-underline transition-[background] duration-150'
                     onMouseEnter={(e) =>
                       (e.currentTarget.style.background =
                         'var(--color-content-bg)')
@@ -701,37 +388,24 @@ export default function HomePage() {
                     }
                   >
                     <div
+                      className='w-9 h-9 rounded-[9px] flex items-center justify-center shrink-0'
                       style={{
-                        width: 36,
-                        height: 36,
-                        borderRadius: 9,
                         background: 'var(--color-content-bg)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
                         color: 'var(--color-content-text-secondary)',
-                        flexShrink: 0,
                       }}
                     >
                       <Icon size={17} />
                     </div>
                     <div>
                       <span
-                        style={{
-                          display: 'block',
-                          fontSize: 13,
-                          fontWeight: 600,
-                          color: 'var(--color-content-text)',
-                          lineHeight: 1.3,
-                        }}
+                        className='block text-[13px] font-semibold leading-tight'
+                        style={{ color: 'var(--color-content-text)' }}
                       >
                         {label}
                       </span>
                       <span
-                        style={{
-                          fontSize: 11,
-                          color: 'var(--color-content-text-secondary)',
-                        }}
+                        className='text-[11px]'
+                        style={{ color: 'var(--color-content-text-secondary)' }}
                       >
                         {sub}
                       </span>
@@ -742,426 +416,34 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* Quick Service Selection */}
-          <div style={{ marginBottom: 28 }}>
-            <div className='section-header' style={{ marginBottom: 16 }}>
-              <span className='section-title'>
-                <Sparkles
-                  size={16}
-                  color='var(--color-content-text-secondary)'
-                />
-                Quick Service Selection
-              </span>
-            </div>
-            {error ? (
-              <div
-                style={{
-                  padding: '32px 24px',
-                  background: 'var(--color-content-card)',
-                  border: '1px solid var(--color-content-border)',
-                  borderRadius: 'var(--radius-card)',
-                  textAlign: 'center',
-                }}
-              >
-                <div
-                  style={{
-                    width: 48,
-                    height: 48,
-                    borderRadius: '50%',
-                    background: 'rgba(239, 68, 68, 0.1)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    margin: '0 auto 16px',
-                  }}
-                >
-                  <span style={{ fontSize: 24 }}>⚠️</span>
-                </div>
-                <p
-                  style={{
-                    fontSize: 15,
-                    fontWeight: 600,
-                    color: 'var(--color-danger)',
-                    marginBottom: 8,
-                  }}
-                >
-                  {error}
-                </p>
-                <p
-                  style={{
-                    fontSize: 13,
-                    color: 'var(--color-content-text-secondary)',
-                    marginBottom: 20,
-                  }}
-                >
-                  You can still start a repair by clicking the button below.
-                </p>
-                <button
-                  onClick={handleStart}
-                  className='btn-primary'
-                  style={{ margin: '0 auto' }}
-                >
-                  Start New Repair <ArrowRight size={14} />
-                </button>
-              </div>
-            ) : isLoading ? (
-              <div
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(4, 1fr)',
-                  gap: 14,
-                }}
-              >
-                {[1, 2, 3, 4].map((i) => (
-                  <div
-                    key={i}
-                    className='skeleton'
-                    style={{ height: 110, borderRadius: 'var(--radius-card)' }}
-                  />
-                ))}
-              </div>
-            ) : categories.length === 0 ? (
-              <div
-                style={{
-                  padding: '32px 24px',
-                  background: 'var(--color-content-card)',
-                  border: '1px solid var(--color-content-border)',
-                  borderRadius: 'var(--radius-card)',
-                  textAlign: 'center',
-                }}
-              >
-                <p
-                  style={{
-                    fontSize: 15,
-                    fontWeight: 600,
-                    color: 'var(--color-content-text-secondary)',
-                    marginBottom: 20,
-                  }}
-                >
-                  No service categories available
-                </p>
-                <button
-                  onClick={handleStart}
-                  className='btn-primary'
-                  style={{ margin: '0 auto' }}
-                >
-                  Start New Repair <ArrowRight size={14} />
-                </button>
-              </div>
-            ) : (
-              <div
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(4, 1fr)',
-                  gap: 14,
-                }}
-              >
-                {categories.map((cat, idx) => {
-                  const CatIcon = cat.icon || Smartphone
-                  return (
-                    <button
-                      key={idx}
-                      onClick={() => handleCategorySelect(cat)}
-                      className='service-card'
-                    >
-                      <div className='service-card-icon'>
-                        <CatIcon size={21} />
-                      </div>
-                      <span className='service-card-label'>{cat.name}</span>
-                    </button>
-                  )
-                })}
-              </div>
-            )}
-          </div>
-
-          {/* Popular Services */}
-          <div>
-            <div className='section-header' style={{ marginBottom: 16 }}>
-              <span className='section-title'>⭐ Popular Services</span>
-              <button onClick={handleStart} className='section-link'>
-                View All Services
-              </button>
-            </div>
+          {/* MOBILE: Active Repair card */}
+          <div className='lg:hidden flex flex-col gap-3'>
+            {/* Active Repair - Mobile */}
             <div
+              className='py-4.5 px-5 rounded-[18px]'
               style={{
-                display: 'grid',
-                gridTemplateColumns: '1fr 1fr',
-                gap: 20,
+                background: 'var(--color-bg-700)',
+                border: '1px solid var(--color-bg-400)',
               }}
             >
-              {/* Screen Replacement */}
-              <div
-                className='popular-card'
-                style={{ minHeight: 220, position: 'relative' }}
-                onClick={handleStart}
-              >
-                <Image
-                  src='/images/home-banner-top.png'
-                  alt='Screen Replacement'
-                  width={600}
-                  height={220}
-                  style={{
-                    position: 'absolute',
-                    inset: 0,
-                    width: '100%',
-                    height: '100%',
-                    objectFit: 'cover',
-                    opacity: 0.5,
-                  }}
-                />
-                <div className='popular-card-overlay' />
-                <div className='popular-card-content'>
-                  <span
-                    className='badge badge-accent'
-                    style={{ marginBottom: 10, display: 'inline-flex' }}
-                  >
-                    Most Requested
-                  </span>
-                  <h4
-                    style={{
-                      fontSize: 20,
-                      fontWeight: 800,
-                      color: '#ffffff',
-                      marginBottom: 6,
-                    }}
-                  >
-                    Screen Replacement
-                  </h4>
-                  <p
-                    style={{
-                      fontSize: 12,
-                      color: 'rgba(255,255,255,0.75)',
-                      marginBottom: 14,
-                    }}
-                  >
-                    Original parts with 12-month warranty.
-                  </p>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      handleStart()
-                    }}
-                    style={{
-                      background: 'none',
-                      border: 'none',
-                      cursor: 'pointer',
-                      color: 'rgba(255,255,255,0.85)',
-                      fontSize: 12,
-                      fontWeight: 700,
-                      letterSpacing: '0.05em',
-                      textTransform: 'uppercase',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 4,
-                    }}
-                  >
-                    Book Screen <ChevronRight size={13} />
-                  </button>
-                </div>
-              </div>
-
-              {/* Liquid Damage */}
-              <div
-                className='popular-card'
-                style={{
-                  minHeight: 220,
-                  background: 'linear-gradient(135deg,#1a0a2e,#0d1117)',
-                }}
-                onClick={handleStart}
-              >
-                <div
-                  style={{
-                    position: 'absolute',
-                    inset: 0,
-                    background: 'linear-gradient(135deg,#1a0a2e,#0d1117)',
-                  }}
-                />
-                <div className='popular-card-overlay' />
-                <div className='popular-card-content'>
-                  <span
-                    className='badge badge-accent'
-                    style={{ marginBottom: 10, display: 'inline-flex' }}
-                  >
-                    Advanced Repair
-                  </span>
-                  <h4
-                    style={{
-                      fontSize: 20,
-                      fontWeight: 800,
-                      color: '#ffffff',
-                      marginBottom: 6,
-                    }}
-                  >
-                    Liquid Damage
-                  </h4>
-                  <p
-                    style={{
-                      fontSize: 12,
-                      color: 'rgba(255,255,255,0.75)',
-                      marginBottom: 14,
-                    }}
-                  >
-                    Ultrasonic cleaning &amp; circuit restoration.
-                  </p>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      handleStart()
-                    }}
-                    style={{
-                      background: 'none',
-                      border: 'none',
-                      cursor: 'pointer',
-                      color: 'rgba(255,255,255,0.85)',
-                      fontSize: 12,
-                      fontWeight: 700,
-                      letterSpacing: '0.05em',
-                      textTransform: 'uppercase',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 4,
-                    }}
-                  >
-                    Diagnose Board <ChevronRight size={13} />
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* ════════════════════════════════════════════════════════════════
-          MOBILE  — shown only below 1024 px via .home-mobile CSS class
-          ════════════════════════════════════════════════════════════════ */}
-      <div className='home-mobile'>
-        <div
-          style={{
-            background: 'var(--color-content-bg)',
-            minHeight: '100svh',
-            display: 'flex',
-            flexDirection: 'column',
-            paddingBottom: 80,
-          }}
-        >
-          {/* Main scroll content */}
-          <div
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 12,
-              padding: '68px 16px 0',
-            }}
-          >
-            {/* Search bar */}
-            <div
-              onClick={handleStart}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 10,
-                padding: '12px 16px',
-                background: 'var(--color-content-card)',
-                border: '1px solid var(--color-content-border)',
-                borderRadius: 12,
-                cursor: 'pointer',
-              }}
-            >
-              <Search size={16} color='var(--color-content-text-secondary)' />
-              <span
-                style={{
-                  fontSize: 14,
-                  color: 'var(--color-content-text-secondary)',
-                }}
-              >
-                Search device or issue...
-              </span>
-            </div>
-
-            {/* Scan Serial */}
-            <button
-              onClick={handleStart}
-              style={{
-                ...S.darkCard,
-                width: '100%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                padding: '16px 20px',
-                cursor: 'pointer',
-                textAlign: 'left',
-              }}
-            >
-              <div>
-                <span
-                  style={{ ...S.mutedLabel, display: 'block', marginBottom: 4 }}
-                >
-                  Auto-Detect
-                </span>
-                <span
-                  style={{
-                    fontSize: 16,
-                    fontWeight: 800,
-                    color: 'var(--color-btn-cta-bg)',
-                  }}
-                >
-                  Scan Serial
-                </span>
-              </div>
-              <div
-                style={{
-                  width: 40,
-                  height: 40,
-                  borderRadius: 11,
-                  background: 'var(--color-overlay-white-10)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: 'var(--color-text-dim)',
-                  flexShrink: 0,
-                }}
-              >
-                <Scan size={20} />
-              </div>
-            </button>
-
-            {/* Active Repair */}
-            <div style={{ ...S.darkCard, padding: '18px 20px' }}>
               {activeOrder ? (
                 <>
-                  <div
-                    style={{
-                      display: 'flex',
-                      alignItems: 'flex-start',
-                      justifyContent: 'space-between',
-                      marginBottom: 8,
-                    }}
-                  >
+                  <div className='flex items-start justify-between mb-2'>
                     <div>
                       <span
-                        style={{
-                          ...S.mutedLabel,
-                          display: 'block',
-                          marginBottom: 4,
-                        }}
+                        className='block mb-1 text-[10px] font-bold uppercase tracking-widest'
+                        style={{ color: 'var(--color-text-dim)' }}
                       >
                         Active Repair
                       </span>
                       <h4
-                        style={{
-                          fontSize: 16,
-                          fontWeight: 800,
-                          color: 'var(--color-btn-cta-bg)',
-                        }}
+                        className='text-base font-extrabold'
+                        style={{ color: 'var(--color-btn-cta-bg)' }}
                       >
                         {activeOrder.modelRef?.name || 'Device'}
                       </h4>
                     </div>
-                    <span
-                      className='badge badge-accent'
-                      style={{ marginTop: 2 }}
-                    >
+                    <span className='badge badge-accent mt-0.5'>
                       {getDisplayStatusLabel(activeOrder.repairStatus)}
                     </span>
                   </div>
@@ -1173,32 +455,17 @@ export default function HomePage() {
                       }}
                     />
                   </div>
-                  <div
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      marginTop: 16,
-                      paddingTop: 14,
-                      borderTop: '1px solid rgba(255,255,255,0.07)',
-                    }}
-                  >
+                  <div className='flex items-center justify-between mt-4 pt-3.5 border-t border-white/[0.07]'>
                     <div>
                       <span
-                        style={{
-                          ...S.mutedLabel,
-                          display: 'block',
-                          marginBottom: 2,
-                        }}
+                        className='block mb-0.5 text-[10px] font-bold uppercase tracking-widest'
+                        style={{ color: 'var(--color-text-dim)' }}
                       >
                         Service Ticket
                       </span>
                       <span
-                        style={{
-                          fontSize: 13,
-                          fontWeight: 700,
-                          color: 'var(--color-btn-cta-bg)',
-                        }}
+                        className='text-[13px] font-bold'
+                        style={{ color: 'var(--color-btn-cta-bg)' }}
                       >
                         #{activeOrder.ticketNumber}
                       </span>
@@ -1209,16 +476,10 @@ export default function HomePage() {
                           `/orders/detail?ticketNumber=${activeOrder.ticketNumber}`,
                         )
                       }
+                      className='border-0 rounded-[10px] py-2.25 px-4.5 text-xs font-bold tracking-wide cursor-pointer'
                       style={{
                         background: 'var(--color-btn-cta-bg)',
                         color: 'var(--color-btn-cta-text)',
-                        border: 'none',
-                        borderRadius: 10,
-                        padding: '9px 18px',
-                        fontSize: 12,
-                        fontWeight: 700,
-                        letterSpacing: '0.04em',
-                        cursor: 'pointer',
                       }}
                     >
                       Track Order
@@ -1227,38 +488,24 @@ export default function HomePage() {
                 </>
               ) : (
                 <>
-                  <div
-                    style={{
-                      display: 'flex',
-                      alignItems: 'flex-start',
-                      justifyContent: 'space-between',
-                      marginBottom: 8,
-                    }}
-                  >
+                  <div className='flex items-start justify-between mb-2'>
                     <div>
                       <span
-                        style={{
-                          ...S.mutedLabel,
-                          display: 'block',
-                          marginBottom: 4,
-                        }}
+                        className='block mb-1 text-[10px] font-bold uppercase tracking-widest'
+                        style={{ color: 'var(--color-text-dim)' }}
                       >
                         Repair Service
                       </span>
                       <h4
-                        style={{
-                          fontSize: 16,
-                          fontWeight: 800,
-                          color: 'var(--color-btn-cta-bg)',
-                        }}
+                        className='text-base font-extrabold'
+                        style={{ color: 'var(--color-btn-cta-bg)' }}
                       >
                         Start a Repair
                       </h4>
                     </div>
                     <span
-                      className='badge badge-accent'
+                      className='badge badge-accent mt-0.5'
                       style={{
-                        marginTop: 2,
                         background: 'var(--color-bg-500)',
                         color: 'var(--color-text-dim)',
                       }}
@@ -1269,48 +516,27 @@ export default function HomePage() {
                   <div style={S.progressTrack}>
                     <div style={{ ...S.progressFill, width: '0%' }} />
                   </div>
-                  <div
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      marginTop: 16,
-                      paddingTop: 14,
-                      borderTop: '1px solid rgba(255,255,255,0.07)',
-                    }}
-                  >
+                  <div className='flex items-center justify-between mt-4 pt-3.5 border-t border-white/[0.07]'>
                     <div>
                       <span
-                        style={{
-                          ...S.mutedLabel,
-                          display: 'block',
-                          marginBottom: 2,
-                        }}
+                        className='block mb-0.5 text-[10px] font-bold uppercase tracking-widest'
+                        style={{ color: 'var(--color-text-dim)' }}
                       >
                         Status
                       </span>
                       <span
-                        style={{
-                          fontSize: 13,
-                          fontWeight: 700,
-                          color: 'var(--color-btn-cta-bg)',
-                        }}
+                        className='text-[13px] font-bold'
+                        style={{ color: 'var(--color-btn-cta-bg)' }}
                       >
                         No active repair
                       </span>
                     </div>
                     <button
                       onClick={handleStart}
+                      className='border-0 rounded-[10px] py-2.25 px-4.5 text-xs font-bold tracking-wide cursor-pointer'
                       style={{
                         background: 'var(--color-btn-cta-bg)',
                         color: 'var(--color-btn-cta-text)',
-                        border: 'none',
-                        borderRadius: 10,
-                        padding: '9px 18px',
-                        fontSize: 12,
-                        fontWeight: 700,
-                        letterSpacing: '0.04em',
-                        cursor: 'pointer',
                       }}
                     >
                       Book Service
@@ -1319,388 +545,288 @@ export default function HomePage() {
                 </>
               )}
             </div>
+          </div>
+        </div>
 
-            {/* Quick Repair */}
-            <div>
-              <h4
-                style={{ ...S.mutedLabel, display: 'block', marginBottom: 12 }}
-              >
-                Quick Repair
-              </h4>
-              {error ? (
-                <div
-                  style={{
-                    ...S.darkCard,
-                    padding: '24px 20px',
-                    textAlign: 'center',
-                  }}
-                >
-                  <div
-                    style={{
-                      width: 40,
-                      height: 40,
-                      borderRadius: '50%',
-                      background: 'rgba(239, 68, 68, 0.15)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      margin: '0 auto 12px',
-                    }}
-                  >
-                    <span style={{ fontSize: 20 }}>⚠️</span>
-                  </div>
-                  <p
-                    style={{
-                      fontSize: 13,
-                      fontWeight: 600,
-                      color: 'var(--color-danger)',
-                      marginBottom: 6,
-                    }}
-                  >
-                    {error}
-                  </p>
-                  <p
-                    style={{
-                      fontSize: 11,
-                      color: '#888',
-                      marginBottom: 16,
-                    }}
-                  >
-                    Use the search bar or scan button above to continue.
-                  </p>
-                </div>
-              ) : isLoading ? (
-                <div
-                  style={{
-                    display: 'grid',
-                    gridTemplateColumns: '1fr 1fr',
-                    gap: 10,
-                  }}
-                >
-                  {[1, 2, 3, 4].map((i) => (
-                    <div
-                      key={i}
-                      className='skeleton'
-                      style={{ height: 90, borderRadius: 'var(--radius-card)' }}
-                    />
-                  ))}
-                </div>
-              ) : categories.length === 0 ? (
-                <div
-                  style={{
-                    ...S.darkCard,
-                    padding: '24px 20px',
-                    textAlign: 'center',
-                  }}
-                >
-                  <p
-                    style={{
-                      fontSize: 13,
-                      color: '#888',
-                      marginBottom: 16,
-                    }}
-                  >
-                    No service categories available
-                  </p>
-                  <button
-                    onClick={handleStart}
-                    style={{
-                      background: '#fff',
-                      color: '#000',
-                      border: 'none',
-                      borderRadius: 10,
-                      padding: '10px 20px',
-                      fontSize: 12,
-                      fontWeight: 700,
-                      cursor: 'pointer',
-                    }}
-                  >
-                    Start Repair
-                  </button>
-                </div>
-              ) : (
-                <div
-                  style={{
-                    display: 'grid',
-                    gridTemplateColumns: '1fr 1fr',
-                    gap: 10,
-                  }}
-                >
-                  {categories.map((cat, idx) => {
-                    const CatIcon = cat.icon || Smartphone
-                    return (
-                      <button
-                        key={idx}
-                        onClick={() => handleCategorySelect(cat)}
-                        className='service-card'
-                        style={{ padding: '18px 12px' }}
-                      >
-                        <div className='service-card-icon'>
-                          <CatIcon size={20} />
-                        </div>
-                        <span
-                          className='service-card-label'
-                          style={{ fontSize: 12 }}
-                        >
-                          {cat.name}
-                        </span>
-                      </button>
-                    )
-                  })}
-                </div>
-              )}
-            </div>
-
-            {/* Watch Live Repair */}
-            {/* <div style={{ ...S.darkCard, padding: '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-                  <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--color-danger)', display: 'inline-block', animation: 'pulse 1.4s infinite' }} />
-                  <span style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-danger)' }}>Live</span>
-                </div>
-                <h4 style={{ fontSize: 14, fontWeight: 800, color: 'var(--color-btn-cta-bg)', marginBottom: 3 }}>Watch Live Repair</h4>
-                <span style={{ fontSize: 11, color: 'var(--color-text-dim)' }}>Streaming Now</span>
-              </div>
-              <div style={{ width: 40, height: 40, borderRadius: '50%', background: 'rgba(255,255,255,0.09)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 }}>
-                <Play size={17} color="#fff" fill="#fff" style={{ marginLeft: 2 }} />
-              </div>
-            </div> */}
-
-            {/* Promo Banner */}
-            <div
-              style={{
-                ...S.darkCard,
-                padding: '20px',
-                position: 'relative',
-                overflow: 'hidden',
-              }}
+        {/* Quick Service Selection */}
+        <div className='lg:px-0 px-4 mb-7'>
+          <div className='section-header lg:mb-4 mb-3'>
+            <span className='section-title hidden lg:flex items-center gap-1.5'>
+              <Sparkles size={16} color='var(--color-content-text-secondary)' />
+              Quick Service Selection
+            </span>
+            <h4
+              className='lg:hidden block mb-0 text-[10px] font-bold uppercase tracking-widest'
+              style={{ color: 'var(--color-text-dim)' }}
             >
-              <div
-                style={{
-                  position: 'absolute',
-                  inset: 0,
-                  borderRadius: 18,
-                  overflow: 'hidden',
-                }}
-              >
-                <Image
-                  src='/images/home-banner-top.png'
-                  alt=''
-                  width={400}
-                  height={200}
-                  style={{
-                    width: '100%',
-                    height: '100%',
-                    objectFit: 'cover',
-                    opacity: 0.12,
-                  }}
-                />
-              </div>
-              <div style={{ position: 'relative', zIndex: 1 }}>
-                <span
-                  style={{ ...S.mutedLabel, display: 'block', marginBottom: 6 }}
-                >
-                  Promo
-                </span>
-                <h4
-                  style={{
-                    fontSize: 17,
-                    fontWeight: 800,
-                    color: 'var(--color-btn-cta-bg)',
-                    marginBottom: 6,
-                  }}
-                >
-                  Get 20% Off on First Repair
-                </h4>
-                <p
-                  style={{
-                    fontSize: 12,
-                    color: 'var(--color-text-dim)',
-                    lineHeight: 1.55,
-                    marginBottom: 16,
-                  }}
-                >
-                  Exclusive offer for new service registrations.
-                </p>
-                <button
-                  onClick={handleStart}
-                  style={{
-                    background: 'var(--color-btn-cta-bg)',
-                    color: 'var(--color-btn-cta-text)',
-                    border: 'none',
-                    borderRadius: 10,
-                    padding: '10px 20px',
-                    fontSize: 12,
-                    fontWeight: 700,
-                    cursor: 'pointer',
-                    letterSpacing: '0.04em',
-                  }}
-                >
-                  Book Now
-                </button>
-              </div>
+              Quick Repair
+            </h4>
+          </div>
+          {error ? (
+            <div className='lg:block hidden'>
+              <ErrorState
+                title={error}
+                message='You can still start a repair by clicking the button below.'
+                buttonText='Start New Repair'
+                onButtonClick={handleStart}
+              />
             </div>
-
-            {/* Popular Services */}
-            <div style={{ paddingBottom: 8 }}>
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  marginBottom: 12,
-                }}
-              >
-                <span
-                  style={{
-                    fontSize: 11,
-                    fontWeight: 700,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.09em',
-                    color: 'var(--color-content-text-secondary)',
-                  }}
-                >
-                  Popular Services
-                </span>
-                <button onClick={handleStart} className='section-link'>
-                  View All
-                </button>
-              </div>
-
-              {/* Horizontal scroll */}
-              <div
-                className='scrollbar-none'
-                style={{
-                  display: 'flex',
-                  gap: 12,
-                  overflowX: 'auto',
-                  paddingBottom: 4,
-                  scrollSnapType: 'x mandatory',
-                }}
-              >
-                {[
-                  {
-                    title: 'Screen Replacement',
-                    sub: 'Starts from ₹1,299',
-                    bg: 'linear-gradient(135deg,#1a1a2e,#0d1117)',
-                    useImg: true,
-                  },
-                  {
-                    title: 'Battery Replacement',
-                    sub: 'Starts from ₹999',
-                    bg: 'linear-gradient(135deg,#0a1628,#050f1e)',
-                  },
-                  {
-                    title: 'Liquid Damage',
-                    sub: 'Expert chemical wash',
-                    bg: 'linear-gradient(135deg,#1a0a2e,#0d1117)',
-                  },
-                ].map(({ title, sub, bg, useImg }) => (
-                  <div
-                    key={title}
-                    onClick={handleStart}
+          ) : isLoading ? (
+            <div className='grid lg:grid-cols-4 grid-cols-2 lg:gap-3.5 gap-2.5'>
+              {[1, 2, 3, 4].map((i) => (
+                <Skeleton
+                  key={i}
+                  className='h-[110px] rounded-[var(--radius-card)]'
+                />
+              ))}
+            </div>
+          ) : categories.length === 0 ? (
+            <div className='lg:block hidden'>
+              <ErrorState
+                title='No service categories available'
+                buttonText='Start New Repair'
+                onButtonClick={handleStart}
+              />
+            </div>
+          ) : (
+            <div className='grid lg:grid-cols-6 grid-cols-2 lg:gap-5 gap-2.5'>
+              {categories.map((cat, idx) => {
+                const CatIcon = cat.icon || Smartphone
+                return (
+                  <button
+                    key={idx}
+                    onClick={() => handleCategorySelect(cat)}
+                    className='service-card'
                     style={{
-                      flexShrink: 0,
-                      width: 155,
-                      height: 195,
-                      borderRadius: 16,
-                      overflow: 'hidden',
-                      position: 'relative',
-                      cursor: 'pointer',
-                      scrollSnapAlign: 'start',
-                      background: bg,
-                      border: '1px solid rgba(255,255,255,0.07)',
+                      padding: 'var(--service-card-padding, 18px 12px)',
                     }}
                   >
-                    {useImg && (
-                      <Image
-                        src='/images/home-banner-top.png'
-                        alt={title}
-                        width={155}
-                        height={195}
-                        style={{
-                          position: 'absolute',
-                          inset: 0,
-                          width: '100%',
-                          height: '100%',
-                          objectFit: 'cover',
-                          opacity: 0.3,
-                        }}
-                      />
-                    )}
-                    <div
+                    <div className='service-card-icon'>
+                      <CatIcon size={21} className='lg:block hidden' />
+                      <CatIcon size={20} className='lg:hidden block' />
+                    </div>
+                    <span
+                      className='service-card-label'
                       style={{
-                        position: 'absolute',
-                        inset: 0,
-                        background:
-                          'linear-gradient(to top, rgba(0,0,0,0.85) 40%, transparent)',
-                      }}
-                    />
-                    <div
-                      style={{
-                        position: 'absolute',
-                        bottom: 0,
-                        left: 0,
-                        right: 0,
-                        padding: '14px 14px',
+                        fontSize: 'var(--service-card-label-size, 12px)',
                       }}
                     >
-                      <h5
-                        style={{
-                          fontSize: 12,
-                          fontWeight: 800,
-                          color: 'var(--color-btn-cta-bg)',
-                          lineHeight: 1.3,
-                          marginBottom: 3,
-                        }}
-                      >
-                        {title}
-                      </h5>
-                      <span
-                        style={{
-                          fontSize: 10,
-                          color: 'rgba(255,255,255,0.45)',
-                        }}
-                      >
-                        {sub}
-                      </span>
-                    </div>
-                  </div>
-                ))}
+                      {cat.name}
+                    </span>
+                  </button>
+                )
+              })}
+            </div>
+          )}
+
+          {/* Mobile error states */}
+          {error && (
+            <div className='lg:hidden block'>
+              <ErrorState
+                title={error}
+                message='Use the search bar above to continue.'
+                className='bg-[var(--color-bg-700)] border border-[var(--color-bg-400)] rounded-[18px] min-h-0 py-6'
+              />
+            </div>
+          )}
+
+          {!error && !isLoading && categories.length === 0 && (
+            <div className='lg:hidden block'>
+              <ErrorState
+                title='No service categories available'
+                buttonText='Start Repair'
+                onButtonClick={handleStart}
+                className='bg-[var(--color-bg-700)] border border-[var(--color-bg-400)] rounded-[18px] min-h-0 py-6'
+              />
+            </div>
+          )}
+        </div>
+
+        {/* Promo Banner - MOBILE ONLY */}
+        <div className='lg:hidden block px-4'>
+          <div
+            className='p-5 relative overflow-hidden rounded-[18px]'
+            style={{
+              background: 'var(--color-bg-700)',
+              border: '1px solid var(--color-bg-400)',
+            }}
+          >
+            <div className='absolute inset-0 rounded-[18px] overflow-hidden'>
+              <Image
+                src='/images/home-banner-top.png'
+                alt=''
+                width={400}
+                height={200}
+                className='w-full h-full object-cover opacity-[0.12]'
+              />
+            </div>
+            <div className='relative z-1'>
+              <span
+                className='block mb-1.5 text-[10px] font-bold uppercase tracking-widest'
+                style={{ color: 'var(--color-text-dim)' }}
+              >
+                Promo
+              </span>
+              <h4
+                className='text-[17px] font-extrabold mb-1.5'
+                style={{ color: 'var(--color-btn-cta-bg)' }}
+              >
+                Get 20% Off on First Repair
+              </h4>
+              <p
+                className='text-xs leading-relaxed mb-4'
+                style={{ color: 'var(--color-text-dim)' }}
+              >
+                Exclusive offer for new service registrations.
+              </p>
+              <button
+                onClick={handleStart}
+                className='border-0 rounded-[10px] py-2.5 px-5 text-xs font-bold cursor-pointer tracking-wide'
+                style={{
+                  background: 'var(--color-btn-cta-bg)',
+                  color: 'var(--color-btn-cta-text)',
+                }}
+              >
+                Book Now
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Popular Services */}
+        <div className='lg:px-0 px-4 pb-2'>
+          <div className='section-header lg:mb-4 mb-3'>
+            <span className='section-title lg:text-base text-xs'>
+              ⭐ Popular Services
+            </span>
+          </div>
+
+          {/* Desktop: 2-column grid */}
+          <div className='hidden lg:grid lg:grid-cols-3 lg:gap-5'>
+            {/* Screen Replacement */}
+            <div
+              className='popular-card min-h-55 relative'
+              onClick={handleStart}
+            >
+              <Image
+                src='/images/home-banner-top.png'
+                alt='Screen Replacement'
+                width={600}
+                height={220}
+                className='absolute inset-0 w-full h-full object-cover opacity-50'
+              />
+              <div className='popular-card-overlay' />
+              <div className='popular-card-content'>
+                <span className='badge badge-accent mb-2.5 inline-flex'>
+                  Most Requested
+                </span>
+                <h4 className='text-xl font-extrabold text-white mb-1.5'>
+                  Screen Replacement
+                </h4>
+                <p className='text-xs text-white/75 mb-3.5'>
+                  Original parts with 12-month warranty.
+                </p>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    handleStart()
+                  }}
+                  className='bg-transparent border-0 cursor-pointer text-white/85 text-xs font-bold tracking-wide uppercase flex items-center gap-1'
+                >
+                  Book Screen <ChevronRight size={13} />
+                </button>
+              </div>
+            </div>
+
+            {/* Liquid Damage */}
+            <div
+              className='popular-card min-h-55 relative'
+              onClick={handleStart}
+            >
+              <Image
+                src='/images/dark-microchip-bg.png'
+                alt='Screen Replacement'
+                width={600}
+                height={220}
+                className='absolute inset-0 w-full h-full object-cover opacity-50'
+              />
+              <div className='popular-card-overlay' />
+              <div className='popular-card-content'>
+                <span className='badge badge-accent mb-2.5 inline-flex'>
+                  Advanced Repair
+                </span>
+                <h4 className='text-xl font-extrabold text-white mb-1.5'>
+                  Liquid Damage
+                </h4>
+                <p className='text-xs text-white/75 mb-3.5'>
+                  Ultrasonic cleaning &amp; circuit restoration.
+                </p>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    handleStart()
+                  }}
+                  className='bg-transparent border-0 cursor-pointer text-white/85 text-xs font-bold tracking-wide uppercase flex items-center gap-1'
+                >
+                  Diagnose Board <ChevronRight size={13} />
+                </button>
               </div>
             </div>
           </div>
-          {/* end flex column */}
 
-          {/* Floating CTA */}
-          <button
-            onClick={handleStart}
-            style={{
-              position: 'fixed',
-              bottom:
-                'calc(var(--nav-height) + env(safe-area-inset-bottom, 0px) + 16px)',
-              right: 16,
-              zIndex: 40,
-              background: 'var(--color-accent)',
-              color: 'var(--color-btn-cta-bg)',
-              border: '1px solid rgba(255,255,255,0.15)',
-              borderRadius: 999,
-              padding: '12px 20px',
-              fontWeight: 700,
-              fontSize: 13,
-              display: 'flex',
-              alignItems: 'center',
-              gap: 8,
-              boxShadow: '0 4px 16px rgba(108,123,255,0.4)',
-              cursor: 'pointer',
-            }}
-          >
-            <Plus size={17} /> Start Repair
-          </button>
+          {/* Mobile: Horizontal scroll */}
+          <div className='lg:hidden scrollbar-none flex gap-3 overflow-x-auto pb-1 snap-x snap-mandatory'>
+            {POPULAR_SERVICES.map(({ title, sub, bg, image }) => (
+              <div
+                key={title}
+                onClick={handleStart}
+                className='shrink-0 w-38.75 h-48.75 rounded-2xl overflow-hidden relative cursor-pointer snap-start border border-white/[0.07]'
+                style={{ background: bg }}
+              >
+                {image && (
+                  <Image
+                    src={image}
+                    alt={title}
+                    width={155}
+                    height={195}
+                    className='absolute inset-0 w-full h-full object-cover opacity-30'
+                  />
+                )}
+                <div
+                  className='absolute inset-0'
+                  style={{
+                    background:
+                      'linear-gradient(to top, rgba(0,0,0,0.85) 40%, transparent)',
+                  }}
+                />
+                <div className='absolute bottom-0 left-0 right-0 p-3.5'>
+                  <h5
+                    className='text-xs font-extrabold leading-tight mb-0.75'
+                    style={{ color: 'var(--color-btn-cta-bg)' }}
+                  >
+                    {title}
+                  </h5>
+                  <span className='text-[10px] text-white/45'>{sub}</span>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
-        {/* end inner flex wrapper */}
       </div>
-      {/* end .home-mobile */}
-    </>
+
+      {/* Floating CTA - MOBILE ONLY */}
+      <button
+        onClick={handleStart}
+        className='lg:hidden fixed right-4 z-40 rounded-full py-3 px-5 font-bold text-[13px] flex items-center gap-2 cursor-pointer border border-white/15 shadow-[0_4px_16px_rgba(108,123,255,0.4)]'
+        style={{
+          bottom:
+            'calc(var(--nav-height) + env(safe-area-inset-bottom, 0px) + 16px)',
+          background: 'var(--color-accent)',
+          color: 'var(--color-btn-cta-bg)',
+        }}
+      >
+        <Plus size={17} /> Start Repair
+      </button>
+    </div>
   )
 }

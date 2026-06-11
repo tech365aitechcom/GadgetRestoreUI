@@ -18,12 +18,12 @@ import { getBrandLogo } from '@/lib/utils'
 
 function collectRepairTypeIds(symptoms) {
   const ids = new Set()
-  ;(symptoms || []).forEach((s) => {
-    ;(s.repairTypes || []).forEach((rt) => {
-      const id = typeof rt === 'object' ? rt._id : rt
-      if (id) ids.add(id)
+    ; (symptoms || []).forEach((s) => {
+      ; (s.repairTypes || []).forEach((rt) => {
+        const id = typeof rt === 'object' ? rt._id : rt
+        if (id) ids.add(id)
+      })
     })
-  })
   return [...ids]
 }
 
@@ -434,7 +434,7 @@ export default function OrderSummaryPage() {
                       style={{ color: 'var(--color-content-text)' }}
                     >
                       {item.isVariable
-                        ? 'Ask Admin'
+                        ? 'Estimate Required'
                         : `₹${item.total.toLocaleString('en-IN')}`}
                     </div>
                   </div>
@@ -465,14 +465,14 @@ export default function OrderSummaryPage() {
                   className='text-[15px] font-bold'
                   style={{ color: 'var(--color-content-text-secondary)' }}
                 >
-                  Grand Total
+                  Subtotal
                 </span>
                 <span
                   className='text-[28px] font-black leading-none tracking-tight'
                   style={{ color: 'var(--color-content-text)' }}
                 >
                   {hasVariableSymptom && grandTotal === 0 ? (
-                    'Ask Admin'
+                    'Estimate Required'
                   ) : (
                     <>
                       {hasVariableSymptom && (
@@ -798,7 +798,7 @@ export default function OrderSummaryPage() {
                         style={{ color: 'var(--color-content-text)' }}
                       >
                         {item.isVariable
-                          ? 'Ask Admin'
+                          ? 'Estimate Required'
                           : `₹${item.total.toLocaleString('en-IN')}`}
                       </div>
                     </div>
@@ -830,14 +830,14 @@ export default function OrderSummaryPage() {
                     className='text-sm font-bold uppercase tracking-wider'
                     style={{ color: 'var(--color-content-text-secondary)' }}
                   >
-                    Grand Total
+                    Subtotal
                   </span>
                   <span
                     className='text-[42px] font-black leading-none tracking-tight'
                     style={{ color: 'var(--color-content-text)' }}
                   >
                     {hasVariableSymptom && grandTotal === 0 ? (
-                      'Ask Admin'
+                      'Estimate Required'
                     ) : (
                       <>
                         {hasVariableSymptom && (

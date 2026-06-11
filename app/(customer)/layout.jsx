@@ -21,8 +21,7 @@ export default function CustomerLayout({ children }) {
   const hideMobileHeader =
     pathname === '/notifications' ||
     pathname.startsWith('/profile/personal-info') ||
-    pathname.startsWith('/profile/addresses') ||
-    pathname.startsWith('/profile/notifications');
+    pathname.startsWith('/profile/addresses');
 
   return (
     <AuthGuard>

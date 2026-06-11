@@ -7,15 +7,136 @@ import { useBooking } from '@/context/BookingContext'
 import slotService from '@/services/slot.service'
 import serviceCentreService from '@/services/serviceCentre.service'
 
+// ── Custom Desktop Calendar Picker ───────────────────────────────────────────
+function DesktopCalendar({ selectedDate, setSelectedDate, availableDates, setSelectedTimeSlot, setError, isLoading }) {
+  const [currentMonth, setCurrentMonth] = useState(new Date())
+
+  const handlePrevMonth = () => {
+    setCurrentMonth(prev => new Date(prev.getFullYear(), prev.getMonth() - 1, 1))
+  }
+
+  const handleNextMonth = () => {
+    setCurrentMonth(prev => new Date(prev.getFullYear(), prev.getMonth() + 1, 1))
+  }
+
+  const getDaysInMonth = (date) => {
+    const year = date.getFullYear()
+    const month = date.getMonth()
+    const firstDay = new Date(year, month, 1).getDay()
+    const daysInMonth = new Date(year, month + 1, 0).getDate()
+    return { firstDay, daysInMonth }
+  }
+
+  const { firstDay, daysInMonth } = getDaysInMonth(currentMonth)
+
+  const days = []
+  for (let i = 0; i < firstDay; i++) {
+    days.push(null)
+  }
+  for (let i = 1; i <= daysInMonth; i++) {
+    days.push(new Date(currentMonth.getFullYear(), currentMonth.getMonth(), i))
+  }
+
+  const monthName = currentMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+
+  return (
+    <div className='w-full p-6 rounded-3xl' style={{ background: 'var(--color-content-card)', border: '1px solid var(--color-content-border)' }}>
+      <div className='flex items-center justify-between mb-6'>
+        <button
+          type='button'
+          onClick={handlePrevMonth}
+          className='w-10 h-10 rounded-full flex items-center justify-center transition-colors hover:bg-[var(--color-content-bg)]'
+          style={{ border: '1px solid var(--color-content-border)', color: 'var(--color-content-text)' }}
+        >
+          ←
+        </button>
+        <h4 className='text-base font-extrabold uppercase tracking-wider' style={{ color: 'var(--color-content-text)' }}>
+          {monthName}
+        </h4>
+        <button
+          type='button'
+          onClick={handleNextMonth}
+          className='w-10 h-10 rounded-full flex items-center justify-center transition-colors hover:bg-[var(--color-content-bg)]'
+          style={{ border: '1px solid var(--color-content-border)', color: 'var(--color-content-text)' }}
+        >
+          →
+        </button>
+      </div>
+
+      <div className='grid grid-cols-7 gap-2 mb-2 text-center text-xs font-black uppercase tracking-wider' style={{ color: 'var(--color-content-text-secondary)' }}>
+        {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => (
+          <div key={d} className='py-1'>{d}</div>
+        ))}
+      </div>
+
+      <div className='grid grid-cols-7 gap-2'>
+        {isLoading ? (
+          // Skeleton loader for calendar dates
+          Array.from({ length: 35 }).map((_, idx) => (
+            <div
+              key={`skeleton-${idx}`}
+              className='aspect-square rounded-2xl animate-pulse'
+              style={{ background: 'var(--color-content-border)', opacity: 0.2 }}
+            />
+          ))
+        ) : (
+          days.map((day, idx) => {
+            if (!day) return <div key={`empty-${idx}`} className='aspect-square' />
+
+            const year = day.getFullYear()
+            const month = String(day.getMonth() + 1).padStart(2, '0')
+            const date = String(day.getDate()).padStart(2, '0')
+            const dateStr = `${year}-${month}-${date}`
+
+            const dateData = availableDates.find(d => d.date === dateStr)
+            const hasSlots = !!dateData && dateData.slots.some(s => s.available)
+            const isSelected = selectedDate === dateStr
+
+            return (
+              <button
+                key={dateStr}
+                type='button'
+                disabled={!hasSlots}
+                onClick={() => {
+                  setSelectedDate(dateStr)
+                  setSelectedTimeSlot(null)
+                  setError('')
+                }}
+                className='aspect-square rounded-2xl flex flex-col items-center justify-center font-extrabold text-sm transition-all'
+                style={{
+                  border: isSelected ? '1px solid var(--color-content-text)' : '1px solid transparent',
+                  background: isSelected
+                    ? 'var(--color-content-text)'
+                    : hasSlots
+                      ? 'var(--color-content-bg)'
+                      : 'transparent',
+                  color: isSelected
+                    ? 'var(--color-content-bg)'
+                    : hasSlots
+                      ? 'var(--color-content-text)'
+                      : 'var(--color-content-border)',
+                  cursor: hasSlots ? 'pointer' : 'not-allowed',
+                  opacity: hasSlots ? 1 : 0.25,
+                }}
+              >
+                {day.getDate()}
+              </button>
+            )
+          })
+        )}
+      </div>
+    </div>
+  )
+}
+
+// ── Main Page Component ──────────────────────────────────────────────────────
 export default function SchedulePage() {
   const router = useRouter()
   const { setSlot, slot } = useBooking()
 
   const [availableDates, setAvailableDates] = useState([])
   const [selectedDate, setSelectedDate] = useState(slot?.date || null)
-  const [selectedTimeSlot, setSelectedTimeSlot] = useState(
-    slot?.timeSlot || null,
-  )
+  const [selectedTimeSlot, setSelectedTimeSlot] = useState(slot?.timeSlot || null)
   const [serviceCentres, setServiceCentres] = useState([])
   const [selectedServiceCentre, setSelectedServiceCentre] = useState(null)
   const [isMobileDropdownOpen, setIsMobileDropdownOpen] = useState(false)
@@ -23,53 +144,68 @@ export default function SchedulePage() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
 
-  // Fetch slots
+  // 1. Fetch Service Centres on mount
   useEffect(() => {
+    async function fetchCentres() {
+      try {
+        const scData = await serviceCentreService.getAllServiceCentres({ limit: 100 })
+        if (scData?.serviceCentres?.length > 0) {
+          setServiceCentres(scData.serviceCentres)
+          const existingCentre = scData.serviceCentres.find(sc => sc._id === slot?.centreId)
+          setSelectedServiceCentre(existingCentre || scData.serviceCentres[0])
+        }
+      } catch (scErr) {
+        console.error('Failed to fetch service centres:', scErr)
+      }
+    }
+    fetchCentres()
+  }, [])
+
+  // 2. Fetch Slots when selected service center changes
+  useEffect(() => {
+    if (!selectedServiceCentre) return
+
     async function fetchSlots() {
       try {
         setIsLoading(true)
+        setError('')
 
-        // Fetch Service Centres
-        try {
-          const scData = await serviceCentreService.getAllServiceCentres({ limit: 100 })
-          if (scData?.serviceCentres?.length > 0) {
-            setServiceCentres(scData.serviceCentres)
-            const existingCentre = scData.serviceCentres.find(sc => sc._id === slot?.centreId)
-            setSelectedServiceCentre(existingCentre || scData.serviceCentres[0])
-          }
-        } catch (scErr) {
-          console.error('Failed to fetch service centres:', scErr)
-        }
-
-        // We'll mock the data if backend fails, but let's try the real API first
-        const data = await slotService.getAvailableSlotsForNextDays(7)
-        if (data && typeof data === 'object' && Object.keys(data).length > 0) {
+        // Fetch 30 days range for calendar view
+        const data = await slotService.getAvailableSlotsForNextDays(30, selectedServiceCentre._id)
+        if (data && typeof data === 'object') {
           const parsedDates = Object.entries(data).map(([dateStr, slots]) => {
             return {
               date: dateStr,
               slots: slots.map((s) => ({
-                time: s.startTime || s.time, // handle both backend and mock formats
-                available:
-                  s.isAvailable !== undefined ? s.isAvailable : s.available,
+                time: s.startTime && s.endTime ? `${s.startTime} - ${s.endTime}` : (s.startTime || s.time),
+                available: s.isAvailable !== undefined ? s.isAvailable : s.available,
               })),
             }
           })
 
           parsedDates.sort((a, b) => new Date(a.date) - new Date(b.date))
           setAvailableDates(parsedDates)
-          if (!selectedDate && parsedDates.length > 0) {
-            setSelectedDate(parsedDates[0].date)
+
+          // If the currently selected date is not in the new dates list, default to first date
+          if (!parsedDates.some(d => d.date === selectedDate)) {
+            if (parsedDates.length > 0) {
+              setSelectedDate(parsedDates[0].date)
+            } else {
+              setSelectedDate(null)
+            }
+            setSelectedTimeSlot(null)
           }
         }
       } catch (err) {
-        console.error(err)
+        console.error('Failed to fetch slots:', err)
         setError('Failed to fetch available slots.')
       } finally {
         setIsLoading(false)
       }
     }
+
     fetchSlots()
-  }, [])
+  }, [selectedServiceCentre])
 
   const handleConfirm = () => {
     if (selectedDate && selectedTimeSlot && selectedServiceCentre) {
@@ -121,20 +257,10 @@ export default function SchedulePage() {
             <div className='flex overflow-x-auto gap-3 px-5 p-2 -m-2 pb-2 scrollbar-hide'>
               {availableDates.map((d, idx) => {
                 const isSelected = d.date === selectedDate
-                // Parse date for display if it came from backend format
-                let dayLabel = d.displayDay
-                let dateLabel = d.displayDate
-                let monthLabel = d.displayMonth
-                if (!dayLabel) {
-                  const dj = new Date(d.date)
-                  dayLabel = dj.toLocaleDateString('en-US', {
-                    weekday: 'short',
-                  })
-                  dateLabel = dj.toLocaleDateString('en-US', { day: '2-digit' })
-                  monthLabel = dj.toLocaleDateString('en-US', {
-                    month: 'short',
-                  })
-                }
+                const dj = new Date(d.date)
+                const dayLabel = dj.toLocaleDateString('en-US', { weekday: 'short' })
+                const dateLabel = dj.toLocaleDateString('en-US', { day: '2-digit' })
+                const monthLabel = dj.toLocaleDateString('en-US', { month: 'short' })
 
                 return (
                   <button
@@ -149,25 +275,25 @@ export default function SchedulePage() {
                       : 'shadow-sm'
                       }`}
                     style={{
-                      background: isSelected ? 'var(--color-content-card)' : 'var(--color-content-card)',
+                      background: 'var(--color-content-card)',
                       border: isSelected ? '1px solid var(--color-content-text)' : '1px solid var(--color-content-border)',
                     }}
                   >
                     <span
                       className='text-[11px] font-bold'
-                      style={{ color: isSelected ? 'var(--color-content-text-secondary)' : 'var(--color-content-text-secondary)' }}
+                      style={{ color: 'var(--color-content-text-secondary)' }}
                     >
                       {dayLabel}
                     </span>
                     <span
                       className='text-2xl font-black mt-0.5 mb-0.5'
-                      style={{ color: isSelected ? 'var(--color-content-text)' : 'var(--color-content-text)' }}
+                      style={{ color: 'var(--color-content-text)' }}
                     >
                       {dateLabel}
                     </span>
                     <span
                       className='text-[11px] font-bold'
-                      style={{ color: isSelected ? 'var(--color-content-text-secondary)' : 'var(--color-content-text-secondary)' }}
+                      style={{ color: 'var(--color-content-text-secondary)' }}
                     >
                       {monthLabel}
                     </span>
@@ -185,8 +311,8 @@ export default function SchedulePage() {
             <div className='grid grid-cols-2 gap-3'>
               {isLoading ? (
                 <>
-                  {[0, 1, 2, 3, 4, 5].map(i => (
-                    <div key={i} className="skeleton h-[52px] rounded-2xl" />
+                  {[0, 1, 2, 3].map(i => (
+                    <div key={i} className="skeleton h-[52px] rounded-2xl animate-pulse bg-gray-200" />
                   ))}
                 </>
               ) : timeSlots.length > 0 ? (
@@ -201,7 +327,7 @@ export default function SchedulePage() {
                         setSelectedTimeSlot(t.time)
                         setError('')
                       }}
-                      className='h-[52px] rounded-2xl text-sm font-bold transition-all'
+                      className='h-[52px] rounded-2xl text-xs font-bold transition-all'
                       style={{
                         border: '1px solid var(--color-content-border)',
                         background: !isAvailable
@@ -220,6 +346,7 @@ export default function SchedulePage() {
                             ? 'var(--color-content-text)'
                             : 'var(--color-content-text-secondary)',
                         cursor: !isAvailable ? 'not-allowed' : 'pointer',
+                        opacity: !isAvailable ? 0.4 : 1,
                       }}
                     >
                       {t.time}
@@ -272,8 +399,6 @@ export default function SchedulePage() {
                           borderBottom: '1px solid var(--color-content-border)',
                           background: selectedServiceCentre?._id === sc._id ? 'var(--color-content-bg)' : 'transparent',
                         }}
-                        onMouseOver={(e) => e.currentTarget.style.background = 'var(--color-content-border)'}
-                        onMouseOut={(e) => e.currentTarget.style.background = selectedServiceCentre?._id === sc._id ? 'var(--color-content-bg)' : 'transparent'}
                       >
                         <h4 className='text-sm font-extrabold' style={{ color: 'var(--color-content-text)' }}>
                           {sc.name}
@@ -306,15 +431,13 @@ export default function SchedulePage() {
           DESKTOP VIEW (≥1024px)
           ════════════════════════════════════════════════════════════════ */}
       <div className='home-desktop hidden lg:block min-h-[calc(100vh-var(--topbar-height))]' style={{ background: 'var(--theme-bg)' }}>
-        {/* Using a simplified layout that mimics the image for desktop */}
         <div className='p-8 flex gap-12'>
           <div className='flex-1'>
             <h1 className='text-[44px] font-black tracking-tight leading-none mb-3' style={{ color: 'var(--color-content-text)' }}>
               Book Appointment
             </h1>
             <p className='text-lg mb-12' style={{ color: 'var(--color-content-text-secondary)' }}>
-              Schedule a convenient time for your device restoration using our
-              precision booking system.
+              Schedule a convenient time for your device restoration using our precision booking system.
             </p>
 
             {error && (
@@ -327,54 +450,18 @@ export default function SchedulePage() {
               <h3 className='text-sm font-bold uppercase tracking-wider flex items-center gap-2' style={{ color: 'var(--color-content-text)' }}>
                 📅 SELECT DATE
               </h3>
-              <span className='text-sm font-bold underline decoration-2 underline-offset-4' style={{ color: 'var(--color-content-text)' }}>
-                {new Date().toLocaleDateString('en-US', {
-                  month: 'long',
-                  year: 'numeric',
-                })}
-              </span>
             </div>
 
-            <div className='flex gap-4 mb-12 overflow-x-auto p-2 -m-2'>
-              {availableDates.map((d, idx) => {
-                const isSelected = d.date === selectedDate
-                const dateObj = new Date(d.date)
-                let dayLabel =
-                  d.displayDay ||
-                  dateObj.toLocaleDateString('en-US', { weekday: 'short' })
-                let dateLabel =
-                  d.displayDate ||
-                  dateObj.toLocaleDateString('en-US', { day: '2-digit' })
-
-                return (
-                  <button
-                    key={idx}
-                    onClick={() => {
-                      setSelectedDate(d.date)
-                      setSelectedTimeSlot(null)
-                      setError('')
-                    }}
-                    className='w-24 h-24 rounded-2xl flex flex-col items-center justify-center transition-all'
-                    style={{
-                      background: isSelected ? 'var(--color-content-card)' : 'var(--color-content-bg)',
-                      border: isSelected ? '1px solid var(--color-content-text)' : '1px solid var(--color-content-border)',
-                    }}
-                  >
-                    <span
-                      className='text-[13px] font-bold uppercase'
-                      style={{ color: isSelected ? 'var(--color-content-text-secondary)' : 'var(--color-content-text-secondary)' }}
-                    >
-                      {dayLabel}
-                    </span>
-                    <span
-                      className='text-3xl font-black mt-1'
-                      style={{ color: isSelected ? 'var(--color-content-text)' : 'var(--color-content-text)' }}
-                    >
-                      {dateLabel}
-                    </span>
-                  </button>
-                )
-              })}
+            {/* Desktop Calendar View */}
+            <div className='mb-12'>
+              <DesktopCalendar
+                selectedDate={selectedDate}
+                setSelectedDate={setSelectedDate}
+                availableDates={availableDates}
+                setSelectedTimeSlot={setSelectedTimeSlot}
+                setError={setError}
+                isLoading={isLoading}
+              />
             </div>
 
             <div className='flex items-center justify-between mb-6'>
@@ -386,11 +473,11 @@ export default function SchedulePage() {
             <div className='grid grid-cols-4 gap-4 mb-12'>
               {isLoading ? (
                 <>
-                  {[0, 1, 2, 3, 4, 5, 6, 7].map(i => (
-                    <div key={i} className="skeleton h-14 rounded-xl" />
+                  {[0, 1, 2, 3].map(i => (
+                    <div key={i} className="skeleton h-14 rounded-xl animate-pulse bg-gray-200" />
                   ))}
                 </>
-              ) : (
+              ) : timeSlots.length > 0 ? (
                 timeSlots.map((t, idx) => {
                   const isSelected = selectedTimeSlot === t.time
                   const isAvailable = t.available !== false
@@ -402,7 +489,7 @@ export default function SchedulePage() {
                         setSelectedTimeSlot(t.time)
                         setError('')
                       }}
-                      className='h-14 rounded-xl text-sm font-bold transition-all border-2'
+                      className='h-14 rounded-xl text-xs font-bold transition-all border-2'
                       style={{
                         background: !isAvailable
                           ? 'var(--color-content-bg)'
@@ -420,18 +507,23 @@ export default function SchedulePage() {
                             ? 'var(--color-content-text)'
                             : 'var(--color-content-text-secondary)',
                         cursor: !isAvailable ? 'not-allowed' : 'pointer',
+                        opacity: !isAvailable ? 0.4 : 1,
                       }}
                     >
                       {t.time}
                     </button>
                   )
                 })
+              ) : (
+                <div className='col-span-4 text-center text-sm py-8' style={{ color: 'var(--color-content-text-secondary)' }}>
+                  No slots available for this date.
+                </div>
               )}
             </div>
 
             <button
               onClick={handleConfirm}
-              className='w-full h-16 rounded-xl text-[15px] font-black uppercase tracking-wider flex items-center justify-center gap-2 transition-colors cursor-pointer'
+              className='w-full h-16 rounded-xl text-[15px] font-black uppercase tracking-wider flex items-center justify-center gap-2 transition-colors cursor-pointer animate-fade-in'
               style={{ background: 'var(--theme-btn-primary-bg)', color: 'var(--theme-btn-primary-text)' }}
             >
               CONFIRM BOOKING <ArrowLeft className='rotate-180' size={18} />
@@ -481,8 +573,6 @@ export default function SchedulePage() {
                             borderBottom: '1px solid var(--color-content-border)',
                             background: selectedServiceCentre?._id === sc._id ? 'var(--color-content-bg)' : 'transparent',
                           }}
-                          onMouseOver={(e) => e.currentTarget.style.background = 'var(--color-content-border)'}
-                          onMouseOut={(e) => e.currentTarget.style.background = selectedServiceCentre?._id === sc._id ? 'var(--color-content-bg)' : 'transparent'}
                         >
                           <div className='w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0' style={{ background: 'var(--color-content-bg)' }}>
                             <span style={{ color: 'var(--color-content-text)' }} className='font-bold text-[10px]'>GR</span>

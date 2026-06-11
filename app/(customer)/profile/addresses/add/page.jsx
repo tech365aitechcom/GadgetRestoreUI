@@ -135,13 +135,14 @@ export default function AddAddressPage() {
               <input
                 type='text'
                 value={formData.addressLine1}
-                onChange={(e) => handleChange('addressLine1', e.target.value)}
+                onChange={(e) => handleChange('addressLine1', e.target.value.slice(0, 100))}
                 className={`w-full h-[52px] bg-[var(--theme-input-bg)] border ${
                   errors.addressLine1
                     ? 'border-red-500/50'
                     : 'border-[var(--theme-border-strong)]'
                 } rounded-lg text-[var(--theme-text-primary)] text-[15px] font-medium px-4 outline-none focus:border-[var(--theme-input-border-focus)] transition-colors`}
                 placeholder='House/Flat no., Building name'
+                maxLength={100}
               />
               {errors.addressLine1 && (
                 <span className='block text-xs text-red-400 mt-2'>
@@ -158,9 +159,10 @@ export default function AddAddressPage() {
               <input
                 type='text'
                 value={formData.addressLine2}
-                onChange={(e) => handleChange('addressLine2', e.target.value)}
+                onChange={(e) => handleChange('addressLine2', e.target.value.slice(0, 200))}
                 className='w-full h-[52px] bg-[var(--theme-input-bg)] border border-[var(--theme-border-strong)] rounded-lg text-[var(--theme-text-primary)] text-[15px] font-medium px-4 outline-none focus:border-[var(--theme-input-border-focus)] transition-colors'
                 placeholder='Road name, Area, Colony'
+                maxLength={200}
               />
             </div>
 

@@ -99,6 +99,9 @@ function TierCard({
     return 'Not Configured'
   })()
 
+  // Tier should be disabled if pricing is not available
+  const isDisabled = !hasPrice
+
   const FALLBACK_IMAGES = {
     Original: '/images/tier-original.png',
     Premium: '/images/tier-premium.png',
@@ -120,15 +123,16 @@ function TierCard({
 
   return (
     <button
-      onClick={() => onSelect(tier)}
+      onClick={() => !isDisabled && onSelect(tier)}
       aria-pressed={isSelected}
-      className={`tier-card-btn ${isSelected ? 'selected' : ''}`}
+      disabled={isDisabled}
+      className={`tier-card-btn ${isSelected ? 'selected' : ''} ${isDisabled ? 'disabled' : ''}`}
       style={{
         flex: 1,
         minWidth: 0,
         borderRadius: 18,
         background: '#121212',
-        cursor: 'pointer',
+        cursor: isDisabled ? 'not-allowed' : 'pointer',
         textAlign: 'left',
         outline: 'none',
         position: 'relative',
@@ -140,6 +144,8 @@ function TierCard({
           : '2px solid rgba(255,255,255,0.08)',
         boxShadow: isSelected ? '0 8px 25px rgba(0, 136, 255, 0.25)' : 'none',
         padding: 0,
+        opacity: isDisabled ? 0.4 : 1,
+        pointerEvents: isDisabled ? 'none' : 'auto',
       }}
     >
       {/* Card Image Header */}
@@ -364,22 +370,33 @@ export default function SelectTierPage() {
     if (!repairTypeIds.length) return
 
     setIsCheckingPricing(true)
-    Promise.all(
-      tiers.map((tier) =>
-        catalogueService
-          .checkPricingAvailability({
-            brandId: brand._id,
-            modelId: model._id,
-            repairTypeIds,
-            partTier: tier.tier,
-          })
-          .then((result) => ({ tier: tier.tier, result }))
-          .catch(() => ({ tier: tier.tier, result: null })),
-      ),
-    )
+
+    // Get available tiers for each repair to enable smart fallback
+    catalogueService
+      .getAvailableTiers({
+        brandId: brand._id,
+        modelId: model._id,
+        repairTypeIds,
+      })
+      .then((tierData) => {
+        // Check pricing for each tier with fallback awareness
+        return Promise.all(
+          tiers.map((tier) =>
+            catalogueService
+              .checkPricingAvailability({
+                brandId: brand._id,
+                modelId: model._id,
+                repairTypeIds,
+                partTier: tier.tier,
+              })
+              .then((result) => ({ tier: tier.tier, result, tierData }))
+              .catch(() => ({ tier: tier.tier, result: null, tierData })),
+          ),
+        )
+      })
       .then((results) => {
         const avail = {}
-        results.forEach(({ tier: tierName, result }) => {
+        results.forEach(({ tier: tierName, result, tierData }) => {
           if (result?.results) {
             avail[tierName] = {
               available: result.allAvailable,
@@ -391,12 +408,51 @@ export default function SelectTierPage() {
                 (s, r) => s + (r.pricing?.labourCost || 0),
                 0,
               ),
+              // Track which repairs will use fallback tiers
+              repairTierInfo: tierData?.repairs || [],
             }
           } else {
             avail[tierName] = null
           }
         })
         setAvailability(avail)
+      })
+      .catch((error) => {
+        console.error('Error checking pricing:', error)
+        // Fallback to old behavior if getAvailableTiers fails
+        return Promise.all(
+          tiers.map((tier) =>
+            catalogueService
+              .checkPricingAvailability({
+                brandId: brand._id,
+                modelId: model._id,
+                repairTypeIds,
+                partTier: tier.tier,
+              })
+              .then((result) => ({ tier: tier.tier, result }))
+              .catch(() => ({ tier: tier.tier, result: null })),
+          ),
+        ).then((results) => {
+          const avail = {}
+          results.forEach(({ tier: tierName, result }) => {
+            if (result?.results) {
+              avail[tierName] = {
+                available: result.allAvailable,
+                totalPartsCost: result.results.reduce(
+                  (s, r) => s + (r.pricing?.partsCost || 0),
+                  0,
+                ),
+                totalLabourCost: result.results.reduce(
+                  (s, r) => s + (r.pricing?.labourCost || 0),
+                  0,
+                ),
+              }
+            } else {
+              avail[tierName] = null
+            }
+          })
+          setAvailability(avail)
+        })
       })
       .finally(() => setIsCheckingPricing(false))
   }, [tiers, symptoms, brand, model])
@@ -452,7 +508,7 @@ export default function SelectTierPage() {
         .tier-card-btn {
           transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
         }
-        .tier-card-btn:hover {
+        .tier-card-btn:hover:not(.disabled) {
           transform: translateY(-4px);
           box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4) !important;
           border-color: rgba(255, 255, 255, 0.2) !important;
@@ -460,6 +516,10 @@ export default function SelectTierPage() {
         .tier-card-btn.selected {
           border-color: #0088ff !important;
           box-shadow: 0 8px 25px rgba(0, 136, 255, 0.25) !important;
+        }
+        .tier-card-btn.disabled {
+          opacity: 0.4 !important;
+          cursor: not-allowed !important;
         }
       `}</style>
 
@@ -910,15 +970,17 @@ export default function SelectTierPage() {
                     if (hasPrice) {
                       return `₹${(totalPartsCost + totalLabourCost).toLocaleString('en-IN')}`
                     }
-                    return 'Market Price'
+                    return 'Not Configured'
                   })()
 
                   const subtitleText = tier.description
+                  const isDisabled = !hasPrice
 
                   return (
                     <button
                       key={tier._id}
-                      onClick={() => setSelectedTier(tier)}
+                      onClick={() => !isDisabled && setSelectedTier(tier)}
+                      disabled={isDisabled}
                       style={{
                         width: '100%',
                         background: '#121212',
@@ -930,11 +992,13 @@ export default function SelectTierPage() {
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'space-between',
-                        cursor: 'pointer',
+                        cursor: isDisabled ? 'not-allowed' : 'pointer',
                         outline: 'none',
                         textAlign: 'left',
                         position: 'relative',
                         boxSizing: 'border-box',
+                        opacity: isDisabled ? 0.4 : 1,
+                        pointerEvents: isDisabled ? 'none' : 'auto',
                       }}
                     >
                       <div

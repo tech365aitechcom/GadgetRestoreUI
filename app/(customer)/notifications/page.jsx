@@ -14,6 +14,7 @@ import {
 import TopBar from '@/components/ui/TopBar';
 import toast from 'react-hot-toast';
 import notificationService from '@/services/notification.service';
+import Skeleton from '@/components/ui/Skeleton';
 
 export default function NotificationsPage() {
   const router = useRouter();
@@ -151,7 +152,7 @@ export default function NotificationsPage() {
     if (!notification.read) {
       handleMarkAsRead(notification._id);
     }
-    
+
     // Redirect if it contains order metadata
     if (notification.metadata?.ticketNumber) {
       // In this system, active orders can be viewed.
@@ -182,12 +183,12 @@ export default function NotificationsPage() {
       if (diffMins < 1) return 'Just now';
       if (diffMins < 60) return `${diffMins}m ago`;
       if (diffHours < 24) return `${diffHours}h ago`;
-      
-      return date.toLocaleDateString(undefined, { 
-        month: 'short', 
-        day: 'numeric', 
-        hour: '2-digit', 
-        minute: '2-digit' 
+
+      return date.toLocaleDateString(undefined, {
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
       });
     } catch {
       return '';
@@ -197,10 +198,10 @@ export default function NotificationsPage() {
   return (
     <div className="min-h-screen bg-[var(--theme-bg)] pb-24 text-[var(--theme-text-primary)]">
       {/* Mobile Top Bar */}
-      <TopBar 
-        title="Notifications" 
+      <TopBar
+        title="Notifications"
         rightAction={
-          <button 
+          <button
             onClick={handleRefresh}
             disabled={isRefreshing}
             className={`w-9 h-9 rounded-full bg-[var(--theme-btn-secondary-bg)] flex items-center justify-center text-[var(--theme-text-secondary)] active:scale-95 transition-all ${isRefreshing ? 'animate-spin' : ''}`}
@@ -224,7 +225,7 @@ export default function NotificationsPage() {
               </span>
             )}
           </div>
-          
+
           <div className="flex items-center gap-2">
             <button
               onClick={handleMarkAllRead}
@@ -257,7 +258,7 @@ export default function NotificationsPage() {
               Unread only
             </label>
           </div>
-          
+
           <div className="flex flex-wrap gap-2 pt-1 border-t border-[var(--theme-border-strong)]">
             {[
               { id: 'all', label: 'All' },
@@ -268,11 +269,10 @@ export default function NotificationsPage() {
               <button
                 key={tab.id}
                 onClick={() => setFilterType(tab.id)}
-                className={`px-3 py-1.5 rounded-lg text-[12px] font-semibold transition-all ${
-                  filterType === tab.id
+                className={`px-3 py-1.5 rounded-lg text-[12px] font-semibold transition-all ${filterType === tab.id
                     ? 'bg-[var(--theme-text-primary)] text-[var(--theme-bg)]'
                     : 'bg-[var(--theme-btn-secondary-bg)] text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] border border-[var(--theme-border)]'
-                }`}
+                  }`}
               >
                 {tab.label}
               </button>
@@ -280,11 +280,29 @@ export default function NotificationsPage() {
           </div>
         </div>
 
-        {/* Loading Spinner */}
+        {/* Loading Skeleton */}
         {isLoading ? (
-          <div className="flex flex-col items-center justify-center py-20">
-            <div className="w-10 h-10 border-3 border-[var(--theme-border-strong)] border-t-[var(--theme-text-primary)] rounded-full animate-spin mb-4" />
-            <p className="text-[13px] text-[var(--theme-text-secondary)]">Syncing notifications...</p>
+          <div className="space-y-3">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div
+                key={i}
+                className="bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-xl p-4 flex gap-3"
+              >
+                <div className="flex-1 space-y-3">
+                  <div className="flex items-center gap-2">
+                    <Skeleton className="h-4 w-12 rounded" />
+                    <Skeleton className="h-4 w-28 rounded" />
+                  </div>
+                  <Skeleton className="h-5 w-[70%] rounded-lg" />
+                  <Skeleton className="h-4 w-[90%] rounded" />
+                  <Skeleton className="h-3.5 w-20 rounded" />
+                </div>
+                <div className="flex flex-col gap-2 shrink-0">
+                  <Skeleton className="w-8 h-8 rounded-lg" />
+                  <Skeleton className="w-8 h-8 rounded-lg" />
+                </div>
+              </div>
+            ))}
           </div>
         ) : notifications.length === 0 ? (
           /* Empty State */
@@ -294,8 +312,8 @@ export default function NotificationsPage() {
             </div>
             <h3 className="text-[16px] font-bold mb-1">All caught up!</h3>
             <p className="text-[13px] text-[var(--theme-text-secondary)] max-w-xs">
-              {unreadOnly 
-                ? 'No unread notifications match your current filter preferences.' 
+              {unreadOnly
+                ? 'No unread notifications match your current filter preferences.'
                 : 'You have no notifications in your inbox at this moment.'}
             </p>
           </div>
@@ -306,11 +324,10 @@ export default function NotificationsPage() {
               <div
                 key={n._id}
                 onClick={() => handleNotificationClick(n)}
-                className={`relative overflow-hidden p-4 rounded-xl border transition-all duration-200 cursor-pointer ${
-                  !n.read 
-                    ? 'bg-[var(--theme-card)] border-[var(--theme-border-strong)] shadow-sm hover:translate-y-[-1px]' 
+                className={`relative overflow-hidden p-4 rounded-xl border transition-all duration-200 cursor-pointer ${!n.read
+                    ? 'bg-[var(--theme-card)] border-[var(--theme-border-strong)] shadow-sm hover:translate-y-[-1px]'
                     : 'bg-[var(--theme-bg)] border-[var(--theme-border)] hover:bg-[var(--theme-card)] opacity-85'
-                }`}
+                  }`}
               >
                 {/* Unread indicator dot */}
                 {!n.read && (
@@ -331,11 +348,11 @@ export default function NotificationsPage() {
                         </span>
                       )}
                     </div>
-                    
+
                     <h4 className={`text-[14px] font-bold leading-snug mb-1 ${!n.read ? 'text-[var(--theme-text-primary)]' : 'text-[var(--theme-text-secondary)]'}`}>
                       {n.title}
                     </h4>
-                    
+
                     <p className="text-[13px] text-[var(--theme-text-secondary)] leading-relaxed mb-2.5 break-words">
                       {n.message}
                     </p>
@@ -380,12 +397,6 @@ export default function NotificationsPage() {
           </div>
         )}
 
-        {/* Tip / Reminder */}
-        <div className="mt-8 p-4 bg-blue-500/5 border border-blue-500/10 rounded-xl text-center">
-          <p className="text-[12px] text-blue-400 font-medium leading-relaxed">
-            Need to configure channels? Go to <span className="underline cursor-pointer font-bold" onClick={() => router.push('/profile/notifications')}>Notification Preferences</span> to toggle SMS, Email or WhatsApp updates.
-          </p>
-        </div>
       </div>
     </div>
   );

@@ -1,72 +1,39 @@
-'use client';
+'use client'
 
-/**
- * Skeleton — shimmer placeholder for loading states
- *
- * Props:
- *   width   — CSS width  (default: '100%')
- *   height  — CSS height (default: '16px')
- *   rounded — CSS border-radius override
- *   circle  — shortcut for round avatar-style skeleton
- *   lines   — render N stacked lines (useful for text blocks)
- */
-export default function Skeleton({
-  width = '100%',
-  height = '16px',
-  rounded,
-  circle = false,
-  lines,
-  className = '',
-  style = {},
-}) {
+export default function Skeleton({ className = '', circle = false, lines }) {
   if (lines && lines > 1) {
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width }}>
+      <div className='flex flex-col gap-2 w-full'>
         {Array.from({ length: lines }).map((_, i) => (
           <Skeleton
             key={i}
-            height={height}
-            width={i === lines - 1 ? '70%' : '100%'}
-            rounded={rounded}
+            className={`${className} ${i === lines - 1 ? 'w-[70%]' : 'w-full'}`}
           />
         ))}
       </div>
-    );
+    )
   }
 
   return (
     <div
-      className={`skeleton ${className}`}
-      style={{
-        width: circle ? height : width,
-        height,
-        borderRadius: circle ? '50%' : (rounded || 'var(--radius-sm)'),
-        flexShrink: 0,
-        ...style,
-      }}
-      aria-hidden="true"
+      className={`skeleton shrink-0 ${circle ? 'rounded-full' : 'rounded-[var(--radius-sm)]'} ${className}`}
+      aria-hidden='true'
     />
-  );
+  )
 }
 
-/**
- * SkeletonCard — prebuilt skeleton for a list card
- */
 export function SkeletonCard() {
   return (
-    <div
-      className="card"
-      style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}
-    >
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-        <Skeleton circle height="40px" />
-        <div style={{ flex: 1 }}>
-          <Skeleton height="14px" width="60%" style={{ marginBottom: '6px' }} />
-          <Skeleton height="12px" width="40%" />
+    <div className='card flex flex-col gap-3'>
+      <div className='flex items-center gap-3'>
+        <Skeleton circle className='w-10 h-10' />
+        <div className='flex-1 flex flex-col gap-1.5'>
+          <Skeleton className='h-3.5 w-3/5' />
+          <Skeleton className='h-3 w-2/5' />
         </div>
       </div>
-      <Skeleton height="12px" />
-      <Skeleton height="12px" width="80%" />
+      <Skeleton className='h-3 w-full' />
+      <Skeleton className='h-3 w-4/5' />
     </div>
-  );
+  )
 }

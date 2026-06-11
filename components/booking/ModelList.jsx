@@ -50,7 +50,7 @@ export default function ModelList({
         <Search size={17} color='var(--color-content-text-secondary)' />
         <input
           type='text'
-          placeholder='Search iPhone model...'
+          placeholder={brand?.name ? `Search ${brand.name} model...` : 'Search model...'}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           autoComplete='off'

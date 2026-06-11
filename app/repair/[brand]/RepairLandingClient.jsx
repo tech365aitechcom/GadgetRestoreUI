@@ -6,30 +6,20 @@ import { ArrowRight } from 'lucide-react';
 
 export default function RepairLandingClient({ brandObj, modelObj = null, step = 'select-model' }) {
   const router = useRouter();
-  const { reset } = useBooking();
+  const { reset, setCategory, setBrand, setModel } = useBooking();
 
   const handleBookNow = () => {
     reset(); // Clear context state
     
-    // Assemble prefilled booking payload
-    const bookingState = {
-      category: { _id: "65f8c8577adcd9e5c544d671", name: "Mobile" },
-      brand: brandObj,
-      model: modelObj,
-      symptoms: [],
-      partTier: null,
-      serviceMode: 'lab',
-      remarks: '',
-      pricing: null,
-      address: null,
-      slot: null
-    };
-    
-    // Store in localStorage directly so that BookingProvider picks it up on mount/render
-    localStorage.setItem('gr_booking_state', JSON.stringify(bookingState));
+    // Update context state directly
+    setCategory({ _id: "65f8c8577adcd9e5c544d671", name: "Mobile" });
+    setBrand(brandObj);
+    if (modelObj) {
+      setModel(modelObj);
+    }
     
     // Redirect to the appropriate booking step
-    if (step === 'select-symptoms') {
+    if (step === 'select-symptoms' && modelObj) {
       router.push('/select-symptoms');
     } else {
       router.push('/select-model');

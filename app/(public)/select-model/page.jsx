@@ -2,10 +2,9 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, ScanLine } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 
 import ModelList from '@/components/booking/ModelList';
-import { CantFindBanner, ScanSerialButton } from '@/components/booking/BrandGrid';
 import catalogueService from '@/services/catalogue.service';
 import { useBooking } from '@/context/BookingContext';
 import { getBrandLogo } from '@/lib/utils';
@@ -91,27 +90,6 @@ export default function SelectModelPage() {
               </p>
             </div>
 
-            {/* Right: Scan Serial card (Desktop only) */}
-            <div className="hidden lg:block min-w-[220px]">
-              <button
-                className="scan-serial-card w-full flex flex-col items-start gap-2 p-4 px-5"
-                aria-label="Scan serial number"
-              >
-                <div className="flex items-center justify-between w-full">
-                  <div>
-                    <span className="scan-serial-card-label text-[9px] font-bold uppercase tracking-wider text-neutral-500">Auto-Detect</span>
-                    <span className="scan-serial-card-title text-base font-extrabold text-white">Scan Serial</span>
-                  </div>
-                  <div className="scan-serial-icon w-[42px] h-[42px] flex items-center justify-center bg-white/5 rounded-xl text-neutral-400">
-                    <ScanLine size={20} />
-                  </div>
-                </div>
-                <div className="w-full h-0.5 rounded-full bg-white/10 mt-1">
-                  <div className="h-full w-2/5 bg-[var(--color-accent)] rounded-full" />
-                </div>
-              </button>
-            </div>
-
           </div>
 
           {/* Model grid container */}
@@ -128,16 +106,6 @@ export default function SelectModelPage() {
               />
             </div>
           )}
-
-          {/* Can't Find Banner */}
-          <div>
-            <div className="hidden lg:block">
-              <CantFindBanner desktop />
-            </div>
-            <div className="block lg:hidden">
-              <CantFindBanner />
-            </div>
-          </div>
 
         </div>
       </div>

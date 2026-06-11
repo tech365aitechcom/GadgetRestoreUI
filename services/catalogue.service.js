@@ -108,6 +108,42 @@ export const catalogueService = {
       throw error;
     }
   },
+
+  /**
+   * Get available tiers for specific repairs
+   * POST /api/pricing-matrix/available-tiers
+   * Returns array of repairs with their available tiers and pricing
+   */
+  async getAvailableTiers({ brandId, modelId, repairTypeIds }) {
+    try {
+      const response = await api.post('/pricing-matrix/available-tiers', {
+        brandId,
+        modelId,
+        repairTypeIds,
+      });
+      return response.data.data || response.data || { repairs: [] };
+    } catch (error) {
+      console.error('Failed to get available tiers', error);
+      throw error;
+    }
+  },
+
+  /**
+   * Fetch pricing matrix for SEO landing pages (public endpoint).
+   * GET /api/pricing-matrix/seo-pricing
+   * Params: { brand, slug }
+   */
+  async getSEOPricing({ brand, slug }) {
+    try {
+      const params = { brand };
+      if (slug) params.slug = slug;
+      const response = await api.get('/pricing-matrix/seo-pricing', { params });
+      return response.data.data || response.data;
+    } catch (error) {
+      console.error('Failed to fetch SEO pricing', error);
+      throw error;
+    }
+  },
 };
 
 export default catalogueService;

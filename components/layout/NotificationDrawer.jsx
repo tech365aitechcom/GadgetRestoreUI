@@ -360,18 +360,6 @@ export default function NotificationDrawer({ isOpen, onClose }) {
           )}
         </div>
 
-        {/* Footer preferences link */}
-        <div className="p-4 bg-[var(--theme-btn-secondary-bg)] border-t border-[var(--theme-border-strong)] text-center">
-          <button 
-            onClick={() => {
-              onClose();
-              router.push('/profile/notifications');
-            }}
-            className="text-[12px] font-bold text-[var(--theme-btn-primary-bg)] hover:underline flex items-center justify-center gap-1 mx-auto"
-          >
-            Manage Channels & Preferences
-          </button>
-        </div>
       </aside>
     </>
   );
