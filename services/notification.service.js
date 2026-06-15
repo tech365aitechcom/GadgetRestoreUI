@@ -109,6 +109,36 @@ export const notificationService = {
       throw error.response?.data || error;
     }
   },
+
+  async registerPushDevice(payload) {
+    try {
+      const response = await api.post('/notifications/push/devices', payload);
+      return response.data;
+    } catch (error) {
+      console.error('Failed to register push device:', error);
+      throw error.response?.data || error;
+    }
+  },
+
+  async unregisterPushDevice(payload) {
+    try {
+      const response = await api.delete('/notifications/push/devices', { data: payload });
+      return response.data;
+    } catch (error) {
+      console.error('Failed to unregister push device:', error);
+      throw error.response?.data || error;
+    }
+  },
+
+  async sendTestPush() {
+    try {
+      const response = await api.post('/notifications/push/test');
+      return response.data;
+    } catch (error) {
+      console.error('Failed to send test push:', error);
+      throw error.response?.data || error;
+    }
+  },
 };
 
 export default notificationService;

@@ -40,7 +40,12 @@ export default function AppShell({ children, className = '' }) {
     const fetchUnreadCount = async () => {
       try {
         const res = await notificationService.getUnreadCount()
-        setUnreadCount(res?.data?.count ?? res?.count ?? 0)
+        setUnreadCount(
+          res?.data?.unreadCount ??
+          res?.data?.count ??
+          res?.count ??
+          0
+        )
       } catch (err) {
         // Set to 0 on error
         setUnreadCount(0)

@@ -27,7 +27,12 @@ export default function PublicLayout({ children }) {
     const fetchUnreadCount = async () => {
       try {
         const res = await notificationService.getUnreadCount()
-        setUnreadCount(res?.data?.count ?? res?.count ?? 0)
+        setUnreadCount(
+          res?.data?.unreadCount ??
+          res?.data?.count ??
+          res?.count ??
+          0
+        )
       } catch (err) {
         setUnreadCount(0)
       }
