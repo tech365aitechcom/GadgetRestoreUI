@@ -1288,6 +1288,8 @@ hr,
   max-height: 100% !important;
   object-fit: contain !important;
   transition: transform 300ms ease;
+  margin: 0 auto !important;
+  display: block !important;
 }
 
 .model-card:hover .model-card-image img {

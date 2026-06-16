@@ -1,9 +1,12 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import AppShell from '@/components/layout/AppShell';
 import BottomNav from '@/components/ui/BottomNav';
 import MobileHeader from '@/components/layout/MobileHeader';
+import PushNotificationRegistrar from '@/components/notifications/PushNotificationRegistrar';
 import AuthGuard from '@/components/auth/AuthGuard';
+import notificationService from '@/services/notification.service';
 
 import { usePathname } from 'next/navigation';
 
@@ -18,16 +21,42 @@ import { usePathname } from 'next/navigation';
  */
 export default function CustomerLayout({ children }) {
   const pathname = usePathname();
+  const [unreadCount, setUnreadCount] = useState(0);
+
   const hideMobileHeader =
     pathname === '/notifications' ||
     pathname.startsWith('/profile/personal-info') ||
     pathname.startsWith('/profile/addresses');
 
+  useEffect(() => {
+    const fetchUnreadCount = async () => {
+      try {
+        const res = await notificationService.getUnreadCount();
+        setUnreadCount(
+          res?.data?.unreadCount ??
+          res?.data?.count ??
+          res?.count ??
+          0
+        );
+      } catch (err) {
+        setUnreadCount(0);
+      }
+    };
+
+    fetchUnreadCount();
+    // Refresh every 30 seconds
+    const interval = setInterval(fetchUnreadCount, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <AuthGuard>
+      <PushNotificationRegistrar />
       <AppShell className="bg-[var(--color-bg-card)] sm:bg-[var(--color-bg)]">
         {/* Mobile Header - visible only on mobile. Hidden if the sub-page renders its own TopBar. */}
-        {!hideMobileHeader && <MobileHeader showNotification={true} />}
+        {!hideMobileHeader && (
+          <MobileHeader showNotification={true} unreadCount={unreadCount} />
+        )}
 
         <div className="flex-1 pb-nav w-full">
           {children}

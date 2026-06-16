@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from 'react'
 import { Search, Smartphone } from 'lucide-react'
+import OptimizedImage from '@/components/ui/OptimizedImage'
 import { useBooking } from '@/context/BookingContext';
 
 /* ══════════════════════════════════════════════════════════════════════════
@@ -116,20 +117,12 @@ export default function ModelList({
               >
                 {/* Image area */}
                 <div className='model-card-image'>
-                  <img
+                  <OptimizedImage
                     src={model.image || defaultImage}
                     alt={model.name}
-                    style={{
-                      width: '100%',
-                      height: '100%',
-                      objectFit: 'contain',
-                    }}
-                    loading='lazy'
-                    onError={(e) => {
-                      if (e.target.src !== window.location.origin + defaultImage) {
-                        e.target.src = defaultImage;
-                      }
-                    }}
+                    fallbackSrc={defaultImage}
+                    showSkeleton={true}
+                    skeletonClassName='model-image-skeleton'
                   />
                 </div>
 

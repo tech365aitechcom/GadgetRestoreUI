@@ -1,5 +1,8 @@
 import api from './api';
 import { Capacitor } from '@capacitor/core';
+import { Filesystem, Directory } from '@capacitor/filesystem';
+import { Browser } from '@capacitor/browser';
+import { Share } from '@capacitor/share';
 
 async function downloadDocument(path, filename) {
   const response = await api.get(path, { responseType: 'blob' });
@@ -9,19 +12,75 @@ async function downloadDocument(path, filename) {
   const isNativeMobile = Capacitor.isNativePlatform();
 
   if (isNativeMobile) {
-    // For native mobile apps, open in new tab to allow native handling
-    const url = window.URL.createObjectURL(blob);
-    const newWindow = window.open(url, '_blank');
+    try {
+      // Convert blob to base64
+      const base64Data = await blobToBase64(blob);
 
-    // If popup blocked, fallback to current window
-    if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
-      window.location.href = url;
+      // Sanitize filename - remove special characters
+      const sanitizedFilename = filename.replace(/[^a-zA-Z0-9.-]/g, '_');
+
+      // Save file to device's cache directory (easier to access)
+      const result = await Filesystem.writeFile({
+        path: sanitizedFilename,
+        data: base64Data,
+        directory: Directory.Cache,
+      });
+
+      console.log('File saved successfully to:', result.uri);
+
+      // Get platform
+      const platform = Capacitor.getPlatform();
+
+      if (platform === 'android') {
+        // On Android, use Share API to open PDF with available apps
+        try {
+          await Share.share({
+            title: filename,
+            text: `Open ${filename}`,
+            url: result.uri,
+            dialogTitle: 'Open PDF with',
+          });
+        } catch (shareError) {
+          console.error('Share failed, trying Browser:', shareError);
+          // Fallback: try opening with Browser plugin
+          await Browser.open({
+            url: result.uri,
+            presentationStyle: 'fullscreen',
+          });
+        }
+      } else if (platform === 'ios') {
+        // On iOS, use Share API which works well
+        await Share.share({
+          title: filename,
+          url: result.uri,
+        });
+      } else {
+        // Fallback for other platforms
+        window.open(result.uri, '_system');
+      }
+
+    } catch (error) {
+      console.error('Error handling file on native device:', error);
+
+      // Fallback: try creating a downloadable link
+      try {
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = filename;
+        link.target = '_blank';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        setTimeout(() => {
+          window.URL.revokeObjectURL(url);
+        }, 1000);
+      } catch (fallbackError) {
+        console.error('Fallback download also failed:', fallbackError);
+        alert('Unable to download file. Please try again.');
+      }
     }
-
-    // Clean up after a delay to ensure the download starts
-    setTimeout(() => {
-      window.URL.revokeObjectURL(url);
-    }, 100);
   } else {
     // Web browser: use traditional download approach
     const url = window.URL.createObjectURL(blob);
@@ -39,6 +98,20 @@ async function downloadDocument(path, filename) {
       window.URL.revokeObjectURL(url);
     }, 100);
   }
+}
+
+// Helper function to convert blob to base64
+function blobToBase64(blob) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      // Remove the data URL prefix to get just the base64 string
+      const base64 = reader.result.split(',')[1];
+      resolve(base64);
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
 }
 
 export const orderService = {

@@ -19,11 +19,6 @@ import LoginAlertModal from '@/components/ui/LoginAlertModal'
 import notificationService from '@/services/notification.service'
 import { setRouterInstance } from '@/lib/navigation'
 
-/**
- * AppShell — Responsive layout shell
- * Desktop (≥1024px): Dark sidebar + Light top bar + Light content
- * Mobile  (<1024px): Light content only, bottom nav handled in page
- */
 export default function AppShell({ children, className = '' }) {
   const pathname = usePathname()
   const router = useRouter()
@@ -45,7 +40,12 @@ export default function AppShell({ children, className = '' }) {
     const fetchUnreadCount = async () => {
       try {
         const res = await notificationService.getUnreadCount()
-        setUnreadCount(res?.data?.count ?? res?.count ?? 0)
+        setUnreadCount(
+          res?.data?.unreadCount ??
+          res?.data?.count ??
+          res?.count ??
+          0
+        )
       } catch (err) {
         // Set to 0 on error
         setUnreadCount(0)

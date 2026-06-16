@@ -183,7 +183,7 @@ export default function HomePage() {
         </div>
 
         {/* Search bar - MOBILE ONLY */}
-        <div className='lg:hidden block pt-17 px-4 pb-0'>
+        <div className='lg:hidden block px-4 pb-0' style={{ paddingTop: 'calc(68px + env(safe-area-inset-top, 0px))' }}>
           <div
             onClick={handleStart}
             className='flex items-center gap-2.5 py-3 px-4 rounded-xl cursor-pointer'

@@ -40,6 +40,14 @@ function formatOrderId(ticketNumber) {
   return ticketNumber || 'N/A'
 }
 
+function getFallbackDeviceImage(brandName) {
+  const name = brandName?.toLowerCase() || ''
+  if (name.includes('apple') || name.includes('iphone')) {
+    return '/images/default-apple.png'
+  }
+  return '/images/default-android.png'
+}
+
 function getDeviceIcon(deviceName) {
   const name = deviceName?.toLowerCase() || ''
   if (name.includes('phone') || name.includes('iphone')) return Smartphone
@@ -354,7 +362,6 @@ export default function OrdersPage() {
                 {/* Mobile List View */}
                 <div className='lg:hidden flex flex-col gap-3'>
                   {orders.slice(1, 4).map((order) => {
-                    const DeviceIcon = getDeviceIcon(order.modelRef?.name)
                     const brandName = order.brandRef?.name || ''
                     const modelName = order.modelRef?.name || ''
                     const deviceName = modelName.toLowerCase().startsWith(brandName.toLowerCase())
@@ -366,8 +373,12 @@ export default function OrdersPage() {
                         href={`/orders/detail?ticketNumber=${encodeURIComponent(order.ticketNumber)}`}
                         className='flex items-center gap-3 p-4 bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-xl no-underline'
                       >
-                        <div className='w-10 h-10 rounded-lg bg-[var(--theme-surface)] flex items-center justify-center shrink-0'>
-                          <DeviceIcon size={20} className='text-[var(--theme-text-secondary)]' />
+                        <div className='w-10 h-10 bg-[var(--theme-surface)] border border-[var(--theme-border)] rounded-lg flex items-center justify-center shrink-0 overflow-hidden p-1 shadow-inner'>
+                          <img
+                            src={order.modelRef?.image || getFallbackDeviceImage(order.brandRef?.name)}
+                            alt={deviceName}
+                            className='w-full h-full object-contain'
+                          />
                         </div>
                         <div className='flex-1 min-w-0'>
                           <h3 className='text-[13px] font-bold text-[var(--theme-text-primary)] mb-0.5 truncate'>
@@ -387,13 +398,13 @@ export default function OrdersPage() {
                 <div className='hidden lg:block bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-2xl overflow-hidden'>
                   {/* Table Header */}
                   <div className='grid grid-cols-12 gap-4 px-6 py-3 bg-[var(--theme-surface)] border-b border-[var(--theme-border)]'>
-                    <div className='col-span-1 text-[10px] uppercase tracking-[0.14em] text-[var(--theme-text-tertiary)] font-bold'>
+                    <div className='col-span-3 text-[10px] uppercase tracking-[0.14em] text-[var(--theme-text-tertiary)] font-bold'>
                       Order ID
                     </div>
-                    <div className='col-span-4 text-[10px] uppercase tracking-[0.14em] text-[var(--theme-text-tertiary)] font-bold'>
+                    <div className='col-span-3 text-[10px] uppercase tracking-[0.14em] text-[var(--theme-text-tertiary)] font-bold'>
                       Device
                     </div>
-                    <div className='col-span-3 text-[10px] uppercase tracking-[0.14em] text-[var(--theme-text-tertiary)] font-bold'>
+                    <div className='col-span-2 text-[10px] uppercase tracking-[0.14em] text-[var(--theme-text-tertiary)] font-bold'>
                       Status
                     </div>
                     <div className='col-span-3 text-[10px] uppercase tracking-[0.14em] text-[var(--theme-text-tertiary)] font-bold'>
@@ -404,7 +415,6 @@ export default function OrdersPage() {
 
                   {/* Table Rows */}
                   {orders.slice(1, 4).map((order, index) => {
-                    const DeviceIcon = getDeviceIcon(order.modelRef?.name)
                     const brandName = order.brandRef?.name || ''
                     const modelName = order.modelRef?.name || ''
                     const deviceName = modelName.toLowerCase().startsWith(brandName.toLowerCase())
@@ -416,14 +426,18 @@ export default function OrdersPage() {
                         href={`/orders/detail?ticketNumber=${encodeURIComponent(order.ticketNumber)}`}
                         className='grid grid-cols-12 gap-4 px-6 py-4 hover:bg-[var(--theme-surface)] transition-colors no-underline group border-b border-[var(--theme-border)] last:border-b-0'
                       >
-                        <div className='col-span-1 flex items-center'>
-                          <p className='text-[11px] text-[var(--theme-text-tertiary)] font-mono'>
+                        <div className='col-span-3 flex items-center'>
+                          <p className='text-[11px] text-[var(--theme-text-tertiary)] font-mono whitespace-nowrap'>
                             {formatOrderId(order.ticketNumber, order.createdAt)}
                           </p>
                         </div>
-                        <div className='col-span-4 flex items-center gap-3'>
-                          <div className='w-10 h-10 rounded-lg bg-[var(--theme-surface)] flex items-center justify-center shrink-0'>
-                            <DeviceIcon size={20} className='text-[var(--theme-text-secondary)]' />
+                        <div className='col-span-3 flex items-center gap-3'>
+                          <div className='w-10 h-10 bg-[var(--theme-surface)] border border-[var(--theme-border)] rounded-lg flex items-center justify-center shrink-0 overflow-hidden p-1 shadow-inner'>
+                            <img
+                              src={order.modelRef?.image || getFallbackDeviceImage(order.brandRef?.name)}
+                              alt={deviceName}
+                              className='w-full h-full object-contain'
+                            />
                           </div>
                           <div className='min-w-0'>
                             <p className='text-[13px] font-bold text-[var(--theme-text-primary)] truncate'>
@@ -431,7 +445,7 @@ export default function OrdersPage() {
                             </p>
                           </div>
                         </div>
-                        <div className='col-span-3 flex items-center'>
+                        <div className='col-span-2 flex items-center'>
                           <OrderStatusBadge status={order.repairStatus} size='sm' />
                         </div>
                         <div className='col-span-3 flex items-center'>

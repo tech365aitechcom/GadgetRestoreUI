@@ -107,6 +107,28 @@ function OrderConfirmationContent() {
     }
   }, [ticketNumber])
 
+  useEffect(() => {
+    const askPermission = async () => {
+      try {
+        const { default: pushService } = await import('@/services/push-notification.service')
+        if (await pushService.isSupported()) {
+          const currentPerm = pushService.getPermission()
+          if (currentPerm === 'default') {
+            await pushService.requestAndRegister()
+            toast.success('Order tracking alerts enabled!')
+          }
+        }
+      } catch (error) {
+        console.warn('Auto-request notifications failed:', error.message)
+      }
+    }
+
+    if (!loading && order) {
+      const timer = setTimeout(askPermission, 1500)
+      return () => clearTimeout(timer)
+    }
+  }, [loading, order])
+
   const handleTrackOrder = () => {
     router.push(`/orders/detail?ticketNumber=${encodeURIComponent(ticketNumber)}`)
   }

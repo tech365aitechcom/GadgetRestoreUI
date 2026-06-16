@@ -3,7 +3,15 @@ import type { CapacitorConfig } from '@capacitor/cli';
 const config: CapacitorConfig = {
   appId: 'in.grest.customerapp',
   appName: 'Gadget Restore',
-  webDir: 'out'
+  webDir: 'out',
+  server: {
+    androidScheme: 'http'
+  },
+  plugins: {
+    PushNotifications: {
+      presentationOptions: ["badge", "sound", "alert"]
+    }
+  }
 };
 
 export default config;

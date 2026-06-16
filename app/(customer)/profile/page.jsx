@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import {
   User,
@@ -25,6 +25,8 @@ import {
 } from '@/lib/constants'
 import { useAuth } from '@/context/AuthContext'
 import customerService from '@/services/customer.service'
+import notificationService from '@/services/notification.service'
+import pushNotificationService from '@/services/push-notification.service'
 import Skeleton from '@/components/ui/Skeleton'
 
 export default function ProfilePage() {
@@ -53,18 +55,7 @@ export default function ProfilePage() {
     pushNotifications: true,
   })
 
-  useEffect(() => {
-    // Check if user is authenticated
-    const token = Cookies.get(TOKEN_COOKIE)
-    if (!token) {
-      router.push('/login')
-      return
-    }
-
-    fetchProfileData()
-  }, [router])
-
-  const fetchProfileData = async () => {
+  const fetchProfileData = useCallback(async () => {
     try {
       setIsLoading(true)
       const profile = await customerService.getProfile()
@@ -118,7 +109,19 @@ export default function ProfilePage() {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [])
+
+  useEffect(() => {
+    // Check if user is authenticated
+    const token = Cookies.get(TOKEN_COOKIE)
+    if (!token) {
+      router.push('/login')
+      return
+    }
+
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- initial async profile sync for this route
+    fetchProfileData()
+  }, [fetchProfileData, router])
 
   const handleLogout = () => {
     logout()
@@ -126,6 +129,15 @@ export default function ProfilePage() {
 
   const handleToggleNotification = async (key) => {
     const newValue = !notifications[key]
+
+    if (key === 'pushNotifications' && newValue) {
+      try {
+        await pushNotificationService.requestAndRegister()
+      } catch (error) {
+        toast.error(error.message || 'Push notifications could not be enabled')
+        return
+      }
+    }
 
     // Optimistically update UI
     setNotifications((prev) => ({
@@ -137,6 +149,13 @@ export default function ProfilePage() {
       await customerService.updatePreferences({
         [key]: newValue,
       })
+      if (key === 'pushNotifications' && !newValue) {
+        try {
+          await pushNotificationService.unregister()
+        } catch (error) {
+          console.warn('Push unregister failed:', error.message)
+        }
+      }
       toast.success('Notification preference updated')
     } catch (error) {
       // Revert on error
@@ -145,6 +164,50 @@ export default function ProfilePage() {
         [key]: !newValue,
       }))
       toast.error('Failed to update preference')
+    }
+  }
+
+  const handleRegisterBrowserPush = async () => {
+    try {
+      await pushNotificationService.requestAndRegister()
+      await customerService.updatePreferences({ pushNotifications: true })
+      setNotifications((prev) => ({
+        ...prev,
+        pushNotifications: true,
+      }))
+      toast.success('Browser push enabled for this device')
+    } catch (error) {
+      toast.error(error.message || 'Push notifications could not be enabled')
+    }
+  }
+
+  const handleSendTestPush = async () => {
+    try {
+      const response = await notificationService.sendTestPush()
+      const result = response.data || {}
+
+      if (result.success) {
+        await pushNotificationService.showLocalNotification(
+          'Gadget Restore test notification',
+          {
+            body: 'Push notification display is working on this browser.',
+          },
+        )
+        toast.success('Test push sent. Check your browser notifications.')
+        return
+      }
+
+      const reasonMap = {
+        customer_preference_disabled:
+          'Push preference is disabled. Enable it first.',
+        firebase_not_configured:
+          'Backend Firebase credentials are not configured.',
+        no_registered_devices:
+          'This browser is not registered yet. Click Enable this device first.',
+      }
+      toast.error(reasonMap[result.reason] || 'Test push was not sent.')
+    } catch (error) {
+      toast.error(error.message || 'Failed to send test push')
     }
   }
 
@@ -617,7 +680,7 @@ export default function ProfilePage() {
                     Phone Number
                   </div>
                   <div className='text-[12px] text-[var(--theme-text-secondary)]'>
-                    Call +91 99999 99999
+                    Call +91 88000 03785
                   </div>
                 </div>
                 <ChevronRight
@@ -649,13 +712,176 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          {/* Desktop: Logout Button */}
-          <button
-            onClick={handleLogout}
-            className='hidden lg:block w-full bg-red-500/5 border border-red-500/20 rounded-2xl p-4 text-red-500 font-bold text-[13px] hover:bg-red-500/10 active:scale-[0.99] transition-all shadow-sm'
-          >
-            Sign Out of Gadget Restore
-          </button>
+          {/* App Settings & Support */}
+          <div className='space-y-6'>
+            {/* Notifications */}
+            {/* <div className='bg-[var(--theme-card)] rounded-2xl border border-[var(--theme-border)] p-6 shadow-sm'>
+              <h2 className='text-[18px] font-extrabold text-[var(--theme-text-primary)] mb-5 flex items-center gap-2'>
+                <Bell size={20} />
+                Notifications
+              </h2>
+              <div className='space-y-4 mb-4'>
+                <div className='flex items-center justify-between'>
+                  <div>
+                    <div className='text-[13px] font-semibold text-[var(--theme-text-primary)]'>
+                      WhatsApp Notifications
+                    </div>
+                  </div>
+                  <button
+                    onClick={() =>
+                      handleToggleNotification('whatsappNotifications')
+                    }
+                    className={`relative w-12 h-7 rounded-full transition-colors ${notifications.whatsappNotifications
+                      ? 'bg-[var(--theme-btn-primary-bg)]'
+                      : 'bg-white/10'
+                      }`}
+                  >
+                    <div
+                      className={`absolute w-5 h-5 rounded-full top-1 transition-transform ${notifications.whatsappNotifications
+                        ? 'translate-x-6 bg-black'
+                        : 'translate-x-1 bg-[var(--theme-btn-primary-bg)]'
+                        }`}
+                    />
+                  </button>
+                </div>
+
+                <div className='flex items-center justify-between'>
+                  <div>
+                    <div className='text-[13px] font-semibold text-[var(--theme-text-primary)]'>
+                      SMS Notifications
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => handleToggleNotification('smsNotifications')}
+                    className={`relative w-12 h-7 rounded-full transition-colors ${notifications.smsNotifications
+                      ? 'bg-[var(--theme-btn-primary-bg)]'
+                      : 'bg-white/10'
+                      }`}
+                  >
+                    <div
+                      className={`absolute w-5 h-5 rounded-full top-1 transition-transform ${notifications.smsNotifications
+                        ? 'translate-x-6 bg-black'
+                        : 'translate-x-1 bg-[var(--theme-btn-primary-bg)]'
+                        }`}
+                    />
+                  </button>
+                </div>
+
+                <div className='flex items-center justify-between'>
+                  <div>
+                    <div className='text-[13px] font-semibold text-[var(--theme-text-primary)]'>
+                      Email Notifications
+                    </div>
+                  </div>
+                  <button
+                    onClick={() =>
+                      handleToggleNotification('emailNotifications')
+                    }
+                    className={`relative w-12 h-7 rounded-full transition-colors ${notifications.emailNotifications
+                      ? 'bg-[var(--theme-btn-primary-bg)]'
+                      : 'bg-white/10'
+                      }`}
+                  >
+                    <div
+                      className={`absolute w-5 h-5 rounded-full top-1 transition-transform ${notifications.emailNotifications
+                        ? 'translate-x-6 bg-black'
+                        : 'translate-x-1 bg-[var(--theme-btn-primary-bg)]'
+                        }`}
+                    />
+                  </button>
+                </div>
+
+                <div className='flex items-center justify-between'>
+                  <div>
+                    <div className='text-[13px] font-semibold text-[var(--theme-text-primary)]'>
+                      Push Notifications
+                    </div>
+                  </div>
+                  <button
+                    onClick={() =>
+                      handleToggleNotification('pushNotifications')
+                    }
+                    className={`relative w-12 h-7 rounded-full transition-colors ${notifications.pushNotifications
+                      ? 'bg-[var(--theme-btn-primary-bg)]'
+                      : 'bg-white/10'
+                      }`}
+                  >
+                    <div
+                      className={`absolute w-5 h-5 rounded-full top-1 transition-transform ${notifications.pushNotifications
+                        ? 'translate-x-6 bg-black'
+                        : 'translate-x-1 bg-[var(--theme-btn-primary-bg)]'
+                        }`}
+                    />
+                  </button>
+                </div>
+              </div>
+              <div className='grid grid-cols-1 sm:grid-cols-2 gap-2 mb-4'>
+                <button
+                  type='button'
+                  onClick={handleRegisterBrowserPush}
+                  className='rounded-xl bg-white/10 border border-white/10 px-4 py-3 text-[13px] font-semibold text-[var(--theme-text-primary)] hover:bg-white/15 transition-colors'
+                >
+                  Enable this device
+                </button>
+                <button
+                  type='button'
+                  onClick={handleSendTestPush}
+                  className='rounded-xl bg-[var(--theme-btn-primary-bg)] px-4 py-3 text-[13px] font-semibold text-[var(--theme-btn-primary-text)] hover:opacity-90 transition-opacity'
+                >
+                  Send test push
+                </button>
+              </div>
+              <div className='space-y-2'>
+                <button
+                  onClick={() => handleContactSupport('whatsapp')}
+                  className='w-full flex items-center gap-3 p-4 bg-[var(--theme-btn-secondary-bg)] border border-[var(--theme-border-strong)] rounded-xl hover:bg-[var(--theme-btn-secondary-hover)] active:scale-[0.99] transition-all'
+                >
+                  <div className='w-10 h-10 rounded-xl bg-[var(--theme-btn-secondary-bg)] flex items-center justify-center'>
+                    <MessageCircle
+                      size={20}
+                      className='text-[var(--theme-text-primary)]'
+                    />
+                  </div>
+                  <div className='flex-1 text-left'>
+                    <div className='text-[13px] font-semibold'>
+                      Live Assistant
+                    </div>
+                  </div>
+                  <ChevronRight
+                    size={18}
+                    className='text-[var(--theme-text-disabled)]'
+                  />
+                </button>
+
+                <button
+                  onClick={() => handleContactSupport('phone')}
+                  className='w-full flex items-center gap-3 p-4 bg-[var(--theme-btn-secondary-bg)] border border-[var(--theme-border-strong)] rounded-xl hover:bg-[var(--theme-btn-secondary-hover)] active:scale-[0.99] transition-all'
+                >
+                  <div className='w-10 h-10 rounded-xl bg-[var(--theme-btn-secondary-bg)] flex items-center justify-center'>
+                    <Phone
+                      size={20}
+                      className='text-[var(--theme-text-primary)]'
+                    />
+                  </div>
+                  <div className='flex-1 text-left'>
+                    <div className='text-[13px] font-semibold'>Help Center</div>
+                  </div>
+                  <ChevronRight
+                    size={18}
+                    className='text-[var(--theme-text-disabled)]'
+                  />
+                </button>
+              </div>
+            </div> */}
+
+            {/* Logout */}
+            <button
+              onClick={handleLogout}
+              className='hidden md:block w-full bg-red-500/5 border border-red-500/20 rounded-2xl p-4 text-red-500 font-bold text-[13px] hover:bg-red-500/10 active:scale-[0.99] transition-all shadow-sm'
+            >
+              Sign Out of Gadget Restore
+            </button>
+          </div>
         </div>
       </div>
     </div>
