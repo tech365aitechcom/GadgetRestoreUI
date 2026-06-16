@@ -680,7 +680,7 @@ export default function ProfilePage() {
                     Phone Number
                   </div>
                   <div className='text-[12px] text-[var(--theme-text-secondary)]'>
-                    Call +91 99999 99999
+                    Call +91 88000 03785
                   </div>
                 </div>
                 <ChevronRight
@@ -715,7 +715,7 @@ export default function ProfilePage() {
           {/* App Settings & Support */}
           <div className='space-y-6'>
             {/* Notifications */}
-            <div className='bg-[var(--theme-card)] rounded-2xl border border-[var(--theme-border)] p-6 shadow-sm'>
+            {/* <div className='bg-[var(--theme-card)] rounded-2xl border border-[var(--theme-border)] p-6 shadow-sm'>
               <h2 className='text-[18px] font-extrabold text-[var(--theme-text-primary)] mb-5 flex items-center gap-2'>
                 <Bell size={20} />
                 Notifications
@@ -731,18 +731,16 @@ export default function ProfilePage() {
                     onClick={() =>
                       handleToggleNotification('whatsappNotifications')
                     }
-                    className={`relative w-12 h-7 rounded-full transition-colors ${
-                      notifications.whatsappNotifications
-                        ? 'bg-[var(--theme-btn-primary-bg)]'
-                        : 'bg-white/10'
-                    }`}
+                    className={`relative w-12 h-7 rounded-full transition-colors ${notifications.whatsappNotifications
+                      ? 'bg-[var(--theme-btn-primary-bg)]'
+                      : 'bg-white/10'
+                      }`}
                   >
                     <div
-                      className={`absolute w-5 h-5 rounded-full top-1 transition-transform ${
-                        notifications.whatsappNotifications
-                          ? 'translate-x-6 bg-black'
-                          : 'translate-x-1 bg-[var(--theme-btn-primary-bg)]'
-                      }`}
+                      className={`absolute w-5 h-5 rounded-full top-1 transition-transform ${notifications.whatsappNotifications
+                        ? 'translate-x-6 bg-black'
+                        : 'translate-x-1 bg-[var(--theme-btn-primary-bg)]'
+                        }`}
                     />
                   </button>
                 </div>
@@ -755,18 +753,16 @@ export default function ProfilePage() {
                   </div>
                   <button
                     onClick={() => handleToggleNotification('smsNotifications')}
-                    className={`relative w-12 h-7 rounded-full transition-colors ${
-                      notifications.smsNotifications
-                        ? 'bg-[var(--theme-btn-primary-bg)]'
-                        : 'bg-white/10'
-                    }`}
+                    className={`relative w-12 h-7 rounded-full transition-colors ${notifications.smsNotifications
+                      ? 'bg-[var(--theme-btn-primary-bg)]'
+                      : 'bg-white/10'
+                      }`}
                   >
                     <div
-                      className={`absolute w-5 h-5 rounded-full top-1 transition-transform ${
-                        notifications.smsNotifications
-                          ? 'translate-x-6 bg-black'
-                          : 'translate-x-1 bg-[var(--theme-btn-primary-bg)]'
-                      }`}
+                      className={`absolute w-5 h-5 rounded-full top-1 transition-transform ${notifications.smsNotifications
+                        ? 'translate-x-6 bg-black'
+                        : 'translate-x-1 bg-[var(--theme-btn-primary-bg)]'
+                        }`}
                     />
                   </button>
                 </div>
@@ -781,18 +777,16 @@ export default function ProfilePage() {
                     onClick={() =>
                       handleToggleNotification('emailNotifications')
                     }
-                    className={`relative w-12 h-7 rounded-full transition-colors ${
-                      notifications.emailNotifications
-                        ? 'bg-[var(--theme-btn-primary-bg)]'
-                        : 'bg-white/10'
-                    }`}
+                    className={`relative w-12 h-7 rounded-full transition-colors ${notifications.emailNotifications
+                      ? 'bg-[var(--theme-btn-primary-bg)]'
+                      : 'bg-white/10'
+                      }`}
                   >
                     <div
-                      className={`absolute w-5 h-5 rounded-full top-1 transition-transform ${
-                        notifications.emailNotifications
-                          ? 'translate-x-6 bg-black'
-                          : 'translate-x-1 bg-[var(--theme-btn-primary-bg)]'
-                      }`}
+                      className={`absolute w-5 h-5 rounded-full top-1 transition-transform ${notifications.emailNotifications
+                        ? 'translate-x-6 bg-black'
+                        : 'translate-x-1 bg-[var(--theme-btn-primary-bg)]'
+                        }`}
                     />
                   </button>
                 </div>
@@ -807,18 +801,16 @@ export default function ProfilePage() {
                     onClick={() =>
                       handleToggleNotification('pushNotifications')
                     }
-                    className={`relative w-12 h-7 rounded-full transition-colors ${
-                      notifications.pushNotifications
-                        ? 'bg-[var(--theme-btn-primary-bg)]'
-                        : 'bg-white/10'
-                    }`}
+                    className={`relative w-12 h-7 rounded-full transition-colors ${notifications.pushNotifications
+                      ? 'bg-[var(--theme-btn-primary-bg)]'
+                      : 'bg-white/10'
+                      }`}
                   >
                     <div
-                      className={`absolute w-5 h-5 rounded-full top-1 transition-transform ${
-                        notifications.pushNotifications
-                          ? 'translate-x-6 bg-black'
-                          : 'translate-x-1 bg-[var(--theme-btn-primary-bg)]'
-                      }`}
+                      className={`absolute w-5 h-5 rounded-full top-1 transition-transform ${notifications.pushNotifications
+                        ? 'translate-x-6 bg-black'
+                        : 'translate-x-1 bg-[var(--theme-btn-primary-bg)]'
+                        }`}
                     />
                   </button>
                 </div>
@@ -880,14 +872,14 @@ export default function ProfilePage() {
                   />
                 </button>
               </div>
-            </div>
+            </div> */}
 
             {/* Logout */}
             <button
               onClick={handleLogout}
-              className='w-full bg-red-500/5 border border-red-500/20 rounded-2xl p-4 text-red-500 font-bold text-[13px] hover:bg-red-500/10 active:scale-[0.99] transition-all shadow-sm'
+              className='hidden md:block w-full bg-red-500/5 border border-red-500/20 rounded-2xl p-4 text-red-500 font-bold text-[13px] hover:bg-red-500/10 active:scale-[0.99] transition-all shadow-sm'
             >
-              Sign Out of Precision Portal
+              Sign Out of Gadget Restore
             </button>
           </div>
         </div>
