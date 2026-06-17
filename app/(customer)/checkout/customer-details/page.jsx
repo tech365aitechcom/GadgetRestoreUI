@@ -207,10 +207,7 @@ export default function CustomerDetailsPage() {
         },
       })
 
-      console.log('Booking API Response:', result)
-
       const ticketNumber = result?.ticketNumber || result?.booking?.ticketNumber
-      console.log('Extracted Ticket Number:', ticketNumber)
 
       if (!ticketNumber) {
         throw new Error('Order was created without a tracking number.')
@@ -218,7 +215,6 @@ export default function CustomerDetailsPage() {
 
       // Redirect to order confirmation (query-based for static export support)
       const redirectUrl = `/order-confirmation?ticketNumber=${encodeURIComponent(ticketNumber)}`
-      console.log('Redirecting to:', redirectUrl)
       router.push(redirectUrl)
     } catch (error) {
       console.error('Failed to create booking:', error)

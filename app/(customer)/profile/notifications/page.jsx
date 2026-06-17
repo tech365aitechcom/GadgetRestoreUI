@@ -80,7 +80,7 @@ export default function NotificationsPage() {
         try {
           await pushNotificationService.unregister()
         } catch (error) {
-          console.warn('Push unregister failed:', error.message)
+          // Push unregister failed silently
         }
       }
       toast.success('Notification preference updated')

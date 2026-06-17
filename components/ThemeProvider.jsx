@@ -15,7 +15,6 @@ export default function ThemeProvider({ children }) {
     const themeValues = THEMES[theme]
 
     if (!themeValues) {
-      console.warn(`Theme "${theme}" not found. Using dark theme.`)
       return
     }
 
@@ -26,8 +25,6 @@ export default function ThemeProvider({ children }) {
 
     // Set data attribute for theme-specific selectors
     document.documentElement.setAttribute('data-theme', theme)
-
-    console.log(`✓ Theme applied: ${theme}`)
   }, [])
 
   return <>{children}</>

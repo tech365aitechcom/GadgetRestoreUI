@@ -2,7 +2,7 @@
 
 import { useEffect, useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { Check, Home, Clock, Mail, Calendar, QrCode, ArrowRight, Truck, Share2, MapPin } from 'lucide-react'
+import { Check, Clock, Mail, QrCode, ArrowRight, Truck, Share2, MapPin } from 'lucide-react'
 import orderService from '@/services/order.service'
 import { useBooking } from '@/context/BookingContext'
 import toast from 'react-hot-toast'
@@ -119,7 +119,7 @@ function OrderConfirmationContent() {
           }
         }
       } catch (error) {
-        console.warn('Auto-request notifications failed:', error.message)
+        // Auto-request notifications failed silently
       }
     }
 

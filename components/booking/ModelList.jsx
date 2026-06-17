@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useMemo } from 'react'
-import { Search, Smartphone } from 'lucide-react'
+import { Search } from 'lucide-react'
 import OptimizedImage from '@/components/ui/OptimizedImage'
 import { useBooking } from '@/context/BookingContext';
 

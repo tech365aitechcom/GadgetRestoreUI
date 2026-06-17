@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useMemo, useRef } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { Capacitor } from '@capacitor/core'
 import { Preferences } from '@capacitor/preferences'
@@ -8,7 +8,6 @@ import {
   Phone,
   Mail,
   Clock,
-  ChevronRight,
   ArrowRight,
   Check,
   Star,
@@ -19,14 +18,12 @@ import {
   Headphones,
   Monitor,
   Calendar,
-  Sparkles,
   Zap,
   ShieldCheck,
   Award,
   ChevronDown,
   Wrench,
   HelpCircle,
-  Play,
   Settings,
   RotateCcw,
   Search,
@@ -37,6 +34,13 @@ import {
   X,
 } from 'lucide-react'
 import { useBooking } from '@/context/BookingContext'
+
+// Helper function to get progress label
+function getProgressLabel(progress) {
+  if (progress < 40) return 'INITIALIZING'
+  if (progress < 85) return 'SECURITY SYNC'
+  return 'LAUNCHING'
+}
 
 export default function SplashOrLandingPage() {
   const router = useRouter()
@@ -147,7 +151,7 @@ export default function SplashOrLandingPage() {
 
   const handleFormSubmit = (e) => {
     e.preventDefault()
-    if (typeof window !== 'undefined') {
+    if (globalThis.window !== undefined) {
       localStorage.setItem('gr_authenticated_phone', formData.phone)
       sessionStorage.setItem('gr_login_phone', formData.phone)
     }
@@ -232,11 +236,11 @@ export default function SplashOrLandingPage() {
             <div className='flex items-center gap-6'>
               <span className='flex items-center gap-2'>
                 <span className='w-1 h-1 rounded-full bg-zinc-700' />
-                SYSTEM V1.0.2
+                <span>SYSTEM V1.0.2</span>
               </span>
               <span className='flex items-center gap-2'>
                 <span className='w-1 h-1 rounded-full bg-zinc-700' />
-                ENCRYPTED CONNECTION
+                <span>ENCRYPTED CONNECTION</span>
               </span>
             </div>
           </footer>
@@ -276,19 +280,15 @@ export default function SplashOrLandingPage() {
               />
             </div>
             <div className='flex justify-center gap-2 mb-3.5 select-none'>
-              {[0, 1, 2].map((idx) => (
+              {[0, 1, 2].map((dotIdx) => (
                 <div
-                  key={idx}
-                  className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${idx === activeDotIndex ? 'bg-white scale-110' : 'bg-zinc-800'}`}
+                  key={`dot-${dotIdx}`}
+                  className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${dotIdx === activeDotIndex ? 'bg-white scale-110' : 'bg-zinc-800'}`}
                 />
               ))}
             </div>
             <div className='text-[10px] tracking-[0.2em] font-extrabold text-zinc-400 select-none'>
-              {progress < 40
-                ? 'INITIALIZING'
-                : progress < 85
-                  ? 'SECURITY SYNC'
-                  : 'LAUNCHING'}
+              {getProgressLabel(progress)}
             </div>
           </div>
 
@@ -362,12 +362,18 @@ export default function SplashOrLandingPage() {
           ──────────────────────────────────────────────────────────────────────── */}
       <div className='hidden md:flex bg-[#FAF9FF] border-b border-zinc-100 py-4 px-6 lg:px-20 justify-between items-center gap-4 text-xs'>
         <div className='flex items-center'>
-          <img
-            src='images/logo-light.png'
-            alt='Gadget Restore Logo'
-            className='h-10 w-auto object-contain cursor-pointer'
+          <button
+            type='button'
             onClick={() => router.push('/')}
-          />
+            className='bg-transparent border-0 p-0 cursor-pointer'
+            aria-label='Go to home page'
+          >
+            <img
+              src='images/logo-light.png'
+              alt='Gadget Restore Logo'
+              className='h-10 w-auto object-contain'
+            />
+          </button>
         </div>
         <div className='flex items-center gap-8 text-zinc-500'>
           <div className='flex items-center gap-3'>
@@ -426,12 +432,18 @@ export default function SplashOrLandingPage() {
       <nav className='bg-white border-b border-zinc-100 py-4 px-6 lg:px-20 sticky top-0 z-50 backdrop-blur-md bg-opacity-95 flex justify-between items-center shadow-sm'>
         {/* Left Side: Brand Logo (Sticky on mobile, hidden on desktop to avoid double logo) */}
         <div className='flex items-center lg:hidden'>
-          <img
-            src='images/logo-light.png'
-            alt='Gadget Restore Logo'
-            className='h-9 w-auto object-contain cursor-pointer'
+          <button
+            type='button'
             onClick={() => router.push('/')}
-          />
+            className='bg-transparent border-0 p-0 cursor-pointer'
+            aria-label='Go to home page'
+          >
+            <img
+              src='images/logo-light.png'
+              alt='Gadget Restore Logo'
+              className='h-9 w-auto object-contain'
+            />
+          </button>
         </div>
 
         {/* Center: Desktop-only Navigation Links */}
@@ -642,13 +654,14 @@ export default function SplashOrLandingPage() {
               desc: 'MacBook and PC laptop hardware maintenance and software fixes.',
               icon: <Laptop size={22} />,
             },
-          ].map((item, index) => (
-            <div
-              key={index}
+          ].map((item) => (
+            <button
+              key={item.title}
+              type='button'
               onClick={() =>
                 handleBookNowCTA(item.title === 'Phone Repair' ? 'Apple' : null)
               }
-              className='bg-[#FAF9FF] border border-zinc-100/50 p-8 rounded-3xl group hover:border-[var(--color-accent)]/20 hover:bg-[#F2EFFD] transition-all duration-300 cursor-pointer'
+              className='bg-[#FAF9FF] border border-zinc-100/50 p-8 rounded-3xl group hover:border-[var(--color-accent)]/20 hover:bg-[#F2EFFD] transition-all duration-300 cursor-pointer w-full text-left'
             >
               <div className='w-12 h-12 rounded-2xl bg-white border border-zinc-100 flex items-center justify-center text-zinc-600 mb-6 group-hover:bg-black group-hover:text-white transition-colors duration-300'>
                 {item.icon}
@@ -659,7 +672,7 @@ export default function SplashOrLandingPage() {
               <p className='text-xs text-zinc-500 leading-relaxed'>
                 {item.desc}
               </p>
-            </div>
+            </button>
           ))}
         </div>
       </section>
@@ -700,13 +713,14 @@ export default function SplashOrLandingPage() {
               title: 'Mac & PC Repair',
               img: '/images/service-laptop-repair.png',
             },
-          ].map((item, index) => (
-            <div
-              key={index}
+          ].map((item) => (
+            <button
+              key={item.title}
+              type='button'
               onClick={() =>
                 handleBookNowCTA(item.title.includes('Phone') ? 'Apple' : null)
               }
-              className='bg-white rounded-xl overflow-hidden border border-zinc-100 hover:shadow-2xl hover:shadow-zinc-200/50 transition-all duration-300 group cursor-pointer flex flex-col justify-between'
+              className='bg-white rounded-xl overflow-hidden border border-zinc-100 hover:shadow-2xl hover:shadow-zinc-200/50 transition-all duration-300 group cursor-pointer flex flex-col justify-between w-full text-left'
             >
               <div className='h-60 relative overflow-hidden bg-zinc-100 flex items-center justify-center'>
                 <img
@@ -722,7 +736,7 @@ export default function SplashOrLandingPage() {
                   </h3>
                 </div>
               </div>
-            </div>
+            </button>
           ))}
         </div>
       </section>
@@ -780,8 +794,8 @@ export default function SplashOrLandingPage() {
                   text: 'Affordable Pricing with no hidden diagnostics fees.',
                   icon: <Award size={20} className='text-zinc-950 shrink-0' />,
                 },
-              ].map((bullet, idx) => (
-                <div key={idx} className='flex items-center gap-4'>
+              ].map((bullet) => (
+                <div key={bullet.text} className='flex items-center gap-4'>
                   <div className='mt-0.5 text-zinc-950'>{bullet.icon}</div>
                   <span className='text-xs font-black text-zinc-800 leading-tight'>
                     {bullet.text}
@@ -819,9 +833,9 @@ export default function SplashOrLandingPage() {
               desc: 'Strict protocols to keep your personal data secure.',
               icon: <ShieldCheck size={22} />,
             },
-          ].map((item, idx) => (
+          ].map((item) => (
             <div
-              key={idx}
+              key={item.title}
               className='bg-white border border-zinc-100 p-8 rounded-[24px] flex flex-col items-center text-center shadow-sm hover:shadow-md transition-all duration-300 group min-h-[260px] justify-center'
             >
               <div className='w-14 h-14 rounded-full bg-[#FAF9FF] border border-zinc-50 flex items-center justify-center text-zinc-700 mb-6 shrink-0 group-hover:bg-zinc-950 group-hover:text-white transition-colors duration-300'>
@@ -962,9 +976,9 @@ export default function SplashOrLandingPage() {
               title: 'Deliver',
               desc: 'Quality check completed and your device is ready for pickup.',
             },
-          ].map((item, idx) => (
+          ].map((item) => (
             <div
-              key={idx}
+              key={item.title}
               className='flex flex-col items-center text-center relative z-10'
             >
               <div className='w-[88px] h-[88px] rounded-full border-[3px] border-zinc-900 bg-white flex items-center justify-center relative z-10 transition-transform duration-300 hover:scale-105 cursor-pointer'>
@@ -1079,9 +1093,11 @@ export default function SplashOrLandingPage() {
                   {timeDropdownOpen && (
                     <>
                       {/* Backdrop to close on outside click */}
-                      <div
-                        className='fixed inset-0 z-40'
+                      <button
+                        type='button'
+                        className='fixed inset-0 z-40 bg-transparent border-0 cursor-default'
                         onClick={() => setTimeDropdownOpen(false)}
+                        aria-label='Close time dropdown'
                       />
                       {/* Scrollable panel — anchored directly below the trigger button */}
                       <div
@@ -1237,7 +1253,7 @@ export default function SplashOrLandingPage() {
             },
           ].map((item, idx) => (
             <div
-              key={idx}
+              key={item.title}
               className='flex flex-col items-center text-center group'
             >
               {/* Outer circle wrapper with 9 o'clock left-aligned overlapping numeric badge */}
@@ -1296,8 +1312,8 @@ export default function SplashOrLandingPage() {
                 for quality repairs."
               </p>
               <div className='flex gap-1 text-amber-400'>
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <Star key={i} size={14} fill='currentColor' />
+                {Array.from({ length: 5 }, (_, i) => `star-${i}`).map((key) => (
+                  <Star key={key} size={14} fill='currentColor' />
                 ))}
               </div>
             </div>
@@ -1334,7 +1350,7 @@ export default function SplashOrLandingPage() {
                 const isOpen = activeFaq === idx
                 return (
                   <div
-                    key={idx}
+                    key={faq.q}
                     className='bg-white border border-zinc-100 rounded-2xl overflow-hidden transition-all duration-300'
                   >
                     <button
@@ -1390,9 +1406,9 @@ export default function SplashOrLandingPage() {
               img: '/images/blog-cloud-backup.png',
               desc: 'A technical guide on setting up fail-safe data redundancy for home users...',
             },
-          ].map((post, idx) => (
+          ].map((post) => (
             <div
-              key={idx}
+              key={post.title}
               className='bg-white rounded-xl overflow-hidden border border-zinc-100 flex flex-col justify-between hover:shadow-xl transition-all duration-300 group'
             >
               <div className='h-48 bg-zinc-100 overflow-hidden relative'>
@@ -1411,12 +1427,13 @@ export default function SplashOrLandingPage() {
                     {post.desc}
                   </p>
                 </div>
-                <a
+                <button
+                  type='button'
                   onClick={() => handleBookNowCTA()}
-                  className='text-[10px] font-black tracking-widest text-zinc-950 group-hover:text-[var(--color-accent)] flex items-center gap-1 cursor-pointer'
+                  className='text-[10px] font-black tracking-widest text-zinc-950 group-hover:text-[var(--color-accent)] flex items-center gap-1 cursor-pointer bg-transparent border-0 p-0'
                 >
                   READ MORE <ArrowRight size={12} />
-                </a>
+                </button>
               </div>
             </div>
           ))}
@@ -1438,9 +1455,11 @@ export default function SplashOrLandingPage() {
             every penny."
           </p>
           <div className='flex justify-center gap-1 mb-4 text-amber-400'>
-            {Array.from({ length: 5 }).map((_, i) => (
-              <Star key={i} size={14} fill='currentColor' />
-            ))}
+            {Array.from({ length: 5 }, (_, i) => `footer-star-${i}`).map(
+              (key) => (
+                <Star key={key} size={14} fill='currentColor' />
+              ),
+            )}
           </div>
           <h4 className='font-extrabold tracking-widest text-xs text-white'>
             Sarah Jenkins
@@ -1465,18 +1484,20 @@ export default function SplashOrLandingPage() {
             © 2026 GADGET RESTORE INC. TECHNICAL PRECISION. ALL RIGHTS RESERVED.
           </p>
           <div className='flex gap-6 text-[10px] font-black tracking-widest text-zinc-500'>
-            <span
-              className='hover:text-white transition-colors cursor-pointer'
+            <button
+              type='button'
+              className='hover:text-white transition-colors cursor-pointer bg-transparent border-0 p-0'
               onClick={() => router.push('/privacy')}
             >
               Privacy
-            </span>
-            <span
-              className='hover:text-white transition-colors cursor-pointer'
+            </button>
+            <button
+              type='button'
+              className='hover:text-white transition-colors cursor-pointer bg-transparent border-0 p-0'
               onClick={() => router.push('/terms')}
             >
               Terms
-            </span>
+            </button>
           </div>
         </div>
       </footer>

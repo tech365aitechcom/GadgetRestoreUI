@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation'
 import {
   ChevronRight,
   Edit2,
-  Smartphone,
   Calendar,
   MapPin,
   Truck,
@@ -14,7 +13,6 @@ import {
 } from 'lucide-react'
 import { useBooking } from '@/context/BookingContext'
 import catalogueService from '@/services/catalogue.service'
-import { getBrandLogo } from '@/lib/utils'
 
 function collectRepairTypeIds(symptoms) {
   const ids = new Set()

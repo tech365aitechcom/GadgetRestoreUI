@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, Bell, ChevronDown } from 'lucide-react'
+import { ArrowLeft, ChevronDown } from 'lucide-react'
 import { useBooking } from '@/context/BookingContext'
 import slotService from '@/services/slot.service'
 import serviceCentreService from '@/services/serviceCentre.service'

@@ -38,7 +38,6 @@ export default function PersonalInfoPage() {
     try {
       setIsFetching(true)
       const profile = await customerService.getProfile()
-      console.log({ profile })
       setFormData({
         fullName: profile.fullName || '',
         email: profile.email || '',
@@ -121,8 +120,6 @@ export default function PersonalInfoPage() {
       }))
     }
   }
-
-  console.log(formData, 'formdata')
 
   if (isFetching) {
     return (

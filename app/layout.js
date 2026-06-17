@@ -1,4 +1,5 @@
 import { Inter, Manrope } from 'next/font/google';
+import PropTypes from 'prop-types';
 import './globals.css';
 import Providers from './providers';
 import ThemeProvider from '@/components/ThemeProvider';
@@ -50,3 +51,7 @@ export default function RootLayout({ children }) {
     </html>
   );
 }
+
+RootLayout.propTypes = {
+  children: PropTypes.node.isRequired,
+};

@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import PropTypes from 'prop-types'
 import {
   ArrowLeft,
-  Bell,
   Home,
   Briefcase,
   Plus,
@@ -23,127 +23,491 @@ import customerService from '@/services/customer.service'
 import toast from 'react-hot-toast'
 import { useAuth } from '@/context/AuthContext'
 
-export default function AddressPage() {
-  const router = useRouter()
-  const { setAddress, address: savedBookingAddress } = useBooking()
-  const { user } = useAuth()
+// AddressCard component with PropTypes validation
+const AddressCard = ({ addr, selectedAddressId, setSelectedAddressId, handleSetDefault, handleEditAddress, setShowDeleteConfirm, getAddressIcon }) => {
+  const isSelected = selectedAddressId === addr.id
 
+  const handleAddressClick = () => {
+    setSelectedAddressId(addr.id)
+  }
+
+  return (
+    <div
+      className={`w-full rounded-2xl p-5 mb-3 border transition-all`}
+      style={{
+        background: isSelected ? 'var(--color-content-card)' : 'var(--color-content-bg)',
+        borderColor: isSelected ? 'var(--color-content-text)' : 'var(--color-content-border)',
+        boxShadow: isSelected ? '0 4px 12px rgba(0,0,0,0.3)' : 'none',
+      }}
+    >
+      <button
+        onClick={handleAddressClick}
+        type="button"
+        aria-pressed={isSelected}
+        className='flex items-start gap-4 cursor-pointer mb-3 w-full text-left border-none p-0 bg-transparent'
+      >
+        <div
+          className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0`}
+          style={{
+            background: isSelected ? 'var(--color-content-text)' : 'var(--color-content-card)',
+            color: isSelected ? 'var(--color-content-bg)' : 'var(--color-content-text-secondary)',
+          }}
+        >
+          {getAddressIcon(addr.type)}
+        </div>
+        <div className='flex-1'>
+          <div className='flex justify-between items-center mb-1'>
+            <div className='flex items-center gap-2'>
+              <h4 className='text-[15px] font-bold' style={{ color: 'var(--color-content-text)' }}>
+                {addr.label}
+              </h4>
+              {addr.isDefault && (
+                <span className='text-[9px] font-bold px-2 py-0.5 rounded-full bg-green-500/20 text-green-400 tracking-wider'>
+                  DEFAULT
+                </span>
+              )}
+            </div>
+            <div
+              className={`w-5 h-5 rounded-full border-2 flex items-center justify-center`}
+              style={{ borderColor: isSelected ? 'var(--color-content-text)' : 'var(--color-content-border)' }}
+            >
+              {isSelected && (
+                <div className='w-2.5 h-2.5 rounded-full' style={{ background: 'var(--color-content-text)' }} />
+              )}
+            </div>
+          </div>
+          <p className='text-[13px] leading-relaxed pr-6' style={{ color: 'var(--color-content-text-secondary)' }}>
+            {addr.line1}
+          </p>
+          <p className='text-[13px] leading-relaxed pr-6' style={{ color: 'var(--color-content-text-secondary)' }}>
+            {addr.line2}
+          </p>
+        </div>
+      </button>
+
+      {/* Action Buttons */}
+      <div className='flex gap-2 mt-3 pt-3' style={{ borderTop: '1px solid var(--color-content-border)' }}>
+        {!addr.isDefault && (
+          <button
+            onClick={() => handleSetDefault(addr.id)}
+            className='flex-1 h-[36px] border rounded-lg text-[11px] font-semibold hover:bg-white/10 active:scale-[0.98] transition-all'
+            style={{ background: 'var(--color-content-border)', borderColor: 'var(--color-content-border)', color: 'var(--color-content-text)' }}
+          >
+            Set Default
+          </button>
+        )}
+        <button
+          onClick={() => handleEditAddress(addr)}
+          className='flex-1 h-[36px] border rounded-lg text-[11px] font-semibold hover:bg-white/10 active:scale-[0.98] transition-all flex items-center justify-center gap-1.5'
+          style={{ background: 'var(--color-content-border)', borderColor: 'var(--color-content-border)', color: 'var(--color-content-text)' }}
+        >
+          <Edit2 size={12} />
+          Edit
+        </button>
+        <button
+          onClick={() => setShowDeleteConfirm(addr.id)}
+          className='h-[36px] px-3 bg-red-500/10 border border-red-500/20 text-red-400 rounded-lg text-[11px] font-semibold hover:bg-red-500/20 active:scale-[0.98] transition-all flex items-center justify-center'
+        >
+          <Trash2 size={12} />
+        </button>
+      </div>
+    </div>
+  )
+}
+
+AddressCard.propTypes = {
+  addr: PropTypes.shape({
+    id: PropTypes.string.isRequired,
+    label: PropTypes.string.isRequired,
+    type: PropTypes.string.isRequired,
+    line1: PropTypes.string.isRequired,
+    line2: PropTypes.string.isRequired,
+    city: PropTypes.string,
+    state: PropTypes.string,
+    pincode: PropTypes.string,
+    landmark: PropTypes.string,
+    isDefault: PropTypes.bool,
+    raw: PropTypes.object,
+  }).isRequired,
+  selectedAddressId: PropTypes.string,
+  setSelectedAddressId: PropTypes.func.isRequired,
+  handleSetDefault: PropTypes.func.isRequired,
+  handleEditAddress: PropTypes.func.isRequired,
+  setShowDeleteConfirm: PropTypes.func.isRequired,
+  getAddressIcon: PropTypes.func.isRequired,
+}
+
+// Helper function to extract addresses array from API response
+const extractAddressesFromResponse = (response) => {
+  if (response?.data?.addresses && Array.isArray(response.data.addresses)) {
+    return response.data.addresses
+  }
+
+  if (Array.isArray(response?.data)) {
+    return response.data
+  }
+
+  if (Array.isArray(response)) {
+    return response
+  }
+
+  return []
+}
+
+// Helper function to map backend addresses to frontend format
+const mapBackendAddresses = (addressesArray) => {
+  return addressesArray.map((addr) => ({
+    id: addr._id,
+    label: addr.addressType || 'Other',
+    type: addr.addressType?.toLowerCase() || 'other',
+    line1: [addr.addressLine1, addr.addressLine2]
+      .filter(Boolean)
+      .join(', '),
+    line2: [addr.city, addr.state, addr.pincode]
+      .filter(Boolean)
+      .join(', '),
+    city: addr.city,
+    state: addr.state,
+    pincode: addr.pincode,
+    landmark: addr.landmark,
+    isDefault: addr.isDefault || false,
+    raw: addr,
+  }))
+}
+
+// Helper function to auto-select default or first address
+const getAutoSelectedAddressId = (addresses) => {
+  const defaultAddr = addresses.find((a) => a.isDefault)
+  if (defaultAddr) return defaultAddr.id
+
+  if (addresses.length > 0) return addresses[0].id
+
+  return null
+}
+
+// Helper function to fetch and map addresses from API
+const fetchAndMapAddresses = async () => {
+  const response = await customerService.getAddresses()
+  const addressesArray = extractAddressesFromResponse(response)
+  return mapBackendAddresses(addressesArray)
+}
+
+// Initial form state for new addresses
+const getInitialAddressFormState = () => ({
+  addressType: 'Home',
+  addressLine1: '',
+  addressLine2: '',
+  landmark: '',
+  pincode: '',
+  city: '',
+  state: '',
+  setAsDefault: false,
+})
+
+// Helper to build address data payload for API
+const buildAddressPayload = (addressForm) => ({
+  address: {
+    addressType: addressForm.addressType,
+    addressLine1: addressForm.addressLine1,
+    addressLine2: addressForm.addressLine2 || undefined,
+    landmark: addressForm.landmark || undefined,
+    pincode: addressForm.pincode,
+    city: addressForm.city,
+    state: addressForm.state,
+  },
+  setAsDefault: addressForm.setAsDefault,
+})
+
+// Helper to populate edit form from existing address
+const populateEditForm = (address) => ({
+  addressType: address.raw.addressType || 'Home',
+  addressLine1: address.raw.addressLine1 || '',
+  addressLine2: address.raw.addressLine2 || '',
+  landmark: address.raw.landmark || '',
+  pincode: address.raw.pincode || '',
+  city: address.raw.city || '',
+  state: address.raw.state || '',
+  setAsDefault: address.isDefault || false,
+})
+
+// Individual field validators
+const validateLine1 = (value) => {
+  if (!value || value.trim().length < 5) {
+    return 'Address line 1 must be at least 5 characters'
+  }
+  return null
+}
+
+const validatePincode = (value) => {
+  if (!value || !/^\d{6}$/.test(value)) {
+    return 'Pincode must be exactly 6 digits'
+  }
+  return null
+}
+
+const validateCity = (value) => {
+  if (!value || value.trim().length < 2) {
+    return 'City is required'
+  }
+  return null
+}
+
+const validateState = (value) => {
+  if (!value || value.trim().length < 2) {
+    return 'State is required'
+  }
+  return null
+}
+
+// Validation helper for individual address fields
+const validateAddressField = (field, value) => {
+  const validators = {
+    addressLine1: validateLine1,
+    pincode: validatePincode,
+    city: validateCity,
+    state: validateState,
+  }
+
+  const validator = validators[field]
+  return validator ? validator(value) : null
+}
+
+// Validate entire address form
+const validateAddressForm = (addressData) => {
+  const errors = {}
+  const fields = ['addressLine1', 'pincode', 'city', 'state']
+
+  fields.forEach(field => {
+    const error = validateAddressField(field, addressData[field])
+    if (error) {
+      errors[field] = error
+    }
+  })
+
+  return errors
+}
+
+// Helper to load and auto-select addresses
+const loadAndSelectAddresses = async (setAddresses, setSelectedAddressId, setIsLoading) => {
+  const token = Cookies.get(TOKEN_COOKIE)
+  if (!token) {
+    setIsLoading(false)
+    return
+  }
+
+  try {
+    setIsLoading(true)
+    const mappedAddresses = await fetchAndMapAddresses()
+    setAddresses(mappedAddresses)
+
+    const autoSelectedId = getAutoSelectedAddressId(mappedAddresses)
+    if (autoSelectedId) {
+      setSelectedAddressId(autoSelectedId)
+    }
+  } catch (error) {
+    console.error('Failed to fetch addresses:', error)
+    toast.error('Failed to load addresses')
+  } finally {
+    setIsLoading(false)
+  }
+}
+
+// Helper to execute address deletion
+const executeAddressDelete = async (addressId) => {
+  await customerService.deleteAddress(addressId)
+  toast.success('Address deleted successfully')
+}
+
+// Helper to refresh addresses after deletion
+const refreshAfterDelete = async (setAddresses, setSelectedAddressId) => {
+  const mappedAddresses = await fetchAndMapAddresses()
+  setAddresses(mappedAddresses)
+
+  const autoSelectedId = getAutoSelectedAddressId(mappedAddresses)
+  if (autoSelectedId) {
+    setSelectedAddressId(autoSelectedId)
+  }
+}
+
+// Helper to update default address on server
+const updateDefaultAddress = async (addressId) => {
+  await customerService.updateAddress(addressId, { setAsDefault: true })
+  toast.success('Default address updated')
+}
+
+// Helper to determine which address to select after save
+const getPostSaveSelectedId = (isEditingAddress, mappedAddresses) => {
+  if (isEditingAddress) return isEditingAddress
+
+  if (mappedAddresses.length > 0) {
+    return mappedAddresses[mappedAddresses.length - 1].id
+  }
+
+  return null
+}
+
+// Helper to save address (create or update)
+const saveAddressToServer = async (isEditingAddress, addressData) => {
+  if (isEditingAddress) {
+    await customerService.updateAddress(isEditingAddress, addressData)
+    toast.success('Address updated successfully')
+  } else {
+    await customerService.addAddress(addressData)
+    toast.success('Address added successfully')
+  }
+}
+
+// Helper to reset form state
+const resetAddressForm = (setIsAddingNew, setIsEditingAddress, setNewAddress, setErrors) => {
+  setIsAddingNew(false)
+  setIsEditingAddress(null)
+  setNewAddress(getInitialAddressFormState())
+  setErrors({})
+}
+
+// Helper to perform delete operation
+const performDelete = async (addressId, setAddresses, selectedAddressId, setSelectedAddressId) => {
+  await executeAddressDelete(addressId)
+  setAddresses((prev) => prev.filter((a) => a.id !== addressId))
+
+  if (selectedAddressId === addressId) {
+    setSelectedAddressId(null)
+  }
+
+  await refreshAfterDelete(setAddresses, setSelectedAddressId)
+}
+
+// Hook to delete an address
+const useAddressDelete = (setAddresses, selectedAddressId, setSelectedAddressId) => {
+  const [isDeletingAddress, setIsDeletingAddress] = useState(false)
+
+  const handleDelete = async (addressId) => {
+    if (isDeletingAddress) return
+
+    setIsDeletingAddress(true)
+    try {
+      await performDelete(addressId, setAddresses, selectedAddressId, setSelectedAddressId)
+    } catch (error) {
+      console.error('Failed to delete address:', error)
+      toast.error(error.message || 'Failed to delete address')
+    }
+    setIsDeletingAddress(false)
+  }
+
+  return { isDeletingAddress, handleDelete }
+}
+
+// Hook to set default address
+const useSetDefaultAddress = (addresses, setAddresses) => {
+  const handleSetDefault = async (addressId) => {
+    const previousAddresses = [...addresses]
+
+    setAddresses((prev) =>
+      prev.map((addr) => ({
+        ...addr,
+        isDefault: addr.id === addressId,
+      })),
+    )
+
+    try {
+      await updateDefaultAddress(addressId)
+    } catch (error) {
+      setAddresses(previousAddresses)
+      console.error('Failed to set default address:', error)
+      toast.error(error.message || 'Failed to update default address')
+    }
+  }
+
+  return { handleSetDefault }
+}
+
+// Hook to load addresses
+const useAddressLoader = (user) => {
   const [addresses, setAddresses] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [selectedAddressId, setSelectedAddressId] = useState(null)
+
+  useEffect(() => {
+    loadAndSelectAddresses(setAddresses, setSelectedAddressId, setIsLoading)
+  }, [user])
+
+  const refreshAddresses = async () => {
+    const mappedAddresses = await fetchAndMapAddresses()
+    setAddresses(mappedAddresses)
+    return mappedAddresses
+  }
+
+  return {
+    addresses,
+    setAddresses,
+    isLoading,
+    selectedAddressId,
+    setSelectedAddressId,
+    refreshAddresses,
+  }
+}
+
+// Custom hook to load and manage addresses
+const useAddressManagement = (user) => {
+  const {
+    addresses,
+    setAddresses,
+    isLoading,
+    selectedAddressId,
+    setSelectedAddressId,
+    refreshAddresses,
+  } = useAddressLoader(user)
+
+  const { isDeletingAddress, handleDelete } = useAddressDelete(
+    setAddresses,
+    selectedAddressId,
+    setSelectedAddressId
+  )
+
+  const { handleSetDefault } = useSetDefaultAddress(addresses, setAddresses)
+
+  return {
+    addresses,
+    setAddresses,
+    isLoading,
+    selectedAddressId,
+    setSelectedAddressId,
+    isDeletingAddress,
+    handleDelete,
+    handleSetDefault,
+    refreshAddresses,
+  }
+}
+
+export default function AddressPage() {
+  const router = useRouter()
+  const { setAddress } = useBooking()
+  const { user } = useAuth()
+
+  const {
+    addresses,
+    isLoading,
+    selectedAddressId,
+    setSelectedAddressId,
+    isDeletingAddress,
+    handleDelete,
+    handleSetDefault,
+    refreshAddresses,
+  } = useAddressManagement(user)
+
   const [isAddingNew, setIsAddingNew] = useState(false)
   const [isEditingAddress, setIsEditingAddress] = useState(null)
   const [deliveryNotes, setDeliveryNotes] = useState('')
   const [isSavingAddress, setIsSavingAddress] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(null)
-  const [isDeletingAddress, setIsDeletingAddress] = useState(false)
-
-  // New address form state - same as profile/addresses/add
-  const [newAddress, setNewAddress] = useState({
-    addressType: 'Home',
-    addressLine1: '',
-    addressLine2: '',
-    landmark: '',
-    pincode: '',
-    city: '',
-    state: '',
-    setAsDefault: false,
-  })
+  const [newAddress, setNewAddress] = useState(getInitialAddressFormState())
   const [errors, setErrors] = useState({})
 
-  // Fetch addresses from API
-  useEffect(() => {
-    const fetchAddresses = async () => {
-      // Check if user is authenticated
-      const token = Cookies.get(TOKEN_COOKIE)
-
-      if (!token) {
-        // Guest user - no addresses
-        setIsLoading(false)
-        return
-      }
-
-      try {
-        setIsLoading(true)
-        const response = await customerService.getAddresses()
-
-        // Handle API response structure: response.data.addresses
-        let addressesArray = []
-        if (
-          response?.data?.addresses &&
-          Array.isArray(response.data.addresses)
-        ) {
-          addressesArray = response.data.addresses
-        } else if (Array.isArray(response?.data)) {
-          addressesArray = response.data
-        } else if (Array.isArray(response)) {
-          addressesArray = response
-        }
-
-        // Map backend addresses to frontend format
-        const mappedAddresses = addressesArray.map((addr) => ({
-          id: addr._id,
-          label: addr.addressType || 'Other',
-          type: addr.addressType?.toLowerCase() || 'other',
-          line1: [addr.addressLine1, addr.addressLine2]
-            .filter(Boolean)
-            .join(', '),
-          line2: [addr.city, addr.state, addr.pincode]
-            .filter(Boolean)
-            .join(', '),
-          city: addr.city,
-          state: addr.state,
-          pincode: addr.pincode,
-          landmark: addr.landmark,
-          isDefault: addr.isDefault || false,
-          raw: addr,
-        }))
-
-        setAddresses(mappedAddresses)
-
-        // Auto-select default address or first address
-        const defaultAddr = mappedAddresses.find((a) => a.isDefault)
-        if (defaultAddr) {
-          setSelectedAddressId(defaultAddr.id)
-        } else if (mappedAddresses.length > 0) {
-          setSelectedAddressId(mappedAddresses[0].id)
-        }
-      } catch (error) {
-        console.error('Failed to fetch addresses:', error)
-        toast.error('Failed to load addresses')
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
-    fetchAddresses()
-  }, [user])
-
-  const validateForm = () => {
-    const newErrors = {}
-
-    if (!newAddress.addressLine1 || newAddress.addressLine1.trim().length < 5) {
-      newErrors.addressLine1 = 'Address line 1 must be at least 5 characters'
-    }
-
-    if (!newAddress.pincode || !/^\d{6}$/.test(newAddress.pincode)) {
-      newErrors.pincode = 'Pincode must be exactly 6 digits'
-    }
-
-    if (!newAddress.city || newAddress.city.trim().length < 2) {
-      newErrors.city = 'City is required'
-    }
-
-    if (!newAddress.state || newAddress.state.trim().length < 2) {
-      newErrors.state = 'State is required'
-    }
-
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
-  }
-
   const handleAddNewAddress = async () => {
-    if (!validateForm()) {
+    const validationErrors = validateAddressForm(newAddress)
+    setErrors(validationErrors)
+
+    if (Object.keys(validationErrors).length > 0) {
       toast.error('Please fill in all required fields')
       return
     }
@@ -151,81 +515,19 @@ export default function AddressPage() {
     setIsSavingAddress(true)
 
     try {
-      const addressData = {
-        address: {
-          addressType: newAddress.addressType,
-          addressLine1: newAddress.addressLine1,
-          addressLine2: newAddress.addressLine2 || undefined,
-          landmark: newAddress.landmark || undefined,
-          pincode: newAddress.pincode,
-          city: newAddress.city,
-          state: newAddress.state,
-        },
-        setAsDefault: newAddress.setAsDefault,
-      }
+      const addressData = buildAddressPayload(newAddress)
+      await saveAddressToServer(isEditingAddress, addressData)
 
-      if (isEditingAddress) {
-        // Update existing address
-        await customerService.updateAddress(isEditingAddress, addressData)
-        toast.success('Address updated successfully')
-      } else {
-        // Add new address
-        await customerService.addAddress(addressData)
-        toast.success('Address added successfully')
-      }
+      // Refresh and select address
+      const mappedAddresses = await refreshAddresses()
+      const newSelectedId = getPostSaveSelectedId(isEditingAddress, mappedAddresses)
 
-      // Refresh addresses
-      const response = await customerService.getAddresses()
-
-      // Handle API response structure: response.data.addresses
-      let addressesArray = []
-      if (response?.data?.addresses && Array.isArray(response.data.addresses)) {
-        addressesArray = response.data.addresses
-      } else if (Array.isArray(response?.data)) {
-        addressesArray = response.data
-      } else if (Array.isArray(response)) {
-        addressesArray = response
-      }
-
-      const mappedAddresses = addressesArray.map((addr) => ({
-        id: addr._id,
-        label: addr.addressType || 'Other',
-        type: addr.addressType?.toLowerCase() || 'other',
-        line1: [addr.addressLine1, addr.addressLine2]
-          .filter(Boolean)
-          .join(', '),
-        line2: [addr.city, addr.state, addr.pincode].filter(Boolean).join(', '),
-        city: addr.city,
-        state: addr.state,
-        pincode: addr.pincode,
-        landmark: addr.landmark,
-        isDefault: addr.isDefault || false,
-        raw: addr,
-      }))
-
-      setAddresses(mappedAddresses)
-
-      // Select the newly added/edited address
-      if (!isEditingAddress && mappedAddresses.length > 0) {
-        setSelectedAddressId(mappedAddresses[mappedAddresses.length - 1].id)
-      } else if (isEditingAddress) {
-        setSelectedAddressId(isEditingAddress)
+      if (newSelectedId) {
+        setSelectedAddressId(newSelectedId)
       }
 
       // Close modal and reset form
-      setIsAddingNew(false)
-      setIsEditingAddress(null)
-      setNewAddress({
-        addressType: 'Home',
-        addressLine1: '',
-        addressLine2: '',
-        landmark: '',
-        pincode: '',
-        city: '',
-        state: '',
-        setAsDefault: false,
-      })
-      setErrors({})
+      resetAddressForm(setIsAddingNew, setIsEditingAddress, setNewAddress, setErrors)
     } catch (error) {
       console.error('Failed to save address:', error)
       toast.error(error.message || 'Failed to save address. Please try again.')
@@ -235,103 +537,21 @@ export default function AddressPage() {
   }
 
   const handleEditAddress = (address) => {
-    setNewAddress({
-      addressType: address.raw.addressType || 'Home',
-      addressLine1: address.raw.addressLine1 || '',
-      addressLine2: address.raw.addressLine2 || '',
-      landmark: address.raw.landmark || '',
-      pincode: address.raw.pincode || '',
-      city: address.raw.city || '',
-      state: address.raw.state || '',
-      setAsDefault: address.isDefault || false,
-    })
+    setNewAddress(populateEditForm(address))
     setIsEditingAddress(address.id)
     setIsAddingNew(true)
   }
 
   const handleDeleteAddress = async () => {
-    if (isDeletingAddress) return
-
-    try {
-      setIsDeletingAddress(true)
-      await customerService.deleteAddress(showDeleteConfirm)
-
-      // Remove from local state
-      setAddresses((prev) => prev.filter((a) => a.id !== showDeleteConfirm))
-
-      // Deselect if the deleted address was selected
-      if (selectedAddressId === showDeleteConfirm) {
-        setSelectedAddressId(null)
-      }
-
-      toast.success('Address deleted successfully')
-      setShowDeleteConfirm(null)
-
-      // Refresh to get updated addresses
-      const response = await customerService.getAddresses()
-
-      // Handle API response structure: response.data.addresses
-      let addressesArray = []
-      if (response?.data?.addresses && Array.isArray(response.data.addresses)) {
-        addressesArray = response.data.addresses
-      } else if (Array.isArray(response?.data)) {
-        addressesArray = response.data
-      } else if (Array.isArray(response)) {
-        addressesArray = response
-      }
-
-      const mappedAddresses = addressesArray.map((addr) => ({
-        id: addr._id,
-        label: addr.addressType || 'Other',
-        type: addr.addressType?.toLowerCase() || 'other',
-        line1: [addr.addressLine1, addr.addressLine2]
-          .filter(Boolean)
-          .join(', '),
-        line2: [addr.city, addr.state, addr.pincode].filter(Boolean).join(', '),
-        city: addr.city,
-        state: addr.state,
-        pincode: addr.pincode,
-        landmark: addr.landmark,
-        isDefault: addr.isDefault || false,
-        raw: addr,
-      }))
-
-      setAddresses(mappedAddresses)
-
-      // Auto-select default or first address
-      const defaultAddr = mappedAddresses.find((a) => a.isDefault)
-      if (defaultAddr) {
-        setSelectedAddressId(defaultAddr.id)
-      } else if (mappedAddresses.length > 0) {
-        setSelectedAddressId(mappedAddresses[0].id)
-      }
-    } catch (error) {
-      console.error('Failed to delete address:', error)
-      toast.error(error.message || 'Failed to delete address')
-    } finally {
-      setIsDeletingAddress(false)
-    }
+    await handleDelete(showDeleteConfirm)
+    setShowDeleteConfirm(null)
   }
 
-  const handleSetDefault = async (addressId) => {
-    try {
-      // Optimistically update UI
-      const previousAddresses = [...addresses]
-      setAddresses((prev) =>
-        prev.map((addr) => ({
-          ...addr,
-          isDefault: addr.id === addressId,
-        })),
-      )
-
-      await customerService.updateAddress(addressId, { setAsDefault: true })
-      toast.success('Default address updated')
-    } catch (error) {
-      // Revert on error
-      setAddresses(previousAddresses)
-      console.error('Failed to set default address:', error)
-      toast.error(error.message || 'Failed to update default address')
-    }
+  const handleOpenAddressForm = () => {
+    setNewAddress(getInitialAddressFormState())
+    setErrors({})
+    setIsEditingAddress(null)
+    setIsAddingNew(true)
   }
 
   const handleConfirm = () => {
@@ -349,13 +569,11 @@ export default function AddressPage() {
       ...prev,
       [field]: value,
     }))
-    // Clear error for this field
-    if (errors[field]) {
-      setErrors((prev) => ({
-        ...prev,
-        [field]: '',
-      }))
-    }
+
+    setErrors((prev) => {
+      if (!prev[field]) return prev
+      return { ...prev, [field]: '' }
+    })
   }
 
   const getAddressIcon = (type) => {
@@ -368,90 +586,6 @@ export default function AddressPage() {
       default:
         return <MapPinned size={20} />
     }
-  }
-
-  const AddressCard = ({ addr }) => {
-    const isSelected = selectedAddressId === addr.id
-    return (
-      <div
-        className={`w-full rounded-2xl p-5 mb-3 border transition-all`}
-        style={{
-          background: isSelected ? 'var(--color-content-card)' : 'var(--color-content-bg)',
-          borderColor: isSelected ? 'var(--color-content-text)' : 'var(--color-content-border)',
-          boxShadow: isSelected ? '0 4px 12px rgba(0,0,0,0.3)' : 'none',
-        }}
-      >
-        <div
-          onClick={() => setSelectedAddressId(addr.id)}
-          className='flex items-start gap-4 cursor-pointer mb-3'
-        >
-          <div
-            className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0`}
-            style={{
-              background: isSelected ? 'var(--color-content-text)' : 'var(--color-content-card)',
-              color: isSelected ? 'var(--color-content-bg)' : 'var(--color-content-text-secondary)',
-            }}
-          >
-            {getAddressIcon(addr.type)}
-          </div>
-          <div className='flex-1'>
-            <div className='flex justify-between items-center mb-1'>
-              <div className='flex items-center gap-2'>
-                <h4 className='text-[15px] font-bold' style={{ color: 'var(--color-content-text)' }}>
-                  {addr.label}
-                </h4>
-                {addr.isDefault && (
-                  <span className='text-[9px] font-bold px-2 py-0.5 rounded-full bg-green-500/20 text-green-400 tracking-wider'>
-                    DEFAULT
-                  </span>
-                )}
-              </div>
-              <div
-                className={`w-5 h-5 rounded-full border-2 flex items-center justify-center`}
-                style={{ borderColor: isSelected ? 'var(--color-content-text)' : 'var(--color-content-border)' }}
-              >
-                {isSelected && (
-                  <div className='w-2.5 h-2.5 rounded-full' style={{ background: 'var(--color-content-text)' }} />
-                )}
-              </div>
-            </div>
-            <p className='text-[13px] leading-relaxed pr-6' style={{ color: 'var(--color-content-text-secondary)' }}>
-              {addr.line1}
-            </p>
-            <p className='text-[13px] leading-relaxed pr-6' style={{ color: 'var(--color-content-text-secondary)' }}>
-              {addr.line2}
-            </p>
-          </div>
-        </div>
-
-        {/* Action Buttons */}
-        <div className='flex gap-2 mt-3 pt-3' style={{ borderTop: '1px solid var(--color-content-border)' }}>
-          {!addr.isDefault && (
-            <button
-              onClick={() => handleSetDefault(addr.id)}
-              className='flex-1 h-[36px] border rounded-lg text-[11px] font-semibold hover:bg-white/10 active:scale-[0.98] transition-all'
-              style={{ background: 'var(--color-content-border)', borderColor: 'var(--color-content-border)', color: 'var(--color-content-text)' }}
-            >
-              Set Default
-            </button>
-          )}
-          <button
-            onClick={() => handleEditAddress(addr)}
-            className='flex-1 h-[36px] border rounded-lg text-[11px] font-semibold hover:bg-white/10 active:scale-[0.98] transition-all flex items-center justify-center gap-1.5'
-            style={{ background: 'var(--color-content-border)', borderColor: 'var(--color-content-border)', color: 'var(--color-content-text)' }}
-          >
-            <Edit2 size={12} />
-            Edit
-          </button>
-          <button
-            onClick={() => setShowDeleteConfirm(addr.id)}
-            className='h-[36px] px-3 bg-red-500/10 border border-red-500/20 text-red-400 rounded-lg text-[11px] font-semibold hover:bg-red-500/20 active:scale-[0.98] transition-all flex items-center justify-center'
-          >
-            <Trash2 size={12} />
-          </button>
-        </div>
-      </div>
-    )
   }
 
   if (isLoading) {
@@ -507,7 +641,7 @@ export default function AddressPage() {
             {/* Header */}
             <div className='px-5 pt-6 pb-4 lg:px-0 lg:pt-0 lg:pb-12'>
               <h1 className='text-2xl lg:text-[42px] font-black tracking-tight uppercase lg:normal-case leading-tight lg:leading-none mb-1 lg:mb-3' style={{ color: 'var(--color-content-text)' }}>
-                Select {!('ontouchstart' in window) && 'Service '}Address
+                Select {typeof globalThis !== 'undefined' && !('ontouchstart' in globalThis) && 'Service '}Address
               </h1>
               <p className='text-sm lg:text-[15px] lg:max-w-[85%]' style={{ color: 'var(--color-content-text-secondary)' }}>
                 <span className='lg:hidden'>Choose a convenient address for your repair.</span>
@@ -561,25 +695,22 @@ export default function AddressPage() {
                   </p>
                 </div>
               ) : (
-                addresses.map((addr) => <AddressCard key={addr.id} addr={addr} />)
+                addresses.map((addr) => (
+                  <AddressCard
+                    key={addr.id}
+                    addr={addr}
+                    selectedAddressId={selectedAddressId}
+                    setSelectedAddressId={setSelectedAddressId}
+                    handleSetDefault={handleSetDefault}
+                    handleEditAddress={handleEditAddress}
+                    setShowDeleteConfirm={setShowDeleteConfirm}
+                    getAddressIcon={getAddressIcon}
+                  />
+                ))
               )}
 
               <button
-                onClick={() => {
-                  setNewAddress({
-                    addressType: 'Home',
-                    addressLine1: '',
-                    addressLine2: '',
-                    landmark: '',
-                    pincode: '',
-                    city: '',
-                    state: '',
-                    setAsDefault: false,
-                  })
-                  setErrors({})
-                  setIsEditingAddress(null)
-                  setIsAddingNew(true)
-                }}
+                onClick={handleOpenAddressForm}
                 className='w-full h-[60px] lg:h-16 rounded-2xl lg:rounded-xl flex items-center justify-center gap-2 lg:gap-3 font-bold text-[13px] lg:text-[14px] uppercase tracking-wide hover:opacity-80 mt-2 transition-colors'
                 style={{ border: '1px lg:2px dashed var(--color-content-border)', color: 'var(--color-content-text-secondary)' }}
               >
@@ -589,10 +720,11 @@ export default function AddressPage() {
 
             {/* Delivery Notes */}
             <div className='px-5 lg:px-0 mb-8 lg:mb-10'>
-              <h3 className='text-[11px] font-bold uppercase tracking-wider lg:tracking-[0.1em] mb-3 lg:mb-4' style={{ color: 'var(--color-content-text-secondary)' }}>
+              <label htmlFor='delivery-notes' className='text-[11px] font-bold uppercase tracking-wider lg:tracking-[0.1em] mb-3 lg:mb-4 block' style={{ color: 'var(--color-content-text-secondary)' }}>
                 DELIVERY NOTES (OPTIONAL)
-              </h3>
+              </label>
               <textarea
+                id='delivery-notes'
                 value={deliveryNotes}
                 onChange={(e) => setDeliveryNotes(e.target.value)}
                 placeholder='Access codes, gate instructions...'
@@ -649,10 +781,10 @@ export default function AddressPage() {
               className='space-y-5'
             >
               {/* Address Type */}
-              <div>
-                <label className='block text-[10px] font-bold tracking-[0.08em] mb-2 uppercase' style={{ color: 'var(--color-content-text-secondary)' }}>
+              <fieldset>
+                <legend className='block text-[10px] font-bold tracking-[0.08em] mb-2 uppercase' style={{ color: 'var(--color-content-text-secondary)' }}>
                   ADDRESS TYPE
-                </label>
+                </legend>
                 <div className='flex gap-2'>
                   {['Home', 'Work', 'Other'].map((type) => (
                     <button
@@ -673,14 +805,15 @@ export default function AddressPage() {
                     </button>
                   ))}
                 </div>
-              </div>
+              </fieldset>
 
               {/* Address Line 1 */}
               <div>
-                <label className='block text-[10px] font-bold tracking-[0.08em] mb-2 uppercase' style={{ color: 'var(--color-content-text-secondary)' }}>
+                <label htmlFor='address-line-1' className='block text-[10px] font-bold tracking-[0.08em] mb-2 uppercase' style={{ color: 'var(--color-content-text-secondary)' }}>
                   ADDRESS LINE 1 *
                 </label>
                 <input
+                  id='address-line-1'
                   type='text'
                   value={newAddress.addressLine1}
                   onChange={(e) => handleChange('addressLine1', e.target.value.slice(0, 100))}
@@ -702,10 +835,11 @@ export default function AddressPage() {
 
               {/* Address Line 2 */}
               <div>
-                <label className='block text-[10px] font-bold tracking-[0.08em] mb-2 uppercase' style={{ color: 'var(--color-content-text-secondary)' }}>
+                <label htmlFor='address-line-2' className='block text-[10px] font-bold tracking-[0.08em] mb-2 uppercase' style={{ color: 'var(--color-content-text-secondary)' }}>
                   ADDRESS LINE 2
                 </label>
                 <input
+                  id='address-line-2'
                   type='text'
                   value={newAddress.addressLine2}
                   onChange={(e) => handleChange('addressLine2', e.target.value.slice(0, 200))}
@@ -718,10 +852,11 @@ export default function AddressPage() {
 
               {/* Landmark */}
               <div>
-                <label className='block text-[10px] font-bold tracking-[0.08em] mb-2 uppercase' style={{ color: 'var(--color-content-text-secondary)' }}>
+                <label htmlFor='address-landmark' className='block text-[10px] font-bold tracking-[0.08em] mb-2 uppercase' style={{ color: 'var(--color-content-text-secondary)' }}>
                   LANDMARK
                 </label>
                 <input
+                  id='address-landmark'
                   type='text'
                   value={newAddress.landmark}
                   onChange={(e) => handleChange('landmark', e.target.value)}
@@ -734,10 +869,11 @@ export default function AddressPage() {
               {/* Pincode and City */}
               <div className='grid grid-cols-2 gap-3'>
                 <div>
-                  <label className='block text-[10px] font-bold tracking-[0.08em] mb-2 uppercase' style={{ color: 'var(--color-content-text-secondary)' }}>
+                  <label htmlFor='address-pincode' className='block text-[10px] font-bold tracking-[0.08em] mb-2 uppercase' style={{ color: 'var(--color-content-text-secondary)' }}>
                     PINCODE *
                   </label>
                   <input
+                    id='address-pincode'
                     type='text'
                     value={newAddress.pincode}
                     onChange={(e) => {
@@ -763,10 +899,11 @@ export default function AddressPage() {
                 </div>
 
                 <div>
-                  <label className='block text-[10px] font-bold tracking-[0.08em] mb-2 uppercase' style={{ color: 'var(--color-content-text-secondary)' }}>
+                  <label htmlFor='address-city' className='block text-[10px] font-bold tracking-[0.08em] mb-2 uppercase' style={{ color: 'var(--color-content-text-secondary)' }}>
                     CITY *
                   </label>
                   <input
+                    id='address-city'
                     type='text'
                     value={newAddress.city}
                     onChange={(e) => handleChange('city', e.target.value)}
@@ -788,10 +925,11 @@ export default function AddressPage() {
 
               {/* State */}
               <div>
-                <label className='block text-[10px] font-bold tracking-[0.08em] mb-2 uppercase' style={{ color: 'var(--color-content-text-secondary)' }}>
+                <label htmlFor='address-state' className='block text-[10px] font-bold tracking-[0.08em] mb-2 uppercase' style={{ color: 'var(--color-content-text-secondary)' }}>
                   STATE *
                 </label>
                 <input
+                  id='address-state'
                   type='text'
                   value={newAddress.state}
                   onChange={(e) => handleChange('state', e.target.value)}
