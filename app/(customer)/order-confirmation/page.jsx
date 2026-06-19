@@ -11,7 +11,7 @@ import ErrorState from '@/components/ui/ErrorState'
 
 function formatCurrency(amount) {
   if (!amount && amount !== 0) return '₹0'
-  const numAmount = typeof amount === 'string' ? parseFloat(amount) : amount
+  const numAmount = typeof amount === 'string' ? Number.parseFloat(amount) : amount
   return `₹${numAmount.toLocaleString('en-IN', {
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
@@ -70,7 +70,7 @@ function getStatusLabel(status) {
     PARTS_ORDERED: 'Parts Ordered',
     UNREPAIRABLE: 'Unrepairable',
   }
-  return statusLabels[status] || status?.replace(/_/g, ' ') || 'Processing'
+  return statusLabels[status] || status?.replaceAll('_', ' ') || 'Processing'
 }
 
 function OrderConfirmationContent() {
@@ -94,6 +94,7 @@ function OrderConfirmationContent() {
         setOrder(response)
         setError('')
       } catch (err) {
+        console.error('Failed to load order:', err)
         setError('Unable to load order details')
       } finally {
         setLoading(false)
@@ -119,7 +120,7 @@ function OrderConfirmationContent() {
           }
         }
       } catch (error) {
-        // Auto-request notifications failed silently
+        console.warn('Auto-request notifications failed silently:', error)
       }
     }
 
@@ -143,6 +144,7 @@ function OrderConfirmationContent() {
       await navigator.clipboard.writeText(ticketNumber)
       toast.success('Order ID copied to clipboard!')
     } catch (err) {
+      console.error('Failed to copy Order ID:', err)
       toast.error('Failed to copy Order ID')
     }
   }

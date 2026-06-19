@@ -31,7 +31,7 @@ export default function NotificationsPage() {
       try {
         const res = await notificationService.getNotifications({
           unreadOnly: unreadOnly || undefined,
-          eventType: filterType !== 'all' ? filterType : undefined,
+          eventType: filterType === 'all' ? undefined : filterType,
           limit: 50,
         })
 
@@ -272,7 +272,7 @@ export default function NotificationsPage() {
                 onChange={(e) => setUnreadOnly(e.target.checked)}
                 className='rounded border-[var(--theme-border)] text-[var(--theme-btn-primary-bg)] focus:ring-[var(--theme-btn-primary-bg)]'
               />
-              Unread only
+              {' '}Unread only
             </label>
           </div>
 
@@ -341,11 +341,19 @@ export default function NotificationsPage() {
             {notifications.map((n) => (
               <div
                 key={n._id}
+                role="button"
+                tabIndex={0}
                 onClick={() => handleNotificationClick(n)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault()
+                    handleNotificationClick(n)
+                  }
+                }}
                 className={`relative overflow-hidden p-4 rounded-xl border transition-all duration-200 cursor-pointer ${
-                  !n.isRead
-                    ? 'bg-[var(--theme-card)] border-[var(--theme-border-strong)] shadow-sm hover:translate-y-[-1px]'
-                    : 'bg-[var(--theme-bg)] border-[var(--theme-border)] hover:bg-[var(--theme-card)] opacity-85'
+                  n.isRead
+                    ? 'bg-[var(--theme-bg)] border-[var(--theme-border)] hover:bg-[var(--theme-card)] opacity-85'
+                    : 'bg-[var(--theme-card)] border-[var(--theme-border-strong)] shadow-sm hover:translate-y-[-1px]'
                 }`}
               >
                 {/* Unread indicator dot */}
@@ -354,7 +362,7 @@ export default function NotificationsPage() {
                 )}
 
                 <div
-                  className={`${!n.isRead ? 'pl-4' : ''} flex items-start justify-between gap-3`}
+                  className={`${n.isRead ? '' : 'pl-4'} flex items-start justify-between gap-3`}
                 >
                   <div className='flex-1 min-w-0'>
                     <div className='flex flex-wrap items-center gap-2 mb-1'>

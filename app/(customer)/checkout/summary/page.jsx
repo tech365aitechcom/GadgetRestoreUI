@@ -13,6 +13,7 @@ import {
 } from 'lucide-react'
 import { useBooking } from '@/context/BookingContext'
 import catalogueService from '@/services/catalogue.service'
+import PropTypes from 'prop-types'
 
 function collectRepairTypeIds(symptoms) {
   const ids = new Set()
@@ -57,6 +58,12 @@ const SummarySection = ({ title, onEdit, children }) => (
   </div>
 )
 
+SummarySection.propTypes = {
+  title: PropTypes.string.isRequired,
+  onEdit: PropTypes.func,
+  children: PropTypes.node.isRequired,
+}
+
 export default function OrderSummaryPage() {
   const router = useRouter()
   const {
@@ -73,8 +80,8 @@ export default function OrderSummaryPage() {
 
   const [pricingResults, setPricingResults] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState(null)
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [, setError] = useState(null)
+  const [isSubmitting] = useState(false)
 
   // Local edit state for remarks
   const [isEditingRemarks, setIsEditingRemarks] = useState(false)
@@ -453,7 +460,7 @@ export default function OrderSummaryPage() {
                     <span className='text-warning font-bold block mb-1'>
                       Post-diagnosis estimate required
                     </span>
-                    Final cost confirmed after diagnosis for some items.
+                    {' '}Final cost confirmed after diagnosis for some items.
                   </div>
                 </div>
               )}
@@ -817,7 +824,7 @@ export default function OrderSummaryPage() {
                       <strong className='text-warning font-bold block mb-1'>
                         Post-diagnosis estimate required
                       </strong>
-                      Final cost will be confirmed after physical inspection of
+                      {' '}Final cost will be confirmed after physical inspection of
                       the device.
                     </div>
                   </div>

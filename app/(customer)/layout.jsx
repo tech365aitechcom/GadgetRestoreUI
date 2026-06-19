@@ -7,6 +7,7 @@ import MobileHeader from '@/components/layout/MobileHeader';
 import PushNotificationRegistrar from '@/components/notifications/PushNotificationRegistrar';
 import AuthGuard from '@/components/auth/AuthGuard';
 import notificationService from '@/services/notification.service';
+import PropTypes from 'prop-types';
 
 import { usePathname } from 'next/navigation';
 
@@ -39,6 +40,7 @@ export default function CustomerLayout({ children }) {
           0
         );
       } catch (err) {
+        console.warn('Failed to fetch unread notifications count:', err);
         setUnreadCount(0);
       }
     };
@@ -66,3 +68,7 @@ export default function CustomerLayout({ children }) {
     </AuthGuard>
   );
 }
+
+CustomerLayout.propTypes = {
+  children: PropTypes.node.isRequired,
+};
