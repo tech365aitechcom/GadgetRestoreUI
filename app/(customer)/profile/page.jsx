@@ -4,11 +4,9 @@ import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import {
   User,
-  CreditCard,
   MapPin,
   Clock,
   Bell,
-  Shield,
   MessageCircle,
   Phone,
   Mail,
@@ -158,6 +156,7 @@ export default function ProfilePage() {
       }
       toast.success('Notification preference updated')
     } catch (error) {
+      console.error('Failed to update notification preference:', error)
       // Revert on error
       setNotifications((prev) => ({
         ...prev,
@@ -214,13 +213,13 @@ export default function ProfilePage() {
   const handleContactSupport = (method) => {
     switch (method) {
       case 'whatsapp':
-        window.open(SUPPORT_WHATSAPP, '_blank')
+        globalThis.open(SUPPORT_WHATSAPP, '_blank')
         break
       case 'phone':
-        window.location.href = SUPPORT_PHONE
+        globalThis.location.href = SUPPORT_PHONE
         break
       case 'email':
-        window.location.href = SUPPORT_EMAIL
+        globalThis.location.href = SUPPORT_EMAIL
         break
       default:
         break
@@ -489,7 +488,7 @@ export default function ProfilePage() {
                 </div>
                 <div className='hidden lg:block text-[12px] text-[var(--theme-text-secondary)]'>
                   {userData.addressCount} active location
-                  {userData.addressCount !== 1 ? 's' : ''} for pick-up/drop-off
+                  {userData.addressCount === 1 ? '' : 's'} for pick-up/drop-off
                 </div>
               </div>
               <ChevronRight

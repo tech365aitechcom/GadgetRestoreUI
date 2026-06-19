@@ -80,11 +80,12 @@ export default function NotificationsPage() {
         try {
           await pushNotificationService.unregister()
         } catch (error) {
-          // Push unregister failed silently
+          console.warn('Push unregister failed silently:', error)
         }
       }
       toast.success('Notification preference updated')
     } catch (error) {
+      console.error('Failed to update notification preference:', error)
       // Revert on error
       setNotifications((prev) => ({
         ...prev,
@@ -104,6 +105,7 @@ export default function NotificationsPage() {
       }))
       toast.success('Browser push enabled for this device')
     } catch (error) {
+      console.error('Failed to enable push notifications:', error)
       toast.error(error.message || 'Push notifications could not be enabled')
     }
   }
@@ -125,6 +127,7 @@ export default function NotificationsPage() {
       }
       toast.error(reasonMap[result.reason] || 'Test push was not sent.')
     } catch (error) {
+      console.error('Failed to send test push:', error)
       toast.error(error.message || 'Failed to send test push')
     }
   }

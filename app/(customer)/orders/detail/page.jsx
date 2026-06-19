@@ -26,7 +26,7 @@ import ErrorState from '@/components/ui/ErrorState'
 
 function formatCurrency(amount) {
   if (!amount && amount !== 0) return '₹0'
-  const numAmount = typeof amount === 'string' ? parseFloat(amount) : amount
+  const numAmount = typeof amount === 'string' ? Number.parseFloat(amount) : amount
   return `₹${numAmount.toLocaleString('en-IN', {
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
@@ -298,7 +298,8 @@ function OrderDetailContent() {
           setInvoice(null)
           setWarranty(null)
         }
-      } catch (_) {
+      } catch (err) {
+        console.error('Failed to load order:', err)
         if (isMounted) setError('Unable to load this order.')
       }
     }
@@ -318,11 +319,11 @@ function OrderDetailContent() {
     }
 
     const delay = activeTracking() ? 5000 : 30000
-    const intervalId = window.setInterval(loadOrder, delay)
+    const intervalId = globalThis.setInterval(loadOrder, delay)
 
     return () => {
       isMounted = false
-      window.clearInterval(intervalId)
+      globalThis.clearInterval(intervalId)
     }
   }, [reloadVersion, ticketNumber, order?.repairStatus])
 
@@ -423,7 +424,7 @@ function OrderDetailContent() {
       DELIVERY_IN_PROGRESS: 5,
       DELIVERED: 5,
     }
-    return mapping[status] !== undefined ? mapping[status] : 0
+    return mapping[status] === undefined ? 0 : mapping[status]
   }
 
   const activeStageIndex = getActiveStageIndex(order.repairStatus)

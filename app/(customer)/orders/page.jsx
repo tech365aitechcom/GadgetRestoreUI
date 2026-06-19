@@ -31,7 +31,7 @@ function formatDate(value) {
 
 function formatCurrency(amount) {
   if (!amount && amount !== 0) return '₹0'
-  const numAmount = typeof amount === 'string' ? parseFloat(amount) : amount
+  const numAmount = typeof amount === 'string' ? Number.parseFloat(amount) : amount
   return `₹${numAmount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
 }
 
@@ -106,15 +106,14 @@ function getStatusLabel(status) {
     PARTS_ORDERED: 'Parts Ordered',
     UNREPAIRABLE: 'Unrepairable',
   }
-  return statusLabels[status] || status.replace(/_/g, ' ')
+  return statusLabels[status] || status.replaceAll('_', ' ')
 }
 
 export default function OrdersPage() {
-  const router = useRouter()
   const [orders, setOrders] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  const [searchQuery, setSearchQuery] = useState('')
+  const [searchQuery] = useState('')
 
   useEffect(() => {
     let isMounted = true
@@ -126,7 +125,8 @@ export default function OrdersPage() {
           setOrders(nextOrders)
           setError('')
         }
-      } catch (_) {
+      } catch (err) {
+        console.error('Failed to load orders:', err)
         if (isMounted) setError('Unable to load your orders right now.')
       } finally {
         if (isMounted) setLoading(false)
@@ -134,11 +134,11 @@ export default function OrdersPage() {
     }
 
     loadOrders()
-    const intervalId = window.setInterval(loadOrders, 30000)
+    const intervalId = globalThis.setInterval(loadOrders, 30000)
 
     return () => {
       isMounted = false
-      window.clearInterval(intervalId)
+      globalThis.clearInterval(intervalId)
     }
   }, [])
 
@@ -146,20 +146,6 @@ export default function OrdersPage() {
     (order) => !CLOSED_STATUSES.has(order.repairStatus),
   )
   const currentOrder = activeOrders[0]
-
-  const filteredOrders = orders.filter((order) => {
-    if (!searchQuery) return true
-    const query = searchQuery.toLowerCase()
-    const device = [order.brandRef?.name, order.modelRef?.name]
-      .filter(Boolean)
-      .join(' ')
-      .toLowerCase()
-    return (
-      order.ticketNumber?.toLowerCase().includes(query) ||
-      device.includes(query) ||
-      order.repairStatus?.toLowerCase().includes(query)
-    )
-  })
 
   return (
     <div className='min-h-[100svh] lg:min-h-[calc(100vh-var(--topbar-height))] bg-[var(--theme-bg)] pb-20 lg:pb-0 px-5 lg:px-8 pt-6 lg:pt-8'>
@@ -194,7 +180,7 @@ export default function OrdersPage() {
           title="Failed to load orders"
           message={error}
           buttonText="Try Again"
-          onButtonClick={() => window.location.reload()}
+          onButtonClick={() => globalThis.location.reload()}
         />
       ) : orders.length === 0 ? (
         <div className='grid place-items-center min-h-[200px] lg:min-h-[400px] rounded-2xl bg-[var(--theme-card)] border border-[var(--theme-border)] text-center p-6 lg:p-8'>

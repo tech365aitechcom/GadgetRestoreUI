@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import PropTypes from 'prop-types'
 import {
   CheckCircle2,
   Lock,
@@ -77,6 +78,23 @@ const InputField = ({
   </div>
 )
 
+InputField.propTypes = {
+  label: PropTypes.string.isRequired,
+  icon: PropTypes.elementType.isRequired,
+  name: PropTypes.string.isRequired,
+  type: PropTypes.string,
+  placeholder: PropTypes.string,
+  required: PropTypes.bool,
+  readOnly: PropTypes.bool,
+  maxLength: PropTypes.number,
+  value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+  onChange: PropTypes.func.isRequired,
+  error: PropTypes.string,
+  hint: PropTypes.string,
+  showPasswordToggle: PropTypes.bool,
+  onTogglePassword: PropTypes.func,
+}
+
 export default function CustomerDetailsPage() {
   const router = useRouter()
   const {
@@ -89,7 +107,6 @@ export default function CustomerDetailsPage() {
     address,
     slot,
     canProceedToBook,
-    reset,
   } = useBooking()
 
   const [isLoading, setIsLoading] = useState(false)
@@ -122,14 +139,16 @@ export default function CustomerDetailsPage() {
 
     // Attempt to load from localStorage (Mock returning user)
     const storedMobile =
-      typeof window !== 'undefined'
-        ? localStorage.getItem('gr_authenticated_phone') ||
+      typeof globalThis.window === 'undefined'
+        ? ''
+        : localStorage.getItem('gr_authenticated_phone') ||
         sessionStorage.getItem('gr_login_phone')
-        : ''
     let savedProfile = null
     try {
       savedProfile = JSON.parse(localStorage.getItem('gr_customer_profile'))
-    } catch (e) { }
+    } catch (e) {
+      console.warn('Failed to parse saved customer profile:', e)
+    }
 
     setFormData((prev) => ({
       ...prev,
