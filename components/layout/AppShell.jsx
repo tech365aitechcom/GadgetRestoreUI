@@ -58,7 +58,7 @@ export default function AppShell({ children, className = '' }) {
   }, [user])
 
   const navItems = [
-    { href: '/home', label: 'Home', icon: Home },
+    { href: '/', label: 'Home', icon: Home },
     { href: '/orders', label: 'Orders', icon: ClipboardList },
     { href: '/profile', label: 'Profile', icon: User },
     // { href: '/settings', label: 'Settings', icon: Settings },
@@ -82,7 +82,7 @@ export default function AppShell({ children, className = '' }) {
           {navItems.map((item) => {
             const isActive =
               pathname === item.href ||
-              (item.href !== '/home' && pathname.startsWith(item.href))
+              (item.href !== '/' && pathname.startsWith(item.href))
             const Icon = item.icon
             return (
               <button

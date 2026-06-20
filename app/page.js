@@ -133,20 +133,15 @@ export default function SplashOrLandingPage() {
     setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
-  const handleBookNowCTA = (customBrand = null) => {
+  const handleBookNowCTA = () => {
     reset() // start with clean slate
-    if (customBrand) {
-      const appleBrand = {
-        _id: '65f8c8577adcd9e5c544d673',
-        name: 'Apple',
-        logo: '/images/apple-logo.png',
-      }
-      setCategory({ _id: '65f8c8577adcd9e5c544d671', name: 'Mobile' })
-      setBrand(appleBrand)
-      router.push('/select-model')
-    } else {
-      router.push('/select-brand')
+    const appleBrand = {
+      _id: '65f8c8577adcd9e5c544d673',
+      name: 'Apple',
+      logo: '/images/apple-logo.png',
     }
+    setBrand(appleBrand)
+    router.push('/products')
   }
 
   const handleFormSubmit = (e) => {
@@ -658,9 +653,7 @@ export default function SplashOrLandingPage() {
             <button
               key={item.title}
               type='button'
-              onClick={() =>
-                handleBookNowCTA(item.title === 'Phone Repair' ? 'Apple' : null)
-              }
+              onClick={() => router.push('/products')}
               className='bg-[#FAF9FF] border border-zinc-100/50 p-8 rounded-3xl group hover:border-[var(--color-accent)]/20 hover:bg-[#F2EFFD] transition-all duration-300 cursor-pointer w-full text-left'
             >
               <div className='w-12 h-12 rounded-2xl bg-white border border-zinc-100 flex items-center justify-center text-zinc-600 mb-6 group-hover:bg-black group-hover:text-white transition-colors duration-300'>
@@ -717,12 +710,10 @@ export default function SplashOrLandingPage() {
             <button
               key={item.title}
               type='button'
-              onClick={() =>
-                handleBookNowCTA(item.title.includes('Phone') ? 'Apple' : null)
-              }
+              onClick={() => router.push('/products')}
               className='bg-white rounded-xl overflow-hidden border border-zinc-100 hover:shadow-2xl hover:shadow-zinc-200/50 transition-all duration-300 group cursor-pointer flex flex-col justify-between w-full text-left'
             >
-              <div className='h-60 relative overflow-hidden bg-zinc-100 flex items-center justify-center'>
+              <div className='h-60 relative overflow-hidden bg-white flex items-center justify-center'>
                 <img
                   src={item.img}
                   alt={item.title}
@@ -1152,14 +1143,14 @@ export default function SplashOrLandingPage() {
                               borderBottom: '1px solid rgba(255,255,255,0.05)',
                             }}
                             onMouseEnter={(e) =>
-                              (e.currentTarget.style.background =
-                                'rgba(255,255,255,0.06)')
+                            (e.currentTarget.style.background =
+                              'rgba(255,255,255,0.06)')
                             }
                             onMouseLeave={(e) =>
-                              (e.currentTarget.style.background =
-                                formData.time === slot
-                                  ? 'rgba(255,255,255,0.08)'
-                                  : 'transparent')
+                            (e.currentTarget.style.background =
+                              formData.time === slot
+                                ? 'rgba(255,255,255,0.08)'
+                                : 'transparent')
                             }
                           >
                             {slot}
