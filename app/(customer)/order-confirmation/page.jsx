@@ -136,7 +136,7 @@ function OrderConfirmationContent() {
 
   const handleGoHome = () => {
     reset()
-    router.push('/home')
+    router.push('/')
   }
 
   const handleShareOrderId = async () => {
@@ -551,7 +551,7 @@ function OrderConfirmationContent() {
                   </h4>
                 </div>
                 <p className="text-[11px] text-[var(--theme-text-secondary)] leading-relaxed pl-1">
-                  Precision OEM parts are selected from the inventory.
+                  Precision premium parts are selected from the inventory.
                 </p>
               </div>
 

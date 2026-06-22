@@ -60,7 +60,7 @@ export default function CustomerLayout({ children }) {
           <MobileHeader showNotification={true} unreadCount={unreadCount} />
         )}
 
-        <div className="flex-1 pb-nav w-full">
+        <div className="flex-1 pb-nav lg:pb-0 w-full">
           {children}
         </div>
         <BottomNav />

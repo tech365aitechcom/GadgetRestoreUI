@@ -18,7 +18,7 @@ export function middleware(req) {
   if (token && (pathname === '/login' || pathname === '/verify-otp')) {
     // Check if there's a redirect parameter
     const redirectParam = req.nextUrl.searchParams.get('redirect');
-    const redirectUrl = redirectParam || '/home';
+    const redirectUrl = redirectParam || '/';
     return NextResponse.redirect(new URL(redirectUrl, req.url));
   }
 

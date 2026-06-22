@@ -574,9 +574,8 @@ function OrderDetailContent() {
         {/* Timeline vertical bar */}
         {!isLast && (
           <div
-            className={`absolute left-[15px] lg:left-[17px] top-8 lg:top-9 bottom-[-32px] lg:bottom-[-40px] w-[2.5px] rounded-full transition-colors duration-300 ${
-              isCompleted ? 'bg-green-500' : 'bg-[var(--theme-border)]'
-            }`}
+            className={`absolute left-[15px] lg:left-[17px] top-8 lg:top-9 bottom-[-32px] lg:bottom-[-40px] w-[2.5px] rounded-full transition-colors duration-300 ${isCompleted ? 'bg-green-500' : 'bg-[var(--theme-border)]'
+              }`}
           ></div>
         )}
 
@@ -604,9 +603,8 @@ function OrderDetailContent() {
         <div className='flex-1 min-w-0 pt-0.5'>
           <div className='flex items-center justify-between gap-2 flex-wrap mb-1'>
             <h4
-              className={`text-[14px] lg:text-[15px] font-extrabold lg:font-black tracking-tight ${
-                isFuture ? 'text-[var(--theme-text-tertiary)]' : 'text-white'
-              }`}
+              className={`text-[14px] lg:text-[15px] font-extrabold lg:font-black tracking-tight ${isFuture ? 'text-[var(--theme-text-tertiary)]' : 'text-white'
+                }`}
             >
               {step.title}
             </h4>
@@ -769,98 +767,18 @@ function OrderDetailContent() {
           {/* Timeline View Toggle */}
           <div className='flex items-center justify-between mb-6 pb-4 border-b border-[var(--theme-border)]'>
             <h3 className='text-[11px] font-black uppercase tracking-wider text-white'>
-              {showDetailedTimeline ? 'Detailed Timeline' : 'Progress Overview'}
+              Detailed Timeline
             </h3>
-            <button
-              onClick={() => setShowDetailedTimeline(!showDetailedTimeline)}
-              className='text-[10px] font-bold text-[var(--theme-text-primary)] hover:text-white transition-colors px-3 py-1.5 bg-[var(--theme-card-darker)] border border-[var(--theme-border)] rounded-lg'
-            >
-              {showDetailedTimeline ? 'Show Summary' : 'Show All Steps'}
-            </button>
           </div>
 
           <div className='flex flex-col gap-8 relative'>
-            {showDetailedTimeline
-              ? // Detailed Timeline (18 steps)
-                getActiveTimelineSteps().map((step, idx, arr) =>
-                  renderDetailedTimelineStep(step, idx, idx === arr.length - 1),
-                )
-              : // Summary Timeline (6 milestones)
-                milestones.map((m, idx) => {
-                  const isCompleted =
-                    idx < activeStageIndex || order.repairStatus === 'DELIVERED'
-                  const isActive =
-                    idx === activeStageIndex &&
-                    order.repairStatus !== 'DELIVERED' &&
-                    order.repairStatus !== 'CANCELLED'
-                  const isFuture =
-                    idx > activeStageIndex && order.repairStatus !== 'DELIVERED'
-                  const timestamp = getStageTimestamp(idx)
-
-                  const StepIcon = m.icon
-
-                  return (
-                    <div key={idx} className='flex gap-4 relative min-h-[48px]'>
-                      {/* Timeline vertical bar */}
-                      {idx < milestones.length - 1 && (
-                        <div
-                          className={`absolute left-[15px] top-8 bottom-[-32px] w-[2.5px] rounded-full transition-colors duration-300 ${
-                            idx < activeStageIndex
-                              ? 'bg-green-500'
-                              : 'bg-[var(--theme-border)]'
-                          }`}
-                        ></div>
-                      )}
-
-                      {/* Bullet indicator with green checkmark for completed */}
-                      <div className='relative z-10 shrink-0'>
-                        {isCompleted ? (
-                          <div className='w-8 h-8 rounded-full bg-green-500 flex items-center justify-center shadow-lg shadow-green-500/10 text-white'>
-                            <Check size={16} className='stroke-[3]' />
-                          </div>
-                        ) : isActive ? (
-                          <div className='w-8 h-8 rounded-full border-2 border-white bg-black flex items-center justify-center shadow-md animate-pulse'>
-                            <div className='w-2.5 h-2.5 rounded-full bg-white'></div>
-                          </div>
-                        ) : (
-                          <div className='w-8 h-8 rounded-full bg-[var(--theme-card-darker)] border border-[var(--theme-border)] flex items-center justify-center text-[var(--theme-text-tertiary)]'>
-                            <StepIcon size={14} className='opacity-40' />
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Step Description */}
-                      <div className='flex-1 min-w-0 pt-0.5'>
-                        <div className='flex items-center justify-between gap-2 flex-wrap mb-1'>
-                          <h4
-                            className={`text-[14px] font-extrabold ${isFuture ? 'text-[var(--theme-text-tertiary)]' : 'text-white'}`}
-                          >
-                            {m.title}
-                          </h4>
-                          {isActive && (
-                            <span className='text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full bg-white text-black leading-none'>
-                              ACTIVE NOW
-                            </span>
-                          )}
-                        </div>
-
-                        {/* Show timestamp on completed or active */}
-                        {(isCompleted || isActive) && timestamp && (
-                          <p className='text-[10px] text-[var(--theme-text-tertiary)] font-semibold uppercase tracking-wider mb-1.5'>
-                            {timestamp}
-                          </p>
-                        )}
-
-                        {/* Detailed info only for active or completed */}
-                        {!isFuture && (
-                          <p className='text-[12px] text-[var(--theme-text-secondary)] leading-relaxed font-medium'>
-                            {m.description}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  )
-                })}
+            {getActiveTimelineSteps().map((step, idx, arr) =>
+              renderDetailedTimelineStep(
+                step,
+                idx,
+                idx === arr.length - 1,
+              ),
+            )}
           </div>
         </div>
 
@@ -868,39 +786,39 @@ function OrderDetailContent() {
         {['PICKUP_ASSIGNED', 'PICKUP_IN_PROGRESS', 'PICKUP_EN_ROUTE'].includes(
           order.repairStatus,
         ) && (
-          <div className='mb-6'>
-            <PartnerCard
-              title='Pickup Partner'
-              partner={
-                order.pickupPartner
-                  ? { ...order.pickupPartner, eta: order.pickupEta }
-                  : null
-              }
-              showMap={['PICKUP_IN_PROGRESS', 'PICKUP_EN_ROUTE'].includes(
-                order.repairStatus,
-              )}
-            />
-          </div>
-        )}
+            <div className='mb-6'>
+              <PartnerCard
+                title='Pickup Partner'
+                partner={
+                  order.pickupPartner
+                    ? { ...order.pickupPartner, eta: order.pickupEta }
+                    : null
+                }
+                showMap={['PICKUP_IN_PROGRESS', 'PICKUP_EN_ROUTE'].includes(
+                  order.repairStatus,
+                )}
+              />
+            </div>
+          )}
         {[
           'DELIVERY_ASSIGNED',
           'DELIVERY_IN_PROGRESS',
           'OUT_FOR_DELIVERY',
         ].includes(order.repairStatus) && (
-          <div className='mb-6'>
-            <PartnerCard
-              title='Delivery Partner'
-              partner={
-                order.deliveryPartner
-                  ? { ...order.deliveryPartner, eta: order.deliveryEta }
-                  : null
-              }
-              showMap={['DELIVERY_IN_PROGRESS', 'OUT_FOR_DELIVERY'].includes(
-                order.repairStatus,
-              )}
-            />
-          </div>
-        )}
+            <div className='mb-6'>
+              <PartnerCard
+                title='Delivery Partner'
+                partner={
+                  order.deliveryPartner
+                    ? { ...order.deliveryPartner, eta: order.deliveryEta }
+                    : null
+                }
+                showMap={['DELIVERY_IN_PROGRESS', 'OUT_FOR_DELIVERY'].includes(
+                  order.repairStatus,
+                )}
+              />
+            </div>
+          )}
 
         {/* Invoice & Warranty Documents on Mobile */}
         <InvoiceCard ticketNumber={ticketNumber} invoice={invoice} />
@@ -928,17 +846,25 @@ function OrderDetailContent() {
       {/* 🖥️ DESKTOP VIEW (≥1024px) */}
       <div className='hidden lg:block bg-[var(--theme-bg)] min-h-[calc(100vh-var(--topbar-height))] py-10 px-8 text-[var(--theme-text-primary)]'>
         <div className='w-full'>
-          {/* Breadcrumb Navigation */}
-          <div className='flex items-center gap-2 mb-6'>
-            <span className='text-[10px] uppercase font-extrabold tracking-wider text-[var(--theme-text-tertiary)]'>
-              ACTIVE REPAIRS
-            </span>
-            <span className='text-[10px] text-[var(--theme-text-tertiary)]'>
-              /
-            </span>
-            <span className='text-[10px] uppercase font-mono font-extrabold tracking-wider text-white'>
-              {order.ticketNumber}
-            </span>
+          {/* Breadcrumb & Back Navigation */}
+          <div className='flex items-center justify-between mb-6'>
+            <div className='flex items-center gap-2'>
+              <span className='text-[10px] uppercase font-extrabold tracking-wider text-[var(--theme-text-tertiary)]'>
+                ACTIVE REPAIRS
+              </span>
+              <span className='text-[10px] text-[var(--theme-text-tertiary)]'>
+                /
+              </span>
+              <span className='text-[10px] uppercase font-mono font-extrabold tracking-wider text-white'>
+                {order.ticketNumber}
+              </span>
+            </div>
+            <button
+              onClick={() => router.push('/orders')}
+              className='text-[11px] font-black uppercase tracking-wider text-[var(--theme-text-primary)] hover:text-white transition-colors px-4 py-2 bg-[var(--theme-card-darker)] border border-[var(--theme-border)] rounded-xl flex items-center gap-1.5'
+            >
+              ← Back to Orders
+            </button>
           </div>
 
           {/* Large Title Row */}
@@ -1013,108 +939,19 @@ function OrderDetailContent() {
               <div className='bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-3xl p-8 shadow-sm'>
                 <div className='flex items-center justify-between mb-8 border-b border-[var(--theme-border)] pb-4'>
                   <h3 className='text-sm font-black uppercase tracking-wider text-white'>
-                    {showDetailedTimeline
-                      ? 'DETAILED TIMELINE'
-                      : 'REPAIR MILESTONES & TIMELINE'}
+                    REPAIR MILESTONES & TIMELINE
                   </h3>
-                  <button
-                    onClick={() =>
-                      setShowDetailedTimeline(!showDetailedTimeline)
-                    }
-                    className='text-[11px] font-bold text-[var(--theme-text-primary)] hover:text-white transition-colors px-4 py-2 bg-[var(--theme-card-darker)] border border-[var(--theme-border)] rounded-xl'
-                  >
-                    {showDetailedTimeline ? 'Show Summary' : 'Show All Steps'}
-                  </button>
+
                 </div>
 
                 <div className='flex flex-col gap-10 relative'>
-                  {showDetailedTimeline
-                    ? // Detailed Timeline (18 steps)
-                      getActiveTimelineSteps().map((step, idx, arr) =>
-                        renderDetailedTimelineStep(
-                          step,
-                          idx,
-                          idx === arr.length - 1,
-                        ),
-                      )
-                    : // Summary Timeline (6 milestones)
-                      milestones.map((m, idx) => {
-                        const isCompleted =
-                          idx < activeStageIndex ||
-                          order.repairStatus === 'DELIVERED'
-                        const isActive =
-                          idx === activeStageIndex &&
-                          order.repairStatus !== 'DELIVERED' &&
-                          order.repairStatus !== 'CANCELLED'
-                        const isFuture =
-                          idx > activeStageIndex &&
-                          order.repairStatus !== 'DELIVERED'
-                        const timestamp = getStageTimestamp(idx)
-                        const StepIcon = m.icon
-
-                        return (
-                          <div
-                            key={idx}
-                            className='flex gap-6 relative min-h-[56px]'
-                          >
-                            {/* Timeline vertical bar */}
-                            {idx < milestones.length - 1 && (
-                              <div
-                                className={`absolute left-[17px] top-9 bottom-[-40px] w-[2.5px] rounded-full transition-colors duration-300 ${
-                                  idx < activeStageIndex
-                                    ? 'bg-green-500'
-                                    : 'bg-[var(--theme-border)]'
-                                }`}
-                              ></div>
-                            )}
-
-                            {/* Bullet indicator with green checkmark for completed */}
-                            <div className='relative z-10 shrink-0'>
-                              {isCompleted ? (
-                                <div className='w-9 h-9 rounded-full bg-green-500 flex items-center justify-center shadow-lg shadow-green-500/10 text-white'>
-                                  <Check size={18} className='stroke-[3]' />
-                                </div>
-                              ) : isActive ? (
-                                <div className='w-9 h-9 rounded-full border-2 border-white bg-black flex items-center justify-center shadow-md animate-pulse'>
-                                  <div className='w-2.5 h-2.5 rounded-full bg-white'></div>
-                                </div>
-                              ) : (
-                                <div className='w-9 h-9 rounded-full bg-[var(--theme-card-darker)] border border-[var(--theme-border)] flex items-center justify-center text-[var(--theme-text-tertiary)]'>
-                                  <StepIcon size={15} className='opacity-40' />
-                                </div>
-                              )}
-                            </div>
-
-                            {/* Detailed Content */}
-                            <div className='flex-1 min-w-0 pt-0.5'>
-                              <div className='flex items-center justify-between gap-4 mb-1'>
-                                <h4
-                                  className={`text-[15px] font-black tracking-tight ${isFuture ? 'text-[var(--theme-text-tertiary)]' : 'text-white'}`}
-                                >
-                                  {m.title}
-                                </h4>
-                                {isActive && (
-                                  <span className='text-[8px] font-black uppercase tracking-widest px-2.5 py-0.5 rounded bg-white text-black leading-none shrink-0'>
-                                    ACTIVE NOW
-                                  </span>
-                                )}
-                              </div>
-
-                              {(isCompleted || isActive) && timestamp && (
-                                <p className='text-[10px] text-[var(--theme-text-tertiary)] font-bold uppercase tracking-wider mb-2'>
-                                  {timestamp}
-                                </p>
-                              )}
-
-                              {!isFuture && (
-                                <p className='text-[13px] text-[var(--theme-text-secondary)] leading-relaxed font-medium max-w-[560px]'>
-                                  {m.description}
-                                </p>
-                              )}
-                            </div>
-                          </div>
-                        )
-                      })}
+                  {getActiveTimelineSteps().map((step, idx, arr) =>
+                    renderDetailedTimelineStep(
+                      step,
+                      idx,
+                      idx === arr.length - 1,
+                    ),
+                  )}
                 </div>
               </div>
             </div>
@@ -1127,36 +964,36 @@ function OrderDetailContent() {
                 'PICKUP_IN_PROGRESS',
                 'PICKUP_EN_ROUTE',
               ].includes(order.repairStatus) && (
-                <PartnerCard
-                  title='Pickup Partner Assigned'
-                  partner={
-                    order.pickupPartner
-                      ? { ...order.pickupPartner, eta: order.pickupEta }
-                      : null
-                  }
-                  showMap={['PICKUP_IN_PROGRESS', 'PICKUP_EN_ROUTE'].includes(
-                    order.repairStatus,
-                  )}
-                />
-              )}
+                  <PartnerCard
+                    title='Pickup Partner Assigned'
+                    partner={
+                      order.pickupPartner
+                        ? { ...order.pickupPartner, eta: order.pickupEta }
+                        : null
+                    }
+                    showMap={['PICKUP_IN_PROGRESS', 'PICKUP_EN_ROUTE'].includes(
+                      order.repairStatus,
+                    )}
+                  />
+                )}
               {[
                 'DELIVERY_ASSIGNED',
                 'DELIVERY_IN_PROGRESS',
                 'OUT_FOR_DELIVERY',
               ].includes(order.repairStatus) && (
-                <PartnerCard
-                  title='Delivery Partner Assigned'
-                  partner={
-                    order.deliveryPartner
-                      ? { ...order.deliveryPartner, eta: order.deliveryEta }
-                      : null
-                  }
-                  showMap={[
-                    'DELIVERY_IN_PROGRESS',
-                    'OUT_FOR_DELIVERY',
-                  ].includes(order.repairStatus)}
-                />
-              )}
+                  <PartnerCard
+                    title='Delivery Partner Assigned'
+                    partner={
+                      order.deliveryPartner
+                        ? { ...order.deliveryPartner, eta: order.deliveryEta }
+                        : null
+                    }
+                    showMap={[
+                      'DELIVERY_IN_PROGRESS',
+                      'OUT_FOR_DELIVERY',
+                    ].includes(order.repairStatus)}
+                  />
+                )}
 
               {/* Invoice & Warranty Documents on Desktop */}
               <InvoiceCard ticketNumber={ticketNumber} invoice={invoice} />

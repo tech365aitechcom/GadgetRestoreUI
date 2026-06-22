@@ -42,6 +42,36 @@ function getProgressLabel(progress) {
   return 'LAUNCHING'
 }
 
+// Helper component to animate numbers
+function AnimatedCounter({ target, duration = 1200, decimals = 0 }) {
+  const [count, setCount] = useState(0)
+
+  useEffect(() => {
+    let start = 0
+    const end = parseFloat(target)
+    if (isNaN(end)) return
+    if (end === 0) return
+
+    const totalSteps = 40
+    const stepTime = Math.max(duration / totalSteps, 15)
+    const increment = end / totalSteps
+
+    const timer = setInterval(() => {
+      start += increment
+      if (start >= end) {
+        setCount(end)
+        clearInterval(timer)
+      } else {
+        setCount(parseFloat(start.toFixed(decimals)))
+      }
+    }, stepTime)
+
+    return () => clearInterval(timer)
+  }, [target, duration, decimals])
+
+  return <>{decimals > 0 ? count.toFixed(decimals) : count}</>
+}
+
 export default function SplashOrLandingPage() {
   const router = useRouter()
   const [mounted, setMounted] = useState(false)
@@ -66,11 +96,19 @@ export default function SplashOrLandingPage() {
   // Booking Context
   const { reset, setCategory, setBrand } = useBooking()
 
+  const [isScrolled, setIsScrolled] = useState(false)
+
   // Capacitor platform detection
   useEffect(() => {
     const isApp = Capacitor.isNativePlatform()
     setIsNativeApp(isApp)
     setMounted(true)
+
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 40)
+    }
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
   // Smooth progress animation for Native Mobile Splash Page
@@ -112,7 +150,7 @@ export default function SplashOrLandingPage() {
 
         // Use Next.js router for client-side navigation in Capacitor
         // This avoids protocol/CORS issues with static exports
-        const targetRoute = hasSeen === 'true' ? '/home' : '/onboarding'
+        const targetRoute = hasSeen === 'true' ? '/' : '/onboarding'
         console.log('[SPLASH] Navigating to:', targetRoute)
 
         setTimeout(() => {
@@ -133,6 +171,56 @@ export default function SplashOrLandingPage() {
     setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
+  const LANDING_SLOTS = {
+    mobile: {
+      brand: {
+        _id: '68b175cf10113c5d55976da5',
+        name: 'Apple',
+        logo: 'https://cs-portal-documents.s3.ap-south-1.amazonaws.com/brand-logos/1780912095817-apple.svg',
+      },
+      category: { _id: '67b46b938ffdfd20a19c9da9', name: 'Mobile' },
+    },
+    ipad: {
+      brand: {
+        _id: '68b175a710113c5d55975eac',
+        name: 'Apple',
+        logo: 'https://cs-portal-documents.s3.ap-south-1.amazonaws.com/brand-logos/1780912547229-apple.svg',
+      },
+      category: { _id: '67b483a0a7c6cc25c6864445', name: 'iPad' },
+    },
+    laptop: {
+      brand: {
+        _id: '68b175b310113c5d5597624e',
+        name: 'Apple',
+        logo: 'https://cs-portal-documents.s3.ap-south-1.amazonaws.com/brand-logos/1780912570555-apple.svg',
+      },
+      category: { _id: '6790c19283c3aeebf3dba734', name: 'Laptop' },
+    },
+    desktop: {
+      brand: {
+        _id: '68b175b310113c5d5597624e',
+        name: 'Apple',
+        logo: 'https://cs-portal-documents.s3.ap-south-1.amazonaws.com/brand-logos/1780912570555-apple.svg',
+      },
+      category: { _id: '6790c19283c3aeebf3dba734', name: 'Laptop' },
+    },
+  }
+
+  const handleCategorySelect = (slotKey) => {
+    const slot = LANDING_SLOTS[slotKey]
+    if (!slot) {
+      router.push('/select-category')
+      return
+    }
+    reset()
+    setTimeout(() => {
+      setBrand(slot.brand)
+      router.push(
+        `/select-model?catId=${slot.category._id}&catName=${encodeURIComponent(slot.category.name)}`,
+      )
+    }, 0)
+  }
+
   const handleBookNowCTA = () => {
     reset() // start with clean slate
     const appleBrand = {
@@ -141,7 +229,7 @@ export default function SplashOrLandingPage() {
       logo: '/images/apple-logo.png',
     }
     setBrand(appleBrand)
-    router.push('/products')
+    router.push('/select-category')
   }
 
   const handleFormSubmit = (e) => {
@@ -353,147 +441,181 @@ export default function SplashOrLandingPage() {
   return (
     <div className='min-h-screen bg-white text-zinc-900 font-sans flex flex-col selection:bg-[var(--color-accent)] selection:text-white overflow-x-hidden'>
       {/* ────────────────────────────────────────────────────────────────────────
-          PROMOTIONAL TOP INFO HEADER BAR (Figma Header - Desktop only)
+          STICKY HEADER WRAPPER
           ──────────────────────────────────────────────────────────────────────── */}
-      <div className='hidden md:flex bg-[#FAF9FF] border-b border-zinc-100 py-4 px-6 lg:px-20 justify-between items-center gap-4 text-xs'>
-        <div className='flex items-center'>
-          <button
-            type='button'
-            onClick={() => router.push('/')}
-            className='bg-transparent border-0 p-0 cursor-pointer'
-            aria-label='Go to home page'
-          >
-            <img
-              src='images/logo-light.png'
-              alt='Gadget Restore Logo'
-              className='h-10 w-auto object-contain'
-            />
-          </button>
+      <header className='fixed top-0 left-0 right-0 z-50 w-full bg-white shadow-sm transition-all duration-300'>
+        {/* PROMOTIONAL TOP INFO HEADER BAR (Figma Header - Desktop only) */}
+        <div className={`hidden md:flex bg-[#FAF9FF] border-b border-zinc-100 py-4 px-6 lg:px-20 justify-between items-center gap-4 text-xs transition-all duration-300 ${isScrolled ? 'h-0 py-0 overflow-hidden opacity-0 border-b-0' : 'h-auto opacity-100'}`}>
+          <div className='flex items-center'>
+            <button
+              type='button'
+              onClick={() => router.push('/')}
+              className='bg-transparent border-0 p-0 cursor-pointer'
+              aria-label='Go to home page'
+            >
+              <img
+                src='images/logo-light.png'
+                alt='Gadget Restore Logo'
+                className='h-10 w-auto object-contain'
+              />
+            </button>
+          </div>
+          <div className='flex items-center gap-8 text-zinc-500'>
+            <div className='flex items-center gap-3'>
+              <div className='w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm text-[var(--color-accent)]'>
+                <Clock size={14} />
+              </div>
+              <div>
+                <div className='font-extrabold text-zinc-800 text-[11px] tracking-wider'>
+                  Opening Time
+                </div>
+                <div className='text-[11px] font-medium'>
+                  Mon - Sat 10:00 - 19:00
+                </div>
+              </div>
+            </div>
+
+            <div className='flex items-center gap-3'>
+              <div className='w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm text-[var(--color-accent)]'>
+                <Mail size={14} />
+              </div>
+              <div>
+                <div className='font-extrabold text-zinc-800 text-[11px] tracking-wider'>
+                  Email Us
+                </div>
+                <a
+                  href='mailto:support@gadgetrestore.in'
+                  className='text-[11px] font-medium hover:text-[var(--color-accent)] transition-colors'
+                >
+                  support@gadgetrestore.in
+                </a>
+              </div>
+            </div>
+
+            <div className='flex items-center gap-3'>
+              <div className='w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm text-[var(--color-accent)]'>
+                <Phone size={14} className='animate-bounce' />
+              </div>
+              <div>
+                <div className='font-extrabold text-zinc-800 text-[11px] tracking-wider'>
+                  Call Us Now
+                </div>
+                <a
+                  href='tel:8800003785'
+                  className='text-[11px] font-black text-[var(--color-accent)] tracking-wide hover:underline'
+                >
+                  +91 8800003785
+                </a>
+              </div>
+            </div>
+
+            <a
+              href='https://www.instagram.com/gadget.restore.in'
+              target='_blank'
+              rel='noopener noreferrer'
+              className='flex items-center gap-3 hover:opacity-85 transition-opacity'
+              title='Follow us on Instagram'
+            >
+              <div className='w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm text-pink-600 hover:bg-pink-50 transition-colors'>
+                <svg
+                  className='w-3.5 h-3.5'
+                  viewBox='0 0 24 24'
+                  fill='none'
+                  stroke='currentColor'
+                  strokeWidth='2'
+                  strokeLinecap='round'
+                  strokeLinejoin='round'
+                >
+                  <rect x='2' y='2' width='20' height='20' rx='5' ry='5'></rect>
+                  <path d='M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z'></path>
+                  <line x1='17.5' y1='6.5' x2='17.51' y2='6.5'></line>
+                </svg>
+              </div>
+              <div>
+                <div className='font-extrabold text-zinc-800 text-[11px] tracking-wider'>
+                  Instagram
+                </div>
+                <div className='text-[11px] font-medium'>
+                  @gadget.restore.in
+                </div>
+              </div>
+            </a>
+          </div>
         </div>
-        <div className='flex items-center gap-8 text-zinc-500'>
-          <div className='flex items-center gap-3'>
-            <div className='w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm text-[var(--color-accent)]'>
-              <Clock size={14} />
-            </div>
-            <div>
-              <div className='font-extrabold text-zinc-800 text-[11px] tracking-wider'>
-                Opening Time
-              </div>
-              <div className='text-[11px] font-medium'>
-                Mon - Sat 10:00 - 19:00
-              </div>
-            </div>
+
+        {/* MAIN NAVIGATION ROW (Fully Responsive Sticky Nav) */}
+        <nav className='bg-white py-4 px-6 lg:px-20 flex justify-between items-center transition-all duration-300'>
+          {/* Left Side: Brand Logo (Sticky on mobile, hidden on desktop to avoid double logo except when scrolled) */}
+          <div className={`flex items-center ${isScrolled ? 'lg:flex' : 'lg:hidden'}`}>
+            <button
+              type='button'
+              onClick={() => router.push('/')}
+              className='bg-transparent border-0 p-0 cursor-pointer'
+              aria-label='Go to home page'
+            >
+              <img
+                src='images/logo-light.png'
+                alt='Gadget Restore Logo'
+                className='h-9 w-auto object-contain'
+              />
+            </button>
           </div>
 
-          <div className='flex items-center gap-3'>
-            <div className='w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm text-[var(--color-accent)]'>
-              <Mail size={14} />
-            </div>
-            <div>
-              <div className='font-extrabold text-zinc-800 text-[11px] tracking-wider'>
-                Email Us
-              </div>
-              <a
-                href='mailto:support@gadgetrestore.in'
-                className='text-[11px] font-medium hover:text-[var(--color-accent)] transition-colors'
-              >
-                support@gadgetrestore.in
-              </a>
-            </div>
+          {/* Center: Desktop-only Navigation Links */}
+          <div className='hidden lg:flex items-center gap-8 font-black text-xs tracking-widest text-zinc-500'>
+            <a
+              href='#hero'
+              className='text-zinc-900 border-b-2 border-[var(--color-accent)] pb-1 hover:text-zinc-900 transition-colors cursor-pointer'
+            >
+              Home
+            </a>
+            <a
+              href='#expertise'
+              className='hover:text-zinc-900 transition-colors cursor-pointer'
+            >
+              Services
+            </a>
+            <a
+              href='#why-choose-us'
+              className='hover:text-zinc-900 transition-colors cursor-pointer'
+            >
+              About
+            </a>
+            <a
+              href='#faq'
+              className='hover:text-zinc-900 transition-colors cursor-pointer'
+            >
+              FAQs
+            </a>
+            <a
+              href='#contact'
+              className='hover:text-zinc-900 transition-colors cursor-pointer'
+            >
+              Contact
+            </a>
           </div>
 
-          <div className='flex items-center gap-3'>
-            <div className='w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm text-[var(--color-accent)]'>
-              <Phone size={14} className='animate-bounce' />
-            </div>
-            <div>
-              <div className='font-extrabold text-zinc-800 text-[11px] tracking-wider'>
-                Call Us Now
-              </div>
-              <a
-                href='tel:8800003785'
-                className='text-[11px] font-black text-[var(--color-accent)] tracking-wide hover:underline'
-              >
-                +91 8800003785
-              </a>
-            </div>
+          {/* Right Side: Desktop CTA or Hamburger button */}
+          <div className='flex items-center gap-4'>
+            <button
+              onClick={() => handleBookNowCTA()}
+              className='hidden sm:inline-block bg-black text-white px-8 py-3 rounded-full text-xs font-black tracking-widest cursor-pointer hover:scale-[1.03] transition-all duration-200'
+            >
+              BOOK NOW
+            </button>
+
+            {/* Hamburger Icon for Mobile Viewports */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className='lg:hidden p-2 text-zinc-900 hover:text-black focus:outline-none cursor-pointer'
+              aria-label='Toggle menu'
+            >
+              {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
           </div>
-        </div>
-      </div>
-
-      {/* ────────────────────────────────────────────────────────────────────────
-          MAIN NAVIGATION ROW (Fully Responsive Sticky Nav)
-          ──────────────────────────────────────────────────────────────────────── */}
-      <nav className='bg-white border-b border-zinc-100 py-4 px-6 lg:px-20 sticky top-0 z-50 backdrop-blur-md bg-opacity-95 flex justify-between items-center shadow-sm'>
-        {/* Left Side: Brand Logo (Sticky on mobile, hidden on desktop to avoid double logo) */}
-        <div className='flex items-center lg:hidden'>
-          <button
-            type='button'
-            onClick={() => router.push('/')}
-            className='bg-transparent border-0 p-0 cursor-pointer'
-            aria-label='Go to home page'
-          >
-            <img
-              src='images/logo-light.png'
-              alt='Gadget Restore Logo'
-              className='h-9 w-auto object-contain'
-            />
-          </button>
-        </div>
-
-        {/* Center: Desktop-only Navigation Links */}
-        <div className='hidden lg:flex items-center gap-8 font-black text-xs tracking-widest text-zinc-500'>
-          <a
-            href='#hero'
-            className='text-zinc-900 border-b-2 border-[var(--color-accent)] pb-1 hover:text-zinc-900 transition-colors cursor-pointer'
-          >
-            Home
-          </a>
-          <a
-            href='#expertise'
-            className='hover:text-zinc-900 transition-colors cursor-pointer'
-          >
-            Services
-          </a>
-          <a
-            href='#why-choose-us'
-            className='hover:text-zinc-900 transition-colors cursor-pointer'
-          >
-            About
-          </a>
-          <a
-            href='#faq'
-            className='hover:text-zinc-900 transition-colors cursor-pointer'
-          >
-            FAQs
-          </a>
-          <a
-            href='#contact'
-            className='hover:text-zinc-900 transition-colors cursor-pointer'
-          >
-            Contact
-          </a>
-        </div>
-
-        {/* Right Side: Desktop CTA or Hamburger button */}
-        <div className='flex items-center gap-4'>
-          <button
-            onClick={() => handleBookNowCTA()}
-            className='hidden sm:inline-block bg-black text-white px-8 py-3 rounded-full text-xs font-black tracking-widest cursor-pointer hover:scale-[1.03] transition-all duration-200'
-          >
-            BOOK NOW
-          </button>
-
-          {/* Hamburger Icon for Mobile Viewports */}
-          <button
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className='lg:hidden p-2 text-zinc-900 hover:text-black focus:outline-none cursor-pointer'
-            aria-label='Toggle menu'
-          >
-            {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
-        </div>
-      </nav>
+        </nav>
+      </header>
+      <div className='h-[73px] md:h-[144px] shrink-0' />
 
       {/* 📱 Mobile Menu Sliding Drawer Overlay */}
       {mobileMenuOpen && (
@@ -574,31 +696,30 @@ export default function SplashOrLandingPage() {
         id='hero'
         className='relative min-h-[90vh] flex items-center px-6 lg:px-20 py-24 overflow-hidden bg-cover bg-center'
         style={{
-          backgroundImage:
-            "linear-gradient(rgba(11, 12, 22, 0.02), rgba(11, 12, 22, 0.02)), url('/images/landing-banner.png')",
+          backgroundImage: "url('/images/landing-banner2.png')",
         }}
       >
-        <div className='max-w-[750px] relative z-10 text-white'>
-          <h1 className='text-4xl lg:text-6xl font-black tracking-tight leading-[1.05] mb-6'>
+        <div
+          className='max-w-[650px] relative z-10 text-zinc-950 bg-white/70 border border-white/30 p-8 lg:p-12 rounded-2xl shadow-2xl'
+          style={{
+            backdropFilter: 'blur(12px) saturate(160%)',
+            WebkitBackdropFilter: 'blur(12px) saturate(160%)',
+          }}
+        >
+          <h1 className='text-4xl lg:text-6xl font-black tracking-tight leading-[1.05] mb-6 text-zinc-950'>
             Fast & Reliable <br />
             Repair Services
           </h1>
-          <p className='text-sm lg:text-base text-zinc-300 leading-relaxed mb-10 max-w-[620px]'>
+          <p className='text-sm lg:text-base text-zinc-800 leading-relaxed mb-10 max-w-[620px] font-medium'>
             Mobile, Laptop, Computer & Electronics Repair. We bring your
             essential devices back to life with surgical precision and certified
             expertise.
           </p>
 
           <div className='flex flex-wrap gap-4'>
-            <button
-              onClick={() => router.push('/home')}
-              className='bg-white text-black font-black tracking-wider text-xs px-8 py-4 rounded-none shadow-xl hover:bg-zinc-100 hover:scale-[1.02] active:scale-95 transition-all cursor-pointer'
-            >
-              EXPLORE MORE
-            </button>
             <a
               href='#contact'
-              className='border border-white/40 hover:border-white text-white font-black tracking-wider text-xs px-8 py-4 rounded-none flex items-center justify-center gap-2 hover:bg-white/10 active:scale-95 transition-all cursor-pointer'
+              className='border border-black/30 hover:border-black text-black font-black tracking-wider text-xs px-8 py-4 rounded-none flex items-center justify-center gap-2 hover:bg-black/5 active:scale-95 transition-all cursor-pointer'
             >
               Contact Us
             </a>
@@ -617,43 +738,37 @@ export default function SplashOrLandingPage() {
           <div className='w-16 h-1 bg-[var(--color-accent)] mx-auto rounded-full'></div>
         </div>
 
-        <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto'>
+        <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto'>
           {[
             {
               title: 'Phone Repair',
               desc: 'Expert screen and battery services for all major smartphone models.',
               icon: <Smartphone size={22} />,
+              slotKey: 'mobile',
             },
             {
               title: 'Desktop Repair',
               desc: 'Custom builds, hardware upgrades, and performance troubleshooting.',
               icon: <Monitor size={22} />,
+              slotKey: 'desktop',
             },
             {
               title: 'Tablet Repair',
               desc: 'Professional iPad and Android tablet repairs including screen swaps.',
               icon: <Tablet size={22} />,
-            },
-            {
-              title: 'Console Repair',
-              desc: 'Fixes for PlayStation, Xbox, and Nintendo Switch systems.',
-              icon: <Gamepad size={22} />,
-            },
-            {
-              title: 'Phone Accessory',
-              desc: 'Custom cases, chargers, and audio gear for your mobile lifestyle.',
-              icon: <Headphones size={22} />,
+              slotKey: 'ipad',
             },
             {
               title: 'Laptop Repair',
               desc: 'MacBook and PC laptop hardware maintenance and software fixes.',
               icon: <Laptop size={22} />,
+              slotKey: 'laptop',
             },
           ].map((item) => (
             <button
               key={item.title}
               type='button'
-              onClick={() => router.push('/products')}
+              onClick={() => handleCategorySelect(item.slotKey)}
               className='bg-[#FAF9FF] border border-zinc-100/50 p-8 rounded-3xl group hover:border-[var(--color-accent)]/20 hover:bg-[#F2EFFD] transition-all duration-300 cursor-pointer w-full text-left'
             >
               <div className='w-12 h-12 rounded-2xl bg-white border border-zinc-100 flex items-center justify-center text-zinc-600 mb-6 group-hover:bg-black group-hover:text-white transition-colors duration-300'>
@@ -696,21 +811,24 @@ export default function SplashOrLandingPage() {
           {[
             {
               title: 'Smart Phone Repair',
-              img: '/images/service-smartphone-repair.png',
+              img: '/images/pcb3.png',
+              slotKey: 'mobile',
             },
             {
               title: 'Tablet & iPad Repair',
-              img: '/images/service-tablet-repair.png',
+              img: '/images/pcb1.png',
+              slotKey: 'ipad',
             },
             {
               title: 'Mac & PC Repair',
-              img: '/images/service-laptop-repair.png',
+              img: '/images/pcb2.png',
+              slotKey: 'laptop',
             },
           ].map((item) => (
             <button
               key={item.title}
               type='button'
-              onClick={() => router.push('/products')}
+              onClick={() => handleCategorySelect(item.slotKey)}
               className='bg-white rounded-xl overflow-hidden border border-zinc-100 hover:shadow-2xl hover:shadow-zinc-200/50 transition-all duration-300 group cursor-pointer flex flex-col justify-between w-full text-left'
             >
               <div className='h-60 relative overflow-hidden bg-white flex items-center justify-center'>
@@ -843,6 +961,8 @@ export default function SplashOrLandingPage() {
         </div>
       </section>
 
+
+
       {/* ────────────────────────────────────────────────────────────────────────
           6. WHY CHOOSE US? SECTION (Exactly matching landing.png)
           ──────────────────────────────────────────────────────────────────────── */}
@@ -850,7 +970,7 @@ export default function SplashOrLandingPage() {
         id='why-choose-us'
         className='pt-12 px-6 lg:px-20 bg-white relative overflow-hidden'
       >
-        <div className='text-center max-w-[600px] mx-auto mb-10'>
+        <div className='text-center max-w-[680px] mx-auto mb-16'>
           <h2 className='text-3xl font-black tracking-wider text-zinc-900 mb-2'>
             Why Choose Us?
           </h2>
@@ -859,6 +979,9 @@ export default function SplashOrLandingPage() {
             <Wrench size={14} className='text-zinc-400' />
             <span className='w-8 h-[1px] bg-zinc-300'></span>
           </div>
+          <p className='text-xs lg:text-sm text-zinc-500 leading-relaxed font-medium mt-6 max-w-[600px] mx-auto'>
+            Gadget Restore is a trusted repair platform for iPhones, iPads, MacBooks, and all other Apple accessories. We combine expert technicians, advanced repair technology, and convenient service to bring your devices back to life.
+          </p>
         </div>
 
         <div className='max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between gap-12'>
@@ -885,8 +1008,8 @@ export default function SplashOrLandingPage() {
                 Best Materials
               </h3>
               <p className='text-xs text-zinc-500 leading-relaxed'>
-                We use only high-grade OEM or premium aftermarket components for
-                every single device repair.
+                We use only high-grade premium aftermarket components for every
+                single device repair.
               </p>
             </div>
           </div>
@@ -921,7 +1044,7 @@ export default function SplashOrLandingPage() {
                 <Star size={20} />
               </div>
               <h3 className='text-md font-extrabold tracking-wider text-zinc-900 mb-3'>
-                Low Cost
+                Transparent Pricing
               </h3>
               <p className='text-xs text-zinc-500 leading-relaxed'>
                 Transparent diagnostic fees and upfront quotes so you always
@@ -932,8 +1055,59 @@ export default function SplashOrLandingPage() {
         </div>
       </section>
 
+
       {/* ────────────────────────────────────────────────────────────────────────
-          7. HOW IT WORKS SECTION
+          7. STATS / MILESTONES SECTION (Full Width Theme matched)
+          ──────────────────────────────────────────────────────────────────────── */}
+      <section className='py-20 px-6 lg:px-20 bg-[#FAF9FF] border-t border-b border-zinc-100/50 relative overflow-hidden'>
+        <div className='max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-5 gap-y-8 md:gap-y-0 text-center divide-zinc-200/60 md:divide-x'>
+          {/* Stat 1 */}
+          <div className='flex flex-col items-center justify-center p-2'>
+            <span className='text-4xl lg:text-5xl font-black text-zinc-900 tracking-tight'>
+              {mounted ? <AnimatedCounter target={9} /> : '9'}+
+            </span>
+            <span className='text-[10px] lg:text-[11px] uppercase tracking-widest text-zinc-400 font-extrabold mt-2'>Years of Experience</span>
+          </div>
+
+          {/* Stat 2 */}
+          <div className='flex flex-col items-center justify-center p-2'>
+            <span className='text-4xl lg:text-5xl font-black text-zinc-900 tracking-tight'>
+              {mounted ? <AnimatedCounter target={20} /> : '20'}k+
+            </span>
+            <span className='text-[10px] lg:text-[11px] uppercase tracking-widest text-zinc-400 font-extrabold mt-2'>Happy Customers</span>
+          </div>
+
+          {/* Stat 3 */}
+          <div className='flex flex-col items-center justify-center p-2'>
+            <span className='text-4xl lg:text-5xl font-black text-zinc-900 tracking-tight'>
+              {mounted ? <AnimatedCounter target={20} /> : '20'}+
+            </span>
+            <span className='text-[10px] lg:text-[11px] uppercase tracking-widest text-zinc-400 font-extrabold mt-2'>Expert Technicians</span>
+          </div>
+
+          {/* Stat 4 */}
+          <div className='flex flex-col items-center justify-center p-2'>
+            <span className='text-4xl lg:text-5xl font-black text-zinc-900 tracking-tight'>
+              {mounted ? <AnimatedCounter target={25} /> : '25'}k+
+            </span>
+            <span className='text-[10px] lg:text-[11px] uppercase tracking-widest text-zinc-400 font-extrabold mt-2'>Total Works Done</span>
+          </div>
+
+          {/* Stat 5 */}
+          <div className='flex flex-col items-center justify-center p-2 col-span-2 md:col-span-1'>
+            <div className='flex items-center justify-center gap-1.5'>
+              <span className='text-4xl lg:text-5xl font-black text-zinc-900 tracking-tight'>
+                {mounted ? <AnimatedCounter target={4.8} decimals={1} /> : '4.8'}
+              </span>
+              <Star size={24} className='text-amber-500 fill-amber-500 shrink-0' />
+            </div>
+            <span className='text-[10px] lg:text-[11px] uppercase tracking-widest text-zinc-400 font-extrabold mt-2'>Tech Rating</span>
+          </div>
+        </div>
+      </section>
+
+      {/* ────────────────────────────────────────────────────────────────────────
+          8. HOW IT WORKS SECTION
           ──────────────────────────────────────────────────────────────────────── */}
       <section className='pt-23 md:pt-6 pb-24 px-6 lg:px-20 bg-white'>
         <div className='text-center mx-auto mb-20'>
@@ -987,7 +1161,7 @@ export default function SplashOrLandingPage() {
       </section>
 
       {/* ────────────────────────────────────────────────────────────────────────
-          8. INTERACTIVE BOOKING SCHEDULER SECTION (Dark Keyboard BG)
+          9. INTERACTIVE BOOKING SCHEDULER SECTION (Dark Keyboard BG)
           ──────────────────────────────────────────────────────────────────────── */}
       <section
         id='contact'
@@ -1009,7 +1183,7 @@ export default function SplashOrLandingPage() {
               WANT TO
             </span>
             <h2 className='text-3xl lg:text-5xl font-black tracking-tight mb-8'>
-              Make a Schedule
+              Make a Appointment
             </h2>
 
             <form onSubmit={handleFormSubmit} className='space-y-6'>
@@ -1200,7 +1374,7 @@ export default function SplashOrLandingPage() {
       </section>
 
       {/* ────────────────────────────────────────────────────────────────────────
-          9. WORKING PROCESS SECTION (Pure Coded Visual Timeline)
+          10. WORKING PROCESS SECTION (Pure Coded Visual Timeline)
           ──────────────────────────────────────────────────────────────────────── */}
       <section
         id='process'
@@ -1267,7 +1441,7 @@ export default function SplashOrLandingPage() {
       </section>
 
       {/* ────────────────────────────────────────────────────────────────────────
-          10. TRUSTED CLIENTS & FAQ ACCORDION SECTION
+          11. TRUSTED CLIENTS & FAQ ACCORDION SECTION
           ──────────────────────────────────────────────────────────────────────── */}
       <section className='py-24 px-6 lg:px-20 bg-white border-t border-zinc-100'>
         <div className='flex flex-col lg:flex-row gap-16'>
@@ -1368,7 +1542,7 @@ export default function SplashOrLandingPage() {
       </section>
 
       {/* ────────────────────────────────────────────────────────────────────────
-          11. TECH TIPS & NEWS SECTION
+          12. TECH TIPS & NEWS SECTION
           ──────────────────────────────────────────────────────────────────────── */}
       <section className='py-24 px-6 lg:px-20 bg-[#FAF9FF] border-t border-zinc-100'>
         <div className='mb-16'>
@@ -1432,7 +1606,7 @@ export default function SplashOrLandingPage() {
       </section>
 
       {/* ────────────────────────────────────────────────────────────────────────
-          12. FOOTER QUOTE CAROUSEL SECTION (Dark)
+          13. FOOTER QUOTE CAROUSEL SECTION (Dark)
           ──────────────────────────────────────────────────────────────────────── */}
       <section className='py-20 px-6 lg:px-20 bg-black text-center relative overflow-hidden border-t border-white/5'>
         <div className='max-w-[800px] mx-auto relative z-10 text-white'>
@@ -1464,14 +1638,96 @@ export default function SplashOrLandingPage() {
       {/* ────────────────────────────────────────────────────────────────────────
           MAIN SYSTEM FOOTER
           ──────────────────────────────────────────────────────────────────────── */}
-      <footer className='bg-black border-t border-white/5 py-12 px-6 lg:px-20 text-center text-xs text-zinc-600 font-sans'>
+      <footer className='bg-black border-t border-white/5 py-12 px-6 lg:px-20 text-xs text-zinc-600 font-sans'>
+        {/* Contact Info Row */}
+        <div className='max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 pb-10 mb-10 border-b border-white/5 text-zinc-400 text-[11px]'>
+          <div className='flex items-center justify-center md:justify-start gap-3'>
+            <div className='w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-[var(--color-accent)]'>
+              <Clock size={14} />
+            </div>
+            <div className='text-left'>
+              <div className='font-extrabold text-white text-[11px] tracking-wider'>
+                Opening Time
+              </div>
+              <div className='text-[11px] font-medium text-zinc-400'>
+                Mon - Sat 10:00 - 19:00
+              </div>
+            </div>
+          </div>
+
+          <div className='flex items-center justify-center md:justify-start gap-3'>
+            <div className='w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-[var(--color-accent)]'>
+              <Mail size={14} />
+            </div>
+            <div className='text-left'>
+              <div className='font-extrabold text-white text-[11px] tracking-wider'>
+                Email Us
+              </div>
+              <a
+                href='mailto:support@gadgetrestore.in'
+                className='text-[11px] font-medium text-zinc-400 hover:text-white transition-colors'
+              >
+                support@gadgetrestore.in
+              </a>
+            </div>
+          </div>
+
+          <div className='flex items-center justify-center md:justify-start gap-3'>
+            <div className='w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-[var(--color-accent)]'>
+              <Phone size={14} className='animate-bounce' />
+            </div>
+            <div className='text-left'>
+              <div className='font-extrabold text-white text-[11px] tracking-wider'>
+                Call Us Now
+              </div>
+              <a
+                href='tel:8800003785'
+                className='text-[11px] font-medium text-zinc-400 hover:text-white transition-colors'
+              >
+                +91 8800003785
+              </a>
+            </div>
+          </div>
+
+          <div className='flex items-center justify-center md:justify-start gap-3'>
+            <div className='w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-[var(--color-accent)]'>
+              <svg
+                className='w-3.5 h-3.5'
+                viewBox='0 0 24 24'
+                fill='none'
+                stroke='currentColor'
+                strokeWidth='2'
+                strokeLinecap='round'
+                strokeLinejoin='round'
+              >
+                <rect x='2' y='2' width='20' height='20' rx='5' ry='5'></rect>
+                <path d='M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z'></path>
+                <line x1='17.5' y1='6.5' x2='17.51' y2='6.5'></line>
+              </svg>
+            </div>
+            <div className='text-left'>
+              <div className='font-extrabold text-white text-[11px] tracking-wider'>
+                Follow Us
+              </div>
+              <a
+                href='https://www.instagram.com/gadget.restore.in'
+                target='_blank'
+                rel='noopener noreferrer'
+                className='text-[11px] font-medium text-zinc-400 hover:text-white transition-colors'
+              >
+                @gadget.restore.in
+              </a>
+            </div>
+          </div>
+        </div>
+
         <div className='max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6'>
           <img
             src='/gadget-restore-logo.svg'
             alt='Gadget Restore Logo'
             className='h-8 w-auto object-contain opacity-50 hover:opacity-100 transition-opacity'
           />
-          <p className='tracking-widest text-[9px] font-bold'>
+          <p className='tracking-widest text-[9px] font-bold text-center md:text-left'>
             © 2026 GADGET RESTORE INC. TECHNICAL PRECISION. ALL RIGHTS RESERVED.
           </p>
           <div className='flex gap-6 text-[10px] font-black tracking-widest text-zinc-500'>

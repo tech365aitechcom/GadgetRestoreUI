@@ -21,11 +21,11 @@ export default function SelectModelPage() {
   // Guard: if no brand selected, redirect back
   const { isReady } = useBookingGuard({ brand: true });
 
-  // If category is present we arrived from the /products page (Book Now flow).
+  // If category is present we arrived from the /select-category page (Book Now flow).
   // The normal select-brand → select-model flow may or may not have a category.
   const fromProductsFlow = !!category;
-  const backTarget = fromProductsFlow ? '/products' : '/select-brand';
-  const backLabel  = fromProductsFlow ? 'Back to Categories' : 'Back to Brands';
+  const backTarget = '/select-category';
+  const backLabel = 'Back to Categories';
 
   useEffect(() => {
     if (!brand) return;

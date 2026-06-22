@@ -22,12 +22,12 @@ import ErrorState from '@/components/ui/ErrorState'
 /* ─── Helpers ────────────────────────────────────────────────────────────────── */
 function collectRepairTypeIds(symptoms) {
   const ids = new Set()
-  ;(symptoms || []).forEach((s) => {
-    ;(s.repairTypes || []).forEach((rt) => {
-      const id = typeof rt === 'object' ? rt._id : rt
-      if (id) ids.add(id)
+    ; (symptoms || []).forEach((s) => {
+      ; (s.repairTypes || []).forEach((rt) => {
+        const id = typeof rt === 'object' ? rt._id : rt
+        if (id) ids.add(id)
+      })
     })
-  })
   return [...ids]
 }
 
@@ -152,14 +152,12 @@ export default function PricingPage() {
     (sum, item) => sum + (item.isVariable ? 0 : item.labourCost),
     0,
   )
-  const totalAmount = partsCost + labourCost
+  const subtotal = partsCost + labourCost
+  const gstAmount = Math.round(subtotal * 0.18)
+  const totalAmount = subtotal + gstAmount
 
-  // Calculate warranty (use maximum warranty from all repairs)
-  const warrantyMonths =
-    itemizedSymptoms.reduce(
-      (max, item) => Math.max(max, item.warrantyMonths || 0),
-      0, // Start with 0, find maximum from actual pricing
-    ) || partTier.defaultWarrantyMonths || 0 // Fallback to tier default only if all are 0
+  // Calculate warranty (use default warranty from part tier to match select-tier page)
+  const warrantyMonths = partTier.defaultWarrantyMonths || 0
 
   const brandName = (brand?.name || '').toLowerCase()
   const isApple =
@@ -305,9 +303,6 @@ export default function PricingPage() {
                     <h2 className='text-2xl font-extrabold text-white mb-1.5'>
                       {model.name}
                     </h2>
-                    <div className='text-xs text-gray-400'>
-                      Model: A{model.index}
-                    </div>
                   </div>
                 </div>
 
@@ -331,7 +326,7 @@ export default function PricingPage() {
                       Time
                     </div>
                     <div className='text-sm font-bold text-white'>
-                      {serviceMode === 'lab' ? '48 Hours' : '2 - 3 Hours'}
+                      Same Day
                     </div>
                   </div>
                   <div>
@@ -377,9 +372,8 @@ export default function PricingPage() {
                 {symptoms.map((symp, i) => (
                   <div
                     key={i}
-                    className={`flex justify-between items-center pb-4 ${
-                      i < symptoms.length - 1 ? 'border-b border-white/5' : ''
-                    }`}
+                    className={`flex justify-between items-center pb-4 ${i < symptoms.length - 1 ? 'border-b border-white/5' : ''
+                      }`}
                   >
                     <span className='text-sm text-white'>{symp.name}</span>
                     <span className='text-[10px] font-extrabold text-[#EF4444] tracking-wider uppercase'>
@@ -404,88 +398,88 @@ export default function PricingPage() {
 
               {/* Quote Breakdowns - Itemized per Symptom/Repair */}
               <div className='flex flex-col gap-5 lg:gap-6 pb-5 lg:pb-6 border-b border-white/5'>
-                {itemizedSymptoms.map((symptom, index) => (
-                  <div key={index} className='flex flex-col gap-3'>
-                    {/* Symptom Name Header */}
-                    {itemizedSymptoms.length > 1 && (
-                      <div className='text-[10px] font-bold text-gray-500 uppercase tracking-wider'>
-                        {symptom.name}
-                      </div>
-                    )}
+                {itemizedSymptoms.map((symptom, index) => {
+                  const sympServiceCharge = symptom.partsCost + symptom.labourCost;
+                  const sympGst = Math.round(sympServiceCharge * 0.18);
 
-                    {/* Part Cost */}
-                    {!symptom.isVariable && symptom.partsCost > 0 && (
-                      <div>
-                        <div className='text-[9px] font-bold text-gray-400 uppercase tracking-wider mb-1 hidden lg:block'>
-                          Service Charge
+                  return (
+                    <div key={index} className='flex flex-col gap-3'>
+                      {/* Symptom Name Header */}
+                      {itemizedSymptoms.length > 1 && (
+                        <div className='text-[10px] font-bold text-gray-500 uppercase tracking-wider'>
+                          {symptom.name}
                         </div>
-                        <div className='flex justify-between items-center'>
-                          <span className='text-xs lg:text-sm font-semibold text-gray-400 lg:text-white'>
-                            <span className='lg:hidden'>Part Price</span>
-                            <span className='hidden lg:inline'>
-                              Part Price ({partTier.tier} {symptom.name})
+                      )}
+
+                      {/* Service Charge */}
+                      {!symptom.isVariable && sympServiceCharge > 0 && (
+                        <div>
+                          <div className='text-[9px] font-bold text-gray-400 uppercase tracking-wider mb-1 hidden lg:block'>
+                            SERVICE CHARGE
+                          </div>
+                          <div className='flex justify-between items-center'>
+                            <span className='text-xs lg:text-sm font-semibold text-gray-400 lg:text-white'>
+                              <span className='lg:hidden'>Service Charge</span>
+                              <span className='hidden lg:inline'>
+                                Service Charge
+                              </span>
                             </span>
-                          </span>
-                          <span className='text-sm lg:text-base font-bold lg:font-extrabold text-white'>
-                            ₹{symptom.partsCost.toLocaleString('en-IN')}
-                          </span>
+                            <span className='text-sm lg:text-base font-bold lg:font-extrabold text-white'>
+                              ₹{sympServiceCharge.toLocaleString('en-IN')}
+                            </span>
+                          </div>
                         </div>
-                      </div>
-                    )}
+                      )}
 
-                    {/* Labour Cost */}
-                    {!symptom.isVariable && symptom.labourCost > 0 && (
-                      <div>
-                        <div className='text-[9px] font-bold text-gray-400 uppercase tracking-wider mb-1 hidden lg:block'>
-                          Service Charge
-                        </div>
+                      {/* GST (18%) */}
+                      {!symptom.isVariable && sympGst > 0 && (
                         <div className='flex justify-between items-center'>
                           <span className='text-xs lg:text-sm font-semibold text-gray-400 lg:text-white'>
-                            Labor Charges ({symptom.name})
+                            GST
                           </span>
                           <span className='text-sm lg:text-base font-bold lg:font-extrabold text-white'>
-                            ₹{symptom.labourCost.toLocaleString('en-IN')}
+                            ₹{sympGst.toLocaleString('en-IN')}
                           </span>
                         </div>
-                      </div>
-                    )}
+                      )}
 
-                    {/* Variable Pricing Indicator */}
-                    {symptom.isVariable && (
-                      <div>
-                        <div className='text-[9px] font-bold text-gray-400 uppercase tracking-wider mb-1 hidden lg:block'>
-                          Service Charge
+                      {/* Variable Pricing Indicator */}
+                      {symptom.isVariable && (
+                        <div>
+                          <div className='text-[9px] font-bold text-gray-400 uppercase tracking-wider mb-1 hidden lg:block'>
+                            SERVICE CHARGE
+                          </div>
+                          <div className='flex justify-between items-center'>
+                            <span className='text-xs lg:text-sm font-semibold text-gray-400 lg:text-white'>
+                              {symptom.name}
+                            </span>
+                            <span className='text-xs lg:text-sm font-semibold text-yellow-500'>
+                              Estimate Required
+                            </span>
+                          </div>
                         </div>
-                        <div className='flex justify-between items-center'>
-                          <span className='text-xs lg:text-sm font-semibold text-gray-400 lg:text-white'>
-                            {symptom.name}
-                          </span>
-                          <span className='text-xs lg:text-sm font-semibold text-yellow-500'>
-                            Estimate Required
-                          </span>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                ))}
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </div>
 
-            {/* Subtotal Area */}
-            <div className='pt-5 lg:pt-6'>
-              <div className='text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1.5 hidden lg:block'>
-                Subtotal
-              </div>
-              <div className='flex justify-between items-end mb-2 lg:mb-0'>
-                <span className='text-sm lg:text-base font-extrabold text-white lg:hidden'>
+            {/* Subtotal & GST Summary */}
+            <div className='pt-5 lg:pt-6 flex flex-col gap-3'>
+              {/* Grand Total (Labeled as Subtotal) */}
+              <div className='flex justify-between items-end'>
+                <span className='text-sm lg:text-base font-extrabold text-white'>
                   Subtotal
                 </span>
-                <span className='text-2xl lg:text-4xl font-black text-white tracking-tight leading-none'>
-                  ₹{totalAmount.toLocaleString('en-IN')}
-                </span>
-                <span className='text-[9px] font-bold text-gray-400 uppercase tracking-wider hidden lg:inline-block ml-2'>
-                  Incl. All Taxes
-                </span>
+                <div className='flex flex-col items-end'>
+                  <span className='text-2xl lg:text-4xl font-black text-white tracking-tight leading-none'>
+                    ₹{totalAmount.toLocaleString('en-IN')}
+                  </span>
+                  <span className='text-[9px] font-bold text-gray-400 uppercase tracking-wider mt-1'>
+                    Incl. 18% GST
+                  </span>
+                </div>
               </div>
 
               {/* Mobile price disclaimer */}
@@ -521,11 +515,10 @@ export default function PricingPage() {
           <button
             onClick={handleConfirm}
             disabled={!canProceedToBook}
-            className={`h-14 px-10 bg-black text-white font-extrabold text-xs uppercase tracking-wider rounded-[var(--radius-btn)] flex items-center justify-center gap-3 transition-opacity ${
-              canProceedToBook
-                ? 'cursor-pointer hover:opacity-90'
-                : 'cursor-not-allowed opacity-50'
-            }`}
+            className={`h-14 px-10 bg-black text-white font-extrabold text-xs uppercase tracking-wider rounded-[var(--radius-btn)] flex items-center justify-center gap-3 transition-opacity ${canProceedToBook
+              ? 'cursor-pointer hover:opacity-90'
+              : 'cursor-not-allowed opacity-50'
+              }`}
           >
             Confirm & Continue <ChevronRight size={18} />
           </button>
@@ -543,11 +536,10 @@ export default function PricingPage() {
         <button
           onClick={handleConfirm}
           disabled={!canProceedToBook}
-          className={`w-full h-14 bg-white text-black font-extrabold text-sm uppercase tracking-wider rounded-2xl flex items-center justify-center gap-2 shadow-lg transition-opacity ${
-            canProceedToBook
-              ? 'cursor-pointer hover:opacity-90'
-              : 'cursor-not-allowed opacity-50'
-          }`}
+          className={`w-full h-14 bg-white text-black font-extrabold text-sm uppercase tracking-wider rounded-2xl flex items-center justify-center gap-2 shadow-lg transition-opacity ${canProceedToBook
+            ? 'cursor-pointer hover:opacity-90'
+            : 'cursor-not-allowed opacity-50'
+            }`}
         >
           Confirm & Continue <ChevronRight size={18} />
         </button>

@@ -97,7 +97,7 @@ export default function OrderSummaryPage() {
       !address ||
       !slot
     ) {
-      router.replace('/home')
+      router.replace('/')
     }
   }, [brand, model, symptoms, partTier, address, slot, router])
 
@@ -178,6 +178,10 @@ export default function OrderSummaryPage() {
       total: sympParts + sympLabour,
     }
   })
+
+  const subtotal = grandTotal
+  const gstAmount = Math.round(subtotal * 0.18)
+  const totalAmount = subtotal + gstAmount
 
   const handleSaveRemarks = () => {
     setRemarks(localRemarks)
@@ -465,35 +469,83 @@ export default function OrderSummaryPage() {
                 </div>
               )}
 
-              <div className='flex justify-between items-end'>
-                <span
-                  className='text-[15px] font-bold'
-                  style={{ color: 'var(--color-content-text-secondary)' }}
-                >
-                  Subtotal
-                </span>
-                <span
-                  className='text-[28px] font-black leading-none tracking-tight'
-                  style={{ color: 'var(--color-content-text)' }}
-                >
-                  {hasVariableSymptom && grandTotal === 0 ? (
-                    'Estimate Required'
-                  ) : (
-                    <>
-                      {hasVariableSymptom && (
-                        <span
-                          className='block text-[10px] font-bold mb-1 text-right'
-                          style={{
-                            color: 'var(--color-content-text-secondary)',
-                          }}
-                        >
-                          Starting from
-                        </span>
-                      )}
-                      ₹{grandTotal.toLocaleString('en-IN')}
-                    </>
-                  )}
-                </span>
+              <div className='flex flex-col gap-3'>
+                {/* Subtotal Row */}
+                <div className='flex justify-between items-center'>
+                  <span
+                    className='text-sm font-semibold'
+                    style={{ color: 'var(--color-content-text-secondary)' }}
+                  >
+                    Subtotal
+                  </span>
+                  <span
+                    className='text-sm font-bold'
+                    style={{ color: 'var(--color-content-text)' }}
+                  >
+                    {hasVariableSymptom && subtotal === 0 ? (
+                      'Estimate Required'
+                    ) : (
+                      <>
+                        {hasVariableSymptom && 'Starting from '}
+                        ₹{subtotal.toLocaleString('en-IN')}
+                      </>
+                    )}
+                  </span>
+                </div>
+
+                {/* GST Row */}
+                {(!hasVariableSymptom || subtotal > 0) && (
+                  <div className='flex justify-between items-center'>
+                    <span
+                      className='text-sm font-semibold'
+                      style={{ color: 'var(--color-content-text-secondary)' }}
+                    >
+                      GST
+                    </span>
+                    <span
+                      className='text-sm font-bold'
+                      style={{ color: 'var(--color-content-text)' }}
+                    >
+                      {hasVariableSymptom && 'Starting from '}
+                      ₹{gstAmount.toLocaleString('en-IN')}
+                    </span>
+                  </div>
+                )}
+
+                {/* Divider Line */}
+                <div className='my-2 border-t border-dashed' style={{ borderColor: 'var(--color-content-border)' }} />
+
+                {/* Total Row */}
+                <div className='flex justify-between items-end'>
+                  <span
+                    className='text-[15px] font-black uppercase'
+                    style={{ color: 'var(--color-content-text)' }}
+                  >
+                    Total
+                  </span>
+                  <span
+                    className='text-[28px] font-black leading-none tracking-tight'
+                    style={{ color: 'var(--color-content-text)' }}
+                  >
+                    {hasVariableSymptom && subtotal === 0 ? (
+                      'Estimate Required'
+                    ) : (
+                      <>
+                        {hasVariableSymptom && (
+                          <span
+                            className='block text-[10px] font-bold mb-1 text-right'
+                            style={{
+                              color: 'var(--color-content-text-secondary)',
+                            }}
+                          >
+                            Starting from
+                          </span>
+                        )}
+                        ₹{totalAmount.toLocaleString('en-IN')}
+                      </>
+                    )}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
@@ -830,35 +882,83 @@ export default function OrderSummaryPage() {
                   </div>
                 )}
 
-                <div className='flex justify-between items-end mb-10'>
-                  <span
-                    className='text-sm font-bold uppercase tracking-wider'
-                    style={{ color: 'var(--color-content-text-secondary)' }}
-                  >
-                    Subtotal
-                  </span>
-                  <span
-                    className='text-[42px] font-black leading-none tracking-tight'
-                    style={{ color: 'var(--color-content-text)' }}
-                  >
-                    {hasVariableSymptom && grandTotal === 0 ? (
-                      'Estimate Required'
-                    ) : (
-                      <>
-                        {hasVariableSymptom && (
-                          <span
-                            className='block text-[12px] font-bold mb-2 text-right'
-                            style={{
-                              color: 'var(--color-content-text-secondary)',
-                            }}
-                          >
-                            Starting from
-                          </span>
-                        )}
-                        ₹{grandTotal.toLocaleString('en-IN')}
-                      </>
-                    )}
-                  </span>
+                <div className='flex flex-col gap-4 mb-10'>
+                  {/* Subtotal Row */}
+                  <div className='flex justify-between items-center'>
+                    <span
+                      className='text-sm font-bold uppercase tracking-wider'
+                      style={{ color: 'var(--color-content-text-secondary)' }}
+                    >
+                      Subtotal
+                    </span>
+                    <span
+                      className='text-lg font-extrabold'
+                      style={{ color: 'var(--color-content-text)' }}
+                    >
+                      {hasVariableSymptom && subtotal === 0 ? (
+                        'Estimate Required'
+                      ) : (
+                        <>
+                          {hasVariableSymptom && 'Starting from '}
+                          ₹{subtotal.toLocaleString('en-IN')}
+                        </>
+                      )}
+                    </span>
+                  </div>
+
+                  {/* GST Row */}
+                  {(!hasVariableSymptom || subtotal > 0) && (
+                    <div className='flex justify-between items-center'>
+                      <span
+                        className='text-sm font-bold uppercase tracking-wider'
+                        style={{ color: 'var(--color-content-text-secondary)' }}
+                      >
+                        GST
+                      </span>
+                      <span
+                        className='text-lg font-extrabold'
+                        style={{ color: 'var(--color-content-text)' }}
+                      >
+                        {hasVariableSymptom && 'Starting from '}
+                        ₹{gstAmount.toLocaleString('en-IN')}
+                      </span>
+                    </div>
+                  )}
+
+                  {/* Divider Line */}
+                  <div className='border-t border-dashed' style={{ borderColor: 'var(--color-content-border)' }} />
+
+                  {/* Total Row */}
+                  <div className='flex justify-between items-end'>
+                    <span
+                      className='text-base font-black uppercase tracking-wider'
+                      style={{ color: 'var(--color-content-text)' }}
+                    >
+                      Total
+                    </span>
+                    <span
+                      className='text-[42px] font-black leading-none tracking-tight'
+                      style={{ color: 'var(--color-content-text)' }}
+                    >
+                      {hasVariableSymptom && subtotal === 0 ? (
+                        'Estimate Required'
+                      ) : (
+                        <>
+                          {hasVariableSymptom && (
+                            <span
+                              className='block text-[12px] font-bold mb-2 text-right'
+                              style={{
+                                color: 'var(--color-content-text-secondary)',
+                              }}
+                            >
+                              Starting from
+                            </span>
+                          )}
+                          ₹{totalAmount.toLocaleString('en-IN')}
+                        </>
+                      )}
+                    </span>
+                  </div>
                 </div>
 
                 <button

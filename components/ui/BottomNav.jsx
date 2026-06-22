@@ -6,8 +6,8 @@ import { useProtectedNavigation } from '@/hooks/useProtectedNavigation';
 import LoginAlertModal from './LoginAlertModal';
 
 const TABS = [
-  { href: '/home',    label: 'Home',    icon: Home },
-  { href: '/orders',  label: 'Orders',  icon: ClipboardList },
+  // { href: '/home',    label: 'Home',    icon: Home },
+  { href: '/orders', label: 'Orders', icon: ClipboardList },
   { href: '/profile', label: 'Profile', icon: User },
 ];
 

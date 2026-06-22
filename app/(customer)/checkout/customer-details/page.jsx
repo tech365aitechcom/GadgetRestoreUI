@@ -35,7 +35,7 @@ const InputField = ({
   showPasswordToggle,
   onTogglePassword,
 }) => (
-  <div className='mb-5 relative'>
+  <div className='mb-4 lg:mb-3 relative'>
     <label className='block text-[10px] font-bold tracking-[0.1em] mb-2 uppercase' style={{ color: 'var(--color-content-text-secondary)' }}>
       {label} {required && <span className='text-red-500'>*</span>}
     </label>
@@ -126,7 +126,7 @@ export default function CustomerDetailsPage() {
   // Initialize data
   useEffect(() => {
     if (!canProceedToBook) {
-      router.replace('/home')
+      router.replace('/')
       return
     }
 
@@ -383,9 +383,9 @@ export default function CustomerDetailsPage() {
           </div>
 
           {/* Right Side: Form */}
-          <div className='w-1/2 p-12 overflow-y-hidden flex flex-col justify-center' style={{ borderLeft: '1px solid rgba(34,34,34,0.3)' }}>
-            <div className='w-full max-w-lg mx-auto'>
-              <h2 className='text-[22px] font-black uppercase tracking-wider mb-8 flex items-center gap-3'>
+          <div className='w-1/2 py-6 px-12 overflow-y-hidden flex flex-col' style={{ borderLeft: '1px solid rgba(34,34,34,0.3)' }}>
+            <div className='w-full max-w-lg mx-auto my-auto'>
+              <h2 className='text-[22px] font-black uppercase tracking-wider mb-4 flex items-center gap-3'>
                 Customer Details
               </h2>
 
@@ -442,9 +442,9 @@ export default function CustomerDetailsPage() {
                   </div>
                 </div>
 
-                <div className='h-[1px] w-full my-8' style={{ background: 'var(--color-content-border)' }}></div>
+                <div className='h-[1px] w-full my-4' style={{ background: 'var(--color-content-border)' }}></div>
 
-                <h2 className='text-[22px] font-black uppercase tracking-wider mb-8 flex items-center gap-3'>
+                <h2 className='text-[22px] font-black uppercase tracking-wider mb-4 flex items-center gap-3'>
                   <Lock size={24} style={{ color: 'var(--color-content-text-secondary)' }} /> Device Security
                 </h2>
 
@@ -462,7 +462,7 @@ export default function CustomerDetailsPage() {
                   onTogglePassword={() => setShowPassword(!showPassword)}
                 />
 
-                <div className='mt-10'>
+                <div className='mt-5'>
                   <button
                     type='submit'
                     disabled={

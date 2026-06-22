@@ -182,19 +182,13 @@ export default function SelectSymptomsPage() {
     )
   }, [symptomsList, searchQuery])
 
-  // Handle toggling of a symptom item
+  // Handle toggling of a symptom item (Only one symptom can be selected at a time)
   const handleToggleSymptom = (id) => {
     setSelectedIds((prev) => {
       if (prev.includes(id)) {
-        const next = prev.filter((item) => item !== id)
-        // If unselecting "Other", clear the remarks as well
-        const symptom = symptomsList.find((s) => s._id === id)
-        if (symptom?.isOther) {
-          setOtherText('')
-        }
-        return next
+        return []
       } else {
-        return [...prev, id]
+        return [id]
       }
     })
   }
@@ -210,11 +204,7 @@ export default function SelectSymptomsPage() {
 
     // Save choices to context
     setSymptoms(selectedObjects)
-    if (isOtherSelected) {
-      setRemarks(otherText)
-    } else {
-      setRemarks('')
-    }
+    setRemarks(otherText)
 
     // Go to next step: Part Type Selection (Pro vs Premium Comparison)
     router.push('/select-tier')
@@ -260,8 +250,7 @@ export default function SelectSymptomsPage() {
                   maxWidth: 600,
                 }}
               >
-                Identify the issues affecting your {model.name}. Select multiple
-                symptoms if applicable.
+                Identify the issue affecting your {model.name}.
               </p>
             </div>
           </div>
@@ -495,77 +484,39 @@ export default function SelectSymptomsPage() {
                           key={symptom._id}
                           onClick={() => handleToggleSymptom(symptom._id)}
                           aria-pressed={isSelected}
-                          style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            textAlign: 'left',
-                            justifyContent: 'space-between',
-                            padding: '10px',
-                            background: isSelected
-                              ? 'rgba(108,123,255,0.08)'
-                              : 'var(--color-content-card)',
-                            border: isSelected
-                              ? '2px solid var(--color-accent)'
-                              : '1px solid var(--color-content-border)',
-                            borderRadius: 'var(--radius-card)',
-                            cursor: 'pointer',
-                            transition: 'all 0.2s ease',
-                            outline: 'none',
-                            boxShadow: isSelected
-                              ? '0 4px 12px rgba(108,123,255,0.1)'
-                              : '0 1px 3px rgba(0,0,0,0.02)',
-                          }}
+                          className={`symptom-card ${isSelected ? 'selected' : ''}`}
                         >
                           <div
                             style={{
                               display: 'flex',
                               alignItems: 'center',
-                              gap: 14,
+                              gap: 16,
                               flex: 1,
                               minWidth: 0,
                             }}
                           >
-                            <div
-                              style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                width: 120,
-                                height: 120,
-                                borderRadius: 12,
-                                background: isSelected
-                                  ? 'rgba(108,123,255,0.15)'
-                                  : 'var(--color-content-bg)',
-                                color: isSelected
-                                  ? 'var(--color-accent)'
-                                  : 'var(--color-content-text-secondary)',
-                                flexShrink: 0,
-                                overflow: 'hidden',
-                              }}
-                            >
+                            <div className="symptom-icon-container">
                               {symptom.icon ? (
                                 <img
                                   src={symptom.icon}
                                   alt={symptom.name}
-                                  style={{
-                                    width: '100%',
-                                    height: '100%',
-                                    objectFit: 'contain',
-                                  }}
+                                  className="symptom-icon-img"
                                 />
                               ) : (
-                                getSymptomIcon(symptom)
+                                <div style={{ transform: 'scale(1.25)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                  {getSymptomIcon(symptom)}
+                                </div>
                               )}
                             </div>
-                            <div style={{ minWidth: 0 }}>
+                            <div style={{ minWidth: 0, paddingRight: 4 }}>
                               <div
                                 style={{
-                                  fontWeight: 700,
-                                  fontSize: 14,
+                                  fontWeight: 800,
+                                  fontSize: 16,
                                   color: isSelected
                                     ? 'var(--color-accent)'
                                     : 'var(--color-content-text)',
-                                  marginBottom: 2,
+                                  marginBottom: 4,
                                   whiteSpace: 'nowrap',
                                   overflow: 'hidden',
                                   textOverflow: 'ellipsis',
@@ -582,7 +533,7 @@ export default function SelectSymptomsPage() {
                                   WebkitBoxOrient: 'vertical',
                                   overflow: 'hidden',
                                   textOverflow: 'ellipsis',
-                                  lineHeight: 1.3,
+                                  lineHeight: 1.4,
                                 }}
                               >
                                 {symptom.description ||
@@ -608,7 +559,7 @@ export default function SelectSymptomsPage() {
                               justifyContent: 'center',
                               color: '#fff',
                               flexShrink: 0,
-                              marginLeft: 12,
+                              marginLeft: 8,
                             }}
                           >
                             {isSelected && <Check size={12} strokeWidth={3} />}
@@ -640,88 +591,85 @@ export default function SelectSymptomsPage() {
               )}
 
               {/* Expandable Textarea block for "Other" descriptions */}
-              {isOtherSelected && (
+              <div
+                style={{
+                  background: 'var(--color-content-card)',
+                  border: '1px solid var(--color-content-border)',
+                  borderRadius: 'var(--radius-card)',
+                  padding: 24,
+                  marginTop: 8,
+                  animation: 'fadeIn 0.25s ease-out',
+                }}
+              >
                 <div
                   style={{
-                    background: 'var(--color-content-card)',
-                    border: '1px solid var(--color-content-border)',
-                    borderRadius: 'var(--radius-card)',
-                    padding: 24,
-                    marginTop: 8,
-                    animation: 'fadeIn 0.25s ease-out',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    marginBottom: 12,
                   }}
                 >
+                  <label
+                    style={{
+                      fontSize: 13,
+                      fontWeight: 700,
+                      color: 'var(--color-content-text)',
+                      letterSpacing: '0.05em',
+                    }}
+                  >
+                    Please describe the custom issue
+                  </label>
+                  <span
+                    style={{
+                      fontSize: 12,
+                      color:
+                        otherText.length >= 200
+                          ? 'var(--color-danger)'
+                          : 'var(--color-content-text-secondary)',
+                    }}
+                  >
+                    {otherText.length} / 200
+                  </span>
+                </div>
+                <textarea
+                  rows={4}
+                  placeholder='Provide additional details here (e.g., screen flashes green, back panel loose, mic crackling)...'
+                  value={otherText}
+                  onChange={(e) => setOtherText(e.target.value.slice(0, 200))}
+                  style={{
+                    width: '100%',
+                    padding: 16,
+                    background: 'var(--color-content-bg)',
+                    border: '1px solid var(--color-content-border)',
+                    borderRadius: 'var(--radius-input)',
+                    color: 'var(--color-content-text)',
+                    fontSize: 14,
+                    outline: 'none',
+                    resize: 'none',
+                    lineHeight: 1.5,
+                  }}
+                />
+                {otherText.length === 0 && (
                   <div
                     style={{
                       display: 'flex',
-                      justifyContent: 'space-between',
                       alignItems: 'center',
-                      marginBottom: 12,
+                      gap: 6,
+                      marginTop: 8,
+                      color: 'var(--color-warning)',
+                      fontSize: 12,
                     }}
                   >
-                    <label
-                      style={{
-                        fontSize: 13,
-                        fontWeight: 700,
-                        color: 'var(--color-content-text)',
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.05em',
-                      }}
-                    >
-                      Please describe the custom issue
-                    </label>
-                    <span
-                      style={{
-                        fontSize: 12,
-                        color:
-                          otherText.length >= 200
-                            ? 'var(--color-danger)'
-                            : 'var(--color-content-text-secondary)',
-                      }}
-                    >
-                      {otherText.length} / 200
+                    <Info size={14} />
+                    <span>
+                      Writing a brief description helps our engineers prepare
+                      the diagnosis tools.
                     </span>
                   </div>
-                  <textarea
-                    rows={4}
-                    placeholder='Provide additional details here (e.g., screen flashes green, back panel loose, mic crackling)...'
-                    value={otherText}
-                    onChange={(e) => setOtherText(e.target.value.slice(0, 200))}
-                    style={{
-                      width: '100%',
-                      padding: 16,
-                      background: 'var(--color-content-bg)',
-                      border: '1px solid var(--color-content-border)',
-                      borderRadius: 'var(--radius-input)',
-                      color: 'var(--color-content-text)',
-                      fontSize: 14,
-                      outline: 'none',
-                      resize: 'none',
-                      lineHeight: 1.5,
-                    }}
-                  />
-                  {otherText.length === 0 && (
-                    <div
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 6,
-                        marginTop: 8,
-                        color: 'var(--color-warning)',
-                        fontSize: 12,
-                      }}
-                    >
-                      <Info size={14} />
-                      <span>
-                        Writing a brief description helps our engineers prepare
-                        the diagnosis tools.
-                      </span>
-                    </div>
-                  )}
-                </div>
-              )}
+                )}
+              </div>
 
-              {/* OEM Quality Standards Banner */}
+              {/* Premium Quality Standards Banner */}
               <div
                 style={{
                   background: '#1E2024',
@@ -758,7 +706,7 @@ export default function SelectSymptomsPage() {
                         margin: '0 0 6px 0',
                       }}
                     >
-                      OEM Quality Standards
+                      Premium Standards
                     </h4>
                     <p
                       style={{
@@ -768,7 +716,8 @@ export default function SelectSymptomsPage() {
                         lineHeight: 1.6,
                       }}
                     >
-                      GADGET Restore exclusively utilizes OEM-grade components. All repairs are executed using specialized precision tools and calibrated to manufacturer specifications to ensure structural integrity and original performance.
+                      Gadget Restore exclusively utilises premium-grade components with 3-month warranty.
+                      All repairs are executed using specialised precision tools and calibrated to manufacturer specifications to ensure structural integrity and original performance.
                     </p>
                   </div>
                 </div>
@@ -1033,7 +982,7 @@ export default function SelectSymptomsPage() {
                   lineHeight: 1.6,
                 }}
               >
-                Select one or more symptoms that best describe the issue with your{' '}
+                Select the symptom that best describes the issue with your{' '}
                 {model.name}.
               </p>
             </div>
@@ -1199,22 +1148,7 @@ export default function SelectSymptomsPage() {
                   <button
                     key={symptom._id}
                     onClick={() => handleToggleSymptom(symptom._id)}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      textAlign: 'left',
-                      padding: '2px',
-                      background: isSelected
-                        ? 'rgba(108,123,255,0.08)'
-                        : 'var(--color-content-card)',
-                      border: isSelected
-                        ? '2px solid var(--color-accent)'
-                        : '1px solid var(--color-content-border)',
-                      borderRadius: 'var(--radius-card)',
-                      transition: 'all 0.15s ease',
-                      outline: 'none',
-                    }}
+                    className={`symptom-card ${isSelected ? 'selected' : ''}`}
                   >
                     <div
                       style={{
@@ -1225,36 +1159,17 @@ export default function SelectSymptomsPage() {
                         minWidth: 0,
                       }}
                     >
-                      <div
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          width: 70,
-                          height: 70,
-                          borderRadius: 10,
-                          background: isSelected
-                            ? 'rgba(108,123,255,0.12)'
-                            : 'var(--color-content-bg)',
-                          color: isSelected
-                            ? 'var(--color-accent)'
-                            : 'var(--color-content-text-secondary)',
-                          flexShrink: 0,
-                          overflow: 'hidden',
-                        }}
-                      >
+                      <div className="symptom-icon-container">
                         {symptom.icon ? (
                           <img
                             src={symptom.icon}
                             alt={symptom.name}
-                            style={{
-                              width: '100%',
-                              height: '100%',
-                              objectFit: 'contain',
-                            }}
+                            className="symptom-icon-img"
                           />
                         ) : (
-                          getSymptomIcon(symptom)
+                          <div style={{ transform: 'scale(1.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            {getSymptomIcon(symptom)}
+                          </div>
                         )}
                       </div>
                       <div style={{ minWidth: 0 }}>
@@ -1303,69 +1218,67 @@ export default function SelectSymptomsPage() {
           )}
 
           {/* Mobile expandable description field */}
-          {isOtherSelected && (
+          <div
+            style={{
+              background: 'var(--color-content-card)',
+              border: '1px solid var(--color-content-border)',
+              borderRadius: 'var(--radius-card)',
+              padding: 16,
+              marginTop: 4,
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 10,
+            }}
+          >
             <div
               style={{
-                background: 'var(--color-content-card)',
-                border: '1px solid var(--color-content-border)',
-                borderRadius: 'var(--radius-card)',
-                padding: 16,
-                marginTop: 4,
                 display: 'flex',
-                flexDirection: 'column',
-                gap: 10,
+                justifyContent: 'space-between',
+                alignItems: 'center',
               }}
             >
-              <div
+              <label
                 style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
+                  fontSize: 11,
+                  fontWeight: 700,
+                  color: 'var(--color-content-text)',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em',
                 }}
               >
-                <label
-                  style={{
-                    fontSize: 11,
-                    fontWeight: 700,
-                    color: 'var(--color-content-text)',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.05em',
-                  }}
-                >
-                  Describe issue details
-                </label>
-                <span
-                  style={{
-                    fontSize: 11,
-                    color:
-                      otherText.length >= 200
-                        ? 'var(--color-danger)'
-                        : 'var(--color-content-text-secondary)',
-                  }}
-                >
-                  {otherText.length} / 200
-                </span>
-              </div>
-              <textarea
-                rows={3}
-                placeholder='Tell us what is wrong with the device...'
-                value={otherText}
-                onChange={(e) => setOtherText(e.target.value.slice(0, 200))}
+                Please describe the custom issue
+              </label>
+              <span
                 style={{
-                  width: '100%',
-                  padding: 12,
-                  background: 'var(--color-content-bg)',
-                  border: '1px solid var(--color-content-border)',
-                  borderRadius: 'var(--radius-input)',
-                  color: 'var(--color-content-text)',
-                  fontSize: 13,
-                  outline: 'none',
-                  resize: 'none',
-                  lineHeight: 1.4,
+                  fontSize: 11,
+                  color:
+                    otherText.length >= 200
+                      ? 'var(--color-danger)'
+                      : 'var(--color-content-text-secondary)',
                 }}
-              />
+              >
+                {otherText.length} / 200
+              </span>
             </div>
-          )}
+            <textarea
+              rows={3}
+              placeholder='Tell us what is wrong with the device...'
+              value={otherText}
+              onChange={(e) => setOtherText(e.target.value.slice(0, 200))}
+              style={{
+                width: '100%',
+                padding: 12,
+                background: 'var(--color-content-bg)',
+                border: '1px solid var(--color-content-border)',
+                borderRadius: 'var(--radius-input)',
+                color: 'var(--color-content-text)',
+                fontSize: 13,
+                outline: 'none',
+                resize: 'none',
+                lineHeight: 1.4,
+              }}
+            />
+          </div>
         </div>
 
         {/* Mobile Bottom Sticky Action CTA bar (floating above standard bottom nav) */}
@@ -1495,6 +1408,99 @@ export default function SelectSymptomsPage() {
         }
         [data-theme='light'] .mobile-device-brand-logo {
           filter: grayscale(100%) opacity(0.6) brightness(0);
+        }
+
+        .symptom-card {
+          display: flex;
+          align-items: center;
+          text-align: left;
+          justify-content: space-between;
+          padding: 14px 18px !important;
+          background: var(--color-content-card) !important;
+          border: 1px solid var(--color-content-border) !important;
+          border-radius: var(--radius-card) !important;
+          cursor: pointer;
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+          outline: none;
+          position: relative;
+          overflow: hidden;
+          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        
+        .symptom-card:hover {
+          background: rgba(255, 255, 255, 0.02) !important;
+          border-color: rgba(108, 123, 255, 0.4) !important;
+          transform: translateY(-2px);
+          box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        
+        .symptom-card.selected {
+          background: rgba(108, 123, 255, 0.08) !important;
+          border-color: var(--color-accent) !important;
+          border-width: 2px !important;
+          box-shadow: 0 10px 20px -5px rgba(108, 123, 255, 0.2);
+        }
+
+        .symptom-icon-container {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 80px;
+          height: 80px;
+          border-radius: 14px;
+          background: var(--color-content-bg);
+          color: var(--color-content-text-secondary);
+          flex-shrink: 0;
+          overflow: hidden;
+          position: relative;
+          transition: all 0.3s ease;
+        }
+
+        .symptom-card:hover .symptom-icon-container {
+          background: rgba(108, 123, 255, 0.05);
+          color: var(--color-accent);
+        }
+
+        .symptom-card.selected .symptom-icon-container {
+          background: rgba(108, 123, 255, 0.15);
+          color: var(--color-accent);
+        }
+
+        .symptom-icon-img {
+          width: 100%;
+          height: 100%;
+          object-fit: contain;
+          transform: scale(1.42);
+          transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .symptom-card:hover .symptom-icon-img {
+          transform: scale(1.58) rotate(3deg);
+        }
+        
+        .symptom-card.selected .symptom-icon-img {
+          transform: scale(1.58);
+        }
+
+        @media (max-width: 1023px) {
+          .symptom-card {
+            padding: 8px 10px !important;
+            border-radius: 12px !important;
+          }
+          .symptom-icon-container {
+            width: 54px;
+            height: 54px;
+            border-radius: 10px;
+          }
+          .symptom-icon-img {
+            transform: scale(1.35);
+          }
+          .symptom-card:hover .symptom-icon-img {
+            transform: scale(1.45);
+          }
+          .symptom-card.selected .symptom-icon-img {
+            transform: scale(1.45);
+          }
         }
       `}</style>
     </>

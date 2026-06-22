@@ -18,6 +18,7 @@ import NotificationDrawer from '@/components/layout/NotificationDrawer'
 import LoginAlertModal from '@/components/ui/LoginAlertModal'
 import notificationService from '@/services/notification.service'
 import { setRouterInstance } from '@/lib/navigation'
+import Link from 'next/link'
 
 export default function AppShell({ children, className = '' }) {
   const pathname = usePathname()
@@ -58,7 +59,7 @@ export default function AppShell({ children, className = '' }) {
   }, [user])
 
   const navItems = [
-    { href: '/', label: 'Home', icon: Home },
+    // { href: '/', label: 'Home', icon: Home },
     { href: '/orders', label: 'Orders', icon: ClipboardList },
     { href: '/profile', label: 'Profile', icon: User },
     // { href: '/settings', label: 'Settings', icon: Settings },
@@ -69,13 +70,15 @@ export default function AppShell({ children, className = '' }) {
       {/* ── Dark Sidebar — shown only on desktop via CSS ── */}
       <aside className='desktop-sidebar'>
         {/* Logo */}
-        <div className='pt-6 px-5 pb-5'>
-          <img
-            src='/gadget-restore-logo.svg'
-            alt='Gadget Restore'
-            className='h-11 w-auto object-contain'
-          />
-        </div>
+        <Link href="/">
+          <div className='pt-6 px-5 pb-5'>
+            <img
+              src='/gadget-restore-logo.svg'
+              alt='Gadget Restore'
+              className='h-11 w-auto object-contain'
+            />
+          </div>
+        </Link>
 
         {/* Nav links */}
         <nav className='flex-1 py-2 px-3 flex flex-col gap-1'>
@@ -91,11 +94,10 @@ export default function AppShell({ children, className = '' }) {
                   e.preventDefault()
                   navigateTo(item.href)
                 }}
-                className={`flex items-center gap-3 py-3 px-5 rounded-xl border-none cursor-pointer w-full text-sm text-left transition-all duration-150 ${
-                  isActive
-                    ? 'font-extrabold text-black bg-white'
-                    : 'font-bold text-[#8A8A8A] bg-transparent hover:text-white hover:bg-white/6'
-                }`}
+                className={`flex items-center gap-3 py-3 px-5 rounded-xl border-none cursor-pointer w-full text-sm text-left transition-all duration-150 ${isActive
+                  ? 'font-extrabold text-black bg-white'
+                  : 'font-bold text-[#8A8A8A] bg-transparent hover:text-white hover:bg-white/6'
+                  }`}
               >
                 <Icon size={18} strokeWidth={isActive ? 2.5 : 2} />
                 {item.label}
@@ -124,7 +126,7 @@ export default function AppShell({ children, className = '' }) {
             <input
               type='text'
               placeholder='Search devices, tickets, or serial numbers...'
-              onClick={() => router.push('/select-brand')}
+              onClick={() => router.push('/select-category')}
               readOnly
             />
           </div>
@@ -146,7 +148,7 @@ export default function AppShell({ children, className = '' }) {
               <HelpCircle size={21} />
             </button>
             <button
-              onClick={() => router.push('/select-brand')}
+              onClick={() => router.push('/select-category')}
               className='btn-primary h-9.5 text-[13px] px-4.5 rounded-[10px]'
             >
               New Repair <Plus size={14} />

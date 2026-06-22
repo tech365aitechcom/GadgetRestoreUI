@@ -181,7 +181,7 @@ function VerifyOtpContent() {
 
     try {
       await authService.verifyOtp(phone, code)
-      
+
       // On success: clear local storage tracking
       localStorage.removeItem(`gr_otp_attempts_${phone}`)
       localStorage.removeItem(`gr_otp_blocked_${phone}`)
@@ -192,7 +192,7 @@ function VerifyOtpContent() {
       }
 
       // Determine redirect URL with priority: URL param > session storage > default
-      let redirectUrl = '/home'
+      let redirectUrl = '/'
 
       // First check URL params (highest priority)
       const redirectParam = searchParams.get('redirect')
@@ -216,7 +216,7 @@ function VerifyOtpContent() {
               router.push('/schedule')
               return
             }
-          } catch (e) {}
+          } catch (e) { }
         }
       }
 

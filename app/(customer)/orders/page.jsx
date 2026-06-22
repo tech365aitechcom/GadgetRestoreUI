@@ -194,7 +194,7 @@ export default function OrdersPage() {
           <p className='text-[var(--theme-text-secondary)] text-sm mb-4 lg:mb-6'>
             Book your first repair!
           </p>
-          <Link href='/select-brand' className='btn-primary no-underline inline-flex items-center gap-2'>
+          <Link href='/select-category' className='btn-primary no-underline inline-flex items-center gap-2'>
             <Plus size={18} className='hidden lg:inline' />
             Book Repair
           </Link>

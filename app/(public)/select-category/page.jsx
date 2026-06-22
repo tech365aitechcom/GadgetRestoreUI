@@ -1,7 +1,13 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { Smartphone, Tablet, Laptop, ChevronRight, ArrowLeft } from 'lucide-react'
+import {
+  Smartphone,
+  Tablet,
+  Laptop,
+  ChevronRight,
+  ArrowLeft,
+} from 'lucide-react'
 import { useBooking } from '@/context/BookingContext'
 
 // ── Real IDs from aidbprod.categories.json + aidbprod.brands.json ──────────
@@ -12,9 +18,10 @@ const SLOTS = [
   {
     id: 'iphone',
     title: 'iPhone',
-    description: 'Expert repair services for all iPhone models — screen, battery, and more.',
+    description:
+      'Expert repair services for all iPhone models — screen, battery, and more.',
     icon: Smartphone,
-    bgImage: '/images/service-smartphone-repair.png',
+    bgImage: '/images/pcb3.png',
     brand: {
       _id: '68b175cf10113c5d55976da5',
       name: 'Apple',
@@ -25,9 +32,10 @@ const SLOTS = [
   {
     id: 'ipad-tablet',
     title: 'iPad / Tablet',
-    description: 'Screen replacements, battery fixes, and more for all Apple iPad models.',
+    description:
+      'Screen replacements, battery fixes, and more for all Apple iPad models.',
     icon: Tablet,
-    bgImage: '/images/service-tablet-repair.png',
+    bgImage: '/images/pcb1.png',
     brand: {
       _id: '68b175a710113c5d55975eac',
       name: 'Apple',
@@ -38,9 +46,10 @@ const SLOTS = [
   {
     id: 'mac-pc',
     title: 'Mac / PC',
-    description: 'Hardware upgrades and repairs for MacBooks and Apple desktops.',
+    description:
+      'Hardware upgrades and repairs for MacBooks and Apple desktops.',
     icon: Laptop,
-    bgImage: '/images/service-laptop-repair.png',
+    bgImage: '/images/pcb2.png',
     brand: {
       _id: '68b175b310113c5d5597624e',
       name: 'Apple',
@@ -50,7 +59,7 @@ const SLOTS = [
   },
 ]
 
-export default function ProductsPage() {
+export default function SelectCategoryPage() {
   const router = useRouter()
   const { reset, setBrand } = useBooking()
 
@@ -63,7 +72,7 @@ export default function ProductsPage() {
     setTimeout(() => {
       setBrand(slot.brand)
       router.push(
-        `/select-model?catId=${slot.category._id}&catName=${encodeURIComponent(slot.category.name)}`
+        `/select-model?catId=${slot.category._id}&catName=${encodeURIComponent(slot.category.name)}`,
       )
     }, 0)
   }
@@ -71,39 +80,11 @@ export default function ProductsPage() {
   return (
     <div
       className='min-h-screen flex flex-col font-sans'
-      style={{ background: 'var(--color-content-bg)', color: 'var(--color-content-text)' }}
+      style={{
+        background: 'var(--color-content-bg)',
+        color: 'var(--color-content-text)',
+      }}
     >
-      {/* ── HEADER ── */}
-      <nav
-        className='sticky top-0 z-50 py-4 px-6 lg:px-20 flex justify-between items-center'
-        style={{
-          background: 'var(--color-bg)',
-          borderBottom: '1px solid var(--color-divider)',
-        }}
-      >
-        <button
-          type='button'
-          onClick={() => router.push('/')}
-          className='flex items-center gap-2 cursor-pointer bg-transparent border-0 p-0'
-          aria-label='Go to home page'
-        >
-          <img
-            src='/gadget-restore-logo.svg'
-            alt='Gadget Restore Logo'
-            className='h-9 w-auto object-contain'
-          />
-        </button>
-
-        <button
-          type='button'
-          onClick={() => router.back()}
-          className='flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider cursor-pointer bg-transparent border-0 p-0 transition-colors'
-          style={{ color: 'var(--color-content-text-secondary)' }}
-        >
-          <ArrowLeft size={14} /> Back
-        </button>
-      </nav>
-
       {/* ── HERO ── */}
       <section className='pt-14 pb-10 px-6 lg:px-20 text-center'>
         <div
@@ -126,8 +107,8 @@ export default function ProductsPage() {
           className='text-sm max-w-xl mx-auto leading-relaxed'
           style={{ color: 'var(--color-content-text-secondary)' }}
         >
-          Choose a product category to see available repair services and pricing.
-          Our certified Apple technicians are ready to help.
+          Choose a product category to see available repair services and
+          pricing. Our certified Apple technicians are ready to help.
         </p>
       </section>
 
@@ -148,11 +129,13 @@ export default function ProductsPage() {
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.borderColor = 'var(--color-accent)'
-                  e.currentTarget.style.boxShadow = '0 8px 32px var(--color-accent-shadow-10)'
+                  e.currentTarget.style.boxShadow =
+                    '0 8px 32px var(--color-accent-shadow-10)'
                   e.currentTarget.style.transform = 'translateY(-2px)'
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.borderColor = 'var(--color-content-border)'
+                  e.currentTarget.style.borderColor =
+                    'var(--color-content-border)'
                   e.currentTarget.style.boxShadow = 'var(--theme-shadow-sm)'
                   e.currentTarget.style.transform = 'translateY(0)'
                 }}
@@ -165,11 +148,7 @@ export default function ProductsPage() {
                     className='w-full h-full object-cover transition-transform duration-700 group-hover:scale-105'
                   />
                   <div className='absolute inset-0 bg-gradient-to-t from-black/40 to-transparent' />
-                  <div className='absolute bottom-5 left-5 text-white'>
-                    <Icon size={36} strokeWidth={1.5} />
-                  </div>
                 </div>
-
                 {/* Card body */}
                 <div className='p-6 flex-1 flex flex-col justify-between relative'>
                   {/* Arrow badge on hover */}

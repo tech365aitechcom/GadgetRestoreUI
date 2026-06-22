@@ -21,7 +21,7 @@ export default function MobileHeader({
   // both the normal flow (select-brand → select-model) and the products flow
   // (products → select-model) return to the correct previous page via history.
   const backNavigation = {
-    '/products': '/',
+    '/select-category': '/',
     '/select-brand': '/',
     '/select-symptoms': '/select-model',
     '/select-tier': '/select-symptoms',

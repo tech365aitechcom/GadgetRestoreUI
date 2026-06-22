@@ -7,9 +7,9 @@ import customerService from '@/services/customer.service'
 
 const AuthContext = createContext({
   user: null,
-  setUser: () => {},
-  updateUser: () => {},
-  logout: () => {},
+  setUser: () => { },
+  updateUser: () => { },
+  logout: () => { },
   isLoading: true,
 })
 
@@ -70,7 +70,7 @@ export function AuthProvider({ children }) {
     Cookies.remove(TOKEN_COOKIE)
     setUser(null)
     if (typeof window !== 'undefined') {
-      window.location.href = '/home'
+      window.location.href = '/'
     }
   }
 

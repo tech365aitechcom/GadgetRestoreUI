@@ -89,7 +89,7 @@ export async function generateMetadata({ params }) {
     description = `Professional, certified ${brandName} ${parsed.name.toLowerCase()} services. Premium parts, expert micro-soldering, and detailed calibrations starting at ₹${startingPrice}. 90-day warranty included.`
   } else {
     title = `${brandName} ${parsed.name} Repair Services — Starting ₹999 | Gadget Restore`
-    description = `OEM-grade screen replacement, battery swap, and motherboard repairs for ${brandName} ${parsed.name}. High-fidelity calibration starting at ₹999 with a 90-day warranty.`
+    description = `Premium screen replacement, battery swap, and motherboard repairs for ${brandName} ${parsed.name}. High-fidelity calibration starting at ₹999 with a 90-day warranty.`
   }
 
   return {
@@ -345,7 +345,7 @@ export default async function ModelOrRepairPage({ params }) {
 
           <p className='text-sm lg:text-base text-[var(--color-content-text-secondary)] leading-relaxed mb-10 max-w-[620px]'>
             {parsed.isRepairType
-              ? `Professional ${parsed.name.toLowerCase()} services for all ${brandName} models. Restoring high refresh rates, battery health, and tactile response with detailed OEM calibrations.`
+              ? `Professional ${parsed.name.toLowerCase()} services for all ${brandName} models. Restoring high refresh rates, battery health, and tactile response with detailed Premium calibrations.`
               : `Premium screen swaps, high-capacity battery replacements, and certified hardware debugging for your ${brandName} ${parsed.name}. Each diagnosis is backed by certified workshop engineers.`}
           </p>
 

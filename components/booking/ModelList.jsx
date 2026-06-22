@@ -30,12 +30,7 @@ export default function ModelList({
     )
   }, [models, search])
 
-  const getModelSubtext = (model) => {
-    if (model.modelNumber) return model.modelNumber
-    if (model.index) return `A${model.index}`
-    if (model.year) return String(model.year)
-    return ''
-  }
+
 
   return (
     <div
@@ -99,7 +94,6 @@ export default function ModelList({
         >
           {filtered.map((model) => {
             const isSelected = selectedModelId === model._id
-            const subtext = getModelSubtext(model)
 
             // Clean up name by removing brandName prefix dynamically (e.g. "Apple iPhone 11" -> "iPhone 11")
             const displayName = brand?.name && model.name.toLowerCase().startsWith(brand?.name?.toLowerCase())
@@ -128,8 +122,7 @@ export default function ModelList({
 
                 {/* Info Area (Name & Code grouped together) */}
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, width: '100%' }}>
-                  <span className='model-card-name'>{displayName}</span>
-                  {subtext && <span className='model-card-id'>{subtext}</span>}
+                  <span className='model-card-name mb-4'>{displayName}</span>
                 </div>
               </button>
             )
