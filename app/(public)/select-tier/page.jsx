@@ -67,12 +67,12 @@ function getTierStyle(tierName) {
 /* ─── Helpers ────────────────────────────────────────────────────────────────── */
 function collectRepairTypeIds(symptoms) {
   const ids = new Set()
-  ;(symptoms || []).forEach((s) => {
-    ;(s.repairTypes || []).forEach((rt) => {
-      const id = typeof rt === 'object' ? rt._id : rt
-      if (id) ids.add(id)
+    ; (symptoms || []).forEach((s) => {
+      ; (s.repairTypes || []).forEach((rt) => {
+        const id = typeof rt === 'object' ? rt._id : rt
+        if (id) ids.add(id)
+      })
     })
-  })
   return [...ids]
 }
 
@@ -108,11 +108,6 @@ function TierCard({
     Compatible: '/images/tier-compatible.png',
   }
 
-  const TIER_SUBTITLES = {
-    Original: 'OEM CERTIFIED',
-    Premium: 'A+++ GRADE',
-    Compatible: 'ECONOMIC GRADE',
-  }
 
   const isOriginal = tier.tier === 'Original'
   const warrantyMonths = tier.defaultWarrantyMonths || 0
@@ -218,18 +213,6 @@ function TierCard({
               }}
             >
               {tier.tier}
-            </div>
-            <div
-              style={{
-                fontSize: 9,
-                fontWeight: 700,
-                color: 'rgba(255, 255, 255, 0.4)',
-                textTransform: 'uppercase',
-                letterSpacing: '0.06em',
-                marginTop: 5,
-              }}
-            >
-              {TIER_SUBTITLES[tier.tier] || `${tier.tier.toUpperCase()} GRADE`}
             </div>
           </div>
           <div style={{ textAlign: 'right' }}>
@@ -441,38 +424,6 @@ export default function SelectTierPage() {
   const categoryName = category?.name || model?.categoryId?.name || 'Device'
   const canContinue = !!selectedTier
 
-  const MATRIX_ROWS = [
-    {
-      feature: 'Display & Panel Type',
-      original: 'OEM Retina / OLED',
-      premium: 'High-grade OLED / LCD',
-      compatible: 'Standard LCD',
-    },
-    {
-      feature: 'Color Gamut & Contrast',
-      original: '100% (Factory standard)',
-      premium: '90-95% (Vibrant colors)',
-      compatible: '80% (Standard color range)',
-    },
-    {
-      feature: 'Touch Response & Refresh Rate',
-      original: 'Super Smooth (120Hz/60Hz)',
-      premium: 'Smooth & Responsive',
-      compatible: 'Standard Touch',
-    },
-    {
-      feature: 'Glass Durability',
-      original: 'Corning Gorilla Glass',
-      premium: 'Tempered / High-hardness Glass',
-      compatible: 'Standard Glass',
-    },
-    {
-      feature: 'Warranty Coverage',
-      original: '24 Months Warranty',
-      premium: '12 Months Warranty',
-      compatible: '6 Months Warranty',
-    },
-  ]
 
   return (
     <>
@@ -561,7 +512,10 @@ export default function SelectTierPage() {
               <div
                 style={{
                   display: 'grid',
-                  gridTemplateColumns: `repeat(${tiers.length || 3}, 1fr)`,
+                  gridTemplateColumns:
+                    tiers.length === 1
+                      ? '400px'
+                      : `repeat(${tiers.length || 3}, 1fr)`,
                   gap: 20,
                 }}
               >
@@ -577,168 +531,6 @@ export default function SelectTierPage() {
               </div>
             )}
           </div>
-
-          {/* Comparative Performance Matrix */}
-          {!isLoadingTiers && !error && (
-            <div
-              style={{
-                marginTop: 48,
-                background: '#0d0d0f',
-                borderRadius: 16,
-                border: '1px solid rgba(255,255,255,0.05)',
-                padding: 24,
-                boxSizing: 'border-box',
-              }}
-            >
-              <h3
-                style={{
-                  fontSize: 12,
-                  fontWeight: 800,
-                  textTransform: 'uppercase',
-                  color: '#ffffff',
-                  letterSpacing: '0.1em',
-                  marginBottom: 20,
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 8,
-                }}
-              >
-                <svg
-                  width='14'
-                  height='14'
-                  viewBox='0 0 24 24'
-                  fill='none'
-                  stroke='currentColor'
-                  strokeWidth='2.5'
-                >
-                  <rect x='3' y='3' width='18' height='18' rx='2' />
-                  <line x1='9' y1='3' x2='9' y2='21' />
-                  <line x1='15' y1='3' x2='15' y2='21' />
-                  <line x1='3' y1='9' x2='21' y2='9' />
-                  <line x1='3' y1='15' x2='21' y2='15' />
-                </svg>
-                Comparative Performance Matrix
-              </h3>
-
-              <div style={{ overflowX: 'auto' }}>
-                <table
-                  style={{
-                    width: '100%',
-                    borderCollapse: 'collapse',
-                    textAlign: 'left',
-                  }}
-                >
-                  <thead>
-                    <tr
-                      style={{
-                        borderBottom: '1px solid rgba(255,255,255,0.08)',
-                      }}
-                    >
-                      <th
-                        style={{
-                          padding: '12px 16px',
-                          fontSize: 11,
-                          fontWeight: 700,
-                          color: 'rgba(255, 255, 255, 0.4)',
-                          textTransform: 'uppercase',
-                          letterSpacing: '0.05em',
-                        }}
-                      >
-                        Attributes
-                      </th>
-                      <th
-                        style={{
-                          padding: '12px 16px',
-                          fontSize: 11,
-                          fontWeight: 700,
-                          color: '#ffffff',
-                          textTransform: 'uppercase',
-                          letterSpacing: '0.05em',
-                        }}
-                      >
-                        Original
-                      </th>
-                      <th
-                        style={{
-                          padding: '12px 16px',
-                          fontSize: 11,
-                          fontWeight: 700,
-                          color: '#ffffff',
-                          textTransform: 'uppercase',
-                          letterSpacing: '0.05em',
-                        }}
-                      >
-                        Premium
-                      </th>
-                      <th
-                        style={{
-                          padding: '12px 16px',
-                          fontSize: 11,
-                          fontWeight: 700,
-                          color: '#ffffff',
-                          textTransform: 'uppercase',
-                          letterSpacing: '0.05em',
-                        }}
-                      >
-                        Compatible
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {MATRIX_ROWS.map((row, idx) => (
-                      <tr
-                        key={idx}
-                        style={{
-                          borderBottom:
-                            idx === MATRIX_ROWS.length - 1
-                              ? 'none'
-                              : '1px solid rgba(255,255,255,0.04)',
-                        }}
-                      >
-                        <td
-                          style={{
-                            padding: '16px',
-                            fontSize: 13,
-                            fontWeight: 600,
-                            color: '#ffffff',
-                          }}
-                        >
-                          {row.feature}
-                        </td>
-                        <td
-                          style={{
-                            padding: '16px',
-                            fontSize: 13,
-                            color: 'rgba(255, 255, 255, 0.8)',
-                          }}
-                        >
-                          {row.original}
-                        </td>
-                        <td
-                          style={{
-                            padding: '16px',
-                            fontSize: 13,
-                            color: 'rgba(255, 255, 255, 0.6)',
-                          }}
-                        >
-                          {row.premium}
-                        </td>
-                        <td
-                          style={{
-                            padding: '16px',
-                            fontSize: 13,
-                            color: 'rgba(255, 255, 255, 0.6)',
-                          }}
-                        >
-                          {row.compatible}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          )}
         </div>
 
         {/* Desktop Sticky Bottom Bar */}
@@ -776,7 +568,7 @@ export default function SelectTierPage() {
               </span>
               <span style={{ fontSize: 15, fontWeight: 800, color: '#ffffff' }}>
                 {selectedTier
-                  ? `OEM Certified ${selectedTier.tier}`
+                  ? `${selectedTier.tier}`
                   : 'Select a part quality'}
               </span>
             </div>

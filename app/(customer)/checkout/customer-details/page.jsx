@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import PropTypes from 'prop-types'
 import {
   CheckCircle2,
   Lock,
@@ -34,7 +35,7 @@ const InputField = ({
   showPasswordToggle,
   onTogglePassword,
 }) => (
-  <div className='mb-5 relative'>
+  <div className='mb-4 lg:mb-3 relative'>
     <label className='block text-[10px] font-bold tracking-[0.1em] mb-2 uppercase' style={{ color: 'var(--color-content-text-secondary)' }}>
       {label} {required && <span className='text-red-500'>*</span>}
     </label>
@@ -77,6 +78,23 @@ const InputField = ({
   </div>
 )
 
+InputField.propTypes = {
+  label: PropTypes.string.isRequired,
+  icon: PropTypes.elementType.isRequired,
+  name: PropTypes.string.isRequired,
+  type: PropTypes.string,
+  placeholder: PropTypes.string,
+  required: PropTypes.bool,
+  readOnly: PropTypes.bool,
+  maxLength: PropTypes.number,
+  value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+  onChange: PropTypes.func.isRequired,
+  error: PropTypes.string,
+  hint: PropTypes.string,
+  showPasswordToggle: PropTypes.bool,
+  onTogglePassword: PropTypes.func,
+}
+
 export default function CustomerDetailsPage() {
   const router = useRouter()
   const {
@@ -89,7 +107,6 @@ export default function CustomerDetailsPage() {
     address,
     slot,
     canProceedToBook,
-    reset,
   } = useBooking()
 
   const [isLoading, setIsLoading] = useState(false)
@@ -109,7 +126,7 @@ export default function CustomerDetailsPage() {
   // Initialize data
   useEffect(() => {
     if (!canProceedToBook) {
-      router.replace('/home')
+      router.replace('/')
       return
     }
 
@@ -122,14 +139,16 @@ export default function CustomerDetailsPage() {
 
     // Attempt to load from localStorage (Mock returning user)
     const storedMobile =
-      typeof window !== 'undefined'
-        ? localStorage.getItem('gr_authenticated_phone') ||
+      typeof globalThis.window === 'undefined'
+        ? ''
+        : localStorage.getItem('gr_authenticated_phone') ||
         sessionStorage.getItem('gr_login_phone')
-        : ''
     let savedProfile = null
     try {
       savedProfile = JSON.parse(localStorage.getItem('gr_customer_profile'))
-    } catch (e) { }
+    } catch (e) {
+      console.warn('Failed to parse saved customer profile:', e)
+    }
 
     setFormData((prev) => ({
       ...prev,
@@ -207,10 +226,7 @@ export default function CustomerDetailsPage() {
         },
       })
 
-      console.log('Booking API Response:', result)
-
       const ticketNumber = result?.ticketNumber || result?.booking?.ticketNumber
-      console.log('Extracted Ticket Number:', ticketNumber)
 
       if (!ticketNumber) {
         throw new Error('Order was created without a tracking number.')
@@ -218,7 +234,6 @@ export default function CustomerDetailsPage() {
 
       // Redirect to order confirmation (query-based for static export support)
       const redirectUrl = `/order-confirmation?ticketNumber=${encodeURIComponent(ticketNumber)}`
-      console.log('Redirecting to:', redirectUrl)
       router.push(redirectUrl)
     } catch (error) {
       console.error('Failed to create booking:', error)
@@ -368,9 +383,9 @@ export default function CustomerDetailsPage() {
           </div>
 
           {/* Right Side: Form */}
-          <div className='w-1/2 p-12 overflow-y-hidden flex flex-col justify-center' style={{ borderLeft: '1px solid rgba(34,34,34,0.3)' }}>
-            <div className='w-full max-w-lg mx-auto'>
-              <h2 className='text-[22px] font-black uppercase tracking-wider mb-8 flex items-center gap-3'>
+          <div className='w-1/2 py-6 px-12 overflow-y-hidden flex flex-col' style={{ borderLeft: '1px solid rgba(34,34,34,0.3)' }}>
+            <div className='w-full max-w-lg mx-auto my-auto'>
+              <h2 className='text-[22px] font-black uppercase tracking-wider mb-4 flex items-center gap-3'>
                 Customer Details
               </h2>
 
@@ -427,9 +442,9 @@ export default function CustomerDetailsPage() {
                   </div>
                 </div>
 
-                <div className='h-[1px] w-full my-8' style={{ background: 'var(--color-content-border)' }}></div>
+                <div className='h-[1px] w-full my-4' style={{ background: 'var(--color-content-border)' }}></div>
 
-                <h2 className='text-[22px] font-black uppercase tracking-wider mb-8 flex items-center gap-3'>
+                <h2 className='text-[22px] font-black uppercase tracking-wider mb-4 flex items-center gap-3'>
                   <Lock size={24} style={{ color: 'var(--color-content-text-secondary)' }} /> Device Security
                 </h2>
 
@@ -447,7 +462,7 @@ export default function CustomerDetailsPage() {
                   onTogglePassword={() => setShowPassword(!showPassword)}
                 />
 
-                <div className='mt-10'>
+                <div className='mt-5'>
                   <button
                     type='submit'
                     disabled={

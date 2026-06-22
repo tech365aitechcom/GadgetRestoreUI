@@ -100,7 +100,7 @@ export default async function BrandRepairPage({ params }) {
       {
         '@type': 'Product',
         name: `${brandName} Repair Service`,
-        description: `Professional OEM-grade repair solutions for all ${brandName} smartphones, tablets, and laptops.`,
+        description: `Professional premium grade repair solutions for all ${brandName} smartphones, tablets, and laptops.`,
         offers: {
           '@type': 'AggregateOffer',
           priceCurrency: 'INR',
@@ -252,7 +252,7 @@ export default async function BrandRepairPage({ params }) {
             </span>
           </h1>
           <p className='text-sm lg:text-base text-[var(--color-content-text-secondary)] leading-relaxed mb-10 max-w-[620px]'>
-            Professional, OEM-grade repair solutions for all {brandName}{' '}
+            Professional, Premium repair solutions for all {brandName}{' '}
             smartphones, tablets, and laptops. Swapping screens, restoring
             batteries, and fixing motherboards with dedicated factory
             calibration.

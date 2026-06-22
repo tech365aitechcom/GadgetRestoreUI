@@ -24,7 +24,7 @@ export function useBookingGuard(requirements = {}) {
 
     // Check requirements in order and redirect to first missing step
     if (requirements.brand && !brand) {
-      router.replace('/select-brand');
+      router.replace('/select-category');
       return;
     }
 

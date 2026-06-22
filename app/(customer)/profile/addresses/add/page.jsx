@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Save, ArrowLeft } from 'lucide-react'
+import { Save } from 'lucide-react'
 import TopBar from '@/components/ui/TopBar'
 import toast from 'react-hot-toast'
 import customerService from '@/services/customer.service'

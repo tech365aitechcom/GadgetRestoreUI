@@ -27,6 +27,10 @@ function bookingReducer(state, action) {
     case 'SET_BRAND':
       // Changing brand resets model & everything downstream, keeps category
       return { ...INITIAL_STATE, category: state.category, brand: action.payload };
+    case 'SET_BOOKING_START':
+      // Atomically initialises brand + category in one dispatch (used by products page)
+      // Avoids the race where SET_CATEGORY wipes a brand set by a prior SET_BRAND dispatch.
+      return { ...INITIAL_STATE, brand: action.payload.brand, category: action.payload.category };
     case 'SET_MODEL':
       return { ...state, model: action.payload, symptoms: [], partTier: null, pricing: null };
     case 'SET_SYMPTOMS':
@@ -89,6 +93,8 @@ export function BookingProvider({ children }) {
     setAddress:     (address)     => dispatch({ type: 'SET_ADDRESS',     payload: address }),
     setSlot:        (slot)        => dispatch({ type: 'SET_SLOT',        payload: slot }),
     reset:          ()            => dispatch({ type: 'RESET' }),
+    // Atomically set brand + category (safe for products-page → select-model flow)
+    startBooking:   ({ brand, category }) => dispatch({ type: 'SET_BOOKING_START', payload: { brand, category } }),
   };
 
   // Computed: can customer proceed to login?

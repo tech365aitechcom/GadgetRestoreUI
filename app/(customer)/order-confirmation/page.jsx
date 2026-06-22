@@ -2,7 +2,7 @@
 
 import { useEffect, useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { Check, Home, Clock, Mail, Calendar, QrCode, ArrowRight, Truck, Share2, MapPin } from 'lucide-react'
+import { Check, Clock, Mail, QrCode, ArrowRight, Truck, Share2, MapPin } from 'lucide-react'
 import orderService from '@/services/order.service'
 import { useBooking } from '@/context/BookingContext'
 import toast from 'react-hot-toast'
@@ -11,7 +11,7 @@ import ErrorState from '@/components/ui/ErrorState'
 
 function formatCurrency(amount) {
   if (!amount && amount !== 0) return '₹0'
-  const numAmount = typeof amount === 'string' ? parseFloat(amount) : amount
+  const numAmount = typeof amount === 'string' ? Number.parseFloat(amount) : amount
   return `₹${numAmount.toLocaleString('en-IN', {
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
@@ -70,7 +70,7 @@ function getStatusLabel(status) {
     PARTS_ORDERED: 'Parts Ordered',
     UNREPAIRABLE: 'Unrepairable',
   }
-  return statusLabels[status] || status?.replace(/_/g, ' ') || 'Processing'
+  return statusLabels[status] || status?.replaceAll('_', ' ') || 'Processing'
 }
 
 function OrderConfirmationContent() {
@@ -94,6 +94,7 @@ function OrderConfirmationContent() {
         setOrder(response)
         setError('')
       } catch (err) {
+        console.error('Failed to load order:', err)
         setError('Unable to load order details')
       } finally {
         setLoading(false)
@@ -119,7 +120,7 @@ function OrderConfirmationContent() {
           }
         }
       } catch (error) {
-        console.warn('Auto-request notifications failed:', error.message)
+        console.warn('Auto-request notifications failed silently:', error)
       }
     }
 
@@ -135,7 +136,7 @@ function OrderConfirmationContent() {
 
   const handleGoHome = () => {
     reset()
-    router.push('/home')
+    router.push('/select-category')
   }
 
   const handleShareOrderId = async () => {
@@ -143,6 +144,7 @@ function OrderConfirmationContent() {
       await navigator.clipboard.writeText(ticketNumber)
       toast.success('Order ID copied to clipboard!')
     } catch (err) {
+      console.error('Failed to copy Order ID:', err)
       toast.error('Failed to copy Order ID')
     }
   }
@@ -422,7 +424,7 @@ function OrderConfirmationContent() {
                 >
                   <Share2 size={12} className="text-[var(--theme-text-secondary)]" />
                   <span className="text-[9px] text-[var(--theme-text-secondary)] uppercase tracking-wider font-bold">
-                    Share
+                    Copy Order ID
                   </span>
                 </button>
               </div>
@@ -512,18 +514,12 @@ function OrderConfirmationContent() {
               <h3 className="text-[10px] uppercase tracking-[0.14em] text-[var(--theme-text-tertiary)] font-extrabold">
                 Next Steps
               </h3>
-              {/* Dot Indicators */}
-              <div className="flex gap-1.5">
-                <div className="w-1.5 h-1.5 rounded-full bg-[var(--theme-text-primary)]"></div>
-                <div className="w-1.5 h-1.5 rounded-full bg-[var(--theme-border-strong)]"></div>
-                <div className="w-1.5 h-1.5 rounded-full bg-[var(--theme-border-strong)]"></div>
-              </div>
             </div>
 
             {/* Horizontal Timeline Row */}
             <div className="grid grid-cols-3 gap-6">
 
-              {/* Step 1 - Active */}
+              {/* Step 1 */}
               <div className="flex flex-col items-start">
                 <div className="flex items-center gap-3 mb-2.5">
                   <div className="w-8 h-8 rounded-full bg-[var(--theme-text-primary)] text-[var(--theme-bg)] flex items-center justify-center text-[12px] font-black">
@@ -538,10 +534,10 @@ function OrderConfirmationContent() {
                 </p>
               </div>
 
-              {/* Step 2 - Inactive */}
-              <div className="flex flex-col items-start opacity-45">
+              {/* Step 2 */}
+              <div className="flex flex-col items-start">
                 <div className="flex items-center gap-3 mb-2.5">
-                  <div className="w-8 h-8 rounded-full border-2 border-[var(--theme-border-strong)] text-[var(--theme-text-tertiary)] flex items-center justify-center text-[12px] font-black">
+                  <div className="w-8 h-8 rounded-full bg-[var(--theme-text-primary)] text-[var(--theme-bg)] flex items-center justify-center text-[12px] font-black">
                     02
                   </div>
                   <h4 className="text-[13px] font-extrabold text-[var(--theme-text-primary)]">
@@ -549,14 +545,14 @@ function OrderConfirmationContent() {
                   </h4>
                 </div>
                 <p className="text-[11px] text-[var(--theme-text-secondary)] leading-relaxed pl-1">
-                  Precision OEM parts are selected from the inventory.
+                  Precision premium parts are selected from the inventory.
                 </p>
               </div>
 
-              {/* Step 3 - Inactive */}
-              <div className="flex flex-col items-start opacity-45">
+              {/* Step 3 */}
+              <div className="flex flex-col items-start">
                 <div className="flex items-center gap-3 mb-2.5">
-                  <div className="w-8 h-8 rounded-full border-2 border-[var(--theme-border-strong)] text-[var(--theme-text-tertiary)] flex items-center justify-center text-[12px] font-black">
+                  <div className="w-8 h-8 rounded-full bg-[var(--theme-text-primary)] text-[var(--theme-bg)] flex items-center justify-center text-[12px] font-black">
                     03
                   </div>
                   <h4 className="text-[13px] font-extrabold text-[var(--theme-text-primary)]">

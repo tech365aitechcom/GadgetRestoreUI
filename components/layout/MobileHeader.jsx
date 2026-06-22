@@ -16,10 +16,13 @@ export default function MobileHeader({
   const router = useRouter()
   const pathname = usePathname()
 
-  // Define back navigation mapping
+  // Define back navigation mapping.
+  // NOTE: /select-model is intentionally absent — it uses router.back() so that
+  // both the normal flow (select-brand → select-model) and the products flow
+  // (products → select-model) return to the correct previous page via history.
   const backNavigation = {
-    '/select-brand': '/home',
-    '/select-model': '/select-brand',
+    '/select-category': '/',
+    '/select-brand': '/',
     '/select-symptoms': '/select-model',
     '/select-tier': '/select-symptoms',
     '/select-mode': '/select-tier',

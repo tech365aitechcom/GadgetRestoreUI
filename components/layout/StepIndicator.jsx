@@ -12,7 +12,7 @@ export default function StepIndicator({ currentStep, totalSteps = 5 }) {
 
   // Auto-detect current step based on pathname if not provided
   const stepMapping = {
-    '/select-brand': 1,
+    '/select-category': 1,
     '/select-model': 2,
     '/select-symptoms': 3,
     '/select-tier': 4,

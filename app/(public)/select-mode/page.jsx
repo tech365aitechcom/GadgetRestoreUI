@@ -194,126 +194,126 @@ export default function SelectModePage() {
 
   return (
     <div className="min-h-[100svh] pb-40 lg:pb-[60px]" style={{ background: 'var(--color-content-bg)' }}>
-        <div className="p-4 lg:p-8 flex flex-col gap-6">
-          {/* Header */}
-          <div className="mb-0 lg:mb-4">
-            <button
-              onClick={() => router.push('/select-tier')}
-              className="hidden lg:inline-flex items-center gap-1.5 bg-transparent border-none cursor-pointer text-xs font-semibold mb-3.5 p-0 uppercase tracking-wider"
-              style={{ color: 'var(--color-content-text-secondary)' }}
-            >
-              <ArrowLeft size={14} /> Back to Part Quality
-            </button>
-            <h1 className="text-[26px] lg:text-[42px] font-black tracking-tight mb-2 lg:mb-3" style={{ color: 'var(--color-content-text)' }}>
-              Service Mode
-            </h1>
-            <p className="text-[13px] lg:text-base leading-relaxed lg:max-w-[640px]" style={{ color: 'var(--color-content-text-secondary)' }}>
-              <span className="lg:hidden">Choose how you would like your device to be handled.</span>
-              <span className="hidden lg:inline">Choose how you would like your device to be handled. Each option includes our signature multi-point inspection and certified repair guarantee.</span>
-            </p>
-          </div>
+      <div className="p-4 lg:p-8 flex flex-col gap-6">
+        {/* Header */}
+        <div className="mb-0 lg:mb-4">
+          <button
+            onClick={() => router.push('/select-tier')}
+            className="hidden lg:inline-flex items-center gap-1.5 bg-transparent border-none cursor-pointer text-xs font-semibold mb-3.5 p-0 uppercase tracking-wider"
+            style={{ color: 'var(--color-content-text-secondary)' }}
+          >
+            <ArrowLeft size={14} /> Back to Part Quality
+          </button>
+          <h1 className="text-[26px] lg:text-[42px] font-black tracking-tight mb-2 lg:mb-3" style={{ color: 'var(--color-content-text)' }}>
+            Service Mode
+          </h1>
+          <p className="text-[13px] lg:text-base leading-relaxed lg:max-w-[640px]" style={{ color: 'var(--color-content-text-secondary)' }}>
+            <span className="lg:hidden">Choose how you would like your device to be handled.</span>
+            <span className="hidden lg:inline">Choose how you would like your device to be handled. Each option includes our signature multi-point inspection and certified repair guarantee.</span>
+          </p>
+        </div>
 
-          {/* Service Mode Cards */}
-          <div className="flex flex-col lg:grid lg:grid-cols-2 gap-3 lg:gap-6 lg:mb-6">
-            {SERVICE_MODES.map((mode) => (
-              <ServiceModeCard
-                key={mode.id}
-                mode={mode}
-                isSelected={selectedMode === mode.id}
-                onSelect={handleModeSelect}
-              />
-            ))}
-          </div>
+        {/* Service Mode Cards */}
+        <div className="flex flex-col lg:grid lg:grid-cols-2 gap-3 lg:gap-6 lg:mb-6">
+          {SERVICE_MODES.map((mode) => (
+            <ServiceModeCard
+              key={mode.id}
+              mode={mode}
+              isSelected={selectedMode === mode.id}
+              onSelect={handleModeSelect}
+            />
+          ))}
+        </div>
 
-          {/* Promise Banner */}
-          <div className="rounded-3xl lg:rounded-[36px] overflow-hidden mt-4 lg:mt-0" style={{ background: 'var(--color-bg-300)', color: 'var(--color-btn-cta-bg)' }}>
-            {/* Mobile: Image on top */}
-            <img src="/images/service-mode-banner.png" alt="Precision Repair" className="w-full h-[140px] object-cover lg:hidden" />
+        {/* Promise Banner */}
+        <div className="rounded-3xl lg:rounded-[36px] overflow-hidden mt-4 lg:mt-0" style={{ background: 'var(--color-bg-300)', color: 'var(--color-btn-cta-bg)' }}>
+          {/* Mobile: Image on top */}
+          <img src="/images/service-mode-banner.png" alt="Precision Repair" className="w-full h-[140px] object-cover lg:hidden" />
 
-            {/* Desktop: Side-by-side layout */}
-            <div className="lg:flex lg:relative hidden">
-              <div className="p-12 flex-1 z-[2]">
-                <div className="text-[11px] font-bold tracking-widest uppercase mb-4" style={{ color: 'var(--color-text-mid)' }}>
-                  The Repair.co Promise
-                </div>
-                <h2 className="text-[32px] font-extrabold leading-tight mb-4 tracking-tight">
-                  Precision is not an option; it is our standard.
-                </h2>
-                <p className="text-[15px] leading-relaxed mb-8 max-w-[440px]" style={{ color: 'var(--color-text-soft)' }}>
-                  Every repair is backed by a comprehensive 12-month warranty. We use only OEM-grade components to ensure your hardware maintains its original factory integrity and performance metrics.
-                </p>
-                <div className="flex gap-6">
-                  <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wide">
-                    <BadgeCheck size={16} /> 12-Month Warranty
-                  </div>
-                  <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wide">
-                    <Cpu size={16} /> OEM Certified Parts
-                  </div>
-                </div>
+          {/* Desktop: Side-by-side layout */}
+          <div className="lg:flex lg:relative hidden">
+            <div className="p-12 flex-1 z-[2]">
+              <div className="text-[11px] font-bold tracking-widest uppercase mb-4" style={{ color: 'var(--color-text-mid)' }}>
+                The Repair.co Promise
               </div>
-              <div className="w-[35%] relative" style={{ background: 'rgba(0, 0, 0, 0.25)' }}>
-                <img
-                  src="/images/service-mode-banner.png"
-                  alt="Precision Repair"
-                  className="absolute top-7 bottom-7 left-7 right-7 w-[calc(100%-56px)] h-[calc(100%-56px)] object-cover rounded-3xl"
-                />
-              </div>
-            </div>
-
-            {/* Mobile: Content below image */}
-            <div className="p-6 lg:hidden">
-              <h2 className="text-xl font-extrabold leading-tight mb-3 tracking-tight">
+              <h2 className="text-[32px] font-extrabold leading-tight mb-4 tracking-tight">
                 Precision is not an option; it is our standard.
               </h2>
-              <p className="text-[13px] leading-relaxed mb-5" style={{ color: 'var(--color-text-soft)' }}>
-                Every repair is backed by a comprehensive 12-month warranty with OEM-grade components.
+              <p className="text-[15px] leading-relaxed mb-8 max-w-[440px]" style={{ color: 'var(--color-text-soft)' }}>
+                Every repair is backed by a comprehensive 3-month warranty. We use only premium components to ensure your hardware maintains its original factory integrity and performance metrics.
               </p>
-              <div className="flex gap-4 flex-wrap">
-                <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wide">
-                  <BadgeCheck size={14} /> 12-Month Warranty
+              <div className="flex gap-6">
+                <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wide">
+                  <BadgeCheck size={16} /> 3-Month Warranty
                 </div>
-                <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wide">
-                  <Cpu size={14} /> OEM Certified Parts
+                <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wide">
+                  <Cpu size={16} /> Premium Parts
                 </div>
               </div>
             </div>
+            <div className="w-[35%] relative" style={{ background: 'rgba(0, 0, 0, 0.25)' }}>
+              <img
+                src="/images/service-mode-banner.png"
+                alt="Precision Repair"
+                className="absolute top-7 bottom-7 left-7 right-7 w-[calc(100%-56px)] h-[calc(100%-56px)] object-cover rounded-3xl"
+              />
+            </div>
           </div>
 
-          {/* Remarks */}
-          <RemarksField value={remarksText} onChange={setRemarksText} />
+          {/* Mobile: Content below image */}
+          <div className="p-6 lg:hidden">
+            <h2 className="text-xl font-extrabold leading-tight mb-3 tracking-tight">
+              Precision is not an option; it is our standard.
+            </h2>
+            <p className="text-[13px] leading-relaxed mb-5" style={{ color: 'var(--color-text-soft)' }}>
+              Every repair is backed by a comprehensive 3-month warranty with Premium grade components.
+            </p>
+            <div className="flex gap-4 flex-wrap">
+              <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wide">
+                <BadgeCheck size={14} /> 3-Month Warranty
+              </div>
+              <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wide">
+                <Cpu size={14} /> Premium Parts
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/* Mobile Sticky Bottom Bar */}
-        <div
-          className="fixed lg:hidden left-0 right-0 flex items-center justify-between gap-3 p-3 z-[90] border-t shadow-sm"
+        {/* Remarks */}
+        <RemarksField value={remarksText} onChange={setRemarksText} />
+      </div>
+
+      {/* Mobile Sticky Bottom Bar */}
+      <div
+        className="fixed lg:hidden left-0 right-0 flex items-center justify-between gap-3 p-3 z-[90] border-t shadow-sm"
+        style={{
+          bottom: 'calc(var(--nav-height) + env(safe-area-inset-bottom, 0px))',
+          background: 'var(--color-content-surface)',
+          borderColor: 'var(--color-content-border)',
+        }}
+      >
+        <div>
+          <span className="block text-[10px] font-bold uppercase tracking-wide" style={{ color: 'var(--color-content-text-secondary)' }}>
+            Service Mode
+          </span>
+          <span className="text-[13px] font-extrabold" style={{ color: 'var(--color-content-text)' }}>
+            {SERVICE_MODES.find(m => m.id === selectedMode)?.label || 'Select Mode'}
+          </span>
+        </div>
+        <button
+          onClick={handleContinue}
+          disabled={!selectedMode}
+          className="h-11 px-5 border-none rounded-[var(--radius-btn)] font-bold text-[13px] flex items-center gap-1.5 transition-all duration-150"
           style={{
-            bottom: 'calc(var(--nav-height) + env(safe-area-inset-bottom, 0px))',
-            background: 'var(--color-content-surface)',
-            borderColor: 'var(--color-content-border)',
+            background: selectedMode ? 'var(--color-accent)' : 'var(--color-content-border)',
+            color: selectedMode ? '#fff' : 'var(--color-content-text-secondary)',
+            cursor: selectedMode ? 'pointer' : 'not-allowed',
+            opacity: selectedMode ? 1 : 0.6,
           }}
         >
-          <div>
-            <span className="block text-[10px] font-bold uppercase tracking-wide" style={{ color: 'var(--color-content-text-secondary)' }}>
-              Service Mode
-            </span>
-            <span className="text-[13px] font-extrabold" style={{ color: 'var(--color-content-text)' }}>
-              {SERVICE_MODES.find(m => m.id === selectedMode)?.label || 'Select Mode'}
-            </span>
-          </div>
-          <button
-            onClick={handleContinue}
-            disabled={!selectedMode}
-            className="h-11 px-5 border-none rounded-[var(--radius-btn)] font-bold text-[13px] flex items-center gap-1.5 transition-all duration-150"
-            style={{
-              background: selectedMode ? 'var(--color-accent)' : 'var(--color-content-border)',
-              color: selectedMode ? '#fff' : 'var(--color-content-text-secondary)',
-              cursor: selectedMode ? 'pointer' : 'not-allowed',
-              opacity: selectedMode ? 1 : 0.6,
-            }}
-          >
-            View Pricing <ChevronRight size={14} />
-          </button>
-        </div>
+          View Pricing <ChevronRight size={14} />
+        </button>
       </div>
+    </div>
   );
 }

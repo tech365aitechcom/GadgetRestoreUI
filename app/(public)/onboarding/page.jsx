@@ -32,7 +32,7 @@ export default function OnboardingPage() {
     const checkAccess = async () => {
       const isApp = Capacitor.isNativePlatform();
       if (!isApp) {
-        router.replace('/home');
+        router.replace('/');
         return;
       }
 
@@ -45,7 +45,7 @@ export default function OnboardingPage() {
       }
 
       if (hasSeen === 'true') {
-        router.replace('/home');
+        router.replace('/');
       } else {
         setMounted(true);
       }
@@ -77,7 +77,7 @@ export default function OnboardingPage() {
         localStorage.setItem('has_seen_onboarding', 'true');
       }
     }
-    router.replace('/home');
+    router.replace('/');
   };
 
   if (!mounted) return null;

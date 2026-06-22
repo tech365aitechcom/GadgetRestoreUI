@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, Bell, ChevronDown } from 'lucide-react'
+import { ArrowLeft, ChevronDown } from 'lucide-react'
 import { useBooking } from '@/context/BookingContext'
 import slotService from '@/services/slot.service'
 import serviceCentreService from '@/services/serviceCentre.service'
@@ -590,17 +590,6 @@ export default function SchedulePage() {
                     </div>
                   </>
                 )}
-              </div>
-
-              <div className='w-full h-[240px] rounded-2xl overflow-hidden relative' style={{ background: 'var(--color-content-card)', border: '1px solid var(--color-content-border)' }}>
-                {/* Static Map Background mimicking image */}
-                <img
-                  src='/images/service-center-placeholder.png'
-                  alt='Service Center Map'
-                  className='absolute inset-0 w-full h-full object-cover opacity-55 filter grayscale'
-                />
-                {/* Center dot */}
-                <div className='absolute top-1/2 left-1/2 w-4 h-4 rounded-full transform -translate-x-1/2 -translate-y-1/2 shadow-md' style={{ background: 'var(--color-accent)' }}></div>
               </div>
             </div>
           </div>

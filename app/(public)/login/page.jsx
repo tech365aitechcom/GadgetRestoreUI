@@ -109,7 +109,7 @@ export default function LoginPage() {
   }
 
   const handleSkip = () => {
-    router.push('/home')
+    router.push('/')
   }
 
   return (
