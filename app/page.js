@@ -29,6 +29,7 @@ import {
   Search,
   Package,
   Send,
+  User,
   Users,
   Menu,
   X,
@@ -72,6 +73,89 @@ function AnimatedCounter({ target, duration = 1200, decimals = 0 }) {
   return <>{decimals > 0 ? count.toFixed(decimals) : count}</>
 }
 
+const REVIEWS_DATA = [
+  {
+    name: 'Kunal Sharma',
+    location: 'Gurgaon',
+    rating: 5,
+    text: 'My iPhone 14 screen was badly damaged, and Gadget Restore fixed it within a day. The pickup and delivery service was seamless, and the phone looks as good as new.',
+    initials: 'KS',
+    bg: 'linear-gradient(135deg, #FF6B6B 0%, #FF8E53 100%)',
+  },
+  {
+    name: 'Priya Mehta',
+    location: 'Delhi',
+    rating: 5,
+    text: 'Excellent service and very professional technicians. They kept me updated throughout the repair process and delivered exactly as promised.',
+    initials: 'PM',
+    bg: 'linear-gradient(135deg, #4E65FF 0%, #92EFFD 100%)',
+  },
+  {
+    name: 'Avni Verma',
+    location: 'Noida',
+    rating: 5,
+    text: "I was worried about my MacBook's motherboard issue, but the team diagnosed and repaired it quickly. Honest pricing and great customer support.",
+    initials: 'AV',
+    bg: 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)',
+  },
+  {
+    name: 'Yamini Kapoor',
+    location: 'Faridabad',
+    rating: 5,
+    text: 'The doorstep pickup service saved me so much time. My phone had a charging issue, and Gadget Restore fixed it perfectly. Highly recommended!',
+    initials: 'YK',
+    bg: 'linear-gradient(135deg, #FC466B 0%, #3F5EFB 100%)',
+  },
+  {
+    name: 'Nikhil Gupta',
+    location: 'Ghaziabad',
+    rating: 5,
+    text: "Fast turnaround, transparent communication, and quality repair work. It's rare to find a repair service this reliable.",
+    initials: 'NG',
+    bg: 'linear-gradient(135deg, #7F00FF 0%, #E100FF 100%)',
+  },
+  {
+    name: 'Kavita Arora',
+    location: 'Delhi NCR',
+    rating: 5,
+    text: 'My iPhone had water damage and I thought it was beyond repair. The team recovered the device and all my important data. Extremely satisfied.',
+    initials: 'KA',
+    bg: 'linear-gradient(135deg, #ff007f 0%, #7f00ff 100%)',
+  },
+  {
+    name: 'Harsh Malhotra',
+    location: 'Gurgaon',
+    rating: 5,
+    text: 'What impressed me most was their professionalism. No hidden charges, clear diagnosis, and excellent repair quality.',
+    initials: 'HM',
+    bg: 'linear-gradient(135deg, #3a7bd5 0%, #3a6073 100%)',
+  },
+  {
+    name: 'Mallaica Bhatia',
+    location: 'Noida',
+    rating: 5,
+    text: "I've used Gadget Restore twice now for phone and laptop repairs. Both experiences were smooth, affordable, and hassle-free.",
+    initials: 'MB',
+    bg: 'linear-gradient(135deg, #d33f49 0%, #d7c0d0 100%)',
+  },
+  {
+    name: 'Nitish Singh',
+    location: 'South Delhi',
+    rating: 5,
+    text: "My phone had severe network issues that multiple shops couldn't fix. Gadget Restore resolved it within 24 hours. Outstanding technical expertise.",
+    initials: 'NS',
+    bg: 'linear-gradient(135deg, #00b4db 0%, #0083b0 100%)',
+  },
+  {
+    name: 'Kashish Khanna',
+    location: 'Gurugram',
+    rating: 4,
+    text: 'Great customer service and genuine care for customers. The repair quality exceeded my expectations, and the device has been working flawlessly ever since.',
+    initials: 'KK',
+    bg: 'linear-gradient(135deg, #f12711 0%, #f5af19 100%)',
+  },
+]
+
 export default function SplashOrLandingPage() {
   const router = useRouter()
   const [mounted, setMounted] = useState(false)
@@ -81,6 +165,15 @@ export default function SplashOrLandingPage() {
   // Web Landing Page state
   const [activeFaq, setActiveFaq] = useState(0) // Open first one by default as shown in Figma
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [currentReviewIndex, setCurrentReviewIndex] = useState(0)
+
+  useEffect(() => {
+    if (!mounted || isNativeApp) return
+    const timer = setInterval(() => {
+      setCurrentReviewIndex((prev) => (prev + 1) % REVIEWS_DATA.length)
+    }, 6000)
+    return () => clearInterval(timer)
+  }, [mounted, isNativeApp])
   const [timeDropdownOpen, setTimeDropdownOpen] = useState(false)
   const [timeDropdownRect, setTimeDropdownRect] = useState(null)
   const timeButtonRef = useRef(null)
@@ -1454,32 +1547,79 @@ export default function SplashOrLandingPage() {
               </div>
             </h2>
 
-            <div className='bg-[#FAF9FF] border border-zinc-100 rounded-[32px] p-8 lg:p-10 shadow-sm relative overflow-hidden'>
-              <div className='flex items-center gap-4 mb-6'>
-                <img
-                  src='/images/pragya.png'
-                  alt='Julia Robertson'
-                  className='w-12 h-12 rounded-full object-cover border border-zinc-100'
-                />
-                <div>
-                  <h4 className='font-extrabold tracking-wide text-zinc-900 text-xs'>
-                    Julia Robertson
-                  </h4>
-                  <p className='text-[10px] text-zinc-400 font-bold tracking-wider mt-0.5'>
-                    Happy Clients
+            <div className='bg-[#FAF9FF] border border-zinc-100 rounded-[32px] p-8 lg:p-10 shadow-sm relative overflow-hidden min-h-[340px] flex flex-col justify-between transition-all duration-300'>
+              <div>
+                <div className='flex items-center justify-between mb-6'>
+                  <div className='flex items-center gap-4'>
+                    <div className='w-12 h-12 rounded-full bg-white border border-zinc-200 flex items-center justify-center text-zinc-500 shadow-sm shrink-0'>
+                      <User size={18} className='text-zinc-600' />
+                    </div>
+                    <div>
+                      <h4 className='font-extrabold tracking-wide text-zinc-900 text-xs'>
+                        {REVIEWS_DATA[currentReviewIndex].name}
+                      </h4>
+                      <p className='text-[10px] text-zinc-400 font-bold tracking-wider mt-0.5'>
+                        {REVIEWS_DATA[currentReviewIndex].location}
+                      </p>
+                    </div>
+                  </div>
+                  <div className='flex gap-0.5 text-amber-400'>
+                    {Array.from({ length: REVIEWS_DATA[currentReviewIndex].rating }, (_, i) => `star-${i}`).map((key) => (
+                      <Star key={key} size={14} fill='currentColor' className='fill-amber-400 text-amber-400' />
+                    ))}
+                    {REVIEWS_DATA[currentReviewIndex].rating < 5 && (
+                      <Star size={14} className='text-zinc-200' />
+                    )}
+                  </div>
+                </div>
+                <div className='min-h-[120px] flex items-center mb-4'>
+                  <p
+                    key={currentReviewIndex}
+                    className='text-sm text-zinc-600 italic leading-relaxed animate-fadeIn'
+                  >
+                    "{REVIEWS_DATA[currentReviewIndex].text}"
                   </p>
                 </div>
               </div>
-              <p className='text-xs text-zinc-600 italic leading-relaxed mb-6'>
-                "The level of professionalism and technical skill at TechFix Pro
-                is unmatched. They fixed my iPad screen in under two hours, and
-                it looks brand new. I highly recommend them to anyone looking
-                for quality repairs."
-              </p>
-              <div className='flex gap-1 text-amber-400'>
-                {Array.from({ length: 5 }, (_, i) => `star-${i}`).map((key) => (
-                  <Star key={key} size={14} fill='currentColor' />
-                ))}
+
+              {/* Slider Dots & Arrow Navigation */}
+              <div className='flex items-center justify-between pt-4 border-t border-zinc-100'>
+                <div className='flex gap-1.5 overflow-x-auto max-w-[70%] py-1'>
+                  {REVIEWS_DATA.map((_, idx) => (
+                    <button
+                      key={`dot-${idx}`}
+                      type='button'
+                      onClick={() => setCurrentReviewIndex(idx)}
+                      className={`w-1.5 h-1.5 rounded-full transition-all duration-300 shrink-0 ${idx === currentReviewIndex ? 'bg-black w-4' : 'bg-zinc-200 hover:bg-zinc-300'
+                        }`}
+                      aria-label={`Go to review ${idx + 1}`}
+                    />
+                  ))}
+                </div>
+                <div className='flex gap-1.5'>
+                  <button
+                    type='button'
+                    onClick={() =>
+                      setCurrentReviewIndex(
+                        (prev) => (prev - 1 + REVIEWS_DATA.length) % REVIEWS_DATA.length
+                      )
+                    }
+                    className='w-7 h-7 rounded-full border border-zinc-200 flex items-center justify-center text-zinc-600 hover:bg-zinc-50 hover:text-black hover:border-zinc-400 active:scale-90 transition-all cursor-pointer'
+                    aria-label='Previous review'
+                  >
+                    <ChevronDown size={14} className='rotate-90' />
+                  </button>
+                  <button
+                    type='button'
+                    onClick={() =>
+                      setCurrentReviewIndex((prev) => (prev + 1) % REVIEWS_DATA.length)
+                    }
+                    className='w-7 h-7 rounded-full border border-zinc-200 flex items-center justify-center text-zinc-600 hover:bg-zinc-50 hover:text-black hover:border-zinc-400 active:scale-90 transition-all cursor-pointer'
+                    aria-label='Next review'
+                  >
+                    <ChevronDown size={14} className='-rotate-90' />
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -1614,23 +1754,20 @@ export default function SplashOrLandingPage() {
             “
           </div>
           <p className='text-base lg:text-xl font-medium italic text-zinc-200 leading-relaxed mb-8'>
-            "TechFix Pro saved my business laptop after a coffee spill. They
-            recovered all my sensitive data and had me back up and running
-            within 24 hours. Professional, transparent, and absolutely worth
-            every penny."
+            "Trusted, professional, and incredibly convenient. Gadget Restore repaired my iPhone within a day and delivered it back looking brand new. The entire process was transparent and hassle-free."
           </p>
           <div className='flex justify-center gap-1 mb-4 text-amber-400'>
             {Array.from({ length: 5 }, (_, i) => `footer-star-${i}`).map(
               (key) => (
-                <Star key={key} size={14} fill='currentColor' />
+                <Star key={key} size={14} fill='currentColor' className='fill-amber-400 text-amber-400' />
               ),
             )}
           </div>
           <h4 className='font-extrabold tracking-widest text-xs text-white'>
-            Sarah Jenkins
+            Aditya Sharma
           </h4>
           <span className='text-[10px] text-zinc-500 tracking-wider block mt-1'>
-            Managing Director, Studio J
+            Gurgaon
           </span>
         </div>
       </section>
