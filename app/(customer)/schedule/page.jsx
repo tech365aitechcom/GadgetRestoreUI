@@ -45,8 +45,7 @@ function DesktopCalendar({ selectedDate, setSelectedDate, availableDates, setSel
     return `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`
   })()
 
-  // Fixed cell size adjusted for better balance on desktop while keeping square grids
-  const CELL = 44
+  const CELL = 46
   const GAP = 6
   const gridWidth = CELL * 7 + GAP * 6
 
@@ -87,7 +86,7 @@ function DesktopCalendar({ selectedDate, setSelectedDate, availableDates, setSel
           >→</button>
         </div>
 
-        {/* Calendar body — fixed-width grid left-aligned inside the card */}
+        {/* Calendar body — fixed-width grid centered inside the card */}
         <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           {/* Day headers */}
           <div style={{ display: 'grid', gridTemplateColumns: `repeat(7, ${CELL}px)`, gap: GAP, marginBottom: 8, width: gridWidth }}>
@@ -243,7 +242,6 @@ export default function SchedulePage() {
         setIsLoading(true)
         setError('')
 
-        // Fetch 30 days range for calendar view
         const data = await slotService.getAvailableSlotsForNextDays(30, selectedServiceCentre._id)
         if (data && typeof data === 'object') {
           const parsedDates = Object.entries(data).map(([dateStr, slots]) => {
@@ -259,7 +257,6 @@ export default function SchedulePage() {
           parsedDates.sort((a, b) => new Date(a.date) - new Date(b.date))
           setAvailableDates(parsedDates)
 
-          // If the currently selected date is not in the new dates list, default to first date
           if (!parsedDates.some(d => d.date === selectedDate)) {
             if (parsedDates.length > 0) {
               setSelectedDate(parsedDates[0].date)
@@ -293,7 +290,6 @@ export default function SchedulePage() {
     }
   }
 
-  // Find the selected date object to render its slots
   const selectedDateObj = availableDates.find((d) => d.date === selectedDate)
   const timeSlots = selectedDateObj?.slots || []
 
@@ -303,7 +299,6 @@ export default function SchedulePage() {
           MOBILE VIEW (<1024px)
           ════════════════════════════════════════════════════════════════ */}
       <div className='home-mobile lg:hidden min-h-[100svh] relative overflow-hidden' style={{ background: 'var(--color-content-card)' }}>
-        {/* Content */}
         <div className='relative z-10 pb-[100px]' style={{ background: 'var(--color-content-bg)' }}>
           <div className='px-5 pt-6 pb-4'>
             <h1 className='text-2xl font-black tracking-tight uppercase leading-tight mb-1' style={{ color: 'var(--color-content-text)' }}>
@@ -340,7 +335,7 @@ export default function SchedulePage() {
                     key={idx}
                     onClick={() => {
                       setSelectedDate(d.date)
-                      setSelectedTimeSlot(null) // reset time slot on date change
+                      setSelectedTimeSlot(null)
                       setError('')
                     }}
                     className={`flex-shrink-0 w-[72px] py-3 rounded-2xl flex flex-col items-center justify-center transition-all ${isSelected
@@ -352,24 +347,9 @@ export default function SchedulePage() {
                       border: isSelected ? '1px solid var(--color-content-text)' : '1px solid var(--color-content-border)',
                     }}
                   >
-                    <span
-                      className='text-[11px] font-bold'
-                      style={{ color: 'var(--color-content-text-secondary)' }}
-                    >
-                      {dayLabel}
-                    </span>
-                    <span
-                      className='text-2xl font-black mt-0.5 mb-0.5'
-                      style={{ color: 'var(--color-content-text)' }}
-                    >
-                      {dateLabel}
-                    </span>
-                    <span
-                      className='text-[11px] font-bold'
-                      style={{ color: 'var(--color-content-text-secondary)' }}
-                    >
-                      {monthLabel}
-                    </span>
+                    <span className='text-[11px] font-bold' style={{ color: 'var(--color-content-text-secondary)' }}>{dayLabel}</span>
+                    <span className='text-2xl font-black mt-0.5 mb-0.5' style={{ color: 'var(--color-content-text)' }}>{dateLabel}</span>
+                    <span className='text-[11px] font-bold' style={{ color: 'var(--color-content-text-secondary)' }}>{monthLabel}</span>
                   </button>
                 )
               })}
@@ -519,79 +499,94 @@ export default function SchedulePage() {
               </div>
             )}
 
-            <div className='flex items-center justify-between mb-6'>
-              <h3 className='text-sm font-bold uppercase tracking-wider flex items-center gap-2' style={{ color: 'var(--color-content-text)' }}>
-                📅 SELECT DATE
-              </h3>
-            </div>
-
-            {/* Desktop Calendar View */}
-            <div className='mb-8'>
-              <DesktopCalendar
-                selectedDate={selectedDate}
-                setSelectedDate={setSelectedDate}
-                availableDates={availableDates}
-                setSelectedTimeSlot={setSelectedTimeSlot}
-                setError={setError}
-                isLoading={isLoading}
-              />
-            </div>
-
-            <div className='flex items-center justify-between mb-6'>
-              <h3 className='text-sm font-bold uppercase tracking-wider flex items-center gap-2' style={{ color: 'var(--color-content-text)' }}>
-                🕒 PREFERRED TIME SLOT
-              </h3>
-            </div>
-
-            <div className='grid grid-cols-4 gap-4 mb-12'>
-              {isLoading ? (
-                <>
-                  {[0, 1, 2, 3].map(i => (
-                    <div key={i} className="skeleton h-14 rounded-xl animate-pulse bg-gray-200" />
-                  ))}
-                </>
-              ) : timeSlots.length > 0 ? (
-                timeSlots.map((t, idx) => {
-                  const isSelected = selectedTimeSlot === t.time
-                  const isAvailable = t.available !== false
-                  return (
-                    <button
-                      key={idx}
-                      disabled={!isAvailable}
-                      onClick={() => {
-                        setSelectedTimeSlot(t.time)
-                        setError('')
-                      }}
-                      className='h-14 rounded-xl text-xs font-bold transition-all border-2'
-                      style={{
-                        background: !isAvailable
-                          ? 'var(--color-content-bg)'
-                          : isSelected
-                            ? 'var(--color-content-card)'
-                            : 'var(--color-content-bg)',
-                        borderColor: !isAvailable
-                          ? 'transparent'
-                          : isSelected
-                            ? 'var(--color-content-text)'
-                            : 'transparent',
-                        color: !isAvailable
-                          ? 'var(--color-content-border)'
-                          : isSelected
-                            ? 'var(--color-content-text)'
-                            : 'var(--color-content-text-secondary)',
-                        cursor: !isAvailable ? 'not-allowed' : 'pointer',
-                        opacity: !isAvailable ? 0.4 : 1,
-                      }}
-                    >
-                      {t.time}
-                    </button>
-                  )
-                })
-              ) : (
-                <div className='col-span-4 text-center text-sm py-8' style={{ color: 'var(--color-content-text-secondary)' }}>
-                  No slots available for this date.
+            {/* Combined Calendar and Time Slots Wrapper Centered to Use Space Balancedly */}
+            <div className='max-w-[1000px] mx-auto flex flex-col xl:flex-row gap-10 items-start mb-12 w-full'>
+              
+              {/* Calendar Column */}
+              <div className='flex-shrink-0'>
+                <div className='flex items-center justify-between mb-4'>
+                  <h3 className='text-sm font-bold uppercase tracking-wider flex items-center gap-2' style={{ color: 'var(--color-content-text)' }}>
+                    📅 SELECT DATE
+                  </h3>
                 </div>
-              )}
+                <DesktopCalendar
+                  selectedDate={selectedDate}
+                  setSelectedDate={setSelectedDate}
+                  availableDates={availableDates}
+                  setSelectedTimeSlot={setSelectedTimeSlot}
+                  setError={setError}
+                  isLoading={isLoading}
+                />
+              </div>
+
+              {/* Time Slots Column */}
+              <div className='flex-1 w-full'>
+                <div className='flex items-center justify-between mb-4'>
+                  <h3 className='text-sm font-bold uppercase tracking-wider flex items-center gap-2' style={{ color: 'var(--color-content-text)' }}>
+                    🕒 PREFERRED TIME SLOT
+                  </h3>
+                </div>
+
+                {/* Styled Card Container wrapping the slot grid */}
+                <div 
+                  className='w-full rounded-[24px] p-6 max-w-[480px]' 
+                  style={{ 
+                    background: 'var(--color-content-card)', 
+                    border: '1px solid var(--theme-border-strong)' 
+                  }}
+                >
+                  <div className='grid grid-cols-2 gap-4 w-full'>
+                    {isLoading ? (
+                      <>
+                        {[0, 1, 2, 3].map(i => (
+                          <div key={i} className="skeleton h-14 rounded-xl animate-pulse bg-gray-200" />
+                        ))}
+                      </>
+                    ) : timeSlots.length > 0 ? (
+                      timeSlots.map((t, idx) => {
+                        const isSelected = selectedTimeSlot === t.time
+                        const isAvailable = t.available !== false
+                        return (
+                          <button
+                            key={idx}
+                            disabled={!isAvailable}
+                            onClick={() => {
+                              setSelectedTimeSlot(t.time)
+                              setError('')
+                            }}
+                            className='h-14 rounded-xl text-xs font-bold transition-all border-2'
+                            style={{
+                              background: !isAvailable
+                                ? 'var(--color-content-bg)'
+                                : isSelected
+                                  ? 'var(--color-content-text)'
+                                  : 'var(--theme-bg-300)',
+                              borderColor: !isAvailable
+                                ? 'transparent'
+                                : isSelected
+                                  ? 'var(--color-content-text)'
+                                  : 'transparent',
+                              color: !isAvailable
+                                ? 'var(--color-content-border)'
+                                : isSelected
+                                  ? 'var(--color-content-bg)'
+                                  : 'var(--color-content-text-secondary)',
+                              cursor: !isAvailable ? 'not-allowed' : 'pointer',
+                              opacity: !isAvailable ? 0.4 : 1,
+                            }}
+                          >
+                            {t.time}
+                          </button>
+                        )
+                      })
+                    ) : (
+                      <div className='col-span-2 text-left text-sm py-4' style={{ color: 'var(--color-content-text-secondary)' }}>
+                        No slots available for this date.
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
             </div>
 
             <button
