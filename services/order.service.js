@@ -167,6 +167,8 @@ export const orderService = {
   },
 
   async downloadInvoice(ticketNumber) {
+    // Keep using direct binary download for invoice for now
+    // TODO: Migrate to S3 pre-signed URLs like confirmation
     return downloadDocument(
       `/customer/orders/${encodeURIComponent(ticketNumber)}/invoice/download`,
       `Invoice-${ticketNumber}.pdf`,
@@ -174,10 +176,83 @@ export const orderService = {
   },
 
   async downloadConfirmation(ticketNumber) {
-    return downloadDocument(
-      `/customer/orders/${encodeURIComponent(ticketNumber)}/confirmation/download`,
-      `Order-Confirmation-${ticketNumber}.pdf`,
-    );
+    try {
+      // Get PDF data from backend (as base64 data URL or S3 URL)
+      const response = await api.get(`/customer/orders/${encodeURIComponent(ticketNumber)}/confirmation/download`);
+      const downloadUrl = response.data?.data?.downloadUrl || response.data?.downloadUrl;
+      const filename = response.data?.data?.filename || `Order-Confirmation-${ticketNumber}.pdf`;
+
+      if (!downloadUrl) {
+        throw new Error('Download URL not received from server');
+      }
+
+      // Check if it's a data URL (base64) or regular URL
+      const isDataUrl = downloadUrl.startsWith('data:');
+      const isNativeMobile = Capacitor.isNativePlatform();
+
+      if (isNativeMobile) {
+        let base64Data;
+
+        if (isDataUrl) {
+          // Extract base64 from data URL
+          base64Data = downloadUrl.split(',')[1];
+        } else {
+          // Fetch from URL and convert to base64
+          const pdfResponse = await fetch(downloadUrl);
+          const blob = await pdfResponse.blob();
+          base64Data = await blobToBase64(blob);
+        }
+
+        const sanitizedFilename = filename.replace(/[^a-zA-Z0-9.-]/g, '_');
+        const result = await Filesystem.writeFile({
+          path: sanitizedFilename,
+          data: base64Data,
+          directory: Directory.Cache,
+        });
+
+        const platform = Capacitor.getPlatform();
+        if (platform === 'android') {
+          await Share.share({
+            title: filename,
+            url: result.uri,
+            dialogTitle: 'Open PDF with',
+          });
+        } else if (platform === 'ios') {
+          await Share.share({
+            title: filename,
+            url: result.uri,
+          });
+        }
+      } else {
+        // Web browser
+        if (isDataUrl) {
+          // Create blob from data URL and trigger download
+          const base64Data = downloadUrl.split(',')[1];
+          const byteCharacters = atob(base64Data);
+          const byteNumbers = new Array(byteCharacters.length);
+          for (let i = 0; i < byteCharacters.length; i++) {
+            byteNumbers[i] = byteCharacters.charCodeAt(i);
+          }
+          const byteArray = new Uint8Array(byteNumbers);
+          const blob = new Blob([byteArray], { type: 'application/pdf' });
+
+          const url = window.URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = filename;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          setTimeout(() => window.URL.revokeObjectURL(url), 100);
+        } else {
+          // Regular URL - open in new tab
+          window.open(downloadUrl, '_blank');
+        }
+      }
+    } catch (error) {
+      console.error('[downloadConfirmation] Error:', error);
+      throw error;
+    }
   },
 
   async downloadWarranty(ticketNumber) {
