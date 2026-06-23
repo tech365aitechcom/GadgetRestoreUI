@@ -1445,9 +1445,9 @@ export default function SelectSymptomsPage() {
           display: flex;
           align-items: center;
           justify-content: center;
-          width: 80px;
-          height: 80px;
-          border-radius: 14px;
+          width: 100px;
+          height: 100px;
+          border-radius: 16px;
           background: var(--color-content-bg);
           color: var(--color-content-text-secondary);
           flex-shrink: 0;
@@ -1470,16 +1470,16 @@ export default function SelectSymptomsPage() {
           width: 100%;
           height: 100%;
           object-fit: contain;
-          transform: scale(1.42);
+          transform: scale(1.55);
           transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .symptom-card:hover .symptom-icon-img {
-          transform: scale(1.58) rotate(3deg);
+          transform: scale(1.72) rotate(3deg);
         }
-        
+
         .symptom-card.selected .symptom-icon-img {
-          transform: scale(1.58);
+          transform: scale(1.72);
         }
 
         @media (max-width: 1023px) {
@@ -1488,18 +1488,18 @@ export default function SelectSymptomsPage() {
             border-radius: 12px !important;
           }
           .symptom-icon-container {
-            width: 54px;
-            height: 54px;
-            border-radius: 10px;
+            width: 68px;
+            height: 68px;
+            border-radius: 12px;
           }
           .symptom-icon-img {
-            transform: scale(1.35);
+            transform: scale(1.48);
           }
           .symptom-card:hover .symptom-icon-img {
-            transform: scale(1.45);
+            transform: scale(1.62);
           }
           .symptom-card.selected .symptom-icon-img {
-            transform: scale(1.45);
+            transform: scale(1.62);
           }
         }
       `}</style>
