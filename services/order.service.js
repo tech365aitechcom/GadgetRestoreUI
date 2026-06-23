@@ -5,8 +5,19 @@ import { Browser } from '@capacitor/browser';
 import { Share } from '@capacitor/share';
 
 async function downloadDocument(path, filename) {
-  const response = await api.get(path, { responseType: 'blob' });
-  const blob = response.data;
+  const response = await api.get(path, { responseType: 'arraybuffer' });
+
+  // Validate we got actual PDF data (PDF files start with %PDF)
+  const buffer = response.data;
+  console.log('[Download] Response size:', buffer.byteLength, 'bytes, filename:', filename);
+
+  if (!buffer || buffer.byteLength < 100) {
+    console.error('[Download] Response too small to be a valid PDF:', buffer?.byteLength);
+    throw new Error('Invalid PDF received from server');
+  }
+
+  // Create blob from arraybuffer — guarantees we have the raw binary, not gzip
+  const blob = new Blob([buffer], { type: 'application/pdf' });
 
   // Check if we're running on a native mobile platform (iOS or Android)
   const isNativeMobile = Capacitor.isNativePlatform();
