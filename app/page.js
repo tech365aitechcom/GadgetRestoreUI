@@ -35,6 +35,7 @@ import {
   X,
 } from 'lucide-react'
 import { useBooking } from '@/context/BookingContext'
+import { submitSupportContact } from '@/lib/api'
 
 // Helper function to get progress label
 function getProgressLabel(progress) {
@@ -185,6 +186,8 @@ export default function SplashOrLandingPage() {
     time: '',
     service: '',
   })
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitMessage, setSubmitMessage] = useState(null)
 
   // Booking Context
   const { reset, setCategory, setBrand } = useBooking()
@@ -325,13 +328,48 @@ export default function SplashOrLandingPage() {
     router.push('/select-category')
   }
 
-  const handleFormSubmit = (e) => {
+  const handleFormSubmit = async (e) => {
     e.preventDefault()
-    if (globalThis.window !== undefined) {
-      localStorage.setItem('gr_authenticated_phone', formData.phone)
-      sessionStorage.setItem('gr_login_phone', formData.phone)
+    setIsSubmitting(true)
+    setSubmitMessage(null)
+
+    try {
+      const result = await submitSupportContact(formData)
+
+      // Show success message
+      setSubmitMessage({
+        type: 'success',
+        text: result.data?.message || 'Thank you! Our support team will call you back shortly.',
+      })
+
+      // Reset form after successful submission
+      setFormData({
+        name: '',
+        email: '',
+        phone: '',
+        date: '',
+        time: '',
+        service: '',
+      })
+
+      // Auto-hide success message after 8 seconds
+      setTimeout(() => {
+        setSubmitMessage(null)
+      }, 8000)
+    } catch (error) {
+      // Show error message
+      setSubmitMessage({
+        type: 'error',
+        text: error.message || 'Failed to submit. Please try again or call us directly.',
+      })
+
+      // Auto-hide error message after 6 seconds
+      setTimeout(() => {
+        setSubmitMessage(null)
+      }, 6000)
+    } finally {
+      setIsSubmitting(false)
     }
-    handleBookNowCTA()
   }
 
   if (!mounted) return null
@@ -1273,13 +1311,29 @@ export default function SplashOrLandingPage() {
         <div className='py-24 px-8 lg:px-24 bg-[#07080e] flex flex-col justify-center text-white relative'>
           <div className='max-w-[480px]'>
             <span className='text-[10px] font-bold uppercase tracking-[0.25em] text-zinc-400 block mb-2'>
-              WANT TO
+              NEED HELP?
             </span>
             <h2 className='text-3xl lg:text-5xl font-black tracking-tight mb-8'>
-              Make a Appointment
+              Contact Support
             </h2>
+            <p className='text-xs text-zinc-400 leading-relaxed mb-6'>
+              Fill out the form below and our support team will call you back at <span className='text-white font-bold'>+91 8800003785</span>
+            </p>
 
             <form onSubmit={handleFormSubmit} className='space-y-6'>
+              {/* Success/Error Message */}
+              {submitMessage && (
+                <div
+                  className={`p-4 rounded-lg border ${
+                    submitMessage.type === 'success'
+                      ? 'bg-emerald-900/20 border-emerald-500/30 text-emerald-300'
+                      : 'bg-red-900/20 border-red-500/30 text-red-300'
+                  } text-xs leading-relaxed animate-fadeIn`}
+                >
+                  {submitMessage.text}
+                </div>
+              )}
+
               <div className='grid grid-cols-1 sm:grid-cols-2 gap-5'>
                 <input
                   type='text'
@@ -1456,9 +1510,20 @@ export default function SplashOrLandingPage() {
               <div className='pt-2'>
                 <button
                   type='submit'
-                  className='w-48 h-12 bg-white text-black font-extrabold tracking-wider text-xs uppercase hover:bg-zinc-200 active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center'
+                  disabled={isSubmitting}
+                  className='w-56 h-12 bg-white text-black font-extrabold tracking-wider text-xs uppercase hover:bg-zinc-200 active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed'
                 >
-                  APPOINTMENT
+                  {isSubmitting ? (
+                    <>
+                      <div className='w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin' />
+                      SUBMITTING...
+                    </>
+                  ) : (
+                    <>
+                      <Phone size={16} />
+                      REQUEST CALLBACK
+                    </>
+                  )}
                 </button>
               </div>
             </form>
