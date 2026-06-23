@@ -39,91 +39,164 @@ function DesktopCalendar({ selectedDate, setSelectedDate, availableDates, setSel
 
   const monthName = currentMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
 
+  // Today's date string for past-date detection
+  const todayStr = (() => {
+    const t = new Date()
+    return `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`
+  })()
+
+  // Fixed cell size adjusted for better balance on desktop while keeping square grids
+  const CELL = 44
+  const GAP = 6
+  const gridWidth = CELL * 7 + GAP * 6
+
   return (
-    <div className='w-full p-6 rounded-3xl' style={{ background: 'var(--color-content-card)', border: '1px solid var(--color-content-border)' }}>
-      <div className='flex items-center justify-between mb-6'>
-        <button
-          type='button'
-          onClick={handlePrevMonth}
-          className='w-10 h-10 rounded-full flex items-center justify-center transition-colors hover:bg-[var(--color-content-bg)]'
-          style={{ border: '1px solid var(--color-content-border)', color: 'var(--color-content-text)' }}
-        >
-          ←
-        </button>
-        <h4 className='text-base font-extrabold uppercase tracking-wider' style={{ color: 'var(--color-content-text)' }}>
-          {monthName}
-        </h4>
-        <button
-          type='button'
-          onClick={handleNextMonth}
-          className='w-10 h-10 rounded-full flex items-center justify-center transition-colors hover:bg-[var(--color-content-bg)]'
-          style={{ border: '1px solid var(--color-content-border)', color: 'var(--color-content-text)' }}
-        >
-          →
-        </button>
-      </div>
+    <div className='w-full flex justify-start'>
+      <div 
+        className='w-full rounded-[24px] overflow-hidden' 
+        style={{ 
+          background: 'var(--color-content-card)', 
+          border: '1px solid var(--theme-border-strong)',
+          maxWidth: `${gridWidth + 32}px` 
+        }}
+      >
+        {/* Month navigation */}
+        <div className='flex items-center justify-between px-4 py-3' style={{ borderBottom: '1px solid var(--theme-border-strong)' }}>
+          <button
+            type='button'
+            onClick={handlePrevMonth}
+            style={{
+              width: 28, height: 28, borderRadius: 8, flexShrink: 0,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              background: 'var(--theme-bg-400)', border: 'none',
+              color: 'var(--theme-text-mid)', fontSize: 13, cursor: 'pointer',
+            }}
+          >←</button>
+          <h4 style={{ fontSize: 13, fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--color-content-text)' }}>
+            {monthName}
+          </h4>
+          <button
+            type='button'
+            onClick={handleNextMonth}
+            style={{
+              width: 28, height: 28, borderRadius: 8, flexShrink: 0,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              background: 'var(--theme-bg-400)', border: 'none',
+              color: 'var(--theme-text-mid)', fontSize: 13, cursor: 'pointer',
+            }}
+          >→</button>
+        </div>
 
-      <div className='grid grid-cols-7 gap-2 mb-2 text-center text-xs font-black uppercase tracking-wider' style={{ color: 'var(--color-content-text-secondary)' }}>
-        {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => (
-          <div key={d} className='py-1'>{d}</div>
-        ))}
-      </div>
+        {/* Calendar body — fixed-width grid left-aligned inside the card */}
+        <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          {/* Day headers */}
+          <div style={{ display: 'grid', gridTemplateColumns: `repeat(7, ${CELL}px)`, gap: GAP, marginBottom: 8, width: gridWidth }}>
+            {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map(d => (
+              <div key={d} style={{ width: CELL, textAlign: 'center', fontSize: 11, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.08em', padding: '3px 0', color: 'var(--theme-text-muted)' }}>
+                {d}
+              </div>
+            ))}
+          </div>
 
-      <div className='grid grid-cols-7 gap-2'>
-        {isLoading ? (
-          // Skeleton loader for calendar dates
-          Array.from({ length: 35 }).map((_, idx) => (
-            <div
-              key={`skeleton-${idx}`}
-              className='aspect-square rounded-2xl animate-pulse'
-              style={{ background: 'var(--color-content-border)', opacity: 0.2 }}
-            />
-          ))
-        ) : (
-          days.map((day, idx) => {
-            if (!day) return <div key={`empty-${idx}`} className='aspect-square' />
+          {/* Date cells — fixed CELL×CELL squares */}
+          <div style={{ display: 'grid', gridTemplateColumns: `repeat(7, ${CELL}px)`, gap: GAP, width: gridWidth }}>
+            {isLoading ? (
+              Array.from({ length: 35 }).map((_, idx) => (
+                <div
+                  key={`skeleton-${idx}`}
+                  className='animate-pulse'
+                  style={{ width: CELL, height: CELL, borderRadius: 7, background: 'var(--theme-bg-400)', opacity: 0.35 }}
+                />
+              ))
+            ) : (
+              days.map((day, idx) => {
+                if (!day) return <div key={`empty-${idx}`} style={{ width: CELL, height: CELL }} />
 
-            const year = day.getFullYear()
-            const month = String(day.getMonth() + 1).padStart(2, '0')
-            const date = String(day.getDate()).padStart(2, '0')
-            const dateStr = `${year}-${month}-${date}`
+                const year = day.getFullYear()
+                const month = String(day.getMonth() + 1).padStart(2, '0')
+                const date = String(day.getDate()).padStart(2, '0')
+                const dateStr = `${year}-${month}-${date}`
 
-            const dateData = availableDates.find(d => d.date === dateStr)
-            const hasSlots = !!dateData && dateData.slots.some(s => s.available)
-            const isSelected = selectedDate === dateStr
+                const isPast = dateStr < todayStr
+                const isToday = dateStr === todayStr
+                const dateData = availableDates.find(d => d.date === dateStr)
+                const hasSlots = !!dateData && dateData.slots.some(s => s.available)
+                const isSelected = selectedDate === dateStr
+                const isDisabled = isPast || !hasSlots
 
-            return (
-              <button
-                key={dateStr}
-                type='button'
-                disabled={!hasSlots}
-                onClick={() => {
-                  setSelectedDate(dateStr)
-                  setSelectedTimeSlot(null)
-                  setError('')
-                }}
-                className='aspect-square rounded-2xl flex flex-col items-center justify-center font-extrabold text-sm transition-all'
-                style={{
-                  border: isSelected ? '1px solid var(--color-content-text)' : '1px solid transparent',
-                  background: isSelected
-                    ? 'var(--color-content-text)'
-                    : hasSlots
-                      ? 'var(--color-content-bg)'
-                      : 'transparent',
-                  color: isSelected
-                    ? 'var(--color-content-bg)'
-                    : hasSlots
-                      ? 'var(--color-content-text)'
-                      : 'var(--color-content-border)',
-                  cursor: hasSlots ? 'pointer' : 'not-allowed',
-                  opacity: hasSlots ? 1 : 0.25,
-                }}
-              >
-                {day.getDate()}
-              </button>
-            )
-          })
-        )}
+                let bg = 'transparent'
+                let color = 'var(--theme-text-muted)'
+                let border = '1px solid transparent'
+                let opacity = 1
+                let cursor = 'default'
+
+                if (isSelected) {
+                  bg = 'var(--color-content-text)'
+                  color = 'var(--color-content-bg)'
+                  border = '1px solid var(--color-content-text)'
+                  cursor = 'pointer'
+                } else if (isPast) {
+                  color = 'var(--theme-text-muted)'
+                  opacity = 0.35
+                } else if (hasSlots) {
+                  bg = 'var(--theme-bg-300)'
+                  color = 'var(--theme-text-near-white)'
+                  border = '1px solid var(--theme-bg-200)'
+                  cursor = 'pointer'
+                } else {
+                  opacity = 0.4
+                }
+
+                if (isToday && !isSelected) {
+                  border = '1px solid var(--theme-text-mid)'
+                  if (!hasSlots) color = 'var(--theme-text-mid)'
+                }
+
+                return (
+                  <button
+                    key={dateStr}
+                    type='button'
+                    disabled={isDisabled}
+                    onClick={() => {
+                      if (!isDisabled) {
+                        setSelectedDate(dateStr)
+                        setSelectedTimeSlot(null)
+                        setError('')
+                      }
+                    }}
+                    style={{
+                      width: CELL,
+                      height: CELL,
+                      borderRadius: 7,
+                      background: bg,
+                      color,
+                      border,
+                      opacity,
+                      cursor,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontWeight: 700,
+                      fontSize: 13,
+                      transition: 'background 0.12s, color 0.12s',
+                      position: 'relative',
+                      padding: 0,
+                      flexShrink: 0,
+                    }}
+                  >
+                    {day.getDate()}
+                    {hasSlots && !isSelected && !isPast && (
+                      <span style={{
+                        position: 'absolute', bottom: 4, left: '50%', transform: 'translateX(-50%)',
+                        width: 4, height: 4, borderRadius: '50%', background: 'var(--color-accent)',
+                      }} />
+                    )}
+                  </button>
+                )
+              })
+            )}
+          </div>
+        </div>
       </div>
     </div>
   )
@@ -453,7 +526,7 @@ export default function SchedulePage() {
             </div>
 
             {/* Desktop Calendar View */}
-            <div className='mb-12'>
+            <div className='mb-8'>
               <DesktopCalendar
                 selectedDate={selectedDate}
                 setSelectedDate={setSelectedDate}
