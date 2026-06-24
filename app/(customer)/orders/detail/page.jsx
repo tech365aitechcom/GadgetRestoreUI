@@ -528,6 +528,12 @@ function OrderDetailContent() {
       // Show current step
       if (step.status === order.repairStatus) return true
 
+      // CANCELLED should never be shown as a future step
+      if (step.status === 'CANCELLED') return false
+
+      // If the current status is DELIVERED, there are no future steps
+      if (order.repairStatus === 'DELIVERED') return false
+
       // For future steps, only show the immediate next one
       const currentIndex = detailedTimeline.findIndex(
         (s) => s.status === order.repairStatus,
@@ -555,8 +561,14 @@ function OrderDetailContent() {
 
   // Render a detailed timeline step with expansion
   const renderDetailedTimelineStep = (step, index, isLast) => {
-    const isCompleted = isStatusCompleted(step.status)
-    const isCurrent = step.status === order.repairStatus
+    const isCompleted =
+      isStatusCompleted(step.status) ||
+      (step.status === 'DELIVERED' && order.repairStatus === 'DELIVERED') ||
+      (step.status === 'CANCELLED' && order.repairStatus === 'CANCELLED')
+    const isCurrent =
+      step.status === order.repairStatus &&
+      order.repairStatus !== 'DELIVERED' &&
+      order.repairStatus !== 'CANCELLED'
     const isFuture = !isCompleted && !isCurrent
     const timelineDetails = getTimelineDetails(step.status)
     const isExpanded = expandedSteps.has(step.status)
