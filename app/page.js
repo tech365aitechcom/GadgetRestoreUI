@@ -157,10 +157,13 @@ const REVIEWS_DATA = [
   },
 ]
 
+let hasShownSplashSession = false
+
 export default function SplashOrLandingPage() {
   const router = useRouter()
   const [mounted, setMounted] = useState(false)
   const [isNativeApp, setIsNativeApp] = useState(false)
+  const [showSplash, setShowSplash] = useState(!hasShownSplashSession)
   const [progress, setProgress] = useState(0)
 
   // Web Landing Page state
@@ -209,7 +212,7 @@ export default function SplashOrLandingPage() {
 
   // Smooth progress animation for Native Mobile Splash Page
   useEffect(() => {
-    if (!mounted || !isNativeApp) return
+    if (!mounted || !isNativeApp || !showSplash) return
 
     const duration = 2200 // 2.2 seconds
     const intervalTime = 20
@@ -226,11 +229,11 @@ export default function SplashOrLandingPage() {
     }, intervalTime)
 
     return () => clearInterval(timer)
-  }, [mounted, isNativeApp])
+  }, [mounted, isNativeApp, showSplash])
 
   // Navigate native app after splash completes
   useEffect(() => {
-    if (isNativeApp && progress >= 100) {
+    if (isNativeApp && progress >= 100 && showSplash) {
       const decideRoute = async () => {
         let hasSeen = 'false'
         try {
@@ -250,12 +253,17 @@ export default function SplashOrLandingPage() {
         console.log('[SPLASH] Navigating to:', targetRoute)
 
         setTimeout(() => {
-          router.push(targetRoute)
+          hasShownSplashSession = true
+          if (targetRoute === '/') {
+            setShowSplash(false)
+          } else {
+            router.push(targetRoute)
+          }
         }, 300)
       }
       decideRoute()
     }
-  }, [progress, isNativeApp, router])
+  }, [progress, isNativeApp, router, showSplash])
 
   // Handlers for Web Landing Page
   const handleFaqToggle = (index) => {
@@ -375,7 +383,7 @@ export default function SplashOrLandingPage() {
   if (!mounted) return null
 
   // ── RENDER NATIVE APP SPLASH PAGE ───────────────────────────────────────────
-  if (isNativeApp) {
+  if (isNativeApp && showSplash) {
     const activeDotIndex = Math.min(2, Math.floor(progress / 33.3))
     return (
       <div
@@ -574,7 +582,7 @@ export default function SplashOrLandingPage() {
       {/* ────────────────────────────────────────────────────────────────────────
           STICKY HEADER WRAPPER
           ──────────────────────────────────────────────────────────────────────── */}
-      <header className='fixed top-0 left-0 right-0 z-50 w-full bg-white shadow-sm transition-all duration-300'>
+      <header className='fixed top-0 left-0 right-0 z-50 w-full bg-white shadow-sm transition-all duration-300 landing-header'>
         {/* PROMOTIONAL TOP INFO HEADER BAR (Figma Header - Desktop only) */}
         <div className={`hidden md:flex bg-[#FAF9FF] border-b border-zinc-100 py-4 px-6 lg:px-20 justify-between items-center gap-4 text-xs transition-all duration-300 ${isScrolled ? 'h-0 py-0 overflow-hidden opacity-0 border-b-0' : 'h-auto opacity-100'}`}>
           <div className='flex items-center'>
@@ -746,11 +754,11 @@ export default function SplashOrLandingPage() {
           </div>
         </nav>
       </header>
-      <div className='h-[73px] md:h-[144px] shrink-0' />
+      <div className='h-[73px] md:h-[144px] shrink-0 landing-spacer' />
 
       {/* 📱 Mobile Menu Sliding Drawer Overlay */}
       {mobileMenuOpen && (
-        <div className='lg:hidden fixed inset-x-0 top-[73px] z-50 bg-white/98 backdrop-blur-md flex flex-col justify-between px-6 py-10 border-t border-zinc-100 shadow-2xl h-[calc(100vh-73px)]'>
+        <div className='lg:hidden fixed inset-x-0 top-[73px] z-50 bg-white/98 backdrop-blur-md flex flex-col justify-between px-6 py-10 border-t border-zinc-100 shadow-2xl h-[calc(100vh-73px)] landing-mobile-menu'>
           <div className='flex flex-col gap-6 font-black text-sm tracking-widest text-zinc-500'>
             <a
               href='#hero'
@@ -900,9 +908,9 @@ export default function SplashOrLandingPage() {
               key={item.title}
               type='button'
               onClick={() => handleCategorySelect(item.slotKey)}
-              className='bg-[#FAF9FF] border border-zinc-100/50 p-8 rounded-3xl group hover:border-[var(--color-accent)]/20 hover:bg-[#F2EFFD] transition-all duration-300 cursor-pointer w-full text-left'
+              className='bg-[#FAF9FF] border border-zinc-100/50 p-8 rounded-3xl group hover:border-[var(--color-accent)]/20 hover:bg-[#F2EFFD] transition-all duration-300 cursor-pointer w-full text-center'
             >
-              <div className='w-32 h-32 rounded-2xl overflow-hidden mb-6 shrink-0 flex items-center justify-center bg-white'>
+              <div className='w-62 h-62 rounded-2xl overflow-hidden mb-6 mx-auto flex items-center justify-center bg-white shadow-sm'>
                 <img
                   src={item.image}
                   alt={item.title}

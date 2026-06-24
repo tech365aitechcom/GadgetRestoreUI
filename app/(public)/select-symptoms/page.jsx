@@ -20,6 +20,7 @@ import {
   Info,
   Check,
   BadgeCheck,
+  Phone,
 } from 'lucide-react'
 
 import catalogueService from '@/services/catalogue.service'
@@ -118,6 +119,9 @@ export default function SelectSymptomsPage() {
   const isApple = brand?.name?.toLowerCase() === 'apple'
   const defaultImage = isApple ? '/images/default-apple.png' : '/images/default-android.png'
   const logoUrl = getBrandLogo(brand?.name, brand?.logo)
+
+  const catName = (category?.name || model?.categoryId?.name || '').toLowerCase()
+  const isIpadOrMac = catName === 'ipad' || catName === 'laptop'
 
 
   const [symptomsList, setSymptomsList] = useState([])
@@ -902,38 +906,78 @@ export default function SelectSymptomsPage() {
                 </div>
 
                 {/* CTA Button */}
-                <button
-                  onClick={handleContinue}
-                  disabled={selectedIds.length === 0}
-                  style={{
-                    width: '100%',
-                    height: 'var(--btn-height-primary)',
-                    background:
-                      selectedIds.length > 0
-                        ? 'var(--color-accent)'
-                        : 'var(--color-content-divider)',
-                    color:
-                      selectedIds.length > 0
-                        ? '#fff'
-                        : 'var(--color-content-text-secondary)',
-                    border: 'none',
-                    borderRadius: 'var(--radius-btn)',
-                    fontWeight: 700,
-                    fontSize: 14,
-                    cursor: selectedIds.length > 0 ? 'pointer' : 'not-allowed',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: 8,
-                    transition: 'all 0.2s ease',
-                    boxShadow:
-                      selectedIds.length > 0
-                        ? '0 4px 16px rgba(108,123,255,0.25)'
-                        : 'none',
-                  }}
-                >
-                  Continue to Pricing <ChevronRight size={16} />
-                </button>
+                {isIpadOrMac ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                    <div style={{ fontSize: 13, color: 'var(--color-content-text-secondary)', textAlign: 'center', lineHeight: 1.5 }}>
+                      For iPad, Tablet, Mac & PC repairs, please contact customer support directly.
+                    </div>
+                    <button
+                      onClick={() => window.location.href = 'tel:+918800003785'}
+                      disabled={selectedIds.length === 0}
+                      style={{
+                        width: '100%',
+                        height: 'var(--btn-height-primary)',
+                        background:
+                          selectedIds.length > 0
+                            ? 'var(--color-accent)'
+                            : 'var(--color-content-divider)',
+                        color:
+                          selectedIds.length > 0
+                            ? '#fff'
+                            : 'var(--color-content-text-secondary)',
+                        border: 'none',
+                        borderRadius: 'var(--radius-btn)',
+                        fontWeight: 700,
+                        fontSize: 14,
+                        cursor: selectedIds.length > 0 ? 'pointer' : 'not-allowed',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: 8,
+                        transition: 'all 0.2s ease',
+                        boxShadow:
+                          selectedIds.length > 0
+                            ? '0 4px 16px rgba(108,123,255,0.25)'
+                            : 'none',
+                      }}
+                    >
+                      <Phone size={16} /> Call +91 8800003785
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    onClick={handleContinue}
+                    disabled={selectedIds.length === 0}
+                    style={{
+                      width: '100%',
+                      height: 'var(--btn-height-primary)',
+                      background:
+                        selectedIds.length > 0
+                          ? 'var(--color-accent)'
+                          : 'var(--color-content-divider)',
+                      color:
+                        selectedIds.length > 0
+                          ? '#fff'
+                          : 'var(--color-content-text-secondary)',
+                      border: 'none',
+                      borderRadius: 'var(--radius-btn)',
+                      fontWeight: 700,
+                      fontSize: 14,
+                      cursor: selectedIds.length > 0 ? 'pointer' : 'not-allowed',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: 8,
+                      transition: 'all 0.2s ease',
+                      boxShadow:
+                        selectedIds.length > 0
+                          ? '0 4px 16px rgba(108,123,255,0.25)'
+                          : 'none',
+                    }}
+                  >
+                    Continue to Pricing <ChevronRight size={16} />
+                  </button>
+                )}
               </div>
             </div>
           </div>
@@ -1300,64 +1344,129 @@ export default function SelectSymptomsPage() {
             boxShadow: '0 -4px 10px rgba(0,0,0,0.04)',
           }}
         >
-          <div>
-            <span
-              style={{
-                display: 'block',
-                fontSize: 10,
-                fontWeight: 700,
-                color: 'var(--color-content-text-secondary)',
-                textTransform: 'uppercase',
-                letterSpacing: '0.05em',
-              }}
-            >
-              {selectedIds.length > 0
-                ? `${selectedIds.length} symptom${selectedIds.length === 1 ? '' : 's'} selected`
-                : 'No symptoms selected'}
-            </span>
-            <span
-              style={{
-                fontSize: 13,
-                fontWeight: 800,
-                color:
-                  selectedIds.length > 0
-                    ? 'var(--color-accent)'
-                    : 'var(--color-content-text)',
-              }}
-            >
-              {selectedIds.length > 0
-                ? 'Ready to continue ✓'
-                : 'Select at least one issue'}
-            </span>
-          </div>
-          <button
-            onClick={handleContinue}
-            disabled={selectedIds.length === 0}
-            style={{
-              height: 44,
-              padding: '0 24px',
-              background:
-                selectedIds.length > 0
-                  ? 'var(--color-accent)'
-                  : 'var(--color-content-divider)',
-              color:
-                selectedIds.length > 0
-                  ? '#fff'
-                  : 'var(--color-content-text-secondary)',
-              border: 'none',
-              borderRadius: 'var(--radius-btn)',
-              fontWeight: 700,
-              fontSize: 13,
-              cursor: selectedIds.length > 0 ? 'pointer' : 'not-allowed',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 6,
-              transition: 'all 0.15s ease',
-            }}
-          >
-            Continue <ChevronRight size={14} />
-          </button>
+          {isIpadOrMac ? (
+            <>
+              <div>
+                <span
+                  style={{
+                    display: 'block',
+                    fontSize: 10,
+                    fontWeight: 700,
+                    color: 'var(--color-content-text-secondary)',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em',
+                  }}
+                >
+                  {selectedIds.length > 0
+                    ? `${selectedIds.length} issue selected`
+                    : 'No symptoms selected'}
+                </span>
+                <span
+                  style={{
+                    fontSize: 13,
+                    fontWeight: 800,
+                    color:
+                      selectedIds.length > 0
+                        ? 'var(--color-accent)'
+                        : 'var(--color-content-text)',
+                  }}
+                >
+                  {selectedIds.length > 0
+                    ? '+91 8800003785'
+                    : 'Select at least one issue'}
+                </span>
+              </div>
+              <button
+                onClick={() => window.location.href = 'tel:+918800003785'}
+                disabled={selectedIds.length === 0}
+                style={{
+                  height: 44,
+                  padding: '0 20px',
+                  background:
+                    selectedIds.length > 0
+                      ? 'var(--color-accent)'
+                      : 'var(--color-content-divider)',
+                  color:
+                    selectedIds.length > 0
+                      ? '#fff'
+                      : 'var(--color-content-text-secondary)',
+                  border: 'none',
+                  borderRadius: 'var(--radius-btn)',
+                  fontWeight: 700,
+                  fontSize: 13,
+                  cursor: selectedIds.length > 0 ? 'pointer' : 'not-allowed',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 6,
+                  transition: 'all 0.15s ease',
+                }}
+              >
+                <Phone size={14} /> Call Support
+              </button>
+            </>
+          ) : (
+            <>
+              <div>
+                <span
+                  style={{
+                    display: 'block',
+                    fontSize: 10,
+                    fontWeight: 700,
+                    color: 'var(--color-content-text-secondary)',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em',
+                  }}
+                >
+                  {selectedIds.length > 0
+                    ? `${selectedIds.length} symptom${selectedIds.length === 1 ? '' : 's'} selected`
+                    : 'No symptoms selected'}
+                </span>
+                <span
+                  style={{
+                    fontSize: 13,
+                    fontWeight: 800,
+                    color:
+                      selectedIds.length > 0
+                        ? 'var(--color-accent)'
+                        : 'var(--color-content-text)',
+                  }}
+                >
+                  {selectedIds.length > 0
+                    ? 'Ready to continue ✓'
+                    : 'Select at least one issue'}
+                </span>
+              </div>
+              <button
+                onClick={handleContinue}
+                disabled={selectedIds.length === 0}
+                style={{
+                  height: 44,
+                  padding: '0 24px',
+                  background:
+                    selectedIds.length > 0
+                      ? 'var(--color-accent)'
+                      : 'var(--color-content-divider)',
+                  color:
+                    selectedIds.length > 0
+                      ? '#fff'
+                      : 'var(--color-content-text-secondary)',
+                  border: 'none',
+                  borderRadius: 'var(--radius-btn)',
+                  fontWeight: 700,
+                  fontSize: 13,
+                  cursor: selectedIds.length > 0 ? 'pointer' : 'not-allowed',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 6,
+                  transition: 'all 0.15s ease',
+                }}
+              >
+                Continue <ChevronRight size={14} />
+              </button>
+            </>
+          )}
         </div>
       </div>
 
