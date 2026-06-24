@@ -874,25 +874,25 @@ export default function SplashOrLandingPage() {
             {
               title: 'Phone Repair',
               desc: 'Expert screen and battery services for all major smartphone models.',
-              icon: <Smartphone size={22} />,
+              image: '/images/phone repair bg.png',
               slotKey: 'mobile',
             },
             {
               title: 'Desktop Repair',
               desc: 'Custom builds, hardware upgrades, and performance troubleshooting.',
-              icon: <Monitor size={22} />,
+              image: '/images/desktop repair bg.png',
               slotKey: 'desktop',
             },
             {
               title: 'Tablet Repair',
               desc: 'Professional iPad and Android tablet repairs including screen swaps.',
-              icon: <Tablet size={22} />,
+              image: '/images/tab repair bg.png',
               slotKey: 'ipad',
             },
             {
               title: 'Laptop Repair',
               desc: 'MacBook and PC laptop hardware maintenance and software fixes.',
-              icon: <Laptop size={22} />,
+              image: '/images/laptop reapir bg.png',
               slotKey: 'laptop',
             },
           ].map((item) => (
@@ -902,8 +902,12 @@ export default function SplashOrLandingPage() {
               onClick={() => handleCategorySelect(item.slotKey)}
               className='bg-[#FAF9FF] border border-zinc-100/50 p-8 rounded-3xl group hover:border-[var(--color-accent)]/20 hover:bg-[#F2EFFD] transition-all duration-300 cursor-pointer w-full text-left'
             >
-              <div className='w-12 h-12 rounded-2xl bg-white border border-zinc-100 flex items-center justify-center text-zinc-600 mb-6 group-hover:bg-black group-hover:text-white transition-colors duration-300'>
-                {item.icon}
+              <div className='w-32 h-32 rounded-2xl overflow-hidden mb-6 shrink-0 flex items-center justify-center bg-white'>
+                <img
+                  src={item.image}
+                  alt={item.title}
+                  className='w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 ease-out'
+                />
               </div>
               <h3 className='text-md font-extrabold tracking-wide text-zinc-900 mb-3'>
                 {item.title}
@@ -990,19 +994,19 @@ export default function SplashOrLandingPage() {
           <div className='w-full lg:w-1/2 relative pr-4 pb-4'>
             <div className='relative overflow-hidden rounded-[32px] border border-zinc-100 shadow-xl shadow-zinc-100'>
               <img
-                src='/images/expert-technicians.png'
+                src='/images/expert technician.png'
                 alt='Expert Technicians'
                 className='w-full h-auto object-cover max-h-[420px]'
               />
               {/* Overlapping Badge inside bottom right */}
-              <div className='absolute bottom-0 right-6 bg-black text-white px-6 py-5 rounded-2xl shadow-2xl flex flex-col justify-center min-w-[160px]'>
+              {/* <div className='absolute bottom-0 right-0 bg-black text-white px-6 py-5 rounded-2xl shadow-2xl flex flex-col justify-center min-w-[160px]'>
                 <span className='text-3xl font-black tracking-tight leading-none text-white'>
-                  15+
+                  9+
                 </span>
                 <span className='text-[9px] uppercase font-black text-zinc-400 mt-1 tracking-wider leading-tight'>
                   Years of Experience
                 </span>
-              </div>
+              </div> */}
             </div>
           </div>
 
@@ -1056,30 +1060,34 @@ export default function SplashOrLandingPage() {
             {
               title: 'Same Day Repair',
               desc: 'Most repairs completed within hours of drop-off.',
-              icon: <Clock size={22} />,
+              image: '/images/same day bg.png',
             },
             {
               title: '90-Day Warranty',
               desc: 'Peace of mind with our extensive parts and labor warranty.',
-              icon: <Award size={22} />,
+              image: '/images/3 month bg.png',
             },
             {
               title: 'Expert Team',
               desc: 'Certified professionals for every electronic niche.',
-              icon: <Users size={22} />,
+              image: '/images/expert team bg.png',
             },
             {
               title: 'Data Privacy',
               desc: 'Strict protocols to keep your personal data secure.',
-              icon: <ShieldCheck size={22} />,
+              image: '/images/data privacy bg.png',
             },
           ].map((item) => (
             <div
               key={item.title}
-              className='bg-white border border-zinc-100 p-8 rounded-[24px] flex flex-col items-center text-center shadow-sm hover:shadow-md transition-all duration-300 group min-h-[260px] justify-center'
+              className='bg-white border border-zinc-100 p-8 rounded-[24px] flex flex-col items-center text-center shadow-sm hover:shadow-md transition-all duration-300 group min-h-[280px] justify-center'
             >
-              <div className='w-14 h-14 rounded-full bg-[#FAF9FF] border border-zinc-50 flex items-center justify-center text-zinc-700 mb-6 shrink-0 group-hover:bg-zinc-950 group-hover:text-white transition-colors duration-300'>
-                {item.icon}
+              <div className='w-32 h-32 rounded-2xl overflow-hidden mb-6 shrink-0 flex items-center justify-center'>
+                <img
+                  src={item.image}
+                  alt={item.title}
+                  className='w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 ease-out'
+                />
               </div>
               <h4 className='text-sm font-black text-zinc-900 mb-3'>
                 {item.title}
@@ -1149,7 +1157,7 @@ export default function SplashOrLandingPage() {
           <div className='w-full lg:w-1/3 flex justify-center py-6 relative'>
             <div className='absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-96 bg-[var(--color-accent)]/5 rounded-full blur-3xl pointer-events-none'></div>
             <img
-              src='/images/Overlay+Border+Shadow.png'
+              src='/images/why choose us phone.png'
               alt='Expert Technician 3D Model Masterpiece'
               className='w-full max-w-[380px] h-auto object-contain hover:scale-105 transition-transform duration-500 drop-shadow-2xl'
             />
@@ -1292,7 +1300,222 @@ export default function SplashOrLandingPage() {
       </section>
 
       {/* ────────────────────────────────────────────────────────────────────────
-          9. INTERACTIVE BOOKING SCHEDULER SECTION (Dark Keyboard BG)
+          9. TRUSTED CLIENTS & FAQ ACCORDION SECTION
+          ──────────────────────────────────────────────────────────────────────── */}
+
+      <section className='py-24 px-6 lg:px-20 bg-[#FAF9FF] border-t border-zinc-100'>
+        <div className='flex flex-col lg:flex-row gap-16'>
+          {/* Left Column: Testimonial card */}
+          <div className='w-full lg:w-1/2'>
+            <h2 className='text-2xl font-black tracking-wider text-zinc-900 mb-8 flex items-center gap-3'>
+              Trusted Clients
+              <div className='w-5 h-5 rounded-full bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-500'>
+                <Check size={10} strokeWidth={4} />
+              </div>
+            </h2>
+
+            <div className='bg-[#FAF9FF] border border-zinc-100 rounded-[32px] p-8 lg:p-10 shadow-sm relative overflow-hidden min-h-[340px] flex flex-col justify-between transition-all duration-300'>
+              <div>
+                <div className='flex items-center justify-between mb-6'>
+                  <div className='flex items-center gap-4'>
+                    <div className='w-12 h-12 rounded-full bg-white border border-zinc-200 flex items-center justify-center text-zinc-500 shadow-sm shrink-0'>
+                      <User size={18} className='text-zinc-600' />
+                    </div>
+                    <div>
+                      <h4 className='font-extrabold tracking-wide text-zinc-900 text-xs'>
+                        {REVIEWS_DATA[currentReviewIndex].name}
+                      </h4>
+                      <p className='text-[10px] text-zinc-400 font-bold tracking-wider mt-0.5'>
+                        {REVIEWS_DATA[currentReviewIndex].location}
+                      </p>
+                    </div>
+                  </div>
+                  <div className='flex gap-0.5 text-amber-400'>
+                    {Array.from({ length: REVIEWS_DATA[currentReviewIndex].rating }, (_, i) => `star-${i}`).map((key) => (
+                      <Star key={key} size={14} fill='currentColor' className='fill-amber-400 text-amber-400' />
+                    ))}
+                    {REVIEWS_DATA[currentReviewIndex].rating < 5 && (
+                      <Star size={14} className='text-zinc-200' />
+                    )}
+                  </div>
+                </div>
+                <div className='min-h-[120px] flex items-center mb-4'>
+                  <p
+                    key={currentReviewIndex}
+                    className='text-sm text-zinc-600 italic leading-relaxed animate-fadeIn'
+                  >
+                    "{REVIEWS_DATA[currentReviewIndex].text}"
+                  </p>
+                </div>
+              </div>
+
+              {/* Slider Dots & Arrow Navigation */}
+              <div className='flex items-center justify-between pt-4 border-t border-zinc-100'>
+                <div className='flex gap-1.5 overflow-x-auto max-w-[70%] py-1'>
+                  {REVIEWS_DATA.map((_, idx) => (
+                    <button
+                      key={`dot-${idx}`}
+                      type='button'
+                      onClick={() => setCurrentReviewIndex(idx)}
+                      className={`w-1.5 h-1.5 rounded-full transition-all duration-300 shrink-0 ${idx === currentReviewIndex ? 'bg-black w-4' : 'bg-zinc-200 hover:bg-zinc-300'
+                        }`}
+                      aria-label={`Go to review ${idx + 1}`}
+                    />
+                  ))}
+                </div>
+                <div className='flex gap-1.5'>
+                  <button
+                    type='button'
+                    onClick={() =>
+                      setCurrentReviewIndex(
+                        (prev) => (prev - 1 + REVIEWS_DATA.length) % REVIEWS_DATA.length
+                      )
+                    }
+                    className='w-7 h-7 rounded-full border border-zinc-200 flex items-center justify-center text-zinc-600 hover:bg-zinc-50 hover:text-black hover:border-zinc-400 active:scale-90 transition-all cursor-pointer'
+                    aria-label='Previous review'
+                  >
+                    <ChevronDown size={14} className='rotate-90' />
+                  </button>
+                  <button
+                    type='button'
+                    onClick={() =>
+                      setCurrentReviewIndex((prev) => (prev + 1) % REVIEWS_DATA.length)
+                    }
+                    className='w-7 h-7 rounded-full border border-zinc-200 flex items-center justify-center text-zinc-600 hover:bg-zinc-50 hover:text-black hover:border-zinc-400 active:scale-90 transition-all cursor-pointer'
+                    aria-label='Next review'
+                  >
+                    <ChevronDown size={14} className='-rotate-90' />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Right Column: FAQ accordions */}
+          <div id='faq' className='w-full lg:w-1/2'>
+            <h2 className='text-2xl font-black tracking-wider text-zinc-900 mb-8 flex items-center gap-3'>
+              FAQ
+              <div className='w-5 h-5 rounded-full bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-500'>
+                <HelpCircle size={10} strokeWidth={4} />
+              </div>
+            </h2>
+
+            <div className='flex flex-col gap-4'>
+              {[
+                {
+                  q: 'How long does a typical repair take?',
+                  a: 'Most repairs, like screen or battery replacements, are completed within 1 to 2 hours. More complex issues involving motherboard repair or data recovery may take 24–48 hours depending on the damage.',
+                },
+                {
+                  q: 'Do you provide a warranty?',
+                  a: 'Yes, every repair is covered under our structural 90-day warranty, guarding against any defect in materials and craftsmanship.',
+                },
+                {
+                  q: 'Do I need an appointment?',
+                  a: 'No, you can simply drop by our workshop during business hours, but booking online guarantees priority check-in.',
+                },
+                {
+                  q: 'What devices do you repair?',
+                  a: 'We specialize in the repair and service of the entire Apple product ecosystem, including iPhones, iPads, MacBooks, iMacs, and Apple Watches.',
+                },
+              ].map((faq, idx) => {
+                const isOpen = activeFaq === idx
+                return (
+                  <div
+                    key={faq.q}
+                    className='bg-white border border-zinc-100 rounded-2xl overflow-hidden transition-all duration-300'
+                  >
+                    <button
+                      onClick={() => handleFaqToggle(idx)}
+                      className='w-full p-5 text-left flex justify-between items-center font-extrabold text-xs tracking-wider text-zinc-950 hover:bg-zinc-50 transition-colors cursor-pointer'
+                    >
+                      <span>{faq.q}</span>
+                      <ChevronDown
+                        size={14}
+                        className={`text-zinc-500 transform transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}
+                      />
+                    </button>
+                    {isOpen && (
+                      <div className='p-5 pt-0 text-xs text-zinc-500 leading-relaxed border-t border-zinc-50 bg-[#FAF9FF] animate-fadeIn'>
+                        {faq.a}
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        </div>
+      </section>
+      {/* ────────────────────────────────────────────────────────────────────────
+          10. WORKING PROCESS SECTION (Pure Coded Visual Timeline)
+          ──────────────────────────────────────────────────────────────────────── */}
+      <section
+        id='process'
+        className='py-28 px-6 lg:px-20 relative overflow-hidden flex flex-col items-center justify-center bg-cover bg-center'
+        style={{
+          backgroundImage:
+            "linear-gradient(rgba(11, 12, 22, 0.92), rgba(11, 12, 22, 0.92)), url('/images/service-tablet-repair.png')",
+        }}
+      >
+        <div className='text-center max-w-[600px] mx-auto mb-20 relative z-10'>
+          <h2 className='text-3xl font-black text-white'>Working Process</h2>
+          {/* Centered Wrench Divider */}
+          <div className='flex justify-center items-center gap-2 mt-4'>
+            <span className='w-8 h-[1px] bg-white/20'></span>
+            <Wrench size={12} className='text-zinc-400' />
+            <span className='w-8 h-[1px] bg-white/20'></span>
+          </div>
+        </div>
+
+        <div className='w-full mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-16 relative z-10'>
+          {[
+            {
+              step: '1',
+              icon: <Monitor size={22} className='text-white' />,
+              title: 'Damage Device',
+            },
+            {
+              step: '2',
+              icon: <Send size={22} className='text-white' />,
+              title: 'Send it to Us',
+            },
+            {
+              step: '3',
+              icon: <Settings size={22} className='text-white' />,
+              title: 'Repair Device',
+            },
+            {
+              step: '4',
+              icon: <RotateCcw size={22} className='text-white' />,
+              title: 'Quick Return',
+            },
+          ].map((item, idx) => (
+            <div
+              key={item.title}
+              className='flex flex-col items-center text-center group'
+            >
+              {/* Outer circle wrapper with 9 o'clock left-aligned overlapping numeric badge */}
+              <div className='relative mb-6'>
+                {/* Large Transparent Circle with Thin White Border */}
+                <div className='w-[110px] h-[110px] rounded-full border border-white/60 bg-transparent flex items-center justify-center relative transition-transform duration-300 group-hover:scale-105 group-hover:border-white cursor-pointer'>
+                  {item.icon}
+                </div>
+                {/* Overlapping Badge at 9 o'clock */}
+                <div className='absolute top-1/2 -translate-y-1/2 -left-3.5 w-7 h-7 rounded-full bg-white text-black font-black text-xs flex items-center justify-center shadow-lg'>
+                  {item.step}
+                </div>
+              </div>
+              <h3 className='font-extrabold text-sm text-white tracking-wide mt-2'>
+                {item.title}
+              </h3>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ────────────────────────────────────────────────────────────────────────
+          11. INTERACTIVE BOOKING SCHEDULER SECTION (Dark Keyboard BG)
           ──────────────────────────────────────────────────────────────────────── */}
       <section
         id='contact'
@@ -1324,11 +1547,10 @@ export default function SplashOrLandingPage() {
               {/* Success/Error Message */}
               {submitMessage && (
                 <div
-                  className={`p-4 rounded-lg border ${
-                    submitMessage.type === 'success'
-                      ? 'bg-emerald-900/20 border-emerald-500/30 text-emerald-300'
-                      : 'bg-red-900/20 border-red-500/30 text-red-300'
-                  } text-xs leading-relaxed animate-fadeIn`}
+                  className={`p-4 rounded-lg border ${submitMessage.type === 'success'
+                    ? 'bg-emerald-900/20 border-emerald-500/30 text-emerald-300'
+                    : 'bg-red-900/20 border-red-500/30 text-red-300'
+                    } text-xs leading-relaxed animate-fadeIn`}
                 >
                   {submitMessage.text}
                 </div>
@@ -1498,7 +1720,6 @@ export default function SplashOrLandingPage() {
                     <option value='MacBook/Laptop Repair'>
                       MacBook/Laptop Repair
                     </option>
-                    <option value='Console Repair'>Console Repair</option>
                   </select>
                   <ChevronDown
                     size={16}
@@ -1532,224 +1753,9 @@ export default function SplashOrLandingPage() {
       </section>
 
       {/* ────────────────────────────────────────────────────────────────────────
-          10. WORKING PROCESS SECTION (Pure Coded Visual Timeline)
-          ──────────────────────────────────────────────────────────────────────── */}
-      <section
-        id='process'
-        className='py-28 px-6 lg:px-20 relative overflow-hidden flex flex-col items-center justify-center bg-cover bg-center'
-        style={{
-          backgroundImage:
-            "linear-gradient(rgba(11, 12, 22, 0.92), rgba(11, 12, 22, 0.92)), url('/images/service-tablet-repair.png')",
-        }}
-      >
-        <div className='text-center max-w-[600px] mx-auto mb-20 relative z-10'>
-          <h2 className='text-3xl font-black text-white'>Working Process</h2>
-          {/* Centered Wrench Divider */}
-          <div className='flex justify-center items-center gap-2 mt-4'>
-            <span className='w-8 h-[1px] bg-white/20'></span>
-            <Wrench size={12} className='text-zinc-400' />
-            <span className='w-8 h-[1px] bg-white/20'></span>
-          </div>
-        </div>
-
-        <div className='w-full mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-16 relative z-10'>
-          {[
-            {
-              step: '1',
-              icon: <Monitor size={22} className='text-white' />,
-              title: 'Damage Device',
-            },
-            {
-              step: '2',
-              icon: <Send size={22} className='text-white' />,
-              title: 'Send it to Us',
-            },
-            {
-              step: '3',
-              icon: <Settings size={22} className='text-white' />,
-              title: 'Repair Device',
-            },
-            {
-              step: '4',
-              icon: <RotateCcw size={22} className='text-white' />,
-              title: 'Quick Return',
-            },
-          ].map((item, idx) => (
-            <div
-              key={item.title}
-              className='flex flex-col items-center text-center group'
-            >
-              {/* Outer circle wrapper with 9 o'clock left-aligned overlapping numeric badge */}
-              <div className='relative mb-6'>
-                {/* Large Transparent Circle with Thin White Border */}
-                <div className='w-[110px] h-[110px] rounded-full border border-white/60 bg-transparent flex items-center justify-center relative transition-transform duration-300 group-hover:scale-105 group-hover:border-white cursor-pointer'>
-                  {item.icon}
-                </div>
-                {/* Overlapping Badge at 9 o'clock */}
-                <div className='absolute top-1/2 -translate-y-1/2 -left-3.5 w-7 h-7 rounded-full bg-white text-black font-black text-xs flex items-center justify-center shadow-lg'>
-                  {item.step}
-                </div>
-              </div>
-              <h3 className='font-extrabold text-sm text-white tracking-wide mt-2'>
-                {item.title}
-              </h3>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ────────────────────────────────────────────────────────────────────────
-          11. TRUSTED CLIENTS & FAQ ACCORDION SECTION
-          ──────────────────────────────────────────────────────────────────────── */}
-      <section className='py-24 px-6 lg:px-20 bg-white border-t border-zinc-100'>
-        <div className='flex flex-col lg:flex-row gap-16'>
-          {/* Left Column: Testimonial card */}
-          <div className='w-full lg:w-1/2'>
-            <h2 className='text-2xl font-black tracking-wider text-zinc-900 mb-8 flex items-center gap-3'>
-              Trusted Clients
-              <div className='w-5 h-5 rounded-full bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-500'>
-                <Check size={10} strokeWidth={4} />
-              </div>
-            </h2>
-
-            <div className='bg-[#FAF9FF] border border-zinc-100 rounded-[32px] p-8 lg:p-10 shadow-sm relative overflow-hidden min-h-[340px] flex flex-col justify-between transition-all duration-300'>
-              <div>
-                <div className='flex items-center justify-between mb-6'>
-                  <div className='flex items-center gap-4'>
-                    <div className='w-12 h-12 rounded-full bg-white border border-zinc-200 flex items-center justify-center text-zinc-500 shadow-sm shrink-0'>
-                      <User size={18} className='text-zinc-600' />
-                    </div>
-                    <div>
-                      <h4 className='font-extrabold tracking-wide text-zinc-900 text-xs'>
-                        {REVIEWS_DATA[currentReviewIndex].name}
-                      </h4>
-                      <p className='text-[10px] text-zinc-400 font-bold tracking-wider mt-0.5'>
-                        {REVIEWS_DATA[currentReviewIndex].location}
-                      </p>
-                    </div>
-                  </div>
-                  <div className='flex gap-0.5 text-amber-400'>
-                    {Array.from({ length: REVIEWS_DATA[currentReviewIndex].rating }, (_, i) => `star-${i}`).map((key) => (
-                      <Star key={key} size={14} fill='currentColor' className='fill-amber-400 text-amber-400' />
-                    ))}
-                    {REVIEWS_DATA[currentReviewIndex].rating < 5 && (
-                      <Star size={14} className='text-zinc-200' />
-                    )}
-                  </div>
-                </div>
-                <div className='min-h-[120px] flex items-center mb-4'>
-                  <p
-                    key={currentReviewIndex}
-                    className='text-sm text-zinc-600 italic leading-relaxed animate-fadeIn'
-                  >
-                    "{REVIEWS_DATA[currentReviewIndex].text}"
-                  </p>
-                </div>
-              </div>
-
-              {/* Slider Dots & Arrow Navigation */}
-              <div className='flex items-center justify-between pt-4 border-t border-zinc-100'>
-                <div className='flex gap-1.5 overflow-x-auto max-w-[70%] py-1'>
-                  {REVIEWS_DATA.map((_, idx) => (
-                    <button
-                      key={`dot-${idx}`}
-                      type='button'
-                      onClick={() => setCurrentReviewIndex(idx)}
-                      className={`w-1.5 h-1.5 rounded-full transition-all duration-300 shrink-0 ${idx === currentReviewIndex ? 'bg-black w-4' : 'bg-zinc-200 hover:bg-zinc-300'
-                        }`}
-                      aria-label={`Go to review ${idx + 1}`}
-                    />
-                  ))}
-                </div>
-                <div className='flex gap-1.5'>
-                  <button
-                    type='button'
-                    onClick={() =>
-                      setCurrentReviewIndex(
-                        (prev) => (prev - 1 + REVIEWS_DATA.length) % REVIEWS_DATA.length
-                      )
-                    }
-                    className='w-7 h-7 rounded-full border border-zinc-200 flex items-center justify-center text-zinc-600 hover:bg-zinc-50 hover:text-black hover:border-zinc-400 active:scale-90 transition-all cursor-pointer'
-                    aria-label='Previous review'
-                  >
-                    <ChevronDown size={14} className='rotate-90' />
-                  </button>
-                  <button
-                    type='button'
-                    onClick={() =>
-                      setCurrentReviewIndex((prev) => (prev + 1) % REVIEWS_DATA.length)
-                    }
-                    className='w-7 h-7 rounded-full border border-zinc-200 flex items-center justify-center text-zinc-600 hover:bg-zinc-50 hover:text-black hover:border-zinc-400 active:scale-90 transition-all cursor-pointer'
-                    aria-label='Next review'
-                  >
-                    <ChevronDown size={14} className='-rotate-90' />
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Right Column: FAQ accordions */}
-          <div id='faq' className='w-full lg:w-1/2'>
-            <h2 className='text-2xl font-black tracking-wider text-zinc-900 mb-8 flex items-center gap-3'>
-              FAQ
-              <div className='w-5 h-5 rounded-full bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-500'>
-                <HelpCircle size={10} strokeWidth={4} />
-              </div>
-            </h2>
-
-            <div className='flex flex-col gap-4'>
-              {[
-                {
-                  q: 'How long does a typical repair take?',
-                  a: 'Most repairs, like screen or battery replacements, are completed within 1 to 2 hours. More complex issues involving motherboard repair or data recovery may take 24–48 hours depending on the damage.',
-                },
-                {
-                  q: 'Do you provide a warranty?',
-                  a: 'Yes, every repair is covered under our structural 90-day warranty, guarding against any defect in materials and craftsmanship.',
-                },
-                {
-                  q: 'Do I need an appointment?',
-                  a: 'No, you can simply drop by our workshop during business hours, but booking online guarantees priority check-in.',
-                },
-                {
-                  q: 'What devices do you repair?',
-                  a: 'We repair all models of smart phones, iPads/tablets, MacBooks/PCs, gaming consoles, and various phone accessories.',
-                },
-              ].map((faq, idx) => {
-                const isOpen = activeFaq === idx
-                return (
-                  <div
-                    key={faq.q}
-                    className='bg-white border border-zinc-100 rounded-2xl overflow-hidden transition-all duration-300'
-                  >
-                    <button
-                      onClick={() => handleFaqToggle(idx)}
-                      className='w-full p-5 text-left flex justify-between items-center font-extrabold text-xs tracking-wider text-zinc-950 hover:bg-zinc-50 transition-colors cursor-pointer'
-                    >
-                      <span>{faq.q}</span>
-                      <ChevronDown
-                        size={14}
-                        className={`text-zinc-500 transform transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}
-                      />
-                    </button>
-                    {isOpen && (
-                      <div className='p-5 pt-0 text-xs text-zinc-500 leading-relaxed border-t border-zinc-50 bg-[#FAF9FF] animate-fadeIn'>
-                        {faq.a}
-                      </div>
-                    )}
-                  </div>
-                )
-              })}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ────────────────────────────────────────────────────────────────────────
           12. TECH TIPS & NEWS SECTION
           ──────────────────────────────────────────────────────────────────────── */}
-      <section className='py-24 px-6 lg:px-20 bg-[#FAF9FF] border-t border-zinc-100'>
+      {/* <section className='py-24 px-6 lg:px-20 bg-[#FAF9FF] border-t border-zinc-100'>
         <div className='mb-16'>
           <h2 className='text-3xl font-black tracking-wider text-zinc-900 mb-2'>
             Tech Tips & News
@@ -1808,7 +1814,7 @@ export default function SplashOrLandingPage() {
             </div>
           ))}
         </div>
-      </section>
+      </section> */}
 
       {/* ────────────────────────────────────────────────────────────────────────
           13. FOOTER QUOTE CAROUSEL SECTION (Dark)
@@ -1840,10 +1846,10 @@ export default function SplashOrLandingPage() {
       {/* ────────────────────────────────────────────────────────────────────────
           MAIN SYSTEM FOOTER
           ──────────────────────────────────────────────────────────────────────── */}
-      <footer className='bg-black border-t border-white/5 py-12 px-6 lg:px-20 text-xs text-zinc-600 font-sans'>
+      <footer className='bg-black border-t border-white/5 py-12 px-4 lg:px-20 text-xs text-zinc-600 font-sans'>
         {/* Contact Info Row */}
-        <div className='max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 pb-10 mb-10 border-b border-white/5 text-zinc-400 text-[11px]'>
-          <div className='flex items-center justify-center md:justify-start gap-3'>
+        <div className='max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-6 lg:gap-8 pb-4 lg:pb-10 mb-4 lg:mb-10 border-b border-white/5 text-zinc-400 text-[11px]'>
+          <div className='flex items-center justify-start md:justify-start gap-3'>
             <div className='w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-[var(--color-accent)]'>
               <Clock size={14} />
             </div>
@@ -1857,7 +1863,7 @@ export default function SplashOrLandingPage() {
             </div>
           </div>
 
-          <div className='flex items-center justify-center md:justify-start gap-3'>
+          <div className='flex items-center justify-start md:justify-start gap-3'>
             <div className='w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-[var(--color-accent)]'>
               <Mail size={14} />
             </div>
@@ -1874,9 +1880,9 @@ export default function SplashOrLandingPage() {
             </div>
           </div>
 
-          <div className='flex items-center justify-center md:justify-start gap-3'>
+          <div className='flex items-center justify-start md:justify-start gap-3'>
             <div className='w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-[var(--color-accent)]'>
-              <Phone size={14} className='animate-bounce' />
+              <Phone size={14} />
             </div>
             <div className='text-left'>
               <div className='font-extrabold text-white text-[11px] tracking-wider'>
@@ -1891,7 +1897,7 @@ export default function SplashOrLandingPage() {
             </div>
           </div>
 
-          <div className='flex items-center justify-center md:justify-start gap-3'>
+          <div className='flex items-center justify-start md:justify-start gap-3'>
             <div className='w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-[var(--color-accent)]'>
               <svg
                 className='w-3.5 h-3.5'
