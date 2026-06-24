@@ -15,6 +15,7 @@ function formatDate(value) {
 
 export default function WarrantyCard({ ticketNumber, warranty }) {
   const [downloading, setDownloading] = useState(false);
+  const [sharing, setSharing] = useState(false);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
 
@@ -33,23 +34,20 @@ export default function WarrantyCard({ ticketNumber, warranty }) {
   };
 
   const share = async () => {
+    setSharing(true);
     setError('');
     setNotice('');
     try {
-      if (navigator.share) {
-        await navigator.share({
-          title: `Warranty Card - ${ticketNumber}`,
-          text: `Digital warranty card for order ${ticketNumber}`,
-        });
-        return;
+      const shared = await orderService.shareWarranty(ticketNumber);
+      if (!shared) {
+        setError('Sharing PDF is not supported on this browser. Please download it instead.');
       }
-
-      await navigator.clipboard.writeText(`Warranty card for order ${ticketNumber}`);
-      setNotice('Warranty reference copied.');
     } catch (shareError) {
       if (shareError.name !== 'AbortError') {
         setError('Unable to share the warranty card right now.');
       }
+    } finally {
+      setSharing(false);
     }
   };
 
@@ -97,11 +95,11 @@ export default function WarrantyCard({ ticketNumber, warranty }) {
       {error && <p className="text-red-400 text-xs mb-3">{error}</p>}
       {notice && <p className="text-[var(--color-success)] text-xs mb-3">{notice}</p>}
       <div className="flex flex-wrap gap-[10px]">
-        <button type="button" onClick={download} disabled={downloading} className="btn-secondary !h-[43px] !px-[15px]">
+        <button type="button" onClick={download} disabled={downloading || sharing} className="btn-secondary !h-[43px] !px-[15px]">
           <Download size={15} /> {downloading ? 'Downloading...' : 'Download Warranty PDF'}
         </button>
-        <button type="button" onClick={share} className="btn-secondary !h-[43px] !px-[15px]">
-          <Share2 size={15} /> Share Warranty
+        <button type="button" onClick={share} disabled={sharing || downloading} className="btn-secondary !h-[43px] !px-[15px]">
+          <Share2 size={15} /> {sharing ? 'Preparing share...' : 'Share Warranty'}
         </button>
       </div>
     </div>
