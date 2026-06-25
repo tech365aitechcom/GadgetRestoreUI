@@ -3,7 +3,6 @@
 import { useEffect, useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import {
-  ArrowLeft,
   Search,
   Battery,
   Zap,
@@ -16,7 +15,6 @@ import {
   HelpCircle,
   Wrench,
   ChevronRight,
-  Sparkles,
   Info,
   Check,
   BadgeCheck,

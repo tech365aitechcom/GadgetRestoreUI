@@ -141,18 +141,18 @@ export default function AppShell({ children, className = '' }) {
                 <span className='absolute -top-0.5 -right-0.5 w-1.75 h-1.75 rounded-full bg-danger border border-bg animate-pulse' />
               )}
             </button>
-            <button
+            {/* <button
               aria-label='Help'
               className='bg-transparent border-none cursor-pointer text-content-text-secondary flex items-center'
             >
               <HelpCircle size={21} />
-            </button>
-            <button
+            </button> */}
+            {/* <button
               onClick={() => router.push('/select-category')}
               className='btn-primary h-9.5 text-[13px] px-4.5 rounded-[10px]'
             >
               New Repair <Plus size={14} />
-            </button>
+            </button> */}
           </div>
         </header>
 

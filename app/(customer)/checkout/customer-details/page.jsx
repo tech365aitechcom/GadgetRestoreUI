@@ -12,12 +12,17 @@ import {
   Phone,
   KeySquare,
   ChevronRight,
+  X,
 } from 'lucide-react'
 import { useBooking } from '@/context/BookingContext'
 import Cookies from 'js-cookie'
 import { TOKEN_COOKIE } from '@/lib/constants'
 import bookingService from '@/services/booking.service'
 import toast from 'react-hot-toast'
+import PrivacyPolicy from '@/app/(policies)/privacy-policy/page'
+import TermsAndConditions from '@/app/(policies)/terms-and-conditions/page'
+import WarrantyPolicy from '@/app/(policies)/warranty-policy/page'
+import ShippingPolicy from '@/app/(policies)/shipping-policy/page'
 
 const InputField = ({
   label,
@@ -107,9 +112,18 @@ export default function CustomerDetailsPage() {
     address,
     slot,
     canProceedToBook,
+    isRestored,
   } = useBooking()
 
   const [isLoading, setIsLoading] = useState(false)
+  const [agreed, setAgreed] = useState(false)
+  // const [activePolicy, setActivePolicy] = useState(null)
+
+  // const handleOpenPolicy = (e, policyKey) => {
+  //   e.preventDefault()
+  //   e.stopPropagation()
+  //   setActivePolicy(policyKey)
+  // }
 
   // Form State
   const [formData, setFormData] = useState({
@@ -125,6 +139,8 @@ export default function CustomerDetailsPage() {
 
   // Initialize data
   useEffect(() => {
+    if (!isRestored) return
+
     if (!canProceedToBook) {
       router.replace('/')
       return
@@ -157,7 +173,7 @@ export default function CustomerDetailsPage() {
       email: savedProfile?.email || '',
       altContact: savedProfile?.altContact || '',
     }))
-  }, [canProceedToBook, router])
+  }, [isRestored, canProceedToBook, router])
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -185,12 +201,16 @@ export default function CustomerDetailsPage() {
       newErrors.altContact = 'Alternate contact must be 10 digits'
     }
 
+    if (!agreed) {
+      newErrors.agreed = 'You must agree to the policies to proceed'
+    }
+
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
+    if (e) e.preventDefault()
     if (!validate()) return
 
     setIsLoading(true)
@@ -224,6 +244,7 @@ export default function CustomerDetailsPage() {
           alternatePhone: formData.altContact,
           devicePassword: formData.devicePassword,
         },
+        agreedToPolicies: agreed,
       })
 
       const ticketNumber = result?.ticketNumber || result?.booking?.ticketNumber
@@ -245,6 +266,7 @@ export default function CustomerDetailsPage() {
       setIsLoading(false)
     }
   }
+
   return (
     <div>
       {/* ════════════════════════════════════════════════════════════════
@@ -321,13 +343,40 @@ export default function CustomerDetailsPage() {
               showPasswordToggle={true}
               onTogglePassword={() => setShowPassword(!showPassword)}
             />
+
+            <div className='mb-6 flex flex-col gap-2 mt-6'>
+              <div className='flex items-start gap-3'>
+                <input
+                  id='agree-checkbox-mobile'
+                  type='checkbox'
+                  checked={agreed}
+                  onChange={(e) => {
+                    setAgreed(e.target.checked)
+                    if (errors.agreed) {
+                      setErrors((prev) => ({ ...prev, agreed: null }))
+                    }
+                  }}
+                  className='mt-1 h-4.5 w-4.5 rounded border-zinc-300 accent-[var(--color-accent)] cursor-pointer shrink-0'
+                />
+                <label
+                  htmlFor='agree-checkbox-mobile'
+                  className='text-xs leading-relaxed select-none cursor-pointer'
+                  style={{ color: 'var(--color-content-text-secondary)' }}
+                >
+                  I agree to the Privacy Policy, Terms & Conditions Policy, Warranty Policy, and Shipping Policy.
+                </label>
+              </div>
+              {errors.agreed && (
+                <p className='text-red-500 text-xs mt-1 font-medium'>{errors.agreed}</p>
+              )}
+            </div>
           </form>
         </div>
 
         <div className='fixed left-0 right-0 p-5 z-40' style={{ bottom: 'calc(var(--nav-height) + env(safe-area-inset-bottom, 0px))', background: 'linear-gradient(to top, var(--color-content-bg) 60%, transparent)' }}>
           <button
             onClick={handleSubmit}
-            disabled={isLoading || !formData.fullName || !formData.email}
+            disabled={isLoading || !formData.fullName || !formData.email || !agreed}
             className='w-full h-[50px] rounded-[20px] text-sm font-bold flex items-center justify-center gap-2 shadow-xl active:scale-95 transition-all uppercase tracking-wider disabled:opacity-50'
             style={{ background: 'var(--theme-btn-primary-bg)', color: 'var(--theme-btn-primary-text)' }}
           >
@@ -462,11 +511,69 @@ export default function CustomerDetailsPage() {
                   onTogglePassword={() => setShowPassword(!showPassword)}
                 />
 
+                <div className='mb-6 flex flex-col gap-2 mt-6'>
+                  <div className='flex items-start gap-3'>
+                    <input
+                      id='agree-checkbox-desktop'
+                      type='checkbox'
+                      checked={agreed}
+                      onChange={(e) => {
+                        setAgreed(e.target.checked)
+                        if (errors.agreed) {
+                          setErrors((prev) => ({ ...prev, agreed: null }))
+                        }
+                      }}
+                      className='mt-1 h-4.5 w-4.5 rounded border-zinc-300 accent-[var(--color-accent)] cursor-pointer shrink-0'
+                    />
+                    <label
+                      htmlFor='agree-checkbox-desktop'
+                      className='text-xs leading-relaxed select-none cursor-pointer'
+                      style={{ color: 'var(--color-content-text-secondary)' }}
+                    >
+                      I agree to the Privacy Policy, Terms & Conditions Policy, Warranty Policy, and Shipping Policy.
+                      {/* <button
+                        type='button'
+                        onClick={(e) => handleOpenPolicy(e, 'privacy')}
+                        className='text-accent hover:underline font-semibold inline'
+                      >
+                        Privacy Policy
+                      </button>
+                      ,{' '}
+                      <button
+                        type='button'
+                        onClick={(e) => handleOpenPolicy(e, 'terms')}
+                        className='text-accent hover:underline font-semibold inline'
+                      >
+                        Terms & Conditions Policy
+                      </button>
+                      ,{' '}
+                      <button
+                        type='button'
+                        onClick={(e) => handleOpenPolicy(e, 'warranty')}
+                        className='text-accent hover:underline font-semibold inline'
+                      >
+                        Warranty Policy
+                      </button>
+                      , and{' '}
+                      <button
+                        type='button'
+                        onClick={(e) => handleOpenPolicy(e, 'shipping')}
+                        className='text-accent hover:underline font-semibold inline'
+                      >
+                        Shipping Policy
+                      </button> */}
+                    </label>
+                  </div>
+                  {errors.agreed && (
+                    <p className='text-red-500 text-xs mt-1 font-medium'>{errors.agreed}</p>
+                  )}
+                </div>
+
                 <div className='mt-5'>
                   <button
                     type='submit'
                     disabled={
-                      isLoading || !formData.fullName || !formData.email
+                      isLoading || !formData.fullName || !formData.email || !agreed
                     }
                     className='w-full h-[64px] rounded-[20px] text-[16px] font-black flex items-center justify-center gap-3 shadow-xl active:scale-95 transition-all uppercase tracking-wider disabled:opacity-50 cursor-pointer'
                     style={{ background: 'var(--theme-btn-primary-bg)', color: 'var(--theme-btn-primary-text)' }}
@@ -480,6 +587,35 @@ export default function CustomerDetailsPage() {
           </div>
         </div>
       </div>
+
+      {/* Policy Modal Overlay - COMMENTED OUT FOR NOW */}
+      {/* {activePolicy && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-4 md:p-6 animate-in fade-in duration-200"
+          onClick={() => setActivePolicy(null)}
+        >
+          <div
+            className="relative w-full max-w-3xl max-h-[85vh] flex flex-col rounded-3xl overflow-hidden shadow-2xl border border-zinc-800"
+            style={{ background: 'var(--color-content-card)' }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setActivePolicy(null)}
+              className="absolute top-4 right-4 md:top-6 md:right-6 z-50 p-2.5 rounded-full bg-zinc-950/80 hover:bg-zinc-900 text-zinc-400 hover:text-white transition-all border border-zinc-800 hover:scale-105 active:scale-95 shadow-lg"
+              aria-label="Close policy"
+            >
+              <X size={20} />
+            </button>
+
+            <div className="overflow-y-auto flex-1">
+              {activePolicy === 'privacy' && <PrivacyPolicy />}
+              {activePolicy === 'terms' && <TermsAndConditions />}
+              {activePolicy === 'warranty' && <WarrantyPolicy />}
+              {activePolicy === 'shipping' && <ShippingPolicy />}
+            </div>
+          </div>
+        </div>
+      )} */}
     </div>
   )
 }

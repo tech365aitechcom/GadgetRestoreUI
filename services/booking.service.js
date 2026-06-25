@@ -37,6 +37,7 @@ export const bookingService = {
     address,
     slot,
     customerData,
+    agreedToPolicies,
   }) {
     const payload = {
       // Customer Information (Required)
@@ -73,6 +74,9 @@ export const bookingService = {
 
       // Device Password (optional but important)
       devicePassword: customerData?.devicePassword || undefined,
+
+      // Agreement checkbox
+      agreedToPolicies: agreedToPolicies || false,
     };
 
     // Remove undefined values to keep payload clean
