@@ -8,7 +8,7 @@ export default function PoliciesLayout({ children }) {
   return (
     <div className='min-h-screen pb-16' style={{ background: 'var(--color-content-bg)', color: 'var(--color-content-text)' }}>
       {/* Header */}
-      <header className='border-b sticky top-0 z-50 backdrop-blur-md' style={{ borderColor: 'var(--color-content-border)', background: 'rgba(5, 5, 5, 0.8)' }}>
+      <header className='container mx-auto border-b sticky top-0 z-50 backdrop-blur-md' style={{ borderColor: 'var(--color-content-border)', background: 'rgba(5, 5, 5, 0.8)' }}>
         <div className='px-6 h-20 flex items-center justify-between'>
           <Link href="/" className='flex items-center gap-3 hover:opacity-85 transition-opacity'>
             <img
@@ -24,7 +24,7 @@ export default function PoliciesLayout({ children }) {
       </header>
 
       {/* Main Content */}
-      <main className='max-w-4xl mx-auto px-6 pt-12'>
+      <main className='max-w-6xl mx-auto px-6 pt-8'>
         {children}
       </main>
     </div>

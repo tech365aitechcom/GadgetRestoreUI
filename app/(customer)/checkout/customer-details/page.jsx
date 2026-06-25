@@ -19,10 +19,8 @@ import Cookies from 'js-cookie'
 import { TOKEN_COOKIE } from '@/lib/constants'
 import bookingService from '@/services/booking.service'
 import toast from 'react-hot-toast'
-import PrivacyPolicy from '@/app/(policies)/privacy-policy/page'
-import TermsAndConditions from '@/app/(policies)/terms-and-conditions/page'
-import WarrantyPolicy from '@/app/(policies)/warranty-policy/page'
-import ShippingPolicy from '@/app/(policies)/shipping-policy/page'
+import { Capacitor } from '@capacitor/core'
+import { Browser } from '@capacitor/browser'
 
 const InputField = ({
   label,
@@ -117,13 +115,35 @@ export default function CustomerDetailsPage() {
 
   const [isLoading, setIsLoading] = useState(false)
   const [agreed, setAgreed] = useState(false)
-  // const [activePolicy, setActivePolicy] = useState(null)
 
-  // const handleOpenPolicy = (e, policyKey) => {
-  //   e.preventDefault()
-  //   e.stopPropagation()
-  //   setActivePolicy(policyKey)
-  // }
+  const handleOpenPolicy = async (e, policyKey) => {
+    e.preventDefault()
+    e.stopPropagation()
+    
+    const paths = {
+      privacy: '/privacy-policy',
+      terms: '/terms-and-conditions',
+      warranty: '/warranty-policy',
+      shipping: '/shipping-policy',
+      replacement: '/replacement-cancellation-policy',
+      cookie: '/cookie-policy',
+    }
+    
+    const path = paths[policyKey]
+    if (!path) return
+
+    if (Capacitor.isNativePlatform()) {
+      try {
+        const url = window.location.origin + path
+        await Browser.open({ url })
+      } catch (error) {
+        console.error('Failed to open native browser:', error)
+        window.open(path, '_blank')
+      }
+    } else {
+      window.open(path, '_blank')
+    }
+  }
 
   // Form State
   const [formData, setFormData] = useState({
@@ -363,7 +383,54 @@ export default function CustomerDetailsPage() {
                   className='text-xs leading-relaxed select-none cursor-pointer'
                   style={{ color: 'var(--color-content-text-secondary)' }}
                 >
-                  I agree to the Privacy Policy, Terms & Conditions Policy, Warranty Policy, and Shipping Policy.
+                  I agree to the {" "}
+                  <button
+                    type='button'
+                    onClick={(e) => handleOpenPolicy(e, 'privacy')}
+                    className='text-accent hover:underline font-semibold inline'
+                  >
+                    Privacy Policy
+                  </button>
+                  ,{' '}
+                  <button
+                    type='button'
+                    onClick={(e) => handleOpenPolicy(e, 'terms')}
+                    className='text-accent hover:underline font-semibold inline'
+                  >
+                    Terms & Conditions Policy
+                  </button>
+                  ,{' '}
+                  <button
+                    type='button'
+                    onClick={(e) => handleOpenPolicy(e, 'warranty')}
+                    className='text-accent hover:underline font-semibold inline'
+                  >
+                    Warranty Policy
+                  </button>
+                  ,{' '}
+                  <button
+                    type='button'
+                    onClick={(e) => handleOpenPolicy(e, 'shipping')}
+                    className='text-accent hover:underline font-semibold inline'
+                  >
+                    Shipping & Logistics Policy
+                  </button>
+                  ,{' '}
+                  <button
+                    type='button'
+                    onClick={(e) => handleOpenPolicy(e, 'replacement')}
+                    className='text-accent hover:underline font-semibold inline'
+                  >
+                    Replacement & Cancellation Policy
+                  </button>
+                  , and{' '}
+                  <button
+                    type='button'
+                    onClick={(e) => handleOpenPolicy(e, 'cookie')}
+                    className='text-accent hover:underline font-semibold inline'
+                  >
+                    Cookie Policy
+                  </button>
                 </label>
               </div>
               {errors.agreed && (
@@ -530,8 +597,8 @@ export default function CustomerDetailsPage() {
                       className='text-xs leading-relaxed select-none cursor-pointer'
                       style={{ color: 'var(--color-content-text-secondary)' }}
                     >
-                      I agree to the Privacy Policy, Terms & Conditions Policy, Warranty Policy, and Shipping Policy.
-                      {/* <button
+                      I agree to the {" "}
+                      <button
                         type='button'
                         onClick={(e) => handleOpenPolicy(e, 'privacy')}
                         className='text-accent hover:underline font-semibold inline'
@@ -554,14 +621,30 @@ export default function CustomerDetailsPage() {
                       >
                         Warranty Policy
                       </button>
-                      , and{' '}
+                      ,{' '}
                       <button
                         type='button'
                         onClick={(e) => handleOpenPolicy(e, 'shipping')}
                         className='text-accent hover:underline font-semibold inline'
                       >
                         Shipping Policy
-                      </button> */}
+                      </button>
+                      ,{' '}
+                      <button
+                        type='button'
+                        onClick={(e) => handleOpenPolicy(e, 'replacement')}
+                        className='text-accent hover:underline font-semibold inline'
+                      >
+                        Replacement & Cancellation Policy
+                      </button>
+                      , and{' '}
+                      <button
+                        type='button'
+                        onClick={(e) => handleOpenPolicy(e, 'cookie')}
+                        className='text-accent hover:underline font-semibold inline'
+                      >
+                        Cookie Policy
+                      </button>
                     </label>
                   </div>
                   {errors.agreed && (
@@ -588,34 +671,7 @@ export default function CustomerDetailsPage() {
         </div>
       </div>
 
-      {/* Policy Modal Overlay - COMMENTED OUT FOR NOW */}
-      {/* {activePolicy && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-4 md:p-6 animate-in fade-in duration-200"
-          onClick={() => setActivePolicy(null)}
-        >
-          <div
-            className="relative w-full max-w-3xl max-h-[85vh] flex flex-col rounded-3xl overflow-hidden shadow-2xl border border-zinc-800"
-            style={{ background: 'var(--color-content-card)' }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              onClick={() => setActivePolicy(null)}
-              className="absolute top-4 right-4 md:top-6 md:right-6 z-50 p-2.5 rounded-full bg-zinc-950/80 hover:bg-zinc-900 text-zinc-400 hover:text-white transition-all border border-zinc-800 hover:scale-105 active:scale-95 shadow-lg"
-              aria-label="Close policy"
-            >
-              <X size={20} />
-            </button>
 
-            <div className="overflow-y-auto flex-1">
-              {activePolicy === 'privacy' && <PrivacyPolicy />}
-              {activePolicy === 'terms' && <TermsAndConditions />}
-              {activePolicy === 'warranty' && <WarrantyPolicy />}
-              {activePolicy === 'shipping' && <ShippingPolicy />}
-            </div>
-          </div>
-        </div>
-      )} */}
     </div>
   )
 }
