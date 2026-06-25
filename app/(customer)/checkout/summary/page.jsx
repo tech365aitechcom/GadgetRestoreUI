@@ -17,12 +17,12 @@ import PropTypes from 'prop-types'
 
 function collectRepairTypeIds(symptoms) {
   const ids = new Set()
-    ; (symptoms || []).forEach((s) => {
-      ; (s.repairTypes || []).forEach((rt) => {
-        const id = typeof rt === 'object' ? rt._id : rt
-        if (id) ids.add(id)
-      })
+  ;(symptoms || []).forEach((s) => {
+    ;(s.repairTypes || []).forEach((rt) => {
+      const id = typeof rt === 'object' ? rt._id : rt
+      if (id) ids.add(id)
     })
+  })
   return [...ids]
 }
 
@@ -463,8 +463,8 @@ export default function OrderSummaryPage() {
                   >
                     <span className='text-warning font-bold block mb-1'>
                       Post-diagnosis estimate required
-                    </span>
-                    {' '}Final cost confirmed after diagnosis for some items.
+                    </span>{' '}
+                    Final cost confirmed after diagnosis for some items.
                   </div>
                 </div>
               )}
@@ -486,8 +486,8 @@ export default function OrderSummaryPage() {
                       'Estimate Required'
                     ) : (
                       <>
-                        {hasVariableSymptom && 'Starting from '}
-                        ₹{subtotal.toLocaleString('en-IN')}
+                        {hasVariableSymptom && 'Starting from '}₹
+                        {subtotal.toLocaleString('en-IN')}
                       </>
                     )}
                   </span>
@@ -506,14 +506,17 @@ export default function OrderSummaryPage() {
                       className='text-sm font-bold'
                       style={{ color: 'var(--color-content-text)' }}
                     >
-                      {hasVariableSymptom && 'Starting from '}
-                      ₹{gstAmount.toLocaleString('en-IN')}
+                      {hasVariableSymptom && 'Starting from '}₹
+                      {gstAmount.toLocaleString('en-IN')}
                     </span>
                   </div>
                 )}
 
                 {/* Divider Line */}
-                <div className='my-2 border-t border-dashed' style={{ borderColor: 'var(--color-content-border)' }} />
+                <div
+                  className='my-2 border-t border-dashed'
+                  style={{ borderColor: 'var(--color-content-border)' }}
+                />
 
                 {/* Total Row */}
                 <div className='flex justify-between items-end'>
@@ -572,8 +575,8 @@ export default function OrderSummaryPage() {
             {isLoading
               ? 'Calculating...'
               : isSubmitting
-                ? 'Processing...'
-                : 'Proceed to Details'}{' '}
+              ? 'Processing...'
+              : 'Proceed to Details'}{' '}
             <ChevronRight size={18} />
           </button>
         </div>
@@ -875,8 +878,8 @@ export default function OrderSummaryPage() {
                     >
                       <strong className='text-warning font-bold block mb-1'>
                         Post-diagnosis estimate required
-                      </strong>
-                      {' '}Final cost will be confirmed after physical inspection of
+                      </strong>{' '}
+                      Final cost will be confirmed after physical inspection of
                       the device.
                     </div>
                   </div>
@@ -899,8 +902,8 @@ export default function OrderSummaryPage() {
                         'Estimate Required'
                       ) : (
                         <>
-                          {hasVariableSymptom && 'Starting from '}
-                          ₹{subtotal.toLocaleString('en-IN')}
+                          {hasVariableSymptom && 'Starting from '}₹
+                          {subtotal.toLocaleString('en-IN')}
                         </>
                       )}
                     </span>
@@ -919,14 +922,17 @@ export default function OrderSummaryPage() {
                         className='text-lg font-extrabold'
                         style={{ color: 'var(--color-content-text)' }}
                       >
-                        {hasVariableSymptom && 'Starting from '}
-                        ₹{gstAmount.toLocaleString('en-IN')}
+                        {hasVariableSymptom && 'Starting from '}₹
+                        {gstAmount.toLocaleString('en-IN')}
                       </span>
                     </div>
                   )}
 
                   {/* Divider Line */}
-                  <div className='border-t border-dashed' style={{ borderColor: 'var(--color-content-border)' }} />
+                  <div
+                    className='border-t border-dashed'
+                    style={{ borderColor: 'var(--color-content-border)' }}
+                  />
 
                   {/* Total Row */}
                   <div className='flex justify-between items-end'>
@@ -973,17 +979,10 @@ export default function OrderSummaryPage() {
                   {isLoading
                     ? 'Calculating...'
                     : isSubmitting
-                      ? 'Processing...'
-                      : 'Proceed to Details'}{' '}
+                    ? 'Processing...'
+                    : 'Proceed to Details'}{' '}
                   <ChevronRight size={20} />
                 </button>
-
-                <p
-                  className='text-[11px] text-center mt-6 font-medium'
-                  style={{ color: 'var(--color-content-text-secondary)' }}
-                >
-                  By proceeding, you agree to our terms and conditions.
-                </p>
               </div>
             </div>
           </div>

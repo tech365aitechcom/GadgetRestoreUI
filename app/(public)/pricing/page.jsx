@@ -22,12 +22,12 @@ import ErrorState from '@/components/ui/ErrorState'
 /* ─── Helpers ────────────────────────────────────────────────────────────────── */
 function collectRepairTypeIds(symptoms) {
   const ids = new Set()
-    ; (symptoms || []).forEach((s) => {
-      ; (s.repairTypes || []).forEach((rt) => {
-        const id = typeof rt === 'object' ? rt._id : rt
-        if (id) ids.add(id)
-      })
+  ;(symptoms || []).forEach((s) => {
+    ;(s.repairTypes || []).forEach((rt) => {
+      const id = typeof rt === 'object' ? rt._id : rt
+      if (id) ids.add(id)
     })
+  })
   return [...ids]
 }
 
@@ -142,7 +142,9 @@ export default function PricingPage() {
   })
 
   // Generate a mock quote ID
-  const quoteId = `RC-${Math.floor(100 + Math.random() * 900)}-${brand.name.substring(0, 2).toUpperCase()}`
+  const quoteId = `RC-${Math.floor(100 + Math.random() * 900)}-${brand.name
+    .substring(0, 2)
+    .toUpperCase()}`
 
   const partsCost = itemizedSymptoms.reduce(
     (sum, item) => sum + (item.isVariable ? 0 : item.partsCost),
@@ -325,9 +327,7 @@ export default function PricingPage() {
                       <Clock size={12} className='text-gray-400' /> Est. Repair
                       Time
                     </div>
-                    <div className='text-sm font-bold text-white'>
-                      Same Day
-                    </div>
+                    <div className='text-sm font-bold text-white'>Same Day</div>
                   </div>
                   <div>
                     <div className='text-[9px] font-bold text-gray-400 uppercase tracking-wider mb-1.5 flex items-center gap-1.5'>
@@ -372,8 +372,9 @@ export default function PricingPage() {
                 {symptoms.map((symp, i) => (
                   <div
                     key={i}
-                    className={`flex justify-between items-center pb-4 ${i < symptoms.length - 1 ? 'border-b border-white/5' : ''
-                      }`}
+                    className={`flex justify-between items-center pb-4 ${
+                      i < symptoms.length - 1 ? 'border-b border-white/5' : ''
+                    }`}
                   >
                     <span className='text-sm text-white'>{symp.name}</span>
                     <span className='text-[10px] font-extrabold text-[#EF4444] tracking-wider uppercase'>
@@ -399,8 +400,9 @@ export default function PricingPage() {
               {/* Quote Breakdowns - Itemized per Symptom/Repair */}
               <div className='flex flex-col gap-5 lg:gap-6 pb-5 lg:pb-6 border-b border-white/5'>
                 {itemizedSymptoms.map((symptom, index) => {
-                  const sympServiceCharge = symptom.partsCost + symptom.labourCost;
-                  const sympGst = Math.round(sympServiceCharge * 0.18);
+                  const sympServiceCharge =
+                    symptom.partsCost + symptom.labourCost
+                  const sympGst = Math.round(sympServiceCharge * 0.18)
 
                   return (
                     <div key={index} className='flex flex-col gap-3'>
@@ -460,7 +462,7 @@ export default function PricingPage() {
                         </div>
                       )}
                     </div>
-                  );
+                  )
                 })}
               </div>
             </div>
@@ -486,39 +488,20 @@ export default function PricingPage() {
               <div className='text-[9px] font-bold text-gray-400 uppercase tracking-widest text-right mb-5 lg:hidden'>
                 * FINAL PRICE MAY VARY AFTER DIAGNOSIS
               </div>
-
-              {/* Mobile Agreement Text */}
-              <div className='flex items-start gap-2.5 lg:hidden'>
-                <AlertCircle
-                  size={14}
-                  className='text-gray-400 shrink-0 mt-0.5'
-                />
-                <div className='text-[11px] text-gray-400 leading-relaxed'>
-                  By continuing, you agree to our Service Terms & Genuine Part
-                  Policy.
-                </div>
-              </div>
             </div>
           </div>
         </div>
 
         {/* Desktop Bottom Action Bar */}
-        <div className='mt-8 bg-white rounded-3xl p-6 lg:p-8 justify-between items-center hidden lg:flex'>
-          <div className='flex items-center gap-3 text-[#1E2024]'>
-            <AlertCircle size={20} className='text-[#1E2024]' />
-            <span className='text-xs font-semibold leading-relaxed'>
-              By continuing, you agree to our Service Terms & Genuine Part
-              Policy.
-            </span>
-          </div>
-
+        <div className='mt-8 bg-white rounded-3xl p-6 lg:p-8 justify-end items-center hidden lg:flex'>
           <button
             onClick={handleConfirm}
             disabled={!canProceedToBook}
-            className={`h-14 px-10 bg-black text-white font-extrabold text-xs uppercase tracking-wider rounded-[var(--radius-btn)] flex items-center justify-center gap-3 transition-opacity ${canProceedToBook
-              ? 'cursor-pointer hover:opacity-90'
-              : 'cursor-not-allowed opacity-50'
-              }`}
+            className={`h-14 px-10 bg-black text-white font-extrabold text-xs uppercase tracking-wider rounded-[var(--radius-btn)] flex items-center justify-center gap-3 transition-opacity ${
+              canProceedToBook
+                ? 'cursor-pointer hover:opacity-90'
+                : 'cursor-not-allowed opacity-50'
+            }`}
           >
             Confirm & Continue <ChevronRight size={18} />
           </button>
@@ -536,10 +519,11 @@ export default function PricingPage() {
         <button
           onClick={handleConfirm}
           disabled={!canProceedToBook}
-          className={`w-full h-14 bg-white text-black font-extrabold text-sm uppercase tracking-wider rounded-2xl flex items-center justify-center gap-2 shadow-lg transition-opacity ${canProceedToBook
-            ? 'cursor-pointer hover:opacity-90'
-            : 'cursor-not-allowed opacity-50'
-            }`}
+          className={`w-full h-14 bg-white text-black font-extrabold text-sm uppercase tracking-wider rounded-2xl flex items-center justify-center gap-2 shadow-lg transition-opacity ${
+            canProceedToBook
+              ? 'cursor-pointer hover:opacity-90'
+              : 'cursor-not-allowed opacity-50'
+          }`}
         >
           Confirm & Continue <ChevronRight size={18} />
         </button>
