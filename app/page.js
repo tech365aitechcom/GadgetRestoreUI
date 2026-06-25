@@ -157,24 +157,28 @@ const REVIEWS_DATA = [
   },
 ]
 
+let hasShownSplashSession = false
+
 export default function SplashOrLandingPage() {
   const router = useRouter()
   const [mounted, setMounted] = useState(false)
   const [isNativeApp, setIsNativeApp] = useState(false)
+  const [showSplash, setShowSplash] = useState(!hasShownSplashSession)
   const [progress, setProgress] = useState(0)
 
   // Web Landing Page state
+  const [activeSection, setActiveSection] = useState('hero')
   const [activeFaq, setActiveFaq] = useState(0) // Open first one by default as shown in Figma
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [currentReviewIndex, setCurrentReviewIndex] = useState(0)
 
   useEffect(() => {
-    if (!mounted || isNativeApp) return
+    if (!mounted) return
     const timer = setInterval(() => {
       setCurrentReviewIndex((prev) => (prev + 1) % REVIEWS_DATA.length)
     }, 6000)
     return () => clearInterval(timer)
-  }, [mounted, isNativeApp])
+  }, [mounted])
   const [timeDropdownOpen, setTimeDropdownOpen] = useState(false)
   const [timeDropdownRect, setTimeDropdownRect] = useState(null)
   const timeButtonRef = useRef(null)
@@ -207,9 +211,44 @@ export default function SplashOrLandingPage() {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
+  // Dynamic header menu item active state based on scroll intersection
+  useEffect(() => {
+    if (!mounted) return
+
+    const sections = ['hero', 'expertise', 'services', 'why-choose-us', 'faq', 'contact']
+
+    const observerOptions = {
+      root: null,
+      rootMargin: '-30% 0px -50% 0px', // Trigger when section occupies the middle of viewport
+      threshold: 0,
+    }
+
+    const observerCallback = (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const id = entry.target.id
+          if (id === 'services' || id === 'expertise') {
+            setActiveSection('expertise') // Map both services sections to 'expertise'
+          } else {
+            setActiveSection(id)
+          }
+        }
+      })
+    }
+
+    const observer = new IntersectionObserver(observerCallback, observerOptions)
+
+    sections.forEach((id) => {
+      const element = document.getElementById(id)
+      if (element) observer.observe(element)
+    })
+
+    return () => observer.disconnect()
+  }, [mounted])
+
   // Smooth progress animation for Native Mobile Splash Page
   useEffect(() => {
-    if (!mounted || !isNativeApp) return
+    if (!mounted || !isNativeApp || !showSplash) return
 
     const duration = 2200 // 2.2 seconds
     const intervalTime = 20
@@ -226,11 +265,11 @@ export default function SplashOrLandingPage() {
     }, intervalTime)
 
     return () => clearInterval(timer)
-  }, [mounted, isNativeApp])
+  }, [mounted, isNativeApp, showSplash])
 
   // Navigate native app after splash completes
   useEffect(() => {
-    if (isNativeApp && progress >= 100) {
+    if (isNativeApp && progress >= 100 && showSplash) {
       const decideRoute = async () => {
         let hasSeen = 'false'
         try {
@@ -250,12 +289,17 @@ export default function SplashOrLandingPage() {
         console.log('[SPLASH] Navigating to:', targetRoute)
 
         setTimeout(() => {
-          router.push(targetRoute)
+          hasShownSplashSession = true
+          if (targetRoute === '/') {
+            setShowSplash(false)
+          } else {
+            router.push(targetRoute)
+          }
         }, 300)
       }
       decideRoute()
     }
-  }, [progress, isNativeApp, router])
+  }, [progress, isNativeApp, router, showSplash])
 
   // Handlers for Web Landing Page
   const handleFaqToggle = (index) => {
@@ -375,7 +419,7 @@ export default function SplashOrLandingPage() {
   if (!mounted) return null
 
   // ── RENDER NATIVE APP SPLASH PAGE ───────────────────────────────────────────
-  if (isNativeApp) {
+  if (isNativeApp && showSplash) {
     const activeDotIndex = Math.min(2, Math.floor(progress / 33.3))
     return (
       <div
@@ -574,7 +618,7 @@ export default function SplashOrLandingPage() {
       {/* ────────────────────────────────────────────────────────────────────────
           STICKY HEADER WRAPPER
           ──────────────────────────────────────────────────────────────────────── */}
-      <header className='fixed top-0 left-0 right-0 z-50 w-full bg-white shadow-sm transition-all duration-300'>
+      <header className='fixed top-0 left-0 right-0 z-50 w-full bg-white shadow-sm transition-all duration-300 landing-header'>
         {/* PROMOTIONAL TOP INFO HEADER BAR (Figma Header - Desktop only) */}
         <div className={`hidden md:flex bg-[#FAF9FF] border-b border-zinc-100 py-4 px-6 lg:px-20 justify-between items-center gap-4 text-xs transition-all duration-300 ${isScrolled ? 'h-0 py-0 overflow-hidden opacity-0 border-b-0' : 'h-auto opacity-100'}`}>
           <div className='flex items-center'>
@@ -696,31 +740,51 @@ export default function SplashOrLandingPage() {
           <div className='hidden lg:flex items-center gap-8 font-black text-xs tracking-widest text-zinc-500'>
             <a
               href='#hero'
-              className='text-zinc-900 border-b-2 border-[var(--color-accent)] pb-1 hover:text-zinc-900 transition-colors cursor-pointer'
+              onClick={() => setActiveSection('hero')}
+              className={`pb-1 border-b-2 transition-all duration-200 cursor-pointer ${activeSection === 'hero'
+                ? 'text-zinc-900 border-[var(--color-accent)]'
+                : 'border-transparent hover:text-zinc-900'
+                }`}
             >
               Home
             </a>
             <a
               href='#expertise'
-              className='hover:text-zinc-900 transition-colors cursor-pointer'
+              onClick={() => setActiveSection('expertise')}
+              className={`pb-1 border-b-2 transition-all duration-200 cursor-pointer ${activeSection === 'expertise'
+                ? 'text-zinc-900 border-[var(--color-accent)]'
+                : 'border-transparent hover:text-zinc-900'
+                }`}
             >
               Services
             </a>
             <a
               href='#why-choose-us'
-              className='hover:text-zinc-900 transition-colors cursor-pointer'
+              onClick={() => setActiveSection('why-choose-us')}
+              className={`pb-1 border-b-2 transition-all duration-200 cursor-pointer ${activeSection === 'why-choose-us'
+                ? 'text-zinc-900 border-[var(--color-accent)]'
+                : 'border-transparent hover:text-zinc-900'
+                }`}
             >
               About
             </a>
             <a
               href='#faq'
-              className='hover:text-zinc-900 transition-colors cursor-pointer'
+              onClick={() => setActiveSection('faq')}
+              className={`pb-1 border-b-2 transition-all duration-200 cursor-pointer ${activeSection === 'faq'
+                ? 'text-zinc-900 border-[var(--color-accent)]'
+                : 'border-transparent hover:text-zinc-900'
+                }`}
             >
               FAQs
             </a>
             <a
               href='#contact'
-              className='hover:text-zinc-900 transition-colors cursor-pointer'
+              onClick={() => setActiveSection('contact')}
+              className={`pb-1 border-b-2 transition-all duration-200 cursor-pointer ${activeSection === 'contact'
+                ? 'text-zinc-900 border-[var(--color-accent)]'
+                : 'border-transparent hover:text-zinc-900'
+                }`}
             >
               Contact
             </a>
@@ -746,44 +810,74 @@ export default function SplashOrLandingPage() {
           </div>
         </nav>
       </header>
-      <div className='h-[73px] md:h-[144px] shrink-0' />
+      <div className='h-[73px] md:h-[144px] shrink-0 landing-spacer' />
 
       {/* 📱 Mobile Menu Sliding Drawer Overlay */}
       {mobileMenuOpen && (
-        <div className='lg:hidden fixed inset-x-0 top-[73px] z-50 bg-white/98 backdrop-blur-md flex flex-col justify-between px-6 py-10 border-t border-zinc-100 shadow-2xl h-[calc(100vh-73px)]'>
+        <div className='lg:hidden fixed inset-x-0 top-[73px] z-50 bg-white/98 backdrop-blur-md flex flex-col justify-between px-6 py-10 border-t border-zinc-100 shadow-2xl h-[calc(100vh-73px)] landing-mobile-menu'>
           <div className='flex flex-col gap-6 font-black text-sm tracking-widest text-zinc-500'>
             <a
               href='#hero'
-              onClick={() => setMobileMenuOpen(false)}
-              className='hover:text-zinc-900 py-3 border-b border-zinc-100/50 cursor-pointer'
+              onClick={() => {
+                setMobileMenuOpen(false)
+                setActiveSection('hero')
+              }}
+              className={`py-3 border-b border-zinc-100/50 cursor-pointer transition-colors ${activeSection === 'hero'
+                ? 'text-[var(--color-accent)] font-black'
+                : 'hover:text-zinc-900'
+                }`}
             >
               Home
             </a>
             <a
               href='#services'
-              onClick={() => setMobileMenuOpen(false)}
-              className='hover:text-zinc-900 py-3 border-b border-zinc-100/50 cursor-pointer'
+              onClick={() => {
+                setMobileMenuOpen(false)
+                setActiveSection('expertise')
+              }}
+              className={`py-3 border-b border-zinc-100/50 cursor-pointer transition-colors ${activeSection === 'expertise'
+                ? 'text-[var(--color-accent)] font-black'
+                : 'hover:text-zinc-900'
+                }`}
             >
               Services
             </a>
             <a
               href='#why-choose-us'
-              onClick={() => setMobileMenuOpen(false)}
-              className='hover:text-zinc-900 py-3 border-b border-zinc-100/50 cursor-pointer'
+              onClick={() => {
+                setMobileMenuOpen(false)
+                setActiveSection('why-choose-us')
+              }}
+              className={`py-3 border-b border-zinc-100/50 cursor-pointer transition-colors ${activeSection === 'why-choose-us'
+                ? 'text-[var(--color-accent)] font-black'
+                : 'hover:text-zinc-900'
+                }`}
             >
               About
             </a>
             <a
               href='#faq'
-              onClick={() => setMobileMenuOpen(false)}
-              className='hover:text-zinc-900 py-3 border-b border-zinc-100/50 cursor-pointer'
+              onClick={() => {
+                setMobileMenuOpen(false)
+                setActiveSection('faq')
+              }}
+              className={`py-3 border-b border-zinc-100/50 cursor-pointer transition-colors ${activeSection === 'faq'
+                ? 'text-[var(--color-accent)] font-black'
+                : 'hover:text-zinc-900'
+                }`}
             >
               FAQs
             </a>
             <a
               href='#contact'
-              onClick={() => setMobileMenuOpen(false)}
-              className='hover:text-zinc-900 py-3 border-b border-zinc-100/50 cursor-pointer'
+              onClick={() => {
+                setMobileMenuOpen(false)
+                setActiveSection('contact')
+              }}
+              className={`py-3 border-b border-zinc-100/50 cursor-pointer transition-colors ${activeSection === 'contact'
+                ? 'text-[var(--color-accent)] font-black'
+                : 'hover:text-zinc-900'
+                }`}
             >
               Contact
             </a>
@@ -899,10 +993,19 @@ export default function SplashOrLandingPage() {
             <button
               key={item.title}
               type='button'
-              onClick={() => handleCategorySelect(item.slotKey)}
-              className='bg-[#FAF9FF] border border-zinc-100/50 p-8 rounded-3xl group hover:border-[var(--color-accent)]/20 hover:bg-[#F2EFFD] transition-all duration-300 cursor-pointer w-full text-left'
+              onClick={() => {
+                if (item.title === 'Phone Repair') {
+                  handleCategorySelect(item.slotKey)
+                } else {
+                  const contactSec = document.getElementById('contact')
+                  if (contactSec) {
+                    contactSec.scrollIntoView({ behavior: 'smooth' })
+                  }
+                }
+              }}
+              className='bg-[#FAF9FF] border border-zinc-100/50 p-8 rounded-3xl group hover:border-[var(--color-accent)]/20 hover:bg-[#F2EFFD] transition-all duration-300 cursor-pointer w-full text-center'
             >
-              <div className='w-32 h-32 rounded-2xl overflow-hidden mb-6 shrink-0 flex items-center justify-center bg-white'>
+              <div className='w-62 h-62 rounded-2xl overflow-hidden mb-6 mx-auto flex items-center justify-center bg-white shadow-sm'>
                 <img
                   src={item.image}
                   alt={item.title}
@@ -963,7 +1066,16 @@ export default function SplashOrLandingPage() {
             <button
               key={item.title}
               type='button'
-              onClick={() => handleCategorySelect(item.slotKey)}
+              onClick={() => {
+                if (item.title === 'Smart Phone Repair') {
+                  handleCategorySelect(item.slotKey)
+                } else {
+                  const contactSec = document.getElementById('contact')
+                  if (contactSec) {
+                    contactSec.scrollIntoView({ behavior: 'smooth' })
+                  }
+                }
+              }}
               className='bg-white rounded-xl overflow-hidden border border-zinc-100 hover:shadow-2xl hover:shadow-zinc-200/50 transition-all duration-300 group cursor-pointer flex flex-col justify-between w-full text-left'
             >
               <div className='h-60 relative overflow-hidden bg-white flex items-center justify-center'>
@@ -1055,6 +1167,13 @@ export default function SplashOrLandingPage() {
           5. CORE VALUES STATS ROW (Vertical Centered Cards Layout)
           ──────────────────────────────────────────────────────────────────────── */}
       <section className='py-24 px-6 lg:px-20 bg-[#FAF9FF] border-t border-zinc-100'>
+        <div className='text-center max-w-[600px] mx-auto mb-16'>
+          <h2 className='text-3xl font-black tracking-wider text-zinc-900 mb-4'>
+            Our Guarantee
+          </h2>
+          <div className='w-16 h-1 bg-[var(--color-accent)] mx-auto rounded-full'></div>
+        </div>
+
         <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto'>
           {[
             {
@@ -1082,7 +1201,7 @@ export default function SplashOrLandingPage() {
               key={item.title}
               className='bg-white border border-zinc-100 p-8 rounded-[24px] flex flex-col items-center text-center shadow-sm hover:shadow-md transition-all duration-300 group min-h-[280px] justify-center'
             >
-              <div className='w-32 h-32 rounded-2xl overflow-hidden mb-6 shrink-0 flex items-center justify-center'>
+              <div className='w-52 h-52 rounded-2xl overflow-hidden mb-6 shrink-0 flex items-center justify-center'>
                 <img
                   src={item.image}
                   alt={item.title}
@@ -1540,7 +1659,7 @@ export default function SplashOrLandingPage() {
               Contact Support
             </h2>
             <p className='text-xs text-zinc-400 leading-relaxed mb-6'>
-              Fill out the form below and our support team will call you back at <span className='text-white font-bold'>+91 8800003785</span>
+              Fill out the form below and our support team will call you back.
             </p>
 
             <form onSubmit={handleFormSubmit} className='space-y-6'>

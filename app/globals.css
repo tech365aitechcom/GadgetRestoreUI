@@ -1786,3 +1786,19 @@ hr,
   }
 }
 
+/* ─── Landing Page Safe Area (Mobile/Native) ─── */
+@media (max-width: 1023px) {
+  .landing-header {
+    padding-top: env(safe-area-inset-top, 0px) !important;
+  }
+  .landing-spacer {
+    height: calc(73px + env(safe-area-inset-top, 0px)) !important;
+  }
+  .landing-mobile-menu {
+    top: calc(73px + env(safe-area-inset-top, 0px)) !important;
+    height: calc(100vh - 73px - env(safe-area-inset-top, 0px)) !important;
+    height: calc(100svh - 73px - env(safe-area-inset-top, 0px)) !important;
+  }
+}
+
+
