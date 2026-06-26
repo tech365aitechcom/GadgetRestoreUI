@@ -19,10 +19,7 @@ import Cookies from 'js-cookie'
 import { TOKEN_COOKIE } from '@/lib/constants'
 import bookingService from '@/services/booking.service'
 import toast from 'react-hot-toast'
-import PrivacyPolicy from '@/app/(policies)/privacy-policy/page'
-import TermsAndConditions from '@/app/(policies)/terms-and-conditions/page'
-import WarrantyPolicy from '@/app/(policies)/warranty-policy/page'
-import ShippingPolicy from '@/app/(policies)/shipping-policy/page'
+import { Capacitor } from '@capacitor/core'
 
 const InputField = ({
   label,
@@ -40,7 +37,7 @@ const InputField = ({
   showPasswordToggle,
   onTogglePassword,
 }) => (
-  <div className='mb-4 lg:mb-3 relative'>
+  <div className='mb-4 lg:mb-2 relative'>
     <label className='block text-[10px] font-bold tracking-[0.1em] mb-2 uppercase' style={{ color: 'var(--color-content-text-secondary)' }}>
       {label} {required && <span className='text-red-500'>*</span>}
     </label>
@@ -117,13 +114,30 @@ export default function CustomerDetailsPage() {
 
   const [isLoading, setIsLoading] = useState(false)
   const [agreed, setAgreed] = useState(false)
-  // const [activePolicy, setActivePolicy] = useState(null)
 
-  // const handleOpenPolicy = (e, policyKey) => {
-  //   e.preventDefault()
-  //   e.stopPropagation()
-  //   setActivePolicy(policyKey)
-  // }
+  const handleOpenPolicy = async (e, policyKey) => {
+    e.preventDefault()
+    e.stopPropagation()
+    
+    const paths = {
+      privacy: '/privacy-policy',
+      terms: '/terms-and-conditions',
+      warranty: '/warranty-policy',
+      shipping: '/shipping-policy',
+      replacement: '/replacement-cancellation-policy',
+      cookie: '/cookie-policy',
+    }
+    
+    const path = paths[policyKey]
+    if (!path) return
+    const pathWithQuery = `${path}?from=checkout`
+
+    if (Capacitor.isNativePlatform()) {
+      router.push(pathWithQuery)
+    } else {
+      window.open(pathWithQuery, '_blank')
+    }
+  }
 
   // Form State
   const [formData, setFormData] = useState({
@@ -134,46 +148,101 @@ export default function CustomerDetailsPage() {
     devicePassword: '',
   })
 
+  // Debug: Log formData changes
+  useEffect(() => {
+    console.log('[CHECKOUT] formData updated:', formData)
+  }, [formData])
+
   const [showPassword, setShowPassword] = useState(false)
   const [errors, setErrors] = useState({})
 
   // Initialize data
   useEffect(() => {
-    if (!isRestored) return
+    console.log('[CHECKOUT] useEffect triggered', { isRestored, canProceedToBook })
+
+    if (!isRestored) {
+      console.log('[CHECKOUT] Waiting for booking context to restore...')
+      return
+    }
 
     if (!canProceedToBook) {
+      console.log('[CHECKOUT] Cannot proceed to book, redirecting to home')
       router.replace('/')
       return
     }
 
     const token = Cookies.get(TOKEN_COOKIE)
     if (!token) {
-      // Not authenticated
+      console.log('[CHECKOUT] No auth token, redirecting to login')
       router.replace('/login')
       return
     }
 
-    // Attempt to load from localStorage (Mock returning user)
-    const storedMobile =
-      typeof globalThis.window === 'undefined'
-        ? ''
-        : localStorage.getItem('gr_authenticated_phone') ||
-        sessionStorage.getItem('gr_login_phone')
+    console.log('[CHECKOUT] Initializing form data...')
+
+    // Load mobile number from localStorage first
+    const storedMobile = localStorage.getItem('gr_authenticated_phone') ||
+      sessionStorage.getItem('gr_login_phone')
     let savedProfile = null
     try {
-      savedProfile = JSON.parse(localStorage.getItem('gr_customer_profile'))
+      const profileData = localStorage.getItem('gr_customer_profile')
+      if (profileData) {
+        savedProfile = JSON.parse(profileData)
+      }
     } catch (e) {
-      console.warn('Failed to parse saved customer profile:', e)
+      console.warn('[CHECKOUT] Failed to parse saved customer profile:', e)
     }
 
-    setFormData((prev) => ({
-      ...prev,
-      mobile: storedMobile || savedProfile?.mobile || '+1 (555) 000-0000', // Prioritize authenticated phone
-      fullName: savedProfile?.fullName || '',
-      email: savedProfile?.email || '',
-      altContact: savedProfile?.altContact || '',
-    }))
+    // Format mobile number with +91 prefix if not present
+    let mobileNumber = storedMobile || savedProfile?.mobile || ''
+    if (mobileNumber && !mobileNumber.startsWith('+')) {
+      mobileNumber = `+91 ${mobileNumber}`
+    }
+
+    console.log('[CHECKOUT] Loading mobile number:', {
+      raw: storedMobile,
+      formatted: mobileNumber,
+      savedProfile,
+      fromLocalStorage: localStorage.getItem('gr_authenticated_phone'),
+      fromSessionStorage: sessionStorage.getItem('gr_login_phone')
+    })
+
+    // Try to load from backup to preserve user-entered data across page transitions
+    const backup = sessionStorage.getItem('gr_checkout_form_backup')
+    let backupData = null
+    if (backup) {
+      try {
+        const parsed = JSON.parse(backup)
+        if (parsed.formData) {
+          console.log('[CHECKOUT] Found backup data:', parsed.formData)
+          backupData = parsed.formData
+        }
+        if (parsed.agreed !== undefined) {
+          setAgreed(parsed.agreed)
+        }
+      } catch (e) {
+        console.warn('[CHECKOUT] Failed to parse checkout backup:', e)
+      }
+    }
+
+    // Merge: backup data takes priority for user-entered fields, but mobile always comes from auth
+    setFormData({
+      mobile: mobileNumber, // Always use authenticated phone
+      fullName: backupData?.fullName || savedProfile?.fullName || '',
+      email: backupData?.email || savedProfile?.email || '',
+      altContact: backupData?.altContact || savedProfile?.altContact || '',
+      devicePassword: backupData?.devicePassword || '',
+    })
   }, [isRestored, canProceedToBook, router])
+
+  // Save form data & agreed status to sessionStorage to preserve across internal navigation
+  useEffect(() => {
+    const backupData = {
+      formData,
+      agreed
+    }
+    sessionStorage.setItem('gr_checkout_form_backup', JSON.stringify(backupData))
+  }, [formData, agreed])
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -253,6 +322,9 @@ export default function CustomerDetailsPage() {
         throw new Error('Order was created without a tracking number.')
       }
 
+      // Clear backup storage on success
+      sessionStorage.removeItem('gr_checkout_form_backup')
+
       // Redirect to order confirmation (query-based for static export support)
       const redirectUrl = `/order-confirmation?ticketNumber=${encodeURIComponent(ticketNumber)}`
       router.push(redirectUrl)
@@ -287,6 +359,7 @@ export default function CustomerDetailsPage() {
               icon={Phone}
               name='mobile'
               value={formData.mobile}
+              onChange={() => {}}
               readOnly
             />
 
@@ -363,7 +436,54 @@ export default function CustomerDetailsPage() {
                   className='text-xs leading-relaxed select-none cursor-pointer'
                   style={{ color: 'var(--color-content-text-secondary)' }}
                 >
-                  I agree to the Privacy Policy, Terms & Conditions Policy, Warranty Policy, and Shipping Policy.
+                  I agree to the {" "}
+                  <button
+                    type='button'
+                    onClick={(e) => handleOpenPolicy(e, 'privacy')}
+                    className='text-accent hover:underline font-semibold inline'
+                  >
+                    Privacy Policy
+                  </button>
+                  ,{' '}
+                  <button
+                    type='button'
+                    onClick={(e) => handleOpenPolicy(e, 'terms')}
+                    className='text-accent hover:underline font-semibold inline'
+                  >
+                    Terms & Conditions Policy
+                  </button>
+                  ,{' '}
+                  <button
+                    type='button'
+                    onClick={(e) => handleOpenPolicy(e, 'warranty')}
+                    className='text-accent hover:underline font-semibold inline'
+                  >
+                    Warranty Policy
+                  </button>
+                  ,{' '}
+                  <button
+                    type='button'
+                    onClick={(e) => handleOpenPolicy(e, 'shipping')}
+                    className='text-accent hover:underline font-semibold inline'
+                  >
+                    Shipping & Logistics Policy
+                  </button>
+                  ,{' '}
+                  <button
+                    type='button'
+                    onClick={(e) => handleOpenPolicy(e, 'replacement')}
+                    className='text-accent hover:underline font-semibold inline'
+                  >
+                    Replacement & Cancellation Policy
+                  </button>
+                  , and{' '}
+                  <button
+                    type='button'
+                    onClick={(e) => handleOpenPolicy(e, 'cookie')}
+                    className='text-accent hover:underline font-semibold inline'
+                  >
+                    Cookie Policy
+                  </button>
                 </label>
               </div>
               {errors.agreed && (
@@ -373,7 +493,13 @@ export default function CustomerDetailsPage() {
           </form>
         </div>
 
-        <div className='fixed left-0 right-0 p-5 z-40' style={{ bottom: 'calc(var(--nav-height) + env(safe-area-inset-bottom, 0px))', background: 'linear-gradient(to top, var(--color-content-bg) 60%, transparent)' }}>
+        <div
+          className='fixed left-0 right-0 p-5'
+          style={{
+            bottom: 'calc(var(--nav-height) + env(safe-area-inset-bottom, 0px))',
+            zIndex: 101
+          }}
+        >
           <button
             onClick={handleSubmit}
             disabled={isLoading || !formData.fullName || !formData.email || !agreed}
@@ -390,7 +516,7 @@ export default function CustomerDetailsPage() {
           DESKTOP VIEW (≥1024px)
           ════════════════════════════════════════════════════════════════ */}
       <div className='home-desktop hidden lg:block min-h-[calc(100vh-var(--topbar-height))]' style={{ background: 'var(--color-content-bg)', color: 'var(--color-content-text)' }}>
-        <div className='p-8 flex h-[calc(100vh-var(--topbar-height))]'>
+        <div className='p-8 flex min-h-[calc(100vh-var(--topbar-height))]'>
           {/* Left Side: Summary Panel */}
           <div className='w-1/2 flex flex-col items-center justify-center p-12 relative overflow-hidden'>
             <div className="absolute inset-0 opacity-10 bg-[url('/images/dark-microchip-bg.png')] bg-cover pointer-events-none"></div>
@@ -432,25 +558,26 @@ export default function CustomerDetailsPage() {
           </div>
 
           {/* Right Side: Form */}
-          <div className='w-1/2 py-6 px-12 overflow-y-hidden flex flex-col' style={{ borderLeft: '1px solid rgba(34,34,34,0.3)' }}>
-            <div className='w-full max-w-lg mx-auto my-auto'>
-              <h2 className='text-[22px] font-black uppercase tracking-wider mb-4 flex items-center gap-3'>
+          <div className='w-1/2 py-6 px-12 flex flex-col' style={{ borderLeft: '1px solid rgba(34,34,34,0.3)' }}>
+            <div className='w-full max-w-lg mx-auto my-auto py-6'>
+              <h2 className='text-[16px] font-black uppercase tracking-wider mb-3 flex items-center gap-3'>
                 Customer Details
               </h2>
 
               <form onSubmit={handleSubmit}>
-                <div className='grid grid-cols-2 gap-4'>
-                  <div className='col-span-2'>
+                <div className='grid grid-cols-2 gap-x-4 gap-y-1.5'>
+                  <div className='col-span-1'>
                     <InputField
                       label='Mobile Number'
                       icon={Phone}
                       name='mobile'
                       value={formData.mobile}
+                      onChange={() => {}}
                       readOnly
                     />
                   </div>
 
-                  <div className='col-span-2'>
+                  <div className='col-span-1'>
                     <InputField
                       label='Full Name'
                       icon={User}
@@ -464,7 +591,7 @@ export default function CustomerDetailsPage() {
                     />
                   </div>
 
-                  <div className='col-span-2 sm:col-span-1'>
+                  <div className='col-span-1'>
                     <InputField
                       label='Email Address'
                       icon={Mail}
@@ -478,7 +605,7 @@ export default function CustomerDetailsPage() {
                     />
                   </div>
 
-                  <div className='col-span-2 sm:col-span-1'>
+                  <div className='col-span-1'>
                     <InputField
                       label='Alternate Contact (Optional)'
                       icon={Phone}
@@ -491,10 +618,10 @@ export default function CustomerDetailsPage() {
                   </div>
                 </div>
 
-                <div className='h-[1px] w-full my-4' style={{ background: 'var(--color-content-border)' }}></div>
+                <div className='h-[1px] w-full my-3' style={{ background: 'var(--color-content-border)' }}></div>
 
-                <h2 className='text-[22px] font-black uppercase tracking-wider mb-4 flex items-center gap-3'>
-                  <Lock size={24} style={{ color: 'var(--color-content-text-secondary)' }} /> Device Security
+                <h2 className='text-[16px] font-black uppercase tracking-wider mb-2 flex items-center gap-3'>
+                  <Lock size={18} style={{ color: 'var(--color-content-text-secondary)' }} /> Device Security
                 </h2>
 
                 <InputField
@@ -530,8 +657,8 @@ export default function CustomerDetailsPage() {
                       className='text-xs leading-relaxed select-none cursor-pointer'
                       style={{ color: 'var(--color-content-text-secondary)' }}
                     >
-                      I agree to the Privacy Policy, Terms & Conditions Policy, Warranty Policy, and Shipping Policy.
-                      {/* <button
+                      I agree to the {" "}
+                      <button
                         type='button'
                         onClick={(e) => handleOpenPolicy(e, 'privacy')}
                         className='text-accent hover:underline font-semibold inline'
@@ -554,14 +681,30 @@ export default function CustomerDetailsPage() {
                       >
                         Warranty Policy
                       </button>
-                      , and{' '}
+                      ,{' '}
                       <button
                         type='button'
                         onClick={(e) => handleOpenPolicy(e, 'shipping')}
                         className='text-accent hover:underline font-semibold inline'
                       >
                         Shipping Policy
-                      </button> */}
+                      </button>
+                      ,{' '}
+                      <button
+                        type='button'
+                        onClick={(e) => handleOpenPolicy(e, 'replacement')}
+                        className='text-accent hover:underline font-semibold inline'
+                      >
+                        Replacement & Cancellation Policy
+                      </button>
+                      , and{' '}
+                      <button
+                        type='button'
+                        onClick={(e) => handleOpenPolicy(e, 'cookie')}
+                        className='text-accent hover:underline font-semibold inline'
+                      >
+                        Cookie Policy
+                      </button>
                     </label>
                   </div>
                   {errors.agreed && (
@@ -588,34 +731,7 @@ export default function CustomerDetailsPage() {
         </div>
       </div>
 
-      {/* Policy Modal Overlay - COMMENTED OUT FOR NOW */}
-      {/* {activePolicy && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-4 md:p-6 animate-in fade-in duration-200"
-          onClick={() => setActivePolicy(null)}
-        >
-          <div
-            className="relative w-full max-w-3xl max-h-[85vh] flex flex-col rounded-3xl overflow-hidden shadow-2xl border border-zinc-800"
-            style={{ background: 'var(--color-content-card)' }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              onClick={() => setActivePolicy(null)}
-              className="absolute top-4 right-4 md:top-6 md:right-6 z-50 p-2.5 rounded-full bg-zinc-950/80 hover:bg-zinc-900 text-zinc-400 hover:text-white transition-all border border-zinc-800 hover:scale-105 active:scale-95 shadow-lg"
-              aria-label="Close policy"
-            >
-              <X size={20} />
-            </button>
 
-            <div className="overflow-y-auto flex-1">
-              {activePolicy === 'privacy' && <PrivacyPolicy />}
-              {activePolicy === 'terms' && <TermsAndConditions />}
-              {activePolicy === 'warranty' && <WarrantyPolicy />}
-              {activePolicy === 'shipping' && <ShippingPolicy />}
-            </div>
-          </div>
-        </div>
-      )} */}
     </div>
   )
 }
