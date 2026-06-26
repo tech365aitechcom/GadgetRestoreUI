@@ -37,7 +37,7 @@ const InputField = ({
   showPasswordToggle,
   onTogglePassword,
 }) => (
-  <div className='mb-4 lg:mb-2 relative'>
+  <div className='mb-4 lg:mb-3 relative'>
     <label className='block text-[10px] font-bold tracking-[0.1em] mb-2 uppercase' style={{ color: 'var(--color-content-text-secondary)' }}>
       {label} {required && <span className='text-red-500'>*</span>}
     </label>
@@ -560,13 +560,13 @@ export default function CustomerDetailsPage() {
           {/* Right Side: Form */}
           <div className='w-1/2 py-6 px-12 flex flex-col' style={{ borderLeft: '1px solid rgba(34,34,34,0.3)' }}>
             <div className='w-full max-w-lg mx-auto my-auto py-6'>
-              <h2 className='text-[16px] font-black uppercase tracking-wider mb-3 flex items-center gap-3'>
+              <h2 className='text-[22px] font-black uppercase tracking-wider mb-4 flex items-center gap-3'>
                 Customer Details
               </h2>
 
               <form onSubmit={handleSubmit}>
-                <div className='grid grid-cols-2 gap-x-4 gap-y-1.5'>
-                  <div className='col-span-1'>
+                <div className='grid grid-cols-2 gap-4'>
+                  <div className='col-span-2'>
                     <InputField
                       label='Mobile Number'
                       icon={Phone}
@@ -577,7 +577,7 @@ export default function CustomerDetailsPage() {
                     />
                   </div>
 
-                  <div className='col-span-1'>
+                  <div className='col-span-2'>
                     <InputField
                       label='Full Name'
                       icon={User}
@@ -591,7 +591,7 @@ export default function CustomerDetailsPage() {
                     />
                   </div>
 
-                  <div className='col-span-1'>
+                  <div className='col-span-2'>
                     <InputField
                       label='Email Address'
                       icon={Mail}
@@ -605,7 +605,7 @@ export default function CustomerDetailsPage() {
                     />
                   </div>
 
-                  <div className='col-span-1'>
+                  <div className='col-span-2'>
                     <InputField
                       label='Alternate Contact (Optional)'
                       icon={Phone}
@@ -618,10 +618,10 @@ export default function CustomerDetailsPage() {
                   </div>
                 </div>
 
-                <div className='h-[1px] w-full my-3' style={{ background: 'var(--color-content-border)' }}></div>
+                <div className='h-[1px] w-full my-4' style={{ background: 'var(--color-content-border)' }}></div>
 
-                <h2 className='text-[16px] font-black uppercase tracking-wider mb-2 flex items-center gap-3'>
-                  <Lock size={18} style={{ color: 'var(--color-content-text-secondary)' }} /> Device Security
+                <h2 className='text-[22px] font-black uppercase tracking-wider mb-4 flex items-center gap-3'>
+                  <Lock size={24} style={{ color: 'var(--color-content-text-secondary)' }} /> Device Security
                 </h2>
 
                 <InputField
