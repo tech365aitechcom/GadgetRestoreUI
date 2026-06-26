@@ -3,6 +3,7 @@
 import { createContext, useContext, useState, useEffect } from 'react'
 import Cookies from 'js-cookie'
 import { TOKEN_COOKIE } from '@/lib/constants'
+import { redirectToLandingPage } from '@/lib/auth-utils'
 import customerService from '@/services/customer.service'
 
 const AuthContext = createContext({
@@ -67,11 +68,9 @@ export function AuthProvider({ children }) {
   }
 
   const logout = () => {
-    Cookies.remove(TOKEN_COOKIE)
     setUser(null)
-    if (typeof window !== 'undefined') {
-      window.location.href = '/'
-    }
+    // Clear all storage (cookies, localStorage, sessionStorage) and redirect to landing page
+    redirectToLandingPage()
   }
 
   return (

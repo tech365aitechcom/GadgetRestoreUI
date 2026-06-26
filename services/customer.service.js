@@ -1,5 +1,6 @@
 import Cookies from 'js-cookie'
 import { API_BASE_URL, TOKEN_COOKIE } from '@/lib/constants'
+import { clearAllAuthStorage } from '@/lib/auth-utils'
 
 class CustomerService {
   /**
@@ -274,8 +275,8 @@ class CustomerService {
         throw new Error(error.message || 'Failed to logout')
       }
 
-      // Clear local token
-      Cookies.remove(TOKEN_COOKIE)
+      // Clear all storage (cookies, localStorage, sessionStorage)
+      clearAllAuthStorage()
 
       return await response.json()
     } catch (error) {
@@ -299,8 +300,8 @@ class CustomerService {
         throw new Error(error.message || 'Failed to delete account')
       }
 
-      // Clear local token
-      Cookies.remove(TOKEN_COOKIE)
+      // Clear all storage (cookies, localStorage, sessionStorage)
+      clearAllAuthStorage()
 
       return await response.json()
     } catch (error) {
