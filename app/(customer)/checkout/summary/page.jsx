@@ -155,9 +155,8 @@ export default function OrderSummaryPage() {
       rTypes.forEach((rtId) => {
         const id = typeof rtId === 'object' ? rtId._id : rtId
         const res = pricingResults.results.find((r) => r.repairTypeId === id)
-        if (!res || !res.available || !res.pricing) {
-          sympIsVariable = true
-        } else {
+        // Sum up available pricing - even if some repair types don't have pricing
+        if (res && res.available && res.pricing) {
           sympParts += res.pricing.partsCost || 0
           sympLabour += res.pricing.labourCost || 0
         }
@@ -166,6 +165,7 @@ export default function OrderSummaryPage() {
       sympIsVariable = true
     }
 
+    // Mark as variable only if total is zero (no pricing found for any repair type)
     if (sympParts + sympLabour === 0) sympIsVariable = true
     if (sympIsVariable) hasVariableSymptom = true
     else grandTotal += sympParts + sympLabour
