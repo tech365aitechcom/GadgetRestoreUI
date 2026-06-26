@@ -1,7 +1,7 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import { API_BASE_URL, TOKEN_COOKIE } from '@/lib/constants';
-import { navigateTo } from '@/lib/navigation';
+import { redirectToLandingPage } from '@/lib/auth-utils';
 
 const api = axios.create({
   baseURL: `${API_BASE_URL}/api`,
@@ -23,11 +23,10 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      Cookies.remove(TOKEN_COOKIE);
-      // Only redirect if not already on login page
+      // Clear all storage (cookies, localStorage, sessionStorage) and redirect to landing page
+      // This ensures no stale data remains when the token is invalid
       if (typeof window !== 'undefined' && !window.location.pathname.includes('/login')) {
-        // Use centralized navigation to prevent hard page reloads
-        navigateTo('/login');
+        redirectToLandingPage();
       }
     }
     return Promise.reject(error);

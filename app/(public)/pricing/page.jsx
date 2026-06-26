@@ -109,9 +109,8 @@ export default function PricingPage() {
         const res = pricingResults.results.find(
           (r) => String(r.repairTypeId) === String(id),
         )
-        if (!res || !res.available || !res.pricing) {
-          sympIsVariable = true
-        } else {
+        // Sum up available pricing - even if some repair types don't have pricing
+        if (res && res.available && res.pricing) {
           sympParts += res.pricing.partsCost || 0
           sympLabour += res.pricing.labourCost || 0
           // Get warranty from pricing matrix (use maximum if multiple repairs)
@@ -125,7 +124,7 @@ export default function PricingPage() {
       sympIsVariable = true
     }
 
-    // Fallback if total is zero
+    // Mark as variable only if total is zero (no pricing found for any repair type)
     if (sympParts + sympLabour === 0) sympIsVariable = true
 
     if (sympIsVariable) hasVariableSymptom = true
