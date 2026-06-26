@@ -1,10 +1,19 @@
 'use client'
 
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
 
 export default function PoliciesLayout({ children }) {
+  const [showBackToCheckout, setShowBackToCheckout] = useState(false)
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search)
+      setShowBackToCheckout(params.get('from') === 'checkout')
+    }
+  }, [])
+
   return (
     <div className='min-h-screen pb-16' style={{ background: 'var(--color-content-bg)', color: 'var(--color-content-text)' }}>
       {/* Header */}
@@ -17,9 +26,11 @@ export default function PoliciesLayout({ children }) {
               className='h-12 w-auto object-contain'
             />
           </Link>
-          <Link href="/checkout/customer-details" className='flex items-center gap-2 text-sm font-semibold hover:text-accent transition-colors' style={{ color: 'var(--color-content-text-secondary)' }}>
-            <ArrowLeft size={16} /> Back to Checkout
-          </Link>
+          {showBackToCheckout && (
+            <Link href="/checkout/customer-details" className='flex items-center gap-2 text-sm font-semibold hover:text-accent transition-colors' style={{ color: 'var(--color-content-text-secondary)' }}>
+              <ArrowLeft size={16} /> Back to Checkout
+            </Link>
+          )}
         </div>
       </header>
 

@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { Capacitor } from '@capacitor/core'
 import { Preferences } from '@capacitor/preferences'
+
 import {
   Phone,
   Mail,
@@ -413,6 +414,14 @@ export default function SplashOrLandingPage() {
       }, 6000)
     } finally {
       setIsSubmitting(false)
+    }
+  }
+
+  const handleOpenPolicy = async (path) => {
+    if (Capacitor.isNativePlatform()) {
+      router.push(path)
+    } else {
+      window.open(path, '_blank')
     }
   }
 
@@ -2057,20 +2066,48 @@ export default function SplashOrLandingPage() {
           <p className='tracking-widest text-[9px] font-bold text-center md:text-left'>
             © 2026 GADGET RESTORE INC. TECHNICAL PRECISION. ALL RIGHTS RESERVED.
           </p>
-          <div className='flex gap-6 text-[10px] font-black tracking-widest text-zinc-500'>
+          <div className='flex flex-wrap justify-center md:justify-end gap-x-6 gap-y-2 text-[10px] font-black tracking-widest text-zinc-500'>
             <button
               type='button'
-              className='hover:text-white transition-colors cursor-pointer bg-transparent border-0 p-0'
-              onClick={() => router.push('/privacy')}
+              className='hover:text-white transition-colors cursor-pointer bg-transparent border-0 p-0 text-left uppercase'
+              onClick={() => handleOpenPolicy('/privacy-policy')}
             >
-              Privacy
+              Privacy Policy
             </button>
             <button
               type='button'
-              className='hover:text-white transition-colors cursor-pointer bg-transparent border-0 p-0'
-              onClick={() => router.push('/terms')}
+              className='hover:text-white transition-colors cursor-pointer bg-transparent border-0 p-0 text-left uppercase'
+              onClick={() => handleOpenPolicy('/terms-and-conditions')}
             >
-              Terms
+              Terms & Conditions
+            </button>
+            <button
+              type='button'
+              className='hover:text-white transition-colors cursor-pointer bg-transparent border-0 p-0 text-left uppercase'
+              onClick={() => handleOpenPolicy('/warranty-policy')}
+            >
+              Warranty Policy
+            </button>
+            <button
+              type='button'
+              className='hover:text-white transition-colors cursor-pointer bg-transparent border-0 p-0 text-left uppercase'
+              onClick={() => handleOpenPolicy('/shipping-policy')}
+            >
+              Shipping Policy
+            </button>
+            <button
+              type='button'
+              className='hover:text-white transition-colors cursor-pointer bg-transparent border-0 p-0 text-left uppercase'
+              onClick={() => handleOpenPolicy('/replacement-cancellation-policy')}
+            >
+              Replacement & Cancellation
+            </button>
+            <button
+              type='button'
+              className='hover:text-white transition-colors cursor-pointer bg-transparent border-0 p-0 text-left uppercase'
+              onClick={() => handleOpenPolicy('/cookie-policy')}
+            >
+              Cookie Policy
             </button>
           </div>
         </div>

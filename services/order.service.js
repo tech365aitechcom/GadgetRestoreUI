@@ -126,12 +126,25 @@ function blobToBase64(blob) {
 }
 
 export const orderService = {
-  async getOrders() {
+  async getOrders(page = 1, limit = 10) {
     const response = await api.get('/customer/orders', {
-      params: { limit: 50 },
+      params: {
+        page,
+        limit,
+      },
     });
 
-    return response.data?.data?.orders || response.data?.orders || [];
+    const data = response.data?.data || response.data;
+    const pagination = data?.pagination || {};
+
+    return {
+      orders: data?.orders || [],
+      totalCount: pagination?.totalItems || 0,
+      currentPage: pagination?.currentPage || page,
+      totalPages: pagination?.totalPages || 1,
+      hasNext: pagination?.hasNext || false,
+      hasPrev: pagination?.hasPrev || false,
+    };
   },
 
   async getOrderDetails(ticketNumber) {

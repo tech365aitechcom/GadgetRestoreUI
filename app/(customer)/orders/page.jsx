@@ -123,6 +123,8 @@ export default function OrdersPage() {
   const [error, setError] = useState('')
   const [searchQuery] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
+  const [totalCount, setTotalCount] = useState(0)
   const itemsPerPage = 10
 
   useEffect(() => {
@@ -130,9 +132,11 @@ export default function OrdersPage() {
 
     const loadOrders = async () => {
       try {
-        const nextOrders = await orderService.getOrders()
+        const response = await orderService.getOrders(currentPage, itemsPerPage)
         if (isMounted) {
-          setOrders(nextOrders)
+          setOrders(response.orders)
+          setTotalPages(response.totalPages)
+          setTotalCount(response.totalCount)
           setError('')
         }
       } catch (err) {
@@ -143,6 +147,7 @@ export default function OrdersPage() {
       }
     }
 
+    setLoading(true)
     loadOrders()
     const intervalId = globalThis.setInterval(loadOrders, 30000)
 
@@ -150,19 +155,15 @@ export default function OrdersPage() {
       isMounted = false
       globalThis.clearInterval(intervalId)
     }
-  }, [])
+  }, [currentPage])
 
   const activeOrders = orders.filter(
     (order) => !CLOSED_STATUSES.has(order.repairStatus),
   )
   const currentOrder = activeOrders[0]
 
+  // Display all orders from current page (server-side pagination)
   const pastOrders = orders.slice(1)
-  const totalPages = Math.max(1, Math.ceil(pastOrders.length / itemsPerPage))
-  const activePage = Math.min(currentPage, totalPages)
-  const startIndex = (activePage - 1) * itemsPerPage
-  const endIndex = startIndex + itemsPerPage
-  const paginatedPastOrders = pastOrders.slice(startIndex, endIndex)
 
   return (
     <div className='min-h-[100svh] lg:min-h-[calc(100vh-var(--topbar-height))] bg-[var(--theme-bg)] pb-20 lg:pb-0 px-5 lg:px-8 pt-6 lg:pt-8'>
@@ -489,7 +490,7 @@ export default function OrdersPage() {
 
                 {/* Mobile List View */}
                 <div className='lg:hidden flex flex-col gap-3'>
-                  {paginatedPastOrders.map((order) => {
+                  {pastOrders.map((order) => {
                     const brandName = order.brandRef?.name || ''
                     const modelName = order.modelRef?.name || ''
                     const deviceName = modelName.toLowerCase().startsWith(brandName.toLowerCase())
@@ -542,7 +543,7 @@ export default function OrdersPage() {
                   </div>
 
                   {/* Table Rows */}
-                  {paginatedPastOrders.map((order, index) => {
+                  {pastOrders.map((order, index) => {
                     const brandName = order.brandRef?.name || ''
                     const modelName = order.modelRef?.name || ''
                     const deviceName = modelName.toLowerCase().startsWith(brandName.toLowerCase())
@@ -597,13 +598,13 @@ export default function OrdersPage() {
                         <PaginationItem>
                           <PaginationPrevious
                             onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                            disabled={activePage === 1}
+                            disabled={currentPage === 1}
                           />
                         </PaginationItem>
                         {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
                           <PaginationItem key={page}>
                             <PaginationLink
-                              isActive={activePage === page}
+                              isActive={currentPage === page}
                               onClick={() => setCurrentPage(page)}
                             >
                               {page}
@@ -613,7 +614,7 @@ export default function OrdersPage() {
                         <PaginationItem>
                           <PaginationNext
                             onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                            disabled={activePage === totalPages}
+                            disabled={currentPage === totalPages}
                           />
                         </PaginationItem>
                       </PaginationContent>
