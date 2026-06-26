@@ -1,6 +1,4 @@
-'use client'
-
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import {
   Home,
   ClipboardList,
@@ -10,13 +8,20 @@ import {
   HelpCircle,
   Search,
   Plus,
+  X,
+  Loader2,
+  ChevronRight,
+  Smartphone,
 } from 'lucide-react'
 import { usePathname, useRouter } from 'next/navigation'
 import { useAuth } from '@/context/AuthContext'
+import { useBooking } from '@/context/BookingContext'
 import { useProtectedNavigation } from '@/hooks/useProtectedNavigation'
 import NotificationDrawer from '@/components/layout/NotificationDrawer'
 import LoginAlertModal from '@/components/ui/LoginAlertModal'
 import notificationService from '@/services/notification.service'
+import catalogueService from '@/services/catalogue.service'
+import orderService from '@/services/order.service'
 import { setRouterInstance } from '@/lib/navigation'
 import Link from 'next/link'
 
@@ -24,15 +29,135 @@ export default function AppShell({ children, className = '' }) {
   const pathname = usePathname()
   const router = useRouter()
   const { user } = useAuth()
+  const { startBooking, setModel } = useBooking()
   const { navigateTo, showLoginModal, setShowLoginModal, redirectPath } =
     useProtectedNavigation()
   const [isNotificationOpen, setIsNotificationOpen] = useState(false)
   const [unreadCount, setUnreadCount] = useState(0)
 
+  // Search states
+  const [searchQuery, setSearchQuery] = useState('')
+  const [debouncedQuery, setDebouncedQuery] = useState('')
+  const [isFocused, setIsFocused] = useState(false)
+  const [searchResults, setSearchResults] = useState({ devices: [], tickets: [] })
+  const [isLoading, setIsLoading] = useState(false)
+  const [userOrders, setUserOrders] = useState([])
+  const containerRef = useRef(null)
+
   // Register router instance for use in API interceptor
   useEffect(() => {
     setRouterInstance(router)
   }, [router])
+
+  // Pre-fetch user orders when user is authenticated
+  useEffect(() => {
+    if (!user) {
+      setUserOrders([])
+      return
+    }
+
+    const loadOrders = async () => {
+      try {
+        const response = await orderService.getOrders(1, 50)
+        setUserOrders(response.orders || [])
+      } catch (err) {
+        console.error('Error fetching user orders for search:', err)
+      }
+    }
+
+    loadOrders()
+  }, [user])
+
+  // Debounce search query
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedQuery(searchQuery)
+    }, 300)
+    return () => clearTimeout(timer)
+  }, [searchQuery])
+
+  // Execute search when debounced query changes
+  useEffect(() => {
+    const performSearch = async () => {
+      const cleanQuery = debouncedQuery.startsWith('#') ? debouncedQuery.slice(1) : debouncedQuery
+      const queryTrimmed = cleanQuery.trim()
+
+      if (queryTrimmed.length < 2) {
+        setSearchResults({ devices: [], tickets: [] })
+        return
+      }
+
+      setIsLoading(true)
+      try {
+        // 1. Search products/models publicly
+        const devices = await catalogueService.searchProducts(queryTrimmed)
+
+        // 2. Search customer's tickets locally in-memory
+        const queryLower = queryTrimmed.toLowerCase()
+        let matchedTickets = userOrders.filter((ticket) => {
+          const ticketNo = (ticket.ticketNumber || '').toLowerCase()
+          const brand = (ticket.brandRef?.name || '').toLowerCase()
+          const model = (ticket.modelRef?.name || '').toLowerCase()
+          const status = (ticket.repairStatus || '').toLowerCase()
+          return (
+            ticketNo.includes(queryLower) ||
+            brand.includes(queryLower) ||
+            model.includes(queryLower) ||
+            status.includes(queryLower)
+          )
+        })
+
+        // 3. Fallback: if no ticket matches locally and the user is authenticated,
+        // search specifically for this ticket number directly from the server.
+        if (matchedTickets.length === 0 && user) {
+          try {
+            const singleOrder = await orderService.getOrderDetails(queryTrimmed)
+            if (singleOrder && singleOrder.ticketNumber) {
+              matchedTickets = [singleOrder]
+            }
+          } catch (err) {
+            // Ignore if order not found or doesn't belong to current customer
+          }
+        }
+
+        setSearchResults({
+          devices: devices || [],
+          tickets: matchedTickets || [],
+        })
+      } catch (err) {
+        console.error('Search failed:', err)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    performSearch()
+  }, [debouncedQuery, userOrders, user])
+
+  // Close dropdown on click outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (containerRef.current && !containerRef.current.contains(event.target)) {
+        setIsFocused(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  const handleSelectModel = (device) => {
+    setIsFocused(false)
+    setSearchQuery('')
+    startBooking({ brand: device.brandId, category: device.categoryId })
+    setModel(device)
+    router.push('/select-symptoms')
+  }
+
+  const handleSelectTicket = (ticket) => {
+    setIsFocused(false)
+    setSearchQuery('')
+    router.push(`/orders/detail?ticketNumber=${encodeURIComponent(ticket.ticketNumber)}`)
+  }
 
   useEffect(() => {
     // Only fetch notifications if user is authenticated
@@ -121,14 +246,133 @@ export default function AppShell({ children, className = '' }) {
       <main className='content-col'>
         {/* Desktop Top Bar */}
         <header className='desktop-topbar'>
-          <div className='desktop-topbar-search'>
-            <Search size={15} color='var(--color-content-text-secondary)' />
+          <div ref={containerRef} className='desktop-topbar-search relative flex items-center w-full max-w-[440px]'>
+            <Search size={15} color='var(--color-content-text-secondary)' className="shrink-0" />
             <input
               type='text'
-              placeholder='Search devices, tickets, or serial numbers...'
-              onClick={() => router.push('/select-category')}
-              readOnly
+              placeholder='Search devices or tickets...'
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onFocus={() => setIsFocused(true)}
+              className="w-full bg-transparent border-none outline-none text-sm text-[var(--color-content-text)] !cursor-text"
             />
+            {searchQuery && (
+              <button
+                onClick={() => {
+                  setSearchQuery('')
+                  setSearchResults({ devices: [], tickets: [] })
+                }}
+                className="p-1 hover:bg-white/10 rounded-full cursor-pointer text-[var(--color-content-text-secondary)] shrink-0 flex items-center justify-center border-none bg-transparent"
+                type="button"
+              >
+                <X size={14} />
+              </button>
+            )}
+
+            {/* Dropdown Results Overlay */}
+            {isFocused && (searchQuery.trim().length >= 2 || isLoading) && (
+              <div
+                className="absolute top-[48px] left-0 w-[480px] bg-[var(--color-content-card)] border border-[var(--color-content-border)] rounded-2xl shadow-[0_12px_30px_rgba(0,0,0,0.4)] z-50 overflow-hidden"
+              >
+                {isLoading ? (
+                  <div className="flex items-center justify-center gap-2 py-8 text-sm text-[var(--color-content-text-secondary)]">
+                    <Loader2 size={16} className="animate-spin text-[var(--color-accent)]" />
+                    Searching...
+                  </div>
+                ) : searchResults.devices.length === 0 && searchResults.tickets.length === 0 ? (
+                  <div className="py-8 text-center text-sm text-[var(--color-content-text-secondary)]">
+                    No results found for "{searchQuery}"
+                  </div>
+                ) : (
+                  <div className="max-h-[380px] overflow-y-auto divide-y divide-[var(--color-content-divider)] scrollbar-none">
+                    {/* Device results */}
+                    {searchResults.devices.length > 0 && (
+                      <div className="p-3">
+                        <div className="text-[10px] font-bold uppercase tracking-wider text-[var(--color-content-text-secondary)] px-3.5 py-1.5 mb-1">
+                          Devices / Models (Book Repair)
+                        </div>
+                        <div className="space-y-0.5">
+                          {searchResults.devices.map((device) => (
+                            <button
+                              key={device._id}
+                              onClick={() => handleSelectModel(device)}
+                              className="w-full text-left flex items-center justify-between px-3.5 py-2.5 rounded-xl hover:bg-white/5 transition-colors border-none bg-transparent cursor-pointer group"
+                            >
+                              <div className="flex items-center gap-3">
+                                <div className="w-9 h-9 rounded-lg bg-[var(--color-content-bg)] border border-[var(--color-content-border)] flex items-center justify-center p-1 shrink-0">
+                                  <img
+                                    src={device.image || (device.brandId?.name?.toLowerCase().includes('apple') ? '/images/default-apple.png' : '/images/default-android.png')}
+                                    alt={device.name}
+                                    className="w-full h-full object-contain"
+                                    onError={(e) => {
+                                      e.target.src = device.brandId?.name?.toLowerCase().includes('apple') ? '/images/default-apple.png' : '/images/default-android.png'
+                                    }}
+                                  />
+                                </div>
+                                <div>
+                                  <span className="block text-sm font-semibold text-[var(--color-content-text)] group-hover:text-[var(--color-accent)] transition-colors">
+                                    {device.name}
+                                  </span>
+                                  <span className="block text-[11px] text-[var(--color-content-text-secondary)] mt-0.5 uppercase tracking-wide font-bold">
+                                    {device.brandId?.name} • {device.categoryId?.name}
+                                  </span>
+                                </div>
+                              </div>
+                              <ChevronRight size={15} className="text-[var(--color-content-text-secondary)] group-hover:translate-x-0.5 transition-transform" />
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Ticket/Order results */}
+                    {searchResults.tickets.length > 0 && (
+                      <div className="p-3">
+                        <div className="text-[10px] font-bold uppercase tracking-wider text-[var(--color-content-text-secondary)] px-3.5 py-1.5 mb-1">
+                          Your Service Tickets
+                        </div>
+                        <div className="space-y-0.5">
+                          {searchResults.tickets.map((ticket) => (
+                            <button
+                              key={ticket.ticketNumber}
+                              onClick={() => handleSelectTicket(ticket)}
+                              className="w-full text-left flex items-center justify-between px-3.5 py-2.5 rounded-xl hover:bg-white/5 transition-colors border-none bg-transparent cursor-pointer group"
+                            >
+                              <div className="flex items-center gap-3">
+                                <div className="w-9 h-9 rounded-lg bg-[var(--color-content-bg)] border border-[var(--color-content-border)] flex items-center justify-center p-1 shrink-0">
+                                  <img
+                                    src={ticket.modelRef?.image || (ticket.brandRef?.name?.toLowerCase().includes('apple') ? '/images/default-apple.png' : '/images/default-android.png')}
+                                    alt={ticket.modelRef?.name || 'Device'}
+                                    className="w-full h-full object-contain"
+                                    onError={(e) => {
+                                      e.target.src = ticket.brandRef?.name?.toLowerCase().includes('apple') ? '/images/default-apple.png' : '/images/default-android.png'
+                                    }}
+                                  />
+                                </div>
+                                <div>
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-sm font-semibold text-[var(--color-content-text)] font-mono">
+                                      {ticket.ticketNumber}
+                                    </span>
+                                    <span className="px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider rounded bg-white/10 text-[var(--color-content-text-secondary)]">
+                                      {ticket.repairStatus?.replaceAll('_', ' ')}
+                                    </span>
+                                  </div>
+                                  <span className="block text-[11px] text-[var(--color-content-text-secondary)] mt-0.5 font-bold">
+                                    {ticket.modelRef?.name}
+                                  </span>
+                                </div>
+                              </div>
+                              <ChevronRight size={15} className="text-[var(--color-content-text-secondary)] group-hover:translate-x-0.5 transition-transform" />
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
           <div className='flex items-center gap-5 ml-auto'>
             <button
