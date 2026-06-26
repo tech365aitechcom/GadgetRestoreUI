@@ -2081,7 +2081,7 @@ export default function SplashOrLandingPage() {
             >
               Terms & Conditions
             </button>
-            <button
+            {/* <button
               type='button'
               className='hover:text-white transition-colors cursor-pointer bg-transparent border-0 p-0 text-left uppercase'
               onClick={() => handleOpenPolicy('/warranty-policy')}
@@ -2108,7 +2108,7 @@ export default function SplashOrLandingPage() {
               onClick={() => handleOpenPolicy('/cookie-policy')}
             >
               Cookie Policy
-            </button>
+            </button> */}
           </div>
         </div>
       </footer>
