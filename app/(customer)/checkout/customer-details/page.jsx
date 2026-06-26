@@ -497,7 +497,8 @@ export default function CustomerDetailsPage() {
           className='fixed left-0 right-0 p-5'
           style={{
             bottom: 'calc(var(--nav-height) + env(safe-area-inset-bottom, 0px))',
-            zIndex: 101
+            zIndex: 101,
+            background: 'linear-gradient(to top, var(--color-content-bg) 70%, transparent)'
           }}
         >
           <button

@@ -275,7 +275,7 @@ export default function PricingPage() {
                 </div>
                 <div>
                   <h2 className='text-lg font-extrabold text-white mb-1'>
-                    {brand.name} {model.name}
+                    {model.name}
                   </h2>
                   {symptoms.length > 0 && (
                     <div className='text-xs text-gray-400'>
