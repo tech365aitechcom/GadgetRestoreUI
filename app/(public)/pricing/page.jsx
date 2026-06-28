@@ -14,10 +14,13 @@ import {
 
 import { useBooking } from '@/context/BookingContext'
 import catalogueService from '@/services/catalogue.service'
+import customerService from '@/services/customer.service'
 import Cookies from 'js-cookie'
 import { TOKEN_COOKIE } from '@/lib/constants'
+import { redirectToLandingPage } from '@/lib/auth-utils'
 import Skeleton from '@/components/ui/Skeleton'
 import ErrorState from '@/components/ui/ErrorState'
+import toast from 'react-hot-toast'
 
 /* ─── Helpers ────────────────────────────────────────────────────────────────── */
 function collectRepairTypeIds(symptoms) {
@@ -171,17 +174,29 @@ export default function PricingPage() {
   const modelImg = model.image || defaultDeviceImg
 
   /* Handlers */
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     if (!canProceedToBook) return
 
     // Check if user is already logged in
     const token = Cookies.get(TOKEN_COOKIE)
     if (token) {
-      router.push('/schedule')
-      return
+      // Verify token is valid before proceeding
+      const verificationResult = await customerService.verifyToken()
+
+      if (verificationResult.valid) {
+        // Token is valid, proceed to schedule
+        router.push('/schedule')
+        return
+      } else {
+        // Token is invalid - clear storage and redirect to login
+        console.warn('[Pricing] Invalid token detected:', verificationResult.message)
+        toast.error('Your session has expired. Please login again.')
+        redirectToLandingPage()
+        return
+      }
     }
 
-    // Store intended redirect URL before navigating to login
+    // No token - Store intended redirect URL before navigating to login
     if (typeof window !== 'undefined') {
       sessionStorage.setItem('gr_redirect_after_login', '/schedule')
     }
