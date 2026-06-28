@@ -260,6 +260,40 @@ class CustomerService {
   }
 
   /**
+   * GET /api/customer/verify-token
+   * Verify if the current token is valid and customer exists
+   * @returns {Promise<{valid: boolean, customer?: Object}>}
+   */
+  async verifyToken() {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/customer/verify-token`, {
+        method: 'GET',
+        headers: this.getAuthHeaders(),
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        return {
+          valid: false,
+          message: error.message || 'Token validation failed'
+        }
+      }
+
+      const data = await response.json()
+      return {
+        valid: data.data?.valid || false,
+        customer: data.data?.customer || null
+      }
+    } catch (error) {
+      console.error('Token verification error:', error)
+      return {
+        valid: false,
+        message: error.message || 'Token validation failed'
+      }
+    }
+  }
+
+  /**
    * POST /api/customer/logout
    * Logout from all devices by invalidating all tokens
    */

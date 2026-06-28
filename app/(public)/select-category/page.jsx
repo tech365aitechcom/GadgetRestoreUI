@@ -29,34 +29,34 @@ const SLOTS = [
     },
     category: { _id: '67b46b938ffdfd20a19c9da9', name: 'Mobile' },
   },
-  {
-    id: 'ipad-tablet',
-    title: 'iPad / Tablet',
-    description:
-      'Screen replacements, battery fixes, and more for all Apple iPad models.',
-    icon: Tablet,
-    bgImage: '/images/pcb1.png',
-    brand: {
-      _id: '68b175a710113c5d55975eac',
-      name: 'Apple',
-      logo: 'https://cs-portal-documents.s3.ap-south-1.amazonaws.com/brand-logos/1780912547229-apple.svg',
-    },
-    category: { _id: '67b483a0a7c6cc25c6864445', name: 'iPad' },
-  },
-  {
-    id: 'mac-pc',
-    title: 'Mac / PC',
-    description:
-      'Hardware upgrades and repairs for MacBooks and Apple desktops.',
-    icon: Laptop,
-    bgImage: '/images/pcb2.png',
-    brand: {
-      _id: '68b175b310113c5d5597624e',
-      name: 'Apple',
-      logo: 'https://cs-portal-documents.s3.ap-south-1.amazonaws.com/brand-logos/1780912570555-apple.svg',
-    },
-    category: { _id: '6790c19283c3aeebf3dba734', name: 'Laptop' },
-  },
+  // {
+  //   id: 'ipad-tablet',
+  //   title: 'iPad / Tablet',
+  //   description:
+  //     'Screen replacements, battery fixes, and more for all Apple iPad models.',
+  //   icon: Tablet,
+  //   bgImage: '/images/pcb1.png',
+  //   brand: {
+  //     _id: '68b175a710113c5d55975eac',
+  //     name: 'Apple',
+  //     logo: 'https://cs-portal-documents.s3.ap-south-1.amazonaws.com/brand-logos/1780912547229-apple.svg',
+  //   },
+  //   category: { _id: '67b483a0a7c6cc25c6864445', name: 'iPad' },
+  // },
+  // {
+  //   id: 'mac-pc',
+  //   title: 'Mac / PC',
+  //   description:
+  //     'Hardware upgrades and repairs for MacBooks and Apple desktops.',
+  //   icon: Laptop,
+  //   bgImage: '/images/pcb2.png',
+  //   brand: {
+  //     _id: '68b175b310113c5d5597624e',
+  //     name: 'Apple',
+  //     logo: 'https://cs-portal-documents.s3.ap-south-1.amazonaws.com/brand-logos/1780912570555-apple.svg',
+  //   },
+  //   category: { _id: '6790c19283c3aeebf3dba734', name: 'Laptop' },
+  // },
 ]
 
 export default function SelectCategoryPage() {
@@ -72,7 +72,9 @@ export default function SelectCategoryPage() {
     setTimeout(() => {
       setBrand(slot.brand)
       router.push(
-        `/select-model?catId=${slot.category._id}&catName=${encodeURIComponent(slot.category.name)}`,
+        `/select-model?catId=${slot.category._id}&catName=${encodeURIComponent(
+          slot.category.name,
+        )}`,
       )
     }, 0)
   }
@@ -114,7 +116,8 @@ export default function SelectCategoryPage() {
 
       {/* ── CATEGORIES GRID ── */}
       <section className='pb-24 px-6 lg:px-20 flex-1'>
-        <div className='max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8'>
+        <div className='max-w-5xl mx-auto flex justify-center'>
+          <div className='grid grid-cols-1 gap-6 lg:gap-8 w-full max-w-sm'>
           {SLOTS.map((slot) => {
             const Icon = slot.icon
             return (
@@ -185,6 +188,7 @@ export default function SelectCategoryPage() {
               </button>
             )
           })}
+          </div>
         </div>
       </section>
     </div>
