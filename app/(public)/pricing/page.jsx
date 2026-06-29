@@ -14,23 +14,20 @@ import {
 
 import { useBooking } from '@/context/BookingContext'
 import catalogueService from '@/services/catalogue.service'
-import customerService from '@/services/customer.service'
 import Cookies from 'js-cookie'
 import { TOKEN_COOKIE } from '@/lib/constants'
-import { redirectToLandingPage } from '@/lib/auth-utils'
 import Skeleton from '@/components/ui/Skeleton'
 import ErrorState from '@/components/ui/ErrorState'
-import toast from 'react-hot-toast'
 
 /* ─── Helpers ────────────────────────────────────────────────────────────────── */
 function collectRepairTypeIds(symptoms) {
   const ids = new Set()
-  ;(symptoms || []).forEach((s) => {
-    ;(s.repairTypes || []).forEach((rt) => {
-      const id = typeof rt === 'object' ? rt._id : rt
-      if (id) ids.add(id)
+    ; (symptoms || []).forEach((s) => {
+      ; (s.repairTypes || []).forEach((rt) => {
+        const id = typeof rt === 'object' ? rt._id : rt
+        if (id) ids.add(id)
+      })
     })
-  })
   return [...ids]
 }
 
@@ -180,20 +177,10 @@ export default function PricingPage() {
     // Check if user is already logged in
     const token = Cookies.get(TOKEN_COOKIE)
     if (token) {
-      // Verify token is valid before proceeding
-      const verificationResult = await customerService.verifyToken()
-
-      if (verificationResult.valid) {
-        // Token is valid, proceed to schedule
-        router.push('/schedule')
-        return
-      } else {
-        // Token is invalid - clear storage and redirect to login
-        console.warn('[Pricing] Invalid token detected:', verificationResult.message)
-        toast.error('Your session has expired. Please login again.')
-        redirectToLandingPage()
-        return
-      }
+      // Proceed directly to schedule. Stale or invalid tokens will be handled
+      // globally by the API interceptor when request is made.
+      router.push('/schedule')
+      return
     }
 
     // No token - Store intended redirect URL before navigating to login
@@ -386,9 +373,8 @@ export default function PricingPage() {
                 {symptoms.map((symp, i) => (
                   <div
                     key={i}
-                    className={`flex justify-between items-center pb-4 ${
-                      i < symptoms.length - 1 ? 'border-b border-white/5' : ''
-                    }`}
+                    className={`flex justify-between items-center pb-4 ${i < symptoms.length - 1 ? 'border-b border-white/5' : ''
+                      }`}
                   >
                     <span className='text-sm text-white'>{symp.name}</span>
                     <span className='text-[10px] font-extrabold text-[#EF4444] tracking-wider uppercase'>
@@ -511,11 +497,10 @@ export default function PricingPage() {
           <button
             onClick={handleConfirm}
             disabled={!canProceedToBook}
-            className={`h-14 px-10 bg-black text-white font-extrabold text-xs uppercase tracking-wider rounded-[var(--radius-btn)] flex items-center justify-center gap-3 transition-opacity ${
-              canProceedToBook
+            className={`h-14 px-10 bg-black text-white font-extrabold text-xs uppercase tracking-wider rounded-[var(--radius-btn)] flex items-center justify-center gap-3 transition-opacity ${canProceedToBook
                 ? 'cursor-pointer hover:opacity-90'
                 : 'cursor-not-allowed opacity-50'
-            }`}
+              }`}
           >
             Confirm & Continue <ChevronRight size={18} />
           </button>
@@ -533,11 +518,10 @@ export default function PricingPage() {
         <button
           onClick={handleConfirm}
           disabled={!canProceedToBook}
-          className={`w-full h-14 bg-white text-black font-extrabold text-sm uppercase tracking-wider rounded-2xl flex items-center justify-center gap-2 shadow-lg transition-opacity ${
-            canProceedToBook
+          className={`w-full h-14 bg-white text-black font-extrabold text-sm uppercase tracking-wider rounded-2xl flex items-center justify-center gap-2 shadow-lg transition-opacity ${canProceedToBook
               ? 'cursor-pointer hover:opacity-90'
               : 'cursor-not-allowed opacity-50'
-          }`}
+            }`}
         >
           Confirm & Continue <ChevronRight size={18} />
         </button>
