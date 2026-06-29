@@ -1799,6 +1799,9 @@ hr,
     height: calc(100vh - 73px - env(safe-area-inset-top, 0px)) !important;
     height: calc(100svh - 73px - env(safe-area-inset-top, 0px)) !important;
   }
+  .policy-header {
+    padding-top: env(safe-area-inset-top, 0px) !important;
+  }
 }
 
 

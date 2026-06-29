@@ -2,6 +2,7 @@
 
 import { useRouter, usePathname } from 'next/navigation'
 import { ArrowLeft, Bell } from 'lucide-react'
+import Link from 'next/link'
 
 /**
  * Mobile header component with back button, logo, and notification bell
@@ -66,11 +67,13 @@ export default function MobileHeader({
 
       {/* Center - Logo */}
       <div className='flex-1 flex justify-center'>
-        <img
-          src='/gadget-restore-logo.svg'
-          alt='Gadget Restore'
-          className='h-7 object-contain'
-        />
+        <Link href="/" className='flex items-center hover:opacity-85 transition-opacity'>
+          <img
+            src='/gadget-restore-logo.svg'
+            alt='Gadget Restore'
+            className='h-7 object-contain'
+          />
+        </Link>
       </div>
 
       {/* Right side - Notification bell */}
