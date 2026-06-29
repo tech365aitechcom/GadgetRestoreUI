@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { Capacitor } from '@capacitor/core'
 import { Preferences } from '@capacitor/preferences'
+import PropTypes from 'prop-types'
 import {
   Phone,
   Mail,
@@ -14,8 +15,6 @@ import {
   Smartphone,
   Laptop,
   Tablet,
-  Gamepad,
-  Headphones,
   Monitor,
   Calendar,
   Zap,
@@ -43,13 +42,19 @@ function getProgressLabel(progress) {
 }
 
 // Helper component to animate numbers
+AnimatedCounter.propTypes = {
+  target: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+  duration: PropTypes.number,
+  decimals: PropTypes.number,
+}
+
 function AnimatedCounter({ target, duration = 1200, decimals = 0 }) {
   const [count, setCount] = useState(0)
 
   useEffect(() => {
     let start = 0
-    const end = parseFloat(target)
-    if (isNaN(end)) return
+    const end = Number.parseFloat(target)
+    if (Number.isNaN(end)) return
     if (end === 0) return
 
     const totalSteps = 40
@@ -94,7 +99,7 @@ export default function SplashOrLandingPage() {
   })
 
   // Booking Context
-  const { reset, setCategory, setBrand } = useBooking()
+  const { reset, setBrand } = useBooking()
 
   const [isScrolled, setIsScrolled] = useState(false)
 

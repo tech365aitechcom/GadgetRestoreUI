@@ -5,20 +5,15 @@ import { useRouter } from 'next/navigation';
 import {
   ArrowLeft,
   ChevronRight,
-  Check,
-  Smartphone,
-  FlaskConical,
   Home,
   Truck,
   Lock,
-  Award,
-  Shield,
   BadgeCheck,
   Cpu,
 } from 'lucide-react';
+import PropTypes from 'prop-types';
 
 import { useBooking } from '@/context/BookingContext';
-import catalogueService from '@/services/catalogue.service';
 import { useBookingGuard } from '@/hooks/useBookingGuard';
 
 /* ─── Service mode config (Phase 1: Lab only) ───────────────────────────────── */
@@ -150,13 +145,30 @@ function RemarksField({ value, onChange }) {
   );
 }
 
+ServiceModeCard.propTypes = {
+  mode: PropTypes.shape({
+    id: PropTypes.string.isRequired,
+    label: PropTypes.string.isRequired,
+    description: PropTypes.string.isRequired,
+    icon: PropTypes.node.isRequired,
+    active: PropTypes.bool.isRequired,
+    badges: PropTypes.arrayOf(PropTypes.string),
+  }).isRequired,
+  isSelected: PropTypes.bool.isRequired,
+  onSelect: PropTypes.func.isRequired,
+};
+
+RemarksField.propTypes = {
+  value: PropTypes.string,
+  onChange: PropTypes.func.isRequired,
+};
+
 /* ═══════════════════════════════════════════════════════════════════════════════
    MAIN PAGE
 ═══════════════════════════════════════════════════════════════════════════════ */
 export default function SelectModePage() {
   const router = useRouter();
   const {
-    brand, model, symptoms, partTier,
     serviceMode: contextServiceMode,
     remarks: contextRemarks,
     setServiceMode,

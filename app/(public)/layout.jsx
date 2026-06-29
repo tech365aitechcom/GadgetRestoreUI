@@ -8,6 +8,7 @@ import MobileHeader from '@/components/layout/MobileHeader'
 import StepIndicator from '@/components/layout/StepIndicator'
 import { useAuth } from '@/context/AuthContext'
 import notificationService from '@/services/notification.service'
+import PropTypes from 'prop-types'
 
 export default function PublicLayout({ children }) {
   const { user } = useAuth()
@@ -34,6 +35,7 @@ export default function PublicLayout({ children }) {
           0
         )
       } catch (err) {
+        console.warn('Failed to fetch unread notifications count:', err)
         setUnreadCount(0)
       }
     }
@@ -72,4 +74,8 @@ export default function PublicLayout({ children }) {
       {!isOnboarding && <BottomNav />}
     </AppShell>
   )
+}
+
+PublicLayout.propTypes = {
+  children: PropTypes.node.isRequired,
 }

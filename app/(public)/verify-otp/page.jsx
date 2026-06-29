@@ -2,7 +2,7 @@
 
 import { Suspense, useState, useEffect, useRef } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { ArrowLeft, Bell, Lock, Shield } from 'lucide-react'
+import { Lock, Shield } from 'lucide-react'
 import authService from '@/services/auth.service'
 import { OTP_RESEND_SECONDS } from '@/lib/constants'
 
@@ -16,7 +16,7 @@ function VerifyOtpContent() {
     const queryPhone = searchParams.get('phone')
     if (queryPhone) {
       setPhone(queryPhone)
-    } else if (typeof window !== 'undefined') {
+    } else if (typeof globalThis.window !== 'undefined') {
       const stored = sessionStorage.getItem('gr_login_phone')
       if (stored) {
         setPhone(stored)
@@ -65,7 +65,7 @@ function VerifyOtpContent() {
     setOtpString(digitsOnly)
 
     // Update individual boxes
-    const newOtp = Array(6).fill('')
+    const newOtp = new Array(6).fill('')
     for (let i = 0; i < digitsOnly.length; i++) {
       newOtp[i] = digitsOnly[i]
     }
@@ -187,7 +187,7 @@ function VerifyOtpContent() {
       localStorage.removeItem(`gr_otp_blocked_${phone}`)
 
       // Save authenticated phone for checkout flow
-      if (typeof window !== 'undefined') {
+      if (typeof globalThis.window !== 'undefined') {
         localStorage.setItem('gr_authenticated_phone', phone)
       }
 
@@ -198,7 +198,7 @@ function VerifyOtpContent() {
       const redirectParam = searchParams.get('redirect')
       if (redirectParam) {
         redirectUrl = redirectParam
-      } else if (typeof window !== 'undefined') {
+      } else if (typeof globalThis.window !== 'undefined') {
         // Then check session storage
         const storedRedirect = sessionStorage.getItem('gr_redirect_after_login')
         if (storedRedirect) {
@@ -216,7 +216,9 @@ function VerifyOtpContent() {
               router.push('/schedule')
               return
             }
-          } catch (e) { }
+          } catch (e) {
+            console.error('Failed to parse booking state:', e)
+          }
         }
       }
 
@@ -306,6 +308,14 @@ function VerifyOtpContent() {
 
               {/* Visual OTP boxes */}
               <div
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    hiddenInputRef.current?.focus();
+                  }
+                }}
                 className='flex justify-between gap-2 mb-6 ltr'
                 onClick={() => hiddenInputRef.current?.focus()}
               >

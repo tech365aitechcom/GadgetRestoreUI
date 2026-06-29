@@ -1,12 +1,18 @@
 'use client';
 
 import { usePathname } from 'next/navigation';
+import PropTypes from 'prop-types';
 
 /**
  * Step progress indicator for the booking flow
  * Shows the current step with dots
  * Only shows for booking flow pages, hidden on home page
  */
+StepIndicator.propTypes = {
+  currentStep: PropTypes.number,
+  totalSteps: PropTypes.number,
+};
+
 export default function StepIndicator({ currentStep, totalSteps = 5 }) {
   const pathname = usePathname();
 

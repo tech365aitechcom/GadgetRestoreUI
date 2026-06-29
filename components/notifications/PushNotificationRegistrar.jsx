@@ -29,7 +29,7 @@ export default function PushNotificationRegistrar() {
       toast.success(`${title}: ${body}`);
 
       // Web only: display service worker local notification
-      if (!Capacitor.isNativePlatform() && typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted') {
+      if (!Capacitor.isNativePlatform() && typeof globalThis.window !== 'undefined' && 'Notification' in globalThis && Notification.permission === 'granted') {
         navigator.serviceWorker?.ready.then((registration) => {
           registration.showNotification(title, {
             body,

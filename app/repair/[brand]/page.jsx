@@ -1,18 +1,11 @@
 import Script from 'next/script'
 import {
-  Smartphone,
-  Monitor,
-  Tablet,
-  Gamepad,
-  Laptop,
-  Check,
   Star,
-  MapPin,
   ShieldCheck,
-  ArrowRight,
   Clock,
 } from 'lucide-react'
 import RepairLandingClient from './RepairLandingClient'
+import PropTypes from 'prop-types'
 import catalogueService from '@/services/catalogue.service'
 
 // Server-side dynamic metadata generation for SEO
@@ -42,6 +35,10 @@ export async function generateMetadata({ params }) {
       type: 'website',
     },
   }
+}
+
+BrandRepairPage.propTypes = {
+  params: PropTypes.any.isRequired,
 }
 
 export default async function BrandRepairPage({ params }) {

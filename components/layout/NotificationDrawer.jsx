@@ -7,7 +7,6 @@ import {
   X,
   Trash2,
   CheckCheck,
-  Inbox,
   ArrowRight,
   Clock,
   RefreshCw,
@@ -15,6 +14,12 @@ import {
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import notificationService from '@/services/notification.service'
+import PropTypes from 'prop-types'
+
+NotificationDrawer.propTypes = {
+  isOpen: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+}
 
 export default function NotificationDrawer({ isOpen, onClose }) {
   const router = useRouter()
@@ -31,10 +36,10 @@ export default function NotificationDrawer({ isOpen, onClose }) {
       if (e.key === 'Escape') onClose()
     }
     if (isOpen) {
-      window.addEventListener('keydown', handleKeyDown)
+      globalThis.addEventListener('keydown', handleKeyDown)
       fetchNotifications()
     }
-    return () => window.removeEventListener('keydown', handleKeyDown)
+    return () => globalThis.removeEventListener('keydown', handleKeyDown)
   }, [isOpen])
 
   // Click outside to close
@@ -56,7 +61,7 @@ export default function NotificationDrawer({ isOpen, onClose }) {
       // Check if user is authenticated before making API call
       const token = document.cookie
         .split('; ')
-        .find((row) => row.startsWith('customer_token='))
+        .some((row) => row.startsWith('customer_token='))
       if (!token) {
         setIsLoading(false)
         return
@@ -126,7 +131,7 @@ export default function NotificationDrawer({ isOpen, onClose }) {
 
   const handleDelete = async (id, e) => {
     e.stopPropagation()
-    const isUnread = notifications.find((n) => n._id === id && !n.isRead)
+    const isUnread = notifications.some((n) => n._id === id && !n.isRead)
     setNotifications((prev) => prev.filter((n) => n._id !== id))
     if (isUnread) setUnreadCount((c) => Math.max(0, c - 1))
 
@@ -279,7 +284,7 @@ export default function NotificationDrawer({ isOpen, onClose }) {
                 checked={unreadOnly}
                 onChange={(e) => setUnreadOnly(e.target.checked)}
                 className='rounded border-[var(--theme-border)] text-[var(--theme-btn-primary-bg)] focus:ring-[var(--theme-btn-primary-bg)] w-3.5 h-3.5'
-              />
+              />{' '}
               Unread only
             </label>
           </div>
@@ -332,11 +337,19 @@ export default function NotificationDrawer({ isOpen, onClose }) {
             notifications.map((n) => (
               <div
                 key={n._id}
+                role='button'
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    handleNotificationClick(n);
+                  }
+                }}
                 onClick={() => handleNotificationClick(n)}
                 className={`group relative overflow-hidden p-3.5 rounded-xl border transition-all duration-200 cursor-pointer ${
-                  !n.isRead
-                    ? 'bg-[var(--theme-card)] border-[var(--theme-border-strong)] shadow-sm hover:translate-y-[-1px]'
-                    : 'bg-[var(--theme-bg)] border-[var(--theme-border)] hover:bg-[var(--theme-card)] opacity-85'
+                  n.isRead
+                    ? 'bg-[var(--theme-bg)] border-[var(--theme-border)] hover:bg-[var(--theme-card)] opacity-85'
+                    : 'bg-[var(--theme-card)] border-[var(--theme-border-strong)] shadow-sm hover:translate-y-[-1px]'
                 }`}
               >
                 {!n.isRead && (
@@ -344,7 +357,7 @@ export default function NotificationDrawer({ isOpen, onClose }) {
                 )}
 
                 <div
-                  className={`${!n.isRead ? 'pl-3' : ''} flex items-start justify-between gap-3`}
+                  className={`${n.isRead ? '' : 'pl-3'} flex items-start justify-between gap-3`}
                 >
                   <div className='flex-1 min-w-0'>
                     <div className='flex items-center gap-2 mb-1 flex-wrap'>

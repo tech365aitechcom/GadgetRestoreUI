@@ -3,7 +3,6 @@
 import { useEffect, useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import {
-  ArrowLeft,
   Search,
   Battery,
   Zap,
@@ -16,7 +15,6 @@ import {
   HelpCircle,
   Wrench,
   ChevronRight,
-  Sparkles,
   Info,
   Check,
   BadgeCheck,
@@ -166,10 +164,10 @@ export default function SelectSymptomsPage() {
   }, [model, category, contextSymptoms, contextRemarks])
 
   // Check if "Other" symptom is selected
-  const isOtherSelected = useMemo(() => {
-    const otherSymptom = symptomsList.find((s) => s.isOther)
-    return otherSymptom && selectedIds.includes(otherSymptom._id)
-  }, [symptomsList, selectedIds])
+  // const isOtherSelected = useMemo(() => {
+  //   const otherSymptom = symptomsList.find((s) => s.isOther)
+  //   return otherSymptom && selectedIds.includes(otherSymptom._id)
+  // }, [symptomsList, selectedIds])
 
   // Filter symptoms list based on search query
   const filteredSymptoms = useMemo(() => {
@@ -389,7 +387,7 @@ export default function SelectSymptomsPage() {
                     }}
                     className="device-card-image"
                     onError={(e) => {
-                      if (e.target.src !== window.location.origin + defaultImage) {
+                      if (e.target.src !== globalThis.window.location.origin + defaultImage) {
                         e.target.src = defaultImage;
                       }
                     }}
@@ -989,6 +987,14 @@ export default function SelectSymptomsPage() {
 
             {/* Device Info Card */}
             <div
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  router.push('/select-model');
+                }
+              }}
               onClick={() => router.push('/select-model')}
               className="mobile-device-card"
               style={{
@@ -1027,7 +1033,7 @@ export default function SelectSymptomsPage() {
                     objectFit: 'contain',
                   }}
                   onError={(e) => {
-                    if (e.target.src !== window.location.origin + defaultImage) {
+                    if (e.target.src !== globalThis.window.location.origin + defaultImage) {
                       e.target.src = defaultImage;
                     }
                   }}

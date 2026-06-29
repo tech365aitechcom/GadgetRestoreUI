@@ -6,6 +6,7 @@ import { ArrowLeft, ChevronDown } from 'lucide-react'
 import { useBooking } from '@/context/BookingContext'
 import slotService from '@/services/slot.service'
 import serviceCentreService from '@/services/serviceCentre.service'
+import PropTypes from 'prop-types'
 
 // ── Custom Desktop Calendar Picker ───────────────────────────────────────────
 function DesktopCalendar({ selectedDate, setSelectedDate, availableDates, setSelectedTimeSlot, setError, isLoading }) {
@@ -201,6 +202,15 @@ function DesktopCalendar({ selectedDate, setSelectedDate, availableDates, setSel
   )
 }
 
+DesktopCalendar.propTypes = {
+  selectedDate: PropTypes.string,
+  setSelectedDate: PropTypes.func.isRequired,
+  availableDates: PropTypes.array.isRequired,
+  setSelectedTimeSlot: PropTypes.func.isRequired,
+  setError: PropTypes.func.isRequired,
+  isLoading: PropTypes.bool.isRequired,
+}
+
 // ── Main Page Component ──────────────────────────────────────────────────────
 export default function SchedulePage() {
   const router = useRouter()
@@ -249,7 +259,7 @@ export default function SchedulePage() {
               date: dateStr,
               slots: slots.map((s) => ({
                 time: s.startTime && s.endTime ? `${s.startTime} - ${s.endTime}` : (s.startTime || s.time),
-                available: s.isAvailable !== undefined ? s.isAvailable : s.available,
+                available: s.isAvailable === undefined ? s.available : s.isAvailable,
               })),
             }
           })
@@ -383,23 +393,23 @@ export default function SchedulePage() {
                       className='h-[52px] rounded-2xl text-xs font-bold transition-all'
                       style={{
                         border: '1px solid var(--color-content-border)',
-                        background: !isAvailable
-                          ? 'var(--color-content-bg)'
-                          : isSelected
+                        background: isAvailable
+                          ? isSelected
                             ? 'var(--color-content-card)'
-                            : 'var(--color-content-card)',
-                        borderColor: !isAvailable
-                          ? 'transparent'
-                          : isSelected
+                            : 'var(--color-content-card)'
+                          : 'var(--color-content-bg)',
+                        borderColor: isAvailable
+                          ? isSelected
                             ? 'var(--color-content-text)'
-                            : 'var(--color-content-border)',
-                        color: !isAvailable
-                          ? 'var(--color-content-border)'
-                          : isSelected
+                            : 'var(--color-content-border)'
+                          : 'transparent',
+                        color: isAvailable
+                          ? isSelected
                             ? 'var(--color-content-text)'
-                            : 'var(--color-content-text-secondary)',
-                        cursor: !isAvailable ? 'not-allowed' : 'pointer',
-                        opacity: !isAvailable ? 0.4 : 1,
+                            : 'var(--color-content-text-secondary)'
+                          : 'var(--color-content-border)',
+                        cursor: isAvailable ? 'pointer' : 'not-allowed',
+                        opacity: isAvailable ? 1 : 0.4,
                       }}
                     >
                       {t.time}
@@ -421,6 +431,14 @@ export default function SchedulePage() {
             </h3>
             <div className='relative'>
               <div
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault()
+                    setIsMobileDropdownOpen(!isMobileDropdownOpen)
+                  }
+                }}
                 onClick={() => setIsMobileDropdownOpen(!isMobileDropdownOpen)}
                 className='rounded-2xl p-4 flex items-center justify-between shadow-sm cursor-pointer'
                 style={{ background: 'var(--color-content-card)', border: '1px solid var(--color-content-border)' }}
@@ -438,11 +456,31 @@ export default function SchedulePage() {
 
               {isMobileDropdownOpen && (
                 <>
-                  <div className="fixed inset-0 z-40" onClick={() => setIsMobileDropdownOpen(false)} />
+                  <div 
+                    className="fixed inset-0 z-40" 
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault()
+                        setIsMobileDropdownOpen(false)
+                      }
+                    }}
+                    onClick={() => setIsMobileDropdownOpen(false)} 
+                  />
                   <div className="absolute top-full left-0 w-full mt-2 rounded-2xl shadow-2xl z-50 overflow-hidden flex flex-col max-h-[240px] overflow-y-auto" style={{ background: 'var(--color-content-card)', border: '1px solid var(--color-content-border)' }}>
                     {serviceCentres.map((sc) => (
                       <div
                         key={sc._id}
+                        role="button"
+                        tabIndex={0}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault()
+                            setSelectedServiceCentre(sc)
+                            setIsMobileDropdownOpen(false)
+                          }
+                        }}
                         onClick={() => {
                           setSelectedServiceCentre(sc)
                           setIsMobileDropdownOpen(false)
@@ -556,23 +594,23 @@ export default function SchedulePage() {
                             }}
                             className='h-14 rounded-xl text-xs font-bold transition-all border-2'
                             style={{
-                              background: !isAvailable
-                                ? 'var(--color-content-bg)'
-                                : isSelected
+                              background: isAvailable
+                                ? isSelected
                                   ? 'var(--color-content-text)'
-                                  : 'var(--theme-bg-300)',
-                              borderColor: !isAvailable
-                                ? 'transparent'
-                                : isSelected
+                                  : 'var(--theme-bg-300)'
+                                : 'var(--color-content-bg)',
+                              borderColor: isAvailable
+                                ? isSelected
                                   ? 'var(--color-content-text)'
-                                  : 'transparent',
-                              color: !isAvailable
-                                ? 'var(--color-content-border)'
-                                : isSelected
+                                  : 'transparent'
+                                : 'transparent',
+                              color: isAvailable
+                                ? isSelected
                                   ? 'var(--color-content-bg)'
-                                  : 'var(--color-content-text-secondary)',
-                              cursor: !isAvailable ? 'not-allowed' : 'pointer',
-                              opacity: !isAvailable ? 0.4 : 1,
+                                  : 'var(--color-content-text-secondary)'
+                                : 'var(--color-content-border)',
+                              cursor: isAvailable ? 'pointer' : 'not-allowed',
+                              opacity: isAvailable ? 1 : 0.4,
                             }}
                           >
                             {t.time}
@@ -607,6 +645,14 @@ export default function SchedulePage() {
 
               <div className='relative mb-6'>
                 <div
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault()
+                      setIsDesktopDropdownOpen(!isDesktopDropdownOpen)
+                    }
+                  }}
                   onClick={() => setIsDesktopDropdownOpen(!isDesktopDropdownOpen)}
                   className='rounded-2xl p-4 flex items-center gap-4 shadow-sm cursor-pointer transition-colors'
                   style={{ background: 'var(--color-content-card)', border: '1px solid var(--color-content-border)' }}
@@ -627,11 +673,31 @@ export default function SchedulePage() {
 
                 {isDesktopDropdownOpen && (
                   <>
-                    <div className="fixed inset-0 z-40" onClick={() => setIsDesktopDropdownOpen(false)} />
+                    <div 
+                      className="fixed inset-0 z-40" 
+                      role="button"
+                      tabIndex={0}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault()
+                          setIsDesktopDropdownOpen(false)
+                        }
+                      }}
+                      onClick={() => setIsDesktopDropdownOpen(false)} 
+                    />
                     <div className="absolute top-full left-0 w-full mt-2 rounded-2xl shadow-2xl z-50 overflow-hidden flex flex-col max-h-[300px] overflow-y-auto" style={{ background: 'var(--color-content-card)', border: '1px solid var(--color-content-border)' }}>
                       {serviceCentres.map((sc) => (
                         <div
                           key={sc._id}
+                          role="button"
+                          tabIndex={0}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                              e.preventDefault()
+                              setSelectedServiceCentre(sc)
+                              setIsDesktopDropdownOpen(false)
+                            }
+                          }}
                           onClick={() => {
                             setSelectedServiceCentre(sc)
                             setIsDesktopDropdownOpen(false)

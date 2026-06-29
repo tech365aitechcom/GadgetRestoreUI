@@ -4,12 +4,21 @@ import { useState, useMemo } from 'react'
 import { Search } from 'lucide-react'
 import OptimizedImage from '@/components/ui/OptimizedImage'
 import { useBooking } from '@/context/BookingContext';
+import PropTypes from 'prop-types';
 
 /* ══════════════════════════════════════════════════════════════════════════
    MODEL LIST / GRID
    Requirements: 2-col mobile, 4–5 col desktop. Image + name + model number.
    Search filters in real time (<300ms). 
    ══════════════════════════════════════════════════════════════════════════ */
+ModelList.propTypes = {
+  models: PropTypes.array,
+  brandName: PropTypes.string,
+  isLoading: PropTypes.bool,
+  onSelectModel: PropTypes.func.isRequired,
+  selectedModelId: PropTypes.string,
+}
+
 export default function ModelList({
   models = [],
   brandName = '',

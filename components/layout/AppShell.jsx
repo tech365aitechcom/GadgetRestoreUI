@@ -2,15 +2,14 @@
 
 import { useState, useEffect } from 'react'
 import {
-  Home,
   ClipboardList,
   User,
-  Settings,
   Bell,
   HelpCircle,
   Search,
   Plus,
 } from 'lucide-react'
+import PropTypes from 'prop-types'
 import { usePathname, useRouter } from 'next/navigation'
 import { useAuth } from '@/context/AuthContext'
 import { useProtectedNavigation } from '@/hooks/useProtectedNavigation'
@@ -19,6 +18,11 @@ import LoginAlertModal from '@/components/ui/LoginAlertModal'
 import notificationService from '@/services/notification.service'
 import { setRouterInstance } from '@/lib/navigation'
 import Link from 'next/link'
+
+AppShell.propTypes = {
+  children: PropTypes.node.isRequired,
+  className: PropTypes.string,
+}
 
 export default function AppShell({ children, className = '' }) {
   const pathname = usePathname()
@@ -48,6 +52,7 @@ export default function AppShell({ children, className = '' }) {
           0
         )
       } catch (err) {
+        console.error('Error fetching unread count:', err)
         // Set to 0 on error
         setUnreadCount(0)
       }

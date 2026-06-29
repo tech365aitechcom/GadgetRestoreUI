@@ -1,16 +1,11 @@
 import Script from 'next/script'
 import {
-  Smartphone,
-  Monitor,
-  Tablet,
-  Gamepad,
-  Laptop,
-  Check,
   Star,
   ShieldCheck,
   Clock,
 } from 'lucide-react'
 import RepairLandingClient from '../RepairLandingClient'
+import PropTypes from 'prop-types'
 import catalogueService from '@/services/catalogue.service'
 
 // Helper to check if a slug is a repair type or a device model
@@ -54,9 +49,9 @@ function parseSlug(slug) {
 
   // Fix capitalization anomalies for well-known terms
   formatted = formatted
-    .replace(/Iphone/g, 'iPhone')
-    .replace(/Ipad/g, 'iPad')
-    .replace(/Macbook/g, 'MacBook')
+    .replaceAll(/Iphone/g, 'iPhone')
+    .replaceAll(/Ipad/g, 'iPad')
+    .replaceAll(/Macbook/g, 'MacBook')
 
   return { isRepairType, name: formatted }
 }
@@ -101,6 +96,10 @@ export async function generateMetadata({ params }) {
       type: 'website',
     },
   }
+}
+
+ModelOrRepairPage.propTypes = {
+  params: PropTypes.any.isRequired,
 }
 
 export default async function ModelOrRepairPage({ params }) {

@@ -42,7 +42,6 @@ export default function PricingPage() {
     symptoms,
     partTier,
     serviceMode,
-    remarks,
     canProceedToBook,
   } = useBooking()
 
@@ -181,7 +180,7 @@ export default function PricingPage() {
     }
 
     // Store intended redirect URL before navigating to login
-    if (typeof window !== 'undefined') {
+    if (typeof globalThis.window !== 'undefined') {
       sessionStorage.setItem('gr_redirect_after_login', '/schedule')
     }
     router.push('/login')

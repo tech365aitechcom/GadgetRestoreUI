@@ -185,6 +185,14 @@ export default function HomePage() {
         {/* Search bar - MOBILE ONLY */}
         <div className='lg:hidden block px-4 pb-0' style={{ paddingTop: 'calc(68px + env(safe-area-inset-top, 0px))' }}>
           <div
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault()
+                handleStart()
+              }
+            }}
             onClick={handleStart}
             className='flex items-center gap-2.5 py-3 px-4 rounded-xl cursor-pointer'
             style={{
@@ -375,10 +383,11 @@ export default function HomePage() {
               </h3>
               <div className='flex flex-col gap-1.5'>
                 {manuals.map(({ label, sub, Icon }) => (
-                  <a
+                  <button
+                    type='button'
                     key={label}
-                    href='#'
-                    className='flex items-center gap-3 p-2.5 rounded-[10px] no-underline transition-[background] duration-150'
+                    onClick={(e) => e.preventDefault()}
+                    className='w-full text-left bg-transparent border-0 cursor-pointer flex items-center gap-3 p-2.5 rounded-[10px] no-underline transition-[background] duration-150'
                     onMouseEnter={(e) =>
                       (e.currentTarget.style.background =
                         'var(--color-content-bg)')
@@ -410,7 +419,7 @@ export default function HomePage() {
                         {sub}
                       </span>
                     </div>
-                  </a>
+                  </button>
                 ))}
               </div>
             </div>
@@ -705,6 +714,14 @@ export default function HomePage() {
           <div className='hidden lg:grid lg:grid-cols-3 lg:gap-5'>
             {/* Screen Replacement */}
             <div
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault()
+                  handleStart()
+                }
+              }}
               className='popular-card min-h-55 relative'
               onClick={handleStart}
             >
@@ -740,6 +757,14 @@ export default function HomePage() {
 
             {/* Liquid Damage */}
             <div
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault()
+                  handleStart()
+                }
+              }}
               className='popular-card min-h-55 relative'
               onClick={handleStart}
             >
@@ -779,6 +804,14 @@ export default function HomePage() {
             {POPULAR_SERVICES.map(({ title, sub, bg, image }) => (
               <div
                 key={title}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault()
+                    handleStart()
+                  }
+                }}
                 onClick={handleStart}
                 className='shrink-0 w-38.75 h-48.75 rounded-2xl overflow-hidden relative cursor-pointer snap-start border border-white/[0.07]'
                 style={{ background: bg }}

@@ -2,15 +2,15 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, Bell, ShieldCheck, Box, Compass } from 'lucide-react'
+import { ShieldCheck, Box, Compass } from 'lucide-react'
 import authService from '@/services/auth.service'
 
 export default function LoginPage() {
   const router = useRouter()
   const searchParams =
-    typeof window !== 'undefined'
-      ? new URLSearchParams(window.location.search)
-      : null
+    typeof globalThis.window === 'undefined'
+      ? null
+      : new URLSearchParams(globalThis.window.location.search)
   const [phone, setPhone] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
@@ -18,7 +18,7 @@ export default function LoginPage() {
 
   // Store redirect URL from query params on mount
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (typeof globalThis.window !== 'undefined') {
       const redirectParam = searchParams?.get('redirect')
       if (redirectParam) {
         sessionStorage.setItem('gr_redirect_after_login', redirectParam)
@@ -77,13 +77,13 @@ export default function LoginPage() {
     try {
       await authService.sendOtp(cleanMobile)
       // Store phone in session storage for the OTP page
-      if (typeof window !== 'undefined') {
+      if (typeof globalThis.window !== 'undefined') {
         sessionStorage.setItem('gr_login_phone', cleanMobile)
       }
 
       // Check if there's a redirect URL from query params or session storage
       let redirectUrl = null
-      if (typeof window !== 'undefined') {
+      if (typeof globalThis.window !== 'undefined') {
         // Priority: query param > session storage
         redirectUrl =
           searchParams?.get('redirect') ||
@@ -98,7 +98,7 @@ export default function LoginPage() {
       const errMsg = err.message || 'Failed to send OTP. Please try again.'
       const match = errMsg.match(/Please wait (\d+) seconds/i)
       if (match) {
-        setErrorCountdown(parseInt(match[1], 10))
+        setErrorCountdown(Number.parseInt(match[1], 10))
       } else {
         setErrorCountdown(null)
       }

@@ -2,11 +2,19 @@
 
 import { useRouter, usePathname } from 'next/navigation'
 import { ArrowLeft, Bell } from 'lucide-react'
+import PropTypes from 'prop-types'
 
 /**
  * Mobile header component with back button, logo, and notification bell
  * Used across all public pages in mobile view
  */
+MobileHeader.propTypes = {
+  onBackClick: PropTypes.func,
+  showNotification: PropTypes.bool,
+  showBack: PropTypes.bool,
+  unreadCount: PropTypes.number,
+}
+
 export default function MobileHeader({
   onBackClick,
   showNotification = true,

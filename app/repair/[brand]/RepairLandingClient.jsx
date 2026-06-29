@@ -3,6 +3,17 @@
 import { useRouter } from 'next/navigation';
 import { useBooking } from '@/context/BookingContext';
 import { ArrowRight } from 'lucide-react';
+import PropTypes from 'prop-types';
+
+RepairLandingClient.propTypes = {
+  brandObj: PropTypes.shape({
+    name: PropTypes.string.isRequired,
+  }).isRequired,
+  modelObj: PropTypes.shape({
+    name: PropTypes.string,
+  }),
+  step: PropTypes.string,
+};
 
 export default function RepairLandingClient({ brandObj, modelObj = null, step = 'select-model' }) {
   const router = useRouter();

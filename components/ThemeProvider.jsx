@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react'
 import { DEFAULT_THEME, THEMES } from '@/lib/theme'
+import PropTypes from 'prop-types'
 
 /**
  * ThemeProvider Component
@@ -9,6 +10,10 @@ import { DEFAULT_THEME, THEMES } from '@/lib/theme'
  * This component automatically applies the theme when the app loads.
  * Add this to your root layout to enable theme support.
  */
+ThemeProvider.propTypes = {
+  children: PropTypes.node.isRequired,
+}
+
 export default function ThemeProvider({ children }) {
   useEffect(() => {
     const theme = DEFAULT_THEME
