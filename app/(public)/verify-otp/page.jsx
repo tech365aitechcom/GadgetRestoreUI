@@ -191,8 +191,8 @@ function VerifyOtpContent() {
         localStorage.setItem('gr_authenticated_phone', phone)
       }
 
-      // Determine redirect URL with priority: URL param > session storage > default
-      let redirectUrl = '/'
+      // Determine redirect URL with priority: URL param > session storage > booking state > default
+      let redirectUrl = null
 
       // First check URL params (highest priority)
       const redirectParam = searchParams.get('redirect')
@@ -205,23 +205,28 @@ function VerifyOtpContent() {
           redirectUrl = storedRedirect
           sessionStorage.removeItem('gr_redirect_after_login')
         }
-        sessionStorage.removeItem('gr_login_phone')
+      }
 
-        // Check if there is an active booking state
+      // If no explicit redirect, check if there's an active booking state
+      if (!redirectUrl && typeof window !== 'undefined') {
         const bookingStateStr = localStorage.getItem('gr_booking_state')
         if (bookingStateStr) {
           try {
             const bookingState = JSON.parse(bookingStateStr)
             if (bookingState.brand && bookingState.model) {
-              router.push('/schedule')
-              return
+              redirectUrl = '/schedule'
             }
           } catch (e) { }
         }
       }
 
+      // Clean up session storage
+      if (typeof window !== 'undefined') {
+        sessionStorage.removeItem('gr_login_phone')
+      }
+
       // Successfully authenticated, route to intended page
-      router.push(redirectUrl)
+      router.push(redirectUrl || '/')
     } catch (err) {
       setError(err.message || 'Verification failed. Please try again.')
     } finally {

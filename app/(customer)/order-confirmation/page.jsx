@@ -112,7 +112,28 @@ function OrderConfirmationContent() {
     const askPermission = async () => {
       try {
         const { default: pushService } = await import('@/services/push-notification.service')
-        if (await pushService.isSupported()) {
+        const { Capacitor } = await import('@capacitor/core')
+
+        if (!(await pushService.isSupported())) {
+          return
+        }
+
+        // For native platforms (iOS/Android), check permissions properly
+        if (Capacitor.isNativePlatform()) {
+          const { PushNotifications } = await import('@capacitor/push-notifications')
+          const permStatus = await PushNotifications.checkPermissions()
+
+          // Only request if permission hasn't been asked before (prompt state)
+          if (permStatus.receive === 'prompt') {
+            await pushService.requestAndRegister()
+            toast.success('Order tracking alerts enabled!')
+          } else if (permStatus.receive === 'granted') {
+            // Already granted, ensure token is registered
+            await pushService.refreshIfGranted()
+          }
+          // If denied, silently skip
+        } else {
+          // Web platform
           const currentPerm = pushService.getPermission()
           if (currentPerm === 'default') {
             await pushService.requestAndRegister()

@@ -1,10 +1,12 @@
 'use client'
 
-import { createContext, useContext, useState, useEffect } from 'react'
+import { createContext, useContext, useState, useEffect, useCallback } from 'react'
 import Cookies from 'js-cookie'
 import { TOKEN_COOKIE } from '@/lib/constants'
 import { redirectToLandingPage } from '@/lib/auth-utils'
 import customerService from '@/services/customer.service'
+
+const PUSH_PERMISSION_REQUESTED_KEY = 'gr_push_permission_requested'
 
 const AuthContext = createContext({
   user: null,
@@ -12,6 +14,7 @@ const AuthContext = createContext({
   updateUser: () => { },
   logout: () => { },
   isLoading: true,
+  requestPushPermissionIfNeeded: () => { },
 })
 
 export function AuthProvider({ children }) {
