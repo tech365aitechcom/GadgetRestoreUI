@@ -144,6 +144,22 @@ export const catalogueService = {
       throw error;
     }
   },
+
+  /**
+   * Search models/products by name (public catalogue search)
+   * @param {string} name — search query
+   */
+  async searchProducts(name) {
+    try {
+      const response = await api.get('/catalogue/products/search', {
+        params: { name, limit: 10 }
+      });
+      return response.data.products || response.data || [];
+    } catch (error) {
+      console.error('Failed to search products', error);
+      throw error;
+    }
+  },
 };
 
 export default catalogueService;

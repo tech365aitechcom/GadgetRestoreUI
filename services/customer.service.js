@@ -1,5 +1,6 @@
 import Cookies from 'js-cookie'
 import { API_BASE_URL, TOKEN_COOKIE } from '@/lib/constants'
+import { clearAllAuthStorage } from '@/lib/auth-utils'
 
 class CustomerService {
   /**
@@ -259,6 +260,40 @@ class CustomerService {
   }
 
   /**
+   * GET /api/customer/verify-token
+   * Verify if the current token is valid and customer exists
+   * @returns {Promise<{valid: boolean, customer?: Object}>}
+   */
+  async verifyToken() {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/customer/verify-token`, {
+        method: 'GET',
+        headers: this.getAuthHeaders(),
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        return {
+          valid: false,
+          message: error.message || 'Token validation failed'
+        }
+      }
+
+      const data = await response.json()
+      return {
+        valid: data.data?.valid || false,
+        customer: data.data?.customer || null
+      }
+    } catch (error) {
+      console.error('Token verification error:', error)
+      return {
+        valid: false,
+        message: error.message || 'Token validation failed'
+      }
+    }
+  }
+
+  /**
    * POST /api/customer/logout
    * Logout from all devices by invalidating all tokens
    */
@@ -274,8 +309,8 @@ class CustomerService {
         throw new Error(error.message || 'Failed to logout')
       }
 
-      // Clear local token
-      Cookies.remove(TOKEN_COOKIE)
+      // Clear all storage (cookies, localStorage, sessionStorage)
+      clearAllAuthStorage()
 
       return await response.json()
     } catch (error) {
@@ -299,8 +334,8 @@ class CustomerService {
         throw new Error(error.message || 'Failed to delete account')
       }
 
-      // Clear local token
-      Cookies.remove(TOKEN_COOKIE)
+      // Clear all storage (cookies, localStorage, sessionStorage)
+      clearAllAuthStorage()
 
       return await response.json()
     } catch (error) {

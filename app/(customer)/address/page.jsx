@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
+import 'leaflet/dist/leaflet.css'
 import { useRouter } from 'next/navigation'
 import PropTypes from 'prop-types'
 import {
@@ -15,6 +16,7 @@ import {
   Save,
   Edit2,
   Trash2,
+  Locate,
 } from 'lucide-react'
 import { useBooking } from '@/context/BookingContext'
 import Cookies from 'js-cookie'
@@ -503,6 +505,301 @@ export default function AddressPage() {
   const [newAddress, setNewAddress] = useState(getInitialAddressFormState())
   const [errors, setErrors] = useState({})
 
+  // Leaflet Map State and References
+  const [selectedLocationText, setSelectedLocationText] = useState('Select location on map')
+  const mapDesktopRef = useRef(null)
+  const mapMobileRef = useRef(null)
+  const isDesktopProgrammaticMoveRef = useRef(false)
+  const isMobileProgrammaticMoveRef = useRef(false)
+
+  const reverseGeocode = async (lat, lon) => {
+    try {
+      const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&addressdetails=1`)
+      const data = await res.json()
+      if (data) {
+        const addr = data.address || {}
+        const road = addr.road || addr.suburb || addr.neighbourhood || ''
+        const city = addr.city || addr.town || addr.village || addr.county || ''
+        let state = addr.state || addr.region || addr.state_district || ''
+        if (!state && (city.toLowerCase().includes('delhi') || displayName.toLowerCase().includes('delhi'))) {
+          state = 'Delhi'
+        }
+        const pincode = addr.postcode || ''
+        const displayName = data.display_name || 'Selected Location'
+
+        setNewAddress((prev) => ({
+          ...prev,
+          addressLine1: road ? `${road}, ${addr.suburb || ''}`.replace(/,\s*$/, '').slice(0, 100) : displayName.split(',').slice(0, 2).join(', ').slice(0, 100),
+          city: city || prev.city,
+          state: state || prev.state,
+          pincode: pincode ? pincode.replace(/\D/g, '').slice(0, 6) : prev.pincode,
+        }))
+
+        setSelectedLocationText(displayName.split(',').slice(0, 3).join(', '))
+      }
+    } catch (e) {
+      console.error('Reverse geocoding failed:', e)
+    }
+  }
+
+  const geocodeAddressText = async (addressText) => {
+    try {
+      const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(addressText)}&limit=1`)
+      const data = await res.json()
+      if (data && data.length > 0) {
+        const { lat, lon } = data[0]
+        const latitude = parseFloat(lat)
+        const longitude = parseFloat(lon)
+
+        isDesktopProgrammaticMoveRef.current = true
+        isMobileProgrammaticMoveRef.current = true
+
+        if (mapDesktopRef.current) {
+          mapDesktopRef.current.setView([latitude, longitude], 16)
+        }
+        if (mapMobileRef.current) {
+          mapMobileRef.current.setView([latitude, longitude], 16)
+        }
+      }
+    } catch (e) {
+      console.error('Forward geocoding failed:', e)
+    }
+  }
+
+  const handleUseCurrentLocation = () => {
+    if (navigator.geolocation) {
+      const onSuccess = (position) => {
+        const { latitude, longitude } = position.coords
+
+        isDesktopProgrammaticMoveRef.current = true
+        isMobileProgrammaticMoveRef.current = true
+
+        if (mapDesktopRef.current) {
+          mapDesktopRef.current.setView([latitude, longitude], 16)
+        }
+        if (mapMobileRef.current) {
+          mapMobileRef.current.setView([latitude, longitude], 16)
+        }
+        reverseGeocode(latitude, longitude)
+      }
+
+      const onError = (error) => {
+        console.warn('Geolocation high accuracy failed, retrying with low accuracy...', error)
+        // Fallback to low accuracy
+        navigator.geolocation.getCurrentPosition(
+          onSuccess,
+          (err) => {
+            console.error('Geolocation fallback failed:', err)
+          },
+          {
+            enableHighAccuracy: false,
+            timeout: 5000,
+            maximumAge: 60000
+          }
+        )
+      }
+
+      navigator.geolocation.getCurrentPosition(onSuccess, onError, {
+        enableHighAccuracy: true,
+        timeout: 12000,
+        maximumAge: 0
+      })
+    } else {
+      toast.error('Geolocation is not supported by your browser.')
+    }
+  }
+
+  const handleZoomIn = () => {
+    if (mapDesktopRef.current) {
+      mapDesktopRef.current.zoomIn()
+    }
+    if (mapMobileRef.current) {
+      mapMobileRef.current.zoomIn()
+    }
+  }
+
+  const handleZoomOut = () => {
+    if (mapDesktopRef.current) {
+      mapDesktopRef.current.zoomOut()
+    }
+    if (mapMobileRef.current) {
+      mapMobileRef.current.zoomOut()
+    }
+  }
+
+  // Initialize Map instances using dynamic leaflet import
+  useEffect(() => {
+    let mapDesktop = null
+    let mapMobile = null
+    let active = true
+
+    const handleResize = () => {
+      if (mapDesktopRef.current) {
+        mapDesktopRef.current.invalidateSize()
+      }
+      if (mapMobileRef.current) {
+        mapMobileRef.current.invalidateSize()
+      }
+    }
+
+    const initMaps = async () => {
+      try {
+        const leafletModule = await import('leaflet')
+
+        // Handle ES module vs CommonJS module exports
+        const L = leafletModule.default || leafletModule
+        if (!L || typeof L.map !== 'function') {
+          console.error('Leaflet object L is invalid or does not have map function')
+          return
+        }
+
+        if (!active) return
+
+        const defaultLat = 28.6139
+        const defaultLng = 77.2090
+
+        const desktopMapEl = document.getElementById('map-desktop')
+        if (desktopMapEl && !desktopMapEl._leaflet_id) {
+          try {
+            mapDesktop = L.map(desktopMapEl, {
+              zoomControl: false,
+              attributionControl: false,
+            }).setView([defaultLat, defaultLng], 14)
+
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png', {
+              subdomains: 'abcd',
+              maxZoom: 20,
+            }).addTo(mapDesktop)
+
+            mapDesktopRef.current = mapDesktop
+
+            setTimeout(() => {
+              if (mapDesktop && active) {
+                mapDesktop.invalidateSize()
+              }
+            }, 250)
+
+            mapDesktop.on('moveend', () => {
+              const center = mapDesktop.getCenter()
+
+              if (isDesktopProgrammaticMoveRef.current) {
+                isDesktopProgrammaticMoveRef.current = false
+                return
+              }
+
+              reverseGeocode(center.lat, center.lng)
+              if (mapMobileRef.current) {
+                const mobileCenter = mapMobileRef.current.getCenter()
+                const diffLat = Math.abs(mobileCenter.lat - center.lat)
+                const diffLng = Math.abs(mobileCenter.lng - center.lng)
+                if (diffLat > 0.0001 || diffLng > 0.0001) {
+                  isMobileProgrammaticMoveRef.current = true
+                  mapMobileRef.current.setView(center, mapDesktop.getZoom(), { animate: false })
+                }
+              }
+            })
+          } catch (err) {
+            console.error('Error initializing desktop map:', err)
+          }
+        }
+
+        const mobileMapEl = document.getElementById('map-mobile')
+        if (mobileMapEl && !mobileMapEl._leaflet_id) {
+          try {
+            mapMobile = L.map(mobileMapEl, {
+              zoomControl: false,
+              attributionControl: false,
+            }).setView([defaultLat, defaultLng], 14)
+
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png', {
+              subdomains: 'abcd',
+              maxZoom: 20,
+            }).addTo(mapMobile)
+
+            mapMobileRef.current = mapMobile
+
+            setTimeout(() => {
+              if (mapMobile && active) {
+                mapMobile.invalidateSize()
+              }
+            }, 250)
+
+            mapMobile.on('moveend', () => {
+              const center = mapMobile.getCenter()
+
+              if (isMobileProgrammaticMoveRef.current) {
+                isMobileProgrammaticMoveRef.current = false
+                return
+              }
+
+              reverseGeocode(center.lat, center.lng)
+              if (mapDesktopRef.current) {
+                const desktopCenter = mapDesktopRef.current.getCenter()
+                const diffLat = Math.abs(desktopCenter.lat - center.lat)
+                const diffLng = Math.abs(desktopCenter.lng - center.lng)
+                if (diffLat > 0.0001 || diffLng > 0.0001) {
+                  isDesktopProgrammaticMoveRef.current = true
+                  mapDesktopRef.current.setView(center, mapMobile.getZoom(), { animate: false })
+                }
+              }
+            })
+          } catch (err) {
+            console.error('Error initializing mobile map:', err)
+          }
+        }
+
+        reverseGeocode(defaultLat, defaultLng)
+      } catch (err) {
+        console.error('Failed in initMaps:', err)
+      }
+    }
+
+    initMaps()
+    window.addEventListener('resize', handleResize)
+
+    return () => {
+      active = false
+      window.removeEventListener('resize', handleResize)
+      if (mapDesktop) {
+        mapDesktop.remove()
+        mapDesktopRef.current = null
+      }
+      if (mapMobile) {
+        mapMobile.remove()
+        mapMobileRef.current = null
+      }
+    }
+  }, [isLoading])
+
+  // Sync map center to selected saved address
+  useEffect(() => {
+    if (!selectedAddressId || !addresses.length) return
+    const selected = addresses.find((a) => a.id === selectedAddressId)
+    if (selected) {
+      const fullText = `${selected.line1}, ${selected.line2}`
+      geocodeAddressText(fullText)
+    }
+  }, [selectedAddressId, addresses])
+
+  const resetFormAndSyncToMap = () => {
+    setIsAddingNew(false)
+    setIsEditingAddress(null)
+    setErrors({})
+
+    let lat = 28.6139
+    let lng = 77.2090
+    if (mapDesktopRef.current) {
+      const center = mapDesktopRef.current.getCenter()
+      lat = center.lat
+      lng = center.lng
+    } else if (mapMobileRef.current) {
+      const center = mapMobileRef.current.getCenter()
+      lat = center.lat
+      lng = center.lng
+    }
+    reverseGeocode(lat, lng)
+  }
+
   const handleAddNewAddress = async () => {
     const validationErrors = validateAddressForm(newAddress)
     setErrors(validationErrors)
@@ -527,7 +824,7 @@ export default function AddressPage() {
       }
 
       // Close modal and reset form
-      resetAddressForm(setIsAddingNew, setIsEditingAddress, setNewAddress, setErrors)
+      resetFormAndSyncToMap()
     } catch (error) {
       console.error('Failed to save address:', error)
       toast.error(error.message || 'Failed to save address. Please try again.')
@@ -540,6 +837,10 @@ export default function AddressPage() {
     setNewAddress(populateEditForm(address))
     setIsEditingAddress(address.id)
     setIsAddingNew(true)
+
+    // Forward geocode to center the map on the edited address location
+    const fullText = `${address.line1}, ${address.line2}`
+    geocodeAddressText(fullText)
   }
 
   const handleDeleteAddress = async () => {
@@ -548,7 +849,13 @@ export default function AddressPage() {
   }
 
   const handleOpenAddressForm = () => {
-    setNewAddress(getInitialAddressFormState())
+    setNewAddress((prev) => ({
+      ...prev,
+      addressType: 'Home',
+      addressLine2: '',
+      landmark: '',
+      setAsDefault: false,
+    }))
     setErrors({})
     setIsEditingAddress(null)
     setIsAddingNew(true)
@@ -606,33 +913,73 @@ export default function AddressPage() {
         <div className='lg:p-8 lg:flex lg:h-[calc(100vh-var(--topbar-height))]'>
           {/* Map Section - Desktop Only */}
           <div className='hidden lg:block lg:w-[55%] relative' style={{ background: 'var(--color-content-bg)' }}>
-            <img
-              src='/images/dark-map-placeholder.png'
-              alt='Map'
-              className='absolute inset-0 w-full h-full object-cover opacity-55 filter grayscale'
-            />
+            <div id='map-desktop' className='absolute inset-0 w-full h-full z-0' />
 
-            <div className='absolute inset-0 flex items-center justify-center'>
-              <div className='relative'>
-                <div className='w-12 h-14 rounded-xl rounded-bl-none flex items-center justify-center shadow-2xl relative z-10 transform -translate-y-1/2' style={{ background: 'var(--color-accent)' }}>
-                  <MapPin size={24} color='white' />
-                </div>
-                <div className='absolute top-8 left-6 px-4 py-2 rounded-lg shadow-xl whitespace-nowrap' style={{ background: 'var(--color-content-card)', border: '1px solid var(--color-content-border)' }}>
-                  <span className='text-xs font-black uppercase' style={{ color: 'var(--color-content-text)' }}>
-                    82nd Ave, Manhattan
+            {/* Center Pin overlay */}
+            <div className='absolute inset-0 flex items-center justify-center pointer-events-none z-[500]'>
+              <div className='relative flex flex-col items-center select-none'>
+                {/* Floating Address Pill */}
+                <div
+                  className='mb-2 px-4 py-2 rounded-xl flex items-center gap-2 shadow-2xl border transition-all duration-300'
+                  style={{
+                    background: 'rgba(15, 15, 20, 0.85)',
+                    backdropFilter: 'blur(12px)',
+                    borderColor: 'rgba(255, 255, 255, 0.15)',
+                    transform: 'translateY(-4px)'
+                  }}
+                >
+                  <MapPin size={14} className='text-[var(--color-accent)]' />
+                  <span className='text-xs font-bold text-white tracking-wide max-w-[220px] truncate'>
+                    {selectedLocationText}
                   </span>
+                </div>
+
+                {/* Pointer arrow */}
+                <div
+                  className='w-2.5 h-2.5 rotate-45 -mt-3.5 mb-2 border-r border-b'
+                  style={{
+                    background: 'rgba(15, 15, 20, 0.85)',
+                    borderColor: 'rgba(255, 255, 255, 0.15)'
+                  }}
+                />
+
+                {/* Pulsing Core Target */}
+                <div className='relative flex items-center justify-center'>
+                  <div className='w-3 h-3 rounded-full bg-[var(--color-accent)] z-20 shadow-lg border-2 border-white' />
+                  <div className='absolute w-8 h-8 rounded-full bg-[var(--color-accent)]/35 animate-ping opacity-75 z-10' />
                 </div>
               </div>
             </div>
 
-            {/* Zoom Controls */}
-            <div className='absolute bottom-10 left-10 flex flex-col rounded-lg shadow-xl overflow-hidden z-20' style={{ background: 'var(--color-content-card)', border: '1px solid var(--color-content-border)' }}>
-              <button className='w-12 h-12 flex items-center justify-center hover:opacity-80 transition-colors cursor-pointer' style={{ color: 'var(--color-content-text)', borderBottom: '1px solid var(--color-content-border)' }}>
-                <Plus size={20} strokeWidth={2.5} />
+            {/* Map Controls */}
+            <div className='absolute bottom-10 left-10 flex flex-col gap-3 z-[500]'>
+              <button
+                type='button'
+                onClick={handleUseCurrentLocation}
+                className='w-12 h-12 rounded-lg flex items-center justify-center hover:opacity-80 transition-colors cursor-pointer shadow-xl'
+                style={{ background: 'var(--color-content-card)', border: '1px solid var(--color-content-border)', color: 'var(--color-content-text)' }}
+                title='Use Current Location'
+              >
+                <Locate size={20} />
               </button>
-              <button className='w-12 h-12 flex items-center justify-center hover:opacity-80 transition-colors cursor-pointer' style={{ color: 'var(--color-content-text)' }}>
-                <Minus size={20} strokeWidth={2.5} />
-              </button>
+              <div className='flex flex-col rounded-lg shadow-xl overflow-hidden' style={{ background: 'var(--color-content-card)', border: '1px solid var(--color-content-border)' }}>
+                <button
+                  type='button'
+                  onClick={handleZoomIn}
+                  className='w-12 h-12 flex items-center justify-center hover:opacity-80 transition-colors cursor-pointer'
+                  style={{ color: 'var(--color-content-text)', borderBottom: '1px solid var(--color-content-border)' }}
+                >
+                  <Plus size={20} strokeWidth={2.5} />
+                </button>
+                <button
+                  type='button'
+                  onClick={handleZoomOut}
+                  className='w-12 h-12 flex items-center justify-center hover:opacity-80 transition-colors cursor-pointer'
+                  style={{ color: 'var(--color-content-text)' }}
+                >
+                  <Minus size={20} strokeWidth={2.5} />
+                </button>
+              </div>
             </div>
           </div>
 
@@ -652,23 +999,26 @@ export default function AddressPage() {
             {/* Map Preview - Mobile Only */}
             <div className='px-5 mb-8 lg:hidden'>
               <div className='w-full h-[180px] rounded-3xl overflow-hidden relative shadow-lg' style={{ background: 'var(--theme-bg)' }}>
-                <img
-                  src='/images/dark-map-placeholder.png'
-                  alt='Map'
-                  className='w-full h-full object-cover opacity-60'
-                  onError={(e) => {
-                    e.target.style.display = 'none'
-                    e.target.parentElement.style.background = '#222'
-                  }}
-                />
-                <div className='absolute inset-x-0 bottom-4 flex justify-center'>
-                  <div className='bg-white rounded-full px-4 py-2 flex items-center gap-2 shadow-xl'>
-                    <MapPin size={16} color='black' />
-                    <span className='text-xs font-bold text-black uppercase tracking-wide'>
-                      PRECISION VALLEY, CA
-                    </span>
+                <div id='map-mobile' className='w-full h-full relative z-0' />
+
+                {/* Center Pin overlay */}
+                <div className='absolute inset-0 flex items-center justify-center pointer-events-none z-[500]'>
+                  <div className='relative flex items-center justify-center select-none'>
+                    <div className='w-3 h-3 rounded-full bg-[var(--color-accent)] z-20 shadow-lg border-2 border-white' />
+                    <div className='absolute w-8 h-8 rounded-full bg-[var(--color-accent)]/35 animate-ping opacity-75 z-10' />
                   </div>
                 </div>
+
+                {/* Floating Locate Button for Mobile */}
+                <button
+                  type='button'
+                  onClick={handleUseCurrentLocation}
+                  className='absolute bottom-3 right-3 w-10 h-10 rounded-full flex items-center justify-center shadow-lg z-[500] hover:opacity-90 active:scale-95 transition-all cursor-pointer'
+                  style={{ background: 'var(--color-content-card)', border: '1px solid var(--color-content-border)', color: 'var(--color-content-text)' }}
+                  title='Use Current Location'
+                >
+                  <Locate size={16} />
+                </button>
               </div>
             </div>
 
@@ -755,18 +1105,14 @@ export default function AddressPage() {
 
       {/* Add New Address Modal */}
       {isAddingNew && (
-        <div className='fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[200] p-4'>
+        <div className='fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[1000] p-4'>
           <div className='rounded-2xl p-6 max-w-[600px] w-full max-h-[90vh] overflow-y-auto shadow-2xl' style={{ background: 'var(--color-content-bg)', border: '1px solid var(--color-content-border)' }}>
             <div className='flex items-center justify-between mb-6'>
               <h3 className='text-[20px] font-black uppercase' style={{ color: 'var(--color-content-text)' }}>
                 {isEditingAddress ? 'Edit Address' : 'Add New Address'}
               </h3>
               <button
-                onClick={() => {
-                  setIsAddingNew(false)
-                  setIsEditingAddress(null)
-                  setErrors({})
-                }}
+                onClick={resetFormAndSyncToMap}
                 className='w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-[#888] hover:bg-white/10 transition-colors'
               >
                 <X size={18} />
@@ -809,9 +1155,18 @@ export default function AddressPage() {
 
               {/* Address Line 1 */}
               <div>
-                <label htmlFor='address-line-1' className='block text-[10px] font-bold tracking-[0.08em] mb-2 uppercase' style={{ color: 'var(--color-content-text-secondary)' }}>
-                  ADDRESS LINE 1 *
-                </label>
+                <div className='flex justify-between items-center mb-2'>
+                  <label htmlFor='address-line-1' className='block text-[10px] font-bold tracking-[0.08em] uppercase' style={{ color: 'var(--color-content-text-secondary)' }}>
+                    ADDRESS LINE 1 *
+                  </label>
+                  <button
+                    type='button'
+                    onClick={handleUseCurrentLocation}
+                    className='text-[10px] font-bold uppercase tracking-wider text-[var(--color-accent)] hover:underline flex items-center gap-1 cursor-pointer bg-transparent border-0 p-0'
+                  >
+                    <Locate size={12} /> Use Current Location
+                  </button>
+                </div>
                 <input
                   id='address-line-1'
                   type='text'
@@ -1001,7 +1356,7 @@ export default function AddressPage() {
 
       {/* Delete Confirmation Modal */}
       {showDeleteConfirm && (
-        <div className='fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[250] p-4'>
+        <div className='fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[1100] p-4'>
           <div className='rounded-2xl p-6 max-w-[400px] w-full shadow-2xl' style={{ background: 'var(--color-content-bg)', border: '1px solid var(--color-content-border)' }}>
             <h3 className='text-[18px] font-black mb-2' style={{ color: 'var(--color-content-text)' }}>
               Delete Address?

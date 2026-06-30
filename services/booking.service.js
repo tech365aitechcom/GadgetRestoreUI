@@ -37,11 +37,18 @@ export const bookingService = {
     address,
     slot,
     customerData,
+    agreedToPolicies,
   }) {
+    const cleanPhone = (phone) => {
+      if (!phone) return undefined;
+      const normalized = phone.toString().replace(/\D/g, '');
+      return normalized.length > 10 ? normalized.slice(-10) : normalized;
+    };
+
     const payload = {
       // Customer Information (Required)
       customerName: customerData?.customerName,
-      customerPhone: customerData?.customerPhone,
+      customerPhone: cleanPhone(customerData?.customerPhone),
       customerEmail: customerData?.customerEmail,
 
       // Device Information (Required)
@@ -69,10 +76,13 @@ export const bookingService = {
       address: toBookingAddress(address),
 
       // Optional Customer Fields
-      alternatePhone: customerData?.alternatePhone || undefined,
+      alternatePhone: cleanPhone(customerData?.alternatePhone) || undefined,
 
       // Device Password (optional but important)
       devicePassword: customerData?.devicePassword || undefined,
+
+      // Agreement checkbox
+      agreedToPolicies: agreedToPolicies || false,
     };
 
     // Remove undefined values to keep payload clean

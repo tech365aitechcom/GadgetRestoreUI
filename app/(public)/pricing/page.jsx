@@ -108,9 +108,8 @@ export default function PricingPage() {
         const res = pricingResults.results.find(
           (r) => String(r.repairTypeId) === String(id),
         )
-        if (!res || !res.available || !res.pricing) {
-          sympIsVariable = true
-        } else {
+        // Sum up available pricing - even if some repair types don't have pricing
+        if (res && res.available && res.pricing) {
           sympParts += res.pricing.partsCost || 0
           sympLabour += res.pricing.labourCost || 0
           // Get warranty from pricing matrix (use maximum if multiple repairs)
@@ -124,7 +123,7 @@ export default function PricingPage() {
       sympIsVariable = true
     }
 
-    // Fallback if total is zero
+    // Mark as variable only if total is zero (no pricing found for any repair type)
     if (sympParts + sympLabour === 0) sympIsVariable = true
 
     if (sympIsVariable) hasVariableSymptom = true
@@ -141,7 +140,9 @@ export default function PricingPage() {
   })
 
   // Generate a mock quote ID
-  const quoteId = `RC-${Math.floor(100 + Math.random() * 900)}-${brand.name.substring(0, 2).toUpperCase()}`
+  const quoteId = `RC-${Math.floor(100 + Math.random() * 900)}-${brand.name
+    .substring(0, 2)
+    .toUpperCase()}`
 
   const partsCost = itemizedSymptoms.reduce(
     (sum, item) => sum + (item.isVariable ? 0 : item.partsCost),
@@ -169,12 +170,14 @@ export default function PricingPage() {
   const modelImg = model.image || defaultDeviceImg
 
   /* Handlers */
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     if (!canProceedToBook) return
 
     // Check if user is already logged in
     const token = Cookies.get(TOKEN_COOKIE)
     if (token) {
+      // Proceed directly to schedule. Stale or invalid tokens will be handled
+      // globally by the API interceptor when request is made.
       router.push('/schedule')
       return
     }
@@ -273,7 +276,7 @@ export default function PricingPage() {
                 </div>
                 <div>
                   <h2 className='text-lg font-extrabold text-white mb-1'>
-                    {brand.name} {model.name}
+                    {model.name}
                   </h2>
                   {symptoms.length > 0 && (
                     <div className='text-xs text-gray-400'>
@@ -324,9 +327,7 @@ export default function PricingPage() {
                       <Clock size={12} className='text-gray-400' /> Est. Repair
                       Time
                     </div>
-                    <div className='text-sm font-bold text-white'>
-                      Same Day
-                    </div>
+                    <div className='text-sm font-bold text-white'>Same Day</div>
                   </div>
                   <div>
                     <div className='text-[9px] font-bold text-gray-400 uppercase tracking-wider mb-1.5 flex items-center gap-1.5'>
@@ -398,8 +399,9 @@ export default function PricingPage() {
               {/* Quote Breakdowns - Itemized per Symptom/Repair */}
               <div className='flex flex-col gap-5 lg:gap-6 pb-5 lg:pb-6 border-b border-white/5'>
                 {itemizedSymptoms.map((symptom, index) => {
-                  const sympServiceCharge = symptom.partsCost + symptom.labourCost;
-                  const sympGst = Math.round(sympServiceCharge * 0.18);
+                  const sympServiceCharge =
+                    symptom.partsCost + symptom.labourCost
+                  const sympGst = Math.round(sympServiceCharge * 0.18)
 
                   return (
                     <div key={index} className='flex flex-col gap-3'>
@@ -459,7 +461,7 @@ export default function PricingPage() {
                         </div>
                       )}
                     </div>
-                  );
+                  )
                 })}
               </div>
             </div>
@@ -485,38 +487,18 @@ export default function PricingPage() {
               <div className='text-[9px] font-bold text-gray-400 uppercase tracking-widest text-right mb-5 lg:hidden'>
                 * FINAL PRICE MAY VARY AFTER DIAGNOSIS
               </div>
-
-              {/* Mobile Agreement Text */}
-              <div className='flex items-start gap-2.5 lg:hidden'>
-                <AlertCircle
-                  size={14}
-                  className='text-gray-400 shrink-0 mt-0.5'
-                />
-                <div className='text-[11px] text-gray-400 leading-relaxed'>
-                  By continuing, you agree to our Service Terms & Genuine Part
-                  Policy.
-                </div>
-              </div>
             </div>
           </div>
         </div>
 
         {/* Desktop Bottom Action Bar */}
-        <div className='mt-8 bg-white rounded-3xl p-6 lg:p-8 justify-between items-center hidden lg:flex'>
-          <div className='flex items-center gap-3 text-[#1E2024]'>
-            <AlertCircle size={20} className='text-[#1E2024]' />
-            <span className='text-xs font-semibold leading-relaxed'>
-              By continuing, you agree to our Service Terms & Genuine Part
-              Policy.
-            </span>
-          </div>
-
+        <div className='mt-8 bg-white rounded-3xl p-6 lg:p-8 justify-end items-center hidden lg:flex'>
           <button
             onClick={handleConfirm}
             disabled={!canProceedToBook}
             className={`h-14 px-10 bg-black text-white font-extrabold text-xs uppercase tracking-wider rounded-[var(--radius-btn)] flex items-center justify-center gap-3 transition-opacity ${canProceedToBook
-              ? 'cursor-pointer hover:opacity-90'
-              : 'cursor-not-allowed opacity-50'
+                ? 'cursor-pointer hover:opacity-90'
+                : 'cursor-not-allowed opacity-50'
               }`}
           >
             Confirm & Continue <ChevronRight size={18} />
@@ -536,8 +518,8 @@ export default function PricingPage() {
           onClick={handleConfirm}
           disabled={!canProceedToBook}
           className={`w-full h-14 bg-white text-black font-extrabold text-sm uppercase tracking-wider rounded-2xl flex items-center justify-center gap-2 shadow-lg transition-opacity ${canProceedToBook
-            ? 'cursor-pointer hover:opacity-90'
-            : 'cursor-not-allowed opacity-50'
+              ? 'cursor-pointer hover:opacity-90'
+              : 'cursor-not-allowed opacity-50'
             }`}
         >
           Confirm & Continue <ChevronRight size={18} />

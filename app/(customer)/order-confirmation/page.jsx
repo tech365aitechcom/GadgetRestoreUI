@@ -136,7 +136,7 @@ function OrderConfirmationContent() {
 
   const handleGoHome = () => {
     reset()
-    router.push('/')
+    router.push('/select-category')
   }
 
   const handleShareOrderId = async () => {
@@ -424,7 +424,7 @@ function OrderConfirmationContent() {
                 >
                   <Share2 size={12} className="text-[var(--theme-text-secondary)]" />
                   <span className="text-[9px] text-[var(--theme-text-secondary)] uppercase tracking-wider font-bold">
-                    Share
+                    Copy Order ID
                   </span>
                 </button>
               </div>
@@ -514,18 +514,12 @@ function OrderConfirmationContent() {
               <h3 className="text-[10px] uppercase tracking-[0.14em] text-[var(--theme-text-tertiary)] font-extrabold">
                 Next Steps
               </h3>
-              {/* Dot Indicators */}
-              <div className="flex gap-1.5">
-                <div className="w-1.5 h-1.5 rounded-full bg-[var(--theme-text-primary)]"></div>
-                <div className="w-1.5 h-1.5 rounded-full bg-[var(--theme-border-strong)]"></div>
-                <div className="w-1.5 h-1.5 rounded-full bg-[var(--theme-border-strong)]"></div>
-              </div>
             </div>
 
             {/* Horizontal Timeline Row */}
             <div className="grid grid-cols-3 gap-6">
 
-              {/* Step 1 - Active */}
+              {/* Step 1 */}
               <div className="flex flex-col items-start">
                 <div className="flex items-center gap-3 mb-2.5">
                   <div className="w-8 h-8 rounded-full bg-[var(--theme-text-primary)] text-[var(--theme-bg)] flex items-center justify-center text-[12px] font-black">
@@ -540,10 +534,10 @@ function OrderConfirmationContent() {
                 </p>
               </div>
 
-              {/* Step 2 - Inactive */}
-              <div className="flex flex-col items-start opacity-45">
+              {/* Step 2 */}
+              <div className="flex flex-col items-start">
                 <div className="flex items-center gap-3 mb-2.5">
-                  <div className="w-8 h-8 rounded-full border-2 border-[var(--theme-border-strong)] text-[var(--theme-text-tertiary)] flex items-center justify-center text-[12px] font-black">
+                  <div className="w-8 h-8 rounded-full bg-[var(--theme-text-primary)] text-[var(--theme-bg)] flex items-center justify-center text-[12px] font-black">
                     02
                   </div>
                   <h4 className="text-[13px] font-extrabold text-[var(--theme-text-primary)]">
@@ -555,10 +549,10 @@ function OrderConfirmationContent() {
                 </p>
               </div>
 
-              {/* Step 3 - Inactive */}
-              <div className="flex flex-col items-start opacity-45">
+              {/* Step 3 */}
+              <div className="flex flex-col items-start">
                 <div className="flex items-center gap-3 mb-2.5">
-                  <div className="w-8 h-8 rounded-full border-2 border-[var(--theme-border-strong)] text-[var(--theme-text-tertiary)] flex items-center justify-center text-[12px] font-black">
+                  <div className="w-8 h-8 rounded-full bg-[var(--theme-text-primary)] text-[var(--theme-bg)] flex items-center justify-center text-[12px] font-black">
                     03
                   </div>
                   <h4 className="text-[13px] font-extrabold text-[var(--theme-text-primary)]">

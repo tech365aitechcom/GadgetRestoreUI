@@ -18,6 +18,14 @@ import orderService from '@/services/order.service'
 import OrderStatusBadge from '@/components/orders/OrderStatusBadge'
 import Skeleton from '@/components/ui/Skeleton'
 import ErrorState from '@/components/ui/ErrorState'
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/Pagination'
 
 const CLOSED_STATUSES = new Set(['DELIVERED', 'CANCELLED'])
 
@@ -114,15 +122,21 @@ export default function OrdersPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [searchQuery] = useState('')
+  const [currentPage, setCurrentPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
+  const [totalCount, setTotalCount] = useState(0)
+  const itemsPerPage = 10
 
   useEffect(() => {
     let isMounted = true
 
     const loadOrders = async () => {
       try {
-        const nextOrders = await orderService.getOrders()
+        const response = await orderService.getOrders(currentPage, itemsPerPage)
         if (isMounted) {
-          setOrders(nextOrders)
+          setOrders(response.orders)
+          setTotalPages(response.totalPages)
+          setTotalCount(response.totalCount)
           setError('')
         }
       } catch (err) {
@@ -133,6 +147,7 @@ export default function OrdersPage() {
       }
     }
 
+    setLoading(true)
     loadOrders()
     const intervalId = globalThis.setInterval(loadOrders, 30000)
 
@@ -140,12 +155,15 @@ export default function OrdersPage() {
       isMounted = false
       globalThis.clearInterval(intervalId)
     }
-  }, [])
+  }, [currentPage])
 
   const activeOrders = orders.filter(
     (order) => !CLOSED_STATUSES.has(order.repairStatus),
   )
   const currentOrder = activeOrders[0]
+
+  // Display all orders from current page (server-side pagination)
+  const pastOrders = orders.slice(1)
 
   return (
     <div className='min-h-[100svh] lg:min-h-[calc(100vh-var(--topbar-height))] bg-[var(--theme-bg)] pb-20 lg:pb-0 px-5 lg:px-8 pt-6 lg:pt-8'>
@@ -329,125 +347,6 @@ export default function OrdersPage() {
                 </div>
               </Link>
             )}
-
-            {/* Service History */}
-            {orders.length > 1 && (
-              <div className='mt-6'>
-                <div className='flex items-center justify-between mb-3 lg:mb-4'>
-                  <h2 className='text-[11px] lg:text-[12px] uppercase tracking-[0.12em] lg:tracking-[0.14em] text-[var(--theme-text-tertiary)] font-bold'>
-                    {currentOrder ? 'HISTORY' : 'SERVICE HISTORY'}
-                  </h2>
-                  <Link
-                    href='#'
-                    className='text-[11px] lg:text-[12px] font-bold text-[var(--theme-text-primary)] no-underline hover:opacity-80'
-                  >
-                    View all past repairs
-                  </Link>
-                </div>
-
-                {/* Mobile List View */}
-                <div className='lg:hidden flex flex-col gap-3'>
-                  {orders.slice(1, 4).map((order) => {
-                    const brandName = order.brandRef?.name || ''
-                    const modelName = order.modelRef?.name || ''
-                    const deviceName = modelName.toLowerCase().startsWith(brandName.toLowerCase())
-                      ? modelName
-                      : `${brandName} ${modelName}`
-                    return (
-                      <Link
-                        key={order.ticketNumber}
-                        href={`/orders/detail?ticketNumber=${encodeURIComponent(order.ticketNumber)}`}
-                        className='flex items-center gap-3 p-4 bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-xl no-underline'
-                      >
-                        <div className='w-10 h-10 bg-[var(--theme-surface)] border border-[var(--theme-border)] rounded-lg flex items-center justify-center shrink-0 overflow-hidden p-1 shadow-inner'>
-                          <img
-                            src={order.modelRef?.image || getFallbackDeviceImage(order.brandRef?.name)}
-                            alt={deviceName}
-                            className='w-full h-full object-contain'
-                          />
-                        </div>
-                        <div className='flex-1 min-w-0'>
-                          <h3 className='text-[13px] font-bold text-[var(--theme-text-primary)] mb-0.5 truncate'>
-                            {deviceName || 'Device Repair'}
-                          </h3>
-                          <p className='text-[11px] text-[var(--theme-text-tertiary)]'>
-                            {formatOrderId(order.ticketNumber, order.createdAt)} • {formatDate(order.createdAt)}
-                          </p>
-                        </div>
-                        <ChevronRight size={16} className='text-[var(--theme-text-tertiary)] shrink-0' />
-                      </Link>
-                    )
-                  })}
-                </div>
-
-                {/* Desktop Table View */}
-                <div className='hidden lg:block bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-2xl overflow-hidden'>
-                  {/* Table Header */}
-                  <div className='grid grid-cols-12 gap-4 px-6 py-3 bg-[var(--theme-surface)] border-b border-[var(--theme-border)]'>
-                    <div className='col-span-3 text-[10px] uppercase tracking-[0.14em] text-[var(--theme-text-tertiary)] font-bold'>
-                      Order ID
-                    </div>
-                    <div className='col-span-3 text-[10px] uppercase tracking-[0.14em] text-[var(--theme-text-tertiary)] font-bold'>
-                      Device
-                    </div>
-                    <div className='col-span-2 text-[10px] uppercase tracking-[0.14em] text-[var(--theme-text-tertiary)] font-bold'>
-                      Status
-                    </div>
-                    <div className='col-span-3 text-[10px] uppercase tracking-[0.14em] text-[var(--theme-text-tertiary)] font-bold'>
-                      Date
-                    </div>
-                    <div className='col-span-1'></div>
-                  </div>
-
-                  {/* Table Rows */}
-                  {orders.slice(1, 4).map((order, index) => {
-                    const brandName = order.brandRef?.name || ''
-                    const modelName = order.modelRef?.name || ''
-                    const deviceName = modelName.toLowerCase().startsWith(brandName.toLowerCase())
-                      ? modelName
-                      : `${brandName} ${modelName}`
-                    return (
-                      <Link
-                        key={order.ticketNumber}
-                        href={`/orders/detail?ticketNumber=${encodeURIComponent(order.ticketNumber)}`}
-                        className='grid grid-cols-12 gap-4 px-6 py-4 hover:bg-[var(--theme-surface)] transition-colors no-underline group border-b border-[var(--theme-border)] last:border-b-0'
-                      >
-                        <div className='col-span-3 flex items-center'>
-                          <p className='text-[11px] text-[var(--theme-text-tertiary)] font-mono whitespace-nowrap'>
-                            {formatOrderId(order.ticketNumber, order.createdAt)}
-                          </p>
-                        </div>
-                        <div className='col-span-3 flex items-center gap-3'>
-                          <div className='w-10 h-10 bg-[var(--theme-surface)] border border-[var(--theme-border)] rounded-lg flex items-center justify-center shrink-0 overflow-hidden p-1 shadow-inner'>
-                            <img
-                              src={order.modelRef?.image || getFallbackDeviceImage(order.brandRef?.name)}
-                              alt={deviceName}
-                              className='w-full h-full object-contain'
-                            />
-                          </div>
-                          <div className='min-w-0'>
-                            <p className='text-[13px] font-bold text-[var(--theme-text-primary)] truncate'>
-                              {deviceName || 'Device'}
-                            </p>
-                          </div>
-                        </div>
-                        <div className='col-span-2 flex items-center'>
-                          <OrderStatusBadge status={order.repairStatus} size='sm' />
-                        </div>
-                        <div className='col-span-3 flex items-center'>
-                          <p className='text-[12px] text-[var(--theme-text-secondary)]'>
-                            {formatDate(order.createdAt)}
-                          </p>
-                        </div>
-                        <div className='col-span-1 flex items-center justify-end'>
-                          <ChevronRight size={16} className='text-[var(--theme-text-tertiary)]' />
-                        </div>
-                      </Link>
-                    )
-                  })}
-                </div>
-              </div>
-            )}
           </div>
 
           {/* Right Sidebar - Desktop Only */}
@@ -574,6 +473,154 @@ export default function OrdersPage() {
                       </div>
                     )}
                 </div>
+              </div>
+            )}
+          </div>
+
+          <div className='lg:col-span-12'>
+
+            {/* Service History */}
+            {orders.length > 1 && (
+              <div className='mt-6'>
+                <div className='flex items-center justify-between mb-3 lg:mb-4'>
+                  <h2 className='text-[11px] lg:text-[12px] uppercase tracking-[0.12em] lg:tracking-[0.14em] text-[var(--theme-text-tertiary)] font-bold'>
+                    {currentOrder ? 'HISTORY' : 'SERVICE HISTORY'}
+                  </h2>
+                </div>
+
+                {/* Mobile List View */}
+                <div className='lg:hidden flex flex-col gap-3'>
+                  {pastOrders.map((order) => {
+                    const brandName = order.brandRef?.name || ''
+                    const modelName = order.modelRef?.name || ''
+                    const deviceName = modelName.toLowerCase().startsWith(brandName.toLowerCase())
+                      ? modelName
+                      : `${brandName} ${modelName}`
+                    return (
+                      <Link
+                        key={order.ticketNumber}
+                        href={`/orders/detail?ticketNumber=${encodeURIComponent(order.ticketNumber)}`}
+                        className='flex items-center gap-3 p-4 bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-xl no-underline'
+                      >
+                        <div className='w-10 h-10 bg-[var(--theme-surface)] border border-[var(--theme-border)] rounded-lg flex items-center justify-center shrink-0 overflow-hidden p-1 shadow-inner'>
+                          <img
+                            src={order.modelRef?.image || getFallbackDeviceImage(order.brandRef?.name)}
+                            alt={deviceName}
+                            className='w-full h-full object-contain'
+                          />
+                        </div>
+                        <div className='flex-1 min-w-0'>
+                          <h3 className='text-[13px] font-bold text-[var(--theme-text-primary)] mb-0.5 truncate'>
+                            {deviceName || 'Device Repair'}
+                          </h3>
+                          <p className='text-[11px] text-[var(--theme-text-tertiary)]'>
+                            {formatOrderId(order.ticketNumber, order.createdAt)} • {formatDate(order.createdAt)}
+                          </p>
+                        </div>
+                        <ChevronRight size={16} className='text-[var(--theme-text-tertiary)] shrink-0' />
+                      </Link>
+                    )
+                  })}
+                </div>
+
+                {/* Desktop Table View */}
+                <div className='hidden lg:block bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-2xl overflow-hidden'>
+                  {/* Table Header */}
+                  <div className='grid grid-cols-12 gap-4 px-6 py-3 bg-[var(--theme-surface)] border-b border-[var(--theme-border)]'>
+                    <div className='col-span-2 text-[10px] uppercase tracking-[0.14em] text-[var(--theme-text-tertiary)] font-bold'>
+                      Order ID
+                    </div>
+                    <div className='col-span-4 text-[10px] uppercase tracking-[0.14em] text-[var(--theme-text-tertiary)] font-bold'>
+                      Device
+                    </div>
+                    <div className='col-span-3 text-[10px] uppercase tracking-[0.14em] text-[var(--theme-text-tertiary)] font-bold'>
+                      Status
+                    </div>
+                    <div className='col-span-2 text-[10px] uppercase tracking-[0.14em] text-[var(--theme-text-tertiary)] font-bold'>
+                      Date
+                    </div>
+                    <div className='col-span-1'></div>
+                  </div>
+
+                  {/* Table Rows */}
+                  {pastOrders.map((order, index) => {
+                    const brandName = order.brandRef?.name || ''
+                    const modelName = order.modelRef?.name || ''
+                    const deviceName = modelName.toLowerCase().startsWith(brandName.toLowerCase())
+                      ? modelName
+                      : `${brandName} ${modelName}`
+                    return (
+                      <Link
+                        key={order.ticketNumber}
+                        href={`/orders/detail?ticketNumber=${encodeURIComponent(order.ticketNumber)}`}
+                        className='grid grid-cols-12 gap-4 px-6 py-4 hover:bg-[var(--theme-surface)] transition-colors no-underline group border-b border-[var(--theme-border)] last:border-b-0'
+                      >
+                        <div className='col-span-2 flex items-center'>
+                          <p className='text-[11px] text-[var(--theme-text-tertiary)] font-mono whitespace-nowrap'>
+                            {formatOrderId(order.ticketNumber, order.createdAt)}
+                          </p>
+                        </div>
+                        <div className='col-span-4 flex items-center gap-3'>
+                          <div className='w-10 h-10 bg-[var(--theme-surface)] border border-[var(--theme-border)] rounded-lg flex items-center justify-center shrink-0 overflow-hidden p-1 shadow-inner'>
+                            <img
+                              src={order.modelRef?.image || getFallbackDeviceImage(order.brandRef?.name)}
+                              alt={deviceName}
+                              className='w-full h-full object-contain'
+                            />
+                          </div>
+                          <div className='min-w-0'>
+                            <p className='text-[13px] font-bold text-[var(--theme-text-primary)] truncate'>
+                              {deviceName || 'Device'}
+                            </p>
+                          </div>
+                        </div>
+                        <div className='col-span-3 flex items-center'>
+                          <OrderStatusBadge status={order.repairStatus} size='sm' />
+                        </div>
+                        <div className='col-span-2 flex items-center'>
+                          <p className='text-[12px] text-[var(--theme-text-secondary)]'>
+                            {formatDate(order.createdAt)}
+                          </p>
+                        </div>
+                        <div className='col-span-1 flex items-center justify-end'>
+                          <ChevronRight size={16} className='text-[var(--theme-text-tertiary)]' />
+                        </div>
+                      </Link>
+                    )
+                  })}
+                </div>
+
+                {/* Pagination Controls */}
+                {totalPages > 1 && (
+                  <div className='mt-5'>
+                    <Pagination>
+                      <PaginationContent>
+                        <PaginationItem>
+                          <PaginationPrevious
+                            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                            disabled={currentPage === 1}
+                          />
+                        </PaginationItem>
+                        {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                          <PaginationItem key={page}>
+                            <PaginationLink
+                              isActive={currentPage === page}
+                              onClick={() => setCurrentPage(page)}
+                            >
+                              {page}
+                            </PaginationLink>
+                          </PaginationItem>
+                        ))}
+                        <PaginationItem>
+                          <PaginationNext
+                            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                            disabled={currentPage === totalPages}
+                          />
+                        </PaginationItem>
+                      </PaginationContent>
+                    </Pagination>
+                  </div>
+                )}
               </div>
             )}
           </div>
