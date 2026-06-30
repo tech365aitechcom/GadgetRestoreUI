@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Check, ChevronDown, Circle } from 'lucide-react';
 import { ORDER_STEPS, canonicalOrderStatus } from '@/lib/order-status';
+import PropTypes from 'prop-types';
 
 function formatMoment(value) {
   if (!value) return '';
@@ -14,6 +15,13 @@ function formatMoment(value) {
     minute: '2-digit',
   });
 }
+
+OrderTimeline.propTypes = {
+  currentStatus: PropTypes.string.isRequired,
+  history: PropTypes.array,
+  timeline: PropTypes.array,
+  partners: PropTypes.object,
+};
 
 export default function OrderTimeline({ currentStatus, history = [], timeline = [], partners = {} }) {
   const [expanded, setExpanded] = useState('');

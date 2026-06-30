@@ -1,5 +1,13 @@
 'use client'
 
+import PropTypes from 'prop-types'
+
+Skeleton.propTypes = {
+  className: PropTypes.string,
+  circle: PropTypes.bool,
+  lines: PropTypes.number,
+}
+
 export default function Skeleton({ className = '', circle = false, lines }) {
   if (lines && lines > 1) {
     return (

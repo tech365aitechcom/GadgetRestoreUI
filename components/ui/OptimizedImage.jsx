@@ -1,6 +1,18 @@
 'use client'
 
 import { useState } from 'react'
+import PropTypes from 'prop-types'
+
+OptimizedImage.propTypes = {
+  src: PropTypes.string.isRequired,
+  alt: PropTypes.string.isRequired,
+  fallbackSrc: PropTypes.string,
+  className: PropTypes.string,
+  style: PropTypes.object,
+  onError: PropTypes.func,
+  showSkeleton: PropTypes.bool,
+  skeletonClassName: PropTypes.string,
+}
 
 export default function OptimizedImage({
   src,

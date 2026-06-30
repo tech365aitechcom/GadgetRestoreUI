@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { LogIn, ShieldAlert, X } from 'lucide-react';
+import PropTypes from 'prop-types';
 
 /**
  * LoginAlertModal - Shows an alert when user is not authenticated
@@ -9,6 +10,12 @@ import { LogIn, ShieldAlert, X } from 'lucide-react';
  * @param {Function} onClose - Callback to close the modal (optional)
  * @param {string} redirectPath - Path to redirect after login (optional)
  */
+LoginAlertModal.propTypes = {
+  isOpen: PropTypes.bool.isRequired,
+  onClose: PropTypes.func,
+  redirectPath: PropTypes.string,
+};
+
 export default function LoginAlertModal({ isOpen, onClose, redirectPath = null }) {
   const router = useRouter();
 
@@ -16,7 +23,7 @@ export default function LoginAlertModal({ isOpen, onClose, redirectPath = null }
 
   const handleLogin = () => {
     // Store the intended destination if provided
-    if (redirectPath && typeof window !== 'undefined') {
+    if (redirectPath && typeof globalThis.window !== 'undefined') {
       sessionStorage.setItem('gr_redirect_after_login', redirectPath);
     }
     // Close the modal before navigating

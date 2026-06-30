@@ -1,5 +1,7 @@
 'use client';
 
+import PropTypes from 'prop-types';
+
 /**
  * Card component
  * Props:
@@ -7,6 +9,15 @@
  *   onClick  — makes card interactive
  *   selected — highlights card with accent border
  */
+Card.propTypes = {
+  children: PropTypes.node.isRequired,
+  padding: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  onClick: PropTypes.func,
+  selected: PropTypes.bool,
+  className: PropTypes.string,
+  style: PropTypes.object,
+};
+
 export default function Card({
   children,
   padding,

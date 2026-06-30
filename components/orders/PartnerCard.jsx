@@ -2,6 +2,26 @@
 
 import { useState, useEffect } from 'react';
 import { Bike, Phone, MapPin, Compass, Navigation } from 'lucide-react';
+import PropTypes from 'prop-types';
+
+PartnerCard.propTypes = {
+  title: PropTypes.string.isRequired,
+  partner: PropTypes.shape({
+    name: PropTypes.string,
+    user: PropTypes.shape({
+      name: PropTypes.string,
+      phone: PropTypes.string,
+    }),
+    phone: PropTypes.string,
+    vehicleType: PropTypes.string,
+    vehicleNumber: PropTypes.string,
+    currentLocation: PropTypes.shape({
+      coordinates: PropTypes.arrayOf(PropTypes.number),
+    }),
+    eta: PropTypes.string,
+  }),
+  showMap: PropTypes.bool,
+};
 
 export default function PartnerCard({ title, partner, showMap }) {
   const [pulse, setPulse] = useState(true);
@@ -22,7 +42,7 @@ export default function PartnerCard({ title, partner, showMap }) {
   const hasCoords = coords && Array.isArray(coords) && (coords[0] !== 0 || coords[1] !== 0);
 
   // Fallback map simulation offset if GPS coordinates are standard/centered
-  const lng = hasCoords ? coords[0] : 77.2090;
+  const lng = hasCoords ? coords[0] : 77.209;
   const lat = hasCoords ? coords[1] : 28.6139;
 
   return (
@@ -36,7 +56,7 @@ export default function PartnerCard({ title, partner, showMap }) {
         </div>
         {showMap && (
           <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-500/10 border border-green-500/20 text-green-400 text-[10px] font-black uppercase tracking-widest leading-none">
-            <span className={`w-1.5 h-1.5 rounded-full bg-green-400 ${pulse ? 'animate-ping' : ''}`}></span>
+            <span className={`w-1.5 h-1.5 rounded-full bg-green-400 ${pulse ? 'animate-ping' : ''}`}></span>{' '}
             LIVE TRACKING
           </span>
         )}
@@ -139,7 +159,7 @@ export default function PartnerCard({ title, partner, showMap }) {
           {/* Dynamic map status bar (Bottom) */}
           <div className="relative z-10 p-2 bg-black/90 border-t border-[var(--theme-border)] flex items-center justify-between text-[9px] font-extrabold tracking-wider uppercase text-[var(--theme-text-tertiary)]">
             <div className="flex items-center gap-1 text-[var(--color-success)]">
-              <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-success)] animate-pulse"></span>
+              <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-success)] animate-pulse"></span>{' '}
               Tracking Connected
             </div>
             <div>

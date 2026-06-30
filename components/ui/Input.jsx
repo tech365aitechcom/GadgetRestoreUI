@@ -1,5 +1,7 @@
 'use client';
 
+import PropTypes from 'prop-types';
+
 /**
  * Input component
  *
@@ -11,6 +13,17 @@
  *   prefix      — content before input (e.g. "+91")
  *   suffix      — content after input (e.g. icon)
  */
+Input.propTypes = {
+  label: PropTypes.string,
+  error: PropTypes.string,
+  hint: PropTypes.string,
+  id: PropTypes.string,
+  type: PropTypes.string,
+  prefix: PropTypes.node,
+  suffix: PropTypes.node,
+  className: PropTypes.string,
+};
+
 export default function Input({
   label,
   error,
