@@ -24,13 +24,13 @@ function hasFirebaseConfig() {
 }
 
 function getDeviceId() {
-  if (typeof window === 'undefined') return '';
-  const existing = window.localStorage.getItem(DEVICE_ID_KEY);
+  if (globalThis.window === undefined) return '';
+  const existing = globalThis.localStorage.getItem(DEVICE_ID_KEY);
   if (existing) return existing;
 
   const prefix = Capacitor.isNativePlatform() ? `native-${Capacitor.getPlatform()}-` : 'web-';
-  const nextId = `${prefix}${window.crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(16).slice(2)}`}`;
-  window.localStorage.setItem(DEVICE_ID_KEY, nextId);
+  const nextId = `${prefix}${globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(16).slice(2)}`}`;
+  globalThis.localStorage.setItem(DEVICE_ID_KEY, nextId);
   return nextId;
 }
 
@@ -40,7 +40,7 @@ async function getServiceWorkerRegistration() {
 }
 
 async function getMessagingInstance() {
-  if (typeof window === 'undefined') return null;
+  if (globalThis.window === undefined) return null;
   if (!hasFirebaseConfig()) return null;
   if (!(await isSupported())) return null;
 
@@ -52,21 +52,21 @@ export const pushNotificationService = {
   isConfigured: hasFirebaseConfig,
 
   async isSupported() {
-    if (typeof window === 'undefined') return false;
+    if (globalThis.window === undefined) return false;
     if (Capacitor.isNativePlatform()) return true;
-    if (!('Notification' in window)) return false;
+    if (!('Notification' in globalThis)) return false;
     if (!('serviceWorker' in navigator)) return false;
     return hasFirebaseConfig() && await isSupported();
   },
 
   getPermission() {
-    if (typeof window === 'undefined') return 'unsupported';
+    if (globalThis.window === undefined) return 'unsupported';
     if (Capacitor.isNativePlatform()) {
       // For Capacitor, we return the status asynchronously via checkPermissions/requestPermissions.
       // We default to 'default' here to ensure requestAndRegister is called when requested.
       return 'default';
     }
-    if (!('Notification' in window)) return 'unsupported';
+    if (!('Notification' in globalThis)) return 'unsupported';
     return Notification.permission;
   },
 
@@ -111,7 +111,7 @@ export const pushNotificationService = {
             };
 
             await notificationService.registerPushDevice(payload);
-            window.localStorage.setItem(FCM_TOKEN_KEY, fcmToken);
+            globalThis.localStorage.setItem(FCM_TOKEN_KEY, fcmToken);
             cleanUp();
             resolve(payload);
           } catch (error) {
@@ -164,12 +164,12 @@ export const pushNotificationService = {
     };
 
     await notificationService.registerPushDevice(payload);
-    window.localStorage.setItem(FCM_TOKEN_KEY, fcmToken);
+    globalThis.localStorage.setItem(FCM_TOKEN_KEY, fcmToken);
     return payload;
   },
 
   async refreshIfGranted() {
-    if (typeof window === 'undefined') return null;
+    if (globalThis.window === undefined) return null;
     
     if (Capacitor.isNativePlatform()) {
       // For Capacitor, we try to refresh if permissions are granted.
@@ -224,7 +224,7 @@ export const pushNotificationService = {
   },
 
   async showLocalNotification(title = 'Gadget Restore', options = {}) {
-    if (typeof window === 'undefined') return;
+    if (globalThis.window === undefined) return;
 
     if (Capacitor.isNativePlatform()) {
       // Capacitor does not need service worker showNotification, we can use LocalNotifications plugin
@@ -233,7 +233,7 @@ export const pushNotificationService = {
       return;
     }
 
-    if (!('Notification' in window)) {
+    if (!('Notification' in globalThis)) {
       throw new Error('Browser notifications are not supported.');
     }
 
@@ -257,7 +257,7 @@ export const pushNotificationService = {
   },
 
   async unregister() {
-    const fcmToken = window.localStorage.getItem(FCM_TOKEN_KEY);
+    const fcmToken = globalThis.localStorage.getItem(FCM_TOKEN_KEY);
 
     if (Capacitor.isNativePlatform()) {
       try {
@@ -283,7 +283,7 @@ export const pushNotificationService = {
       });
     }
 
-    window.localStorage.removeItem(FCM_TOKEN_KEY);
+    globalThis.localStorage.removeItem(FCM_TOKEN_KEY);
   },
 };
 

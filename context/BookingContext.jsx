@@ -1,6 +1,7 @@
 'use client';
 
 import { createContext, useContext, useReducer, useEffect, useState } from 'react';
+import PropTypes from 'prop-types';
 
 // ── State shape ─────────────────────────────────────────────────────────────
 const INITIAL_STATE = {
@@ -59,6 +60,10 @@ function bookingReducer(state, action) {
 // ── Context ──────────────────────────────────────────────────────────────────
 const BookingContext = createContext(null);
 
+BookingProvider.propTypes = {
+  children: PropTypes.node.isRequired,
+};
+
 export function BookingProvider({ children }) {
   const [state, dispatch] = useReducer(bookingReducer, INITIAL_STATE);
   const [isRestored, setIsRestored] = useState(false);
@@ -70,7 +75,9 @@ export function BookingProvider({ children }) {
       if (saved) {
         dispatch({ type: 'RESTORE', payload: JSON.parse(saved) });
       }
-    } catch (_) {}
+    } catch (error) {
+      console.error('Failed to restore booking state from localStorage', error);
+    }
     setIsRestored(true);
   }, []);
 
@@ -78,7 +85,9 @@ export function BookingProvider({ children }) {
   useEffect(() => {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    } catch (_) {}
+    } catch (error) {
+      console.error('Failed to save booking state to localStorage', error);
+    }
   }, [state]);
 
   const actions = {

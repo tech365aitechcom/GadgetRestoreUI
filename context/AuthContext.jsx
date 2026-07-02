@@ -5,6 +5,7 @@ import Cookies from 'js-cookie'
 import { TOKEN_COOKIE } from '@/lib/constants'
 import { redirectToLandingPage } from '@/lib/auth-utils'
 import customerService from '@/services/customer.service'
+import PropTypes from 'prop-types'
 
 const AuthContext = createContext({
   user: null,
@@ -13,6 +14,10 @@ const AuthContext = createContext({
   logout: () => { },
   isLoading: true,
 })
+
+AuthProvider.propTypes = {
+  children: PropTypes.node.isRequired,
+}
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
@@ -52,7 +57,8 @@ export function AuthProvider({ children }) {
             mobile: payload.phoneNumber || '',
           })
         }
-      } catch (_) {
+      } catch (error) {
+        console.error('Token parsing failed:', error)
         // Token parsing failed, user stays null
       }
     } finally {

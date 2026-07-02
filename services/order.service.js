@@ -75,7 +75,7 @@ async function downloadDocument(path, filename) {
 
       // Fallback: try creating a downloadable link
       try {
-        const url = window.URL.createObjectURL(blob);
+        const url = globalThis.URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
         link.download = filename;
@@ -85,7 +85,7 @@ async function downloadDocument(path, filename) {
         document.body.removeChild(link);
 
         setTimeout(() => {
-          window.URL.revokeObjectURL(url);
+          globalThis.URL.revokeObjectURL(url);
         }, 1000);
       } catch (fallbackError) {
         console.error('Fallback download also failed:', fallbackError);
@@ -94,7 +94,7 @@ async function downloadDocument(path, filename) {
     }
   } else {
     // Web browser: use traditional download approach
-    const url = window.URL.createObjectURL(blob);
+    const url = globalThis.URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
     link.download = filename;
@@ -106,7 +106,7 @@ async function downloadDocument(path, filename) {
 
     // Clean up
     setTimeout(() => {
-      window.URL.revokeObjectURL(url);
+      globalThis.URL.revokeObjectURL(url);
     }, 100);
   }
 }
@@ -232,19 +232,19 @@ export const orderService = {
           const byteCharacters = atob(base64Data);
           const byteNumbers = new Array(byteCharacters.length);
           for (let i = 0; i < byteCharacters.length; i++) {
-            byteNumbers[i] = byteCharacters.charCodeAt(i);
+            byteNumbers[i] = byteCharacters.codePointAt(i);
           }
           const byteArray = new Uint8Array(byteNumbers);
           const blob = new Blob([byteArray], { type: 'application/pdf' });
 
-          const url = window.URL.createObjectURL(blob);
+          const url = globalThis.URL.createObjectURL(blob);
           const link = document.createElement('a');
           link.href = url;
           link.download = filename;
           document.body.appendChild(link);
           link.click();
           document.body.removeChild(link);
-          setTimeout(() => window.URL.revokeObjectURL(url), 100);
+          setTimeout(() => globalThis.URL.revokeObjectURL(url), 100);
         } else {
           window.open(downloadUrl, '_blank');
         }
@@ -311,19 +311,19 @@ export const orderService = {
           const byteCharacters = atob(base64Data);
           const byteNumbers = new Array(byteCharacters.length);
           for (let i = 0; i < byteCharacters.length; i++) {
-            byteNumbers[i] = byteCharacters.charCodeAt(i);
+            byteNumbers[i] = byteCharacters.codePointAt(i);
           }
           const byteArray = new Uint8Array(byteNumbers);
           const blob = new Blob([byteArray], { type: 'application/pdf' });
 
-          const url = window.URL.createObjectURL(blob);
+          const url = globalThis.URL.createObjectURL(blob);
           const link = document.createElement('a');
           link.href = url;
           link.download = filename;
           document.body.appendChild(link);
           link.click();
           document.body.removeChild(link);
-          setTimeout(() => window.URL.revokeObjectURL(url), 100);
+          setTimeout(() => globalThis.URL.revokeObjectURL(url), 100);
         } else {
           // Regular URL - open in new tab
           window.open(downloadUrl, '_blank');
@@ -388,19 +388,19 @@ export const orderService = {
           const byteCharacters = atob(base64Data);
           const byteNumbers = new Array(byteCharacters.length);
           for (let i = 0; i < byteCharacters.length; i++) {
-            byteNumbers[i] = byteCharacters.charCodeAt(i);
+            byteNumbers[i] = byteCharacters.codePointAt(i);
           }
           const byteArray = new Uint8Array(byteNumbers);
           const blob = new Blob([byteArray], { type: 'application/pdf' });
 
-          const url = window.URL.createObjectURL(blob);
+          const url = globalThis.URL.createObjectURL(blob);
           const link = document.createElement('a');
           link.href = url;
           link.download = filename;
           document.body.appendChild(link);
           link.click();
           document.body.removeChild(link);
-          setTimeout(() => window.URL.revokeObjectURL(url), 100);
+          setTimeout(() => globalThis.URL.revokeObjectURL(url), 100);
         } else {
           window.open(downloadUrl, '_blank');
         }
@@ -470,7 +470,7 @@ export const orderService = {
           const byteCharacters = atob(base64Data);
           const byteNumbers = new Array(byteCharacters.length);
           for (let i = 0; i < byteCharacters.length; i++) {
-            byteNumbers[i] = byteCharacters.charCodeAt(i);
+            byteNumbers[i] = byteCharacters.codePointAt(i);
           }
           const byteArray = new Uint8Array(byteNumbers);
           const blob = new Blob([byteArray], { type: 'application/pdf' });
