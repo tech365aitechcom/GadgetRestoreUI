@@ -24,6 +24,8 @@ import { TOKEN_COOKIE } from '@/lib/constants'
 import customerService from '@/services/customer.service'
 import toast from 'react-hot-toast'
 import { useAuth } from '@/context/AuthContext'
+import { Capacitor } from '@capacitor/core'
+import { Geolocation } from '@capacitor/geolocation'
 
 // AddressCard component with PropTypes validation
 const AddressCard = ({ addr, selectedAddressId, setSelectedAddressId, handleSetDefault, handleEditAddress, setShowDeleteConfirm, getAddressIcon }) => {
@@ -566,9 +568,23 @@ export default function AddressPage() {
     }
   }
 
-  const handleUseCurrentLocation = () => {
-    if (navigator.geolocation) {
-      const onSuccess = (position) => {
+  const handleUseCurrentLocation = async () => {
+    if (Capacitor.isNativePlatform()) {
+      try {
+        const permStatus = await Geolocation.checkPermissions()
+        if (permStatus.location !== 'granted') {
+          const requestStatus = await Geolocation.requestPermissions()
+          if (requestStatus.location !== 'granted') {
+            toast.error('Location permission is required to autofill address.')
+            return
+          }
+        }
+
+        const position = await Geolocation.getCurrentPosition({
+          enableHighAccuracy: true,
+          timeout: 10000,
+        })
+
         const { latitude, longitude } = position.coords
 
         isDesktopProgrammaticMoveRef.current = true
@@ -581,31 +597,52 @@ export default function AddressPage() {
           mapMobileRef.current.setView([latitude, longitude], 16)
         }
         reverseGeocode(latitude, longitude)
+      } catch (error) {
+        console.error('Native Geolocation failed:', error)
+        toast.error('Failed to get location. Please enable location services.')
       }
-
-      const onError = (error) => {
-        console.warn('Geolocation high accuracy failed, retrying with low accuracy...', error)
-        // Fallback to low accuracy
-        navigator.geolocation.getCurrentPosition(
-          onSuccess,
-          (err) => {
-            console.error('Geolocation fallback failed:', err)
-          },
-          {
-            enableHighAccuracy: false,
-            timeout: 5000,
-            maximumAge: 60000
-          }
-        )
-      }
-
-      navigator.geolocation.getCurrentPosition(onSuccess, onError, {
-        enableHighAccuracy: true,
-        timeout: 12000,
-        maximumAge: 0
-      })
     } else {
-      toast.error('Geolocation is not supported by your browser.')
+      if (navigator.geolocation) {
+        const onSuccess = (position) => {
+          const { latitude, longitude } = position.coords
+
+          isDesktopProgrammaticMoveRef.current = true
+          isMobileProgrammaticMoveRef.current = true
+
+          if (mapDesktopRef.current) {
+            mapDesktopRef.current.setView([latitude, longitude], 16)
+          }
+          if (mapMobileRef.current) {
+            mapMobileRef.current.setView([latitude, longitude], 16)
+          }
+          reverseGeocode(latitude, longitude)
+        }
+
+        const onError = (error) => {
+          console.warn('Geolocation high accuracy failed, retrying with low accuracy...', error)
+          // Fallback to low accuracy
+          navigator.geolocation.getCurrentPosition(
+            onSuccess,
+            (err) => {
+              console.error('Geolocation fallback failed:', err)
+              toast.error('Could not retrieve location. Please search manually.')
+            },
+            {
+              enableHighAccuracy: false,
+              timeout: 5000,
+              maximumAge: 60000
+            }
+          )
+        }
+
+        navigator.geolocation.getCurrentPosition(onSuccess, onError, {
+          enableHighAccuracy: true,
+          timeout: 12000,
+          maximumAge: 0
+        })
+      } else {
+        toast.error('Geolocation is not supported by your browser.')
+      }
     }
   }
 
