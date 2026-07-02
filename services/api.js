@@ -1,5 +1,5 @@
 import axios from 'axios'
-import Cookies from 'js-cookie'
+import Cookies from '@/lib/cookies'
 import { API_BASE_URL, TOKEN_COOKIE } from '@/lib/constants'
 import { redirectToLandingPage } from '@/lib/auth-utils'
 

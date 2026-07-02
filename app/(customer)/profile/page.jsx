@@ -13,7 +13,7 @@ import {
   LogOut,
   ChevronRight,
 } from 'lucide-react'
-import Cookies from 'js-cookie'
+import Cookies from '@/lib/cookies'
 import toast from 'react-hot-toast'
 import {
   TOKEN_COOKIE,

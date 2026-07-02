@@ -12,7 +12,7 @@ import {
   MapPinned,
 } from 'lucide-react'
 import TopBar from '@/components/ui/TopBar'
-import Cookies from 'js-cookie'
+import Cookies from '@/lib/cookies'
 import { TOKEN_COOKIE } from '@/lib/constants'
 import toast from 'react-hot-toast'
 import customerService from '@/services/customer.service'

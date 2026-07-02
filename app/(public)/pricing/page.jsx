@@ -14,7 +14,7 @@ import {
 
 import { useBooking } from '@/context/BookingContext'
 import catalogueService from '@/services/catalogue.service'
-import Cookies from 'js-cookie'
+import Cookies from '@/lib/cookies'
 import { TOKEN_COOKIE } from '@/lib/constants'
 import Skeleton from '@/components/ui/Skeleton'
 import ErrorState from '@/components/ui/ErrorState'

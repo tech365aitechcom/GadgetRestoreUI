@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { usePathname } from 'next/navigation'
 import { useAuth } from '@/context/AuthContext'
 import LoginAlertModal from '@/components/ui/LoginAlertModal'
-import Cookies from 'js-cookie'
+import Cookies from '@/lib/cookies'
 import { TOKEN_COOKIE } from '@/lib/constants'
 
 /**

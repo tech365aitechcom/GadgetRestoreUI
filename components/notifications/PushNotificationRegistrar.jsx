@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import Cookies from 'js-cookie';
+import Cookies from '@/lib/cookies';
 import toast from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
 import { Capacitor } from '@capacitor/core';

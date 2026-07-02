@@ -1,5 +1,5 @@
 import api from './api'
-import Cookies from 'js-cookie'
+import Cookies from '@/lib/cookies'
 import { TOKEN_COOKIE, TOKEN_EXPIRY_DAYS } from '@/lib/constants'
 
 const MOCK_AUTH_ENABLED =

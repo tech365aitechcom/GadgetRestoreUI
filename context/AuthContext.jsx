@@ -1,7 +1,7 @@
 'use client'
 
 import { createContext, useContext, useState, useEffect, useCallback } from 'react'
-import Cookies from 'js-cookie'
+import Cookies from '@/lib/cookies'
 import { TOKEN_COOKIE } from '@/lib/constants'
 import { redirectToLandingPage } from '@/lib/auth-utils'
 import customerService from '@/services/customer.service'

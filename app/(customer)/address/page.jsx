@@ -19,7 +19,7 @@ import {
   Locate,
 } from 'lucide-react'
 import { useBooking } from '@/context/BookingContext'
-import Cookies from 'js-cookie'
+import Cookies from '@/lib/cookies'
 import { TOKEN_COOKIE } from '@/lib/constants'
 import customerService from '@/services/customer.service'
 import toast from 'react-hot-toast'

@@ -3,7 +3,7 @@
 import { useCallback, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
-import Cookies from 'js-cookie';
+import Cookies from '@/lib/cookies';
 import { TOKEN_COOKIE } from '@/lib/constants';
 
 /**

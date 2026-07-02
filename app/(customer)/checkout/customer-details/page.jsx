@@ -15,7 +15,7 @@ import {
   X,
 } from 'lucide-react'
 import { useBooking } from '@/context/BookingContext'
-import Cookies from 'js-cookie'
+import Cookies from '@/lib/cookies'
 import { TOKEN_COOKIE } from '@/lib/constants'
 import bookingService from '@/services/booking.service'
 import toast from 'react-hot-toast'
