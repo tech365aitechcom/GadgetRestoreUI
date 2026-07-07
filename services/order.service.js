@@ -82,7 +82,7 @@ async function downloadDocument(path, filename) {
         link.target = '_blank';
         document.body.appendChild(link);
         link.click();
-        document.body.removeChild(link);
+        link.remove();
 
         setTimeout(() => {
           globalThis.URL.revokeObjectURL(url);
@@ -102,7 +102,7 @@ async function downloadDocument(path, filename) {
     // Append to body, click, then remove (more reliable)
     document.body.appendChild(link);
     link.click();
-    document.body.removeChild(link);
+    link.remove();
 
     // Clean up
     setTimeout(() => {
@@ -123,6 +123,66 @@ function blobToBase64(blob) {
     reader.onerror = reject;
     reader.readAsDataURL(blob);
   });
+}
+
+function createBlobFromBase64(base64Data) {
+  const byteCharacters = atob(base64Data);
+  const byteNumbers = new Array(byteCharacters.length);
+  for (let i = 0; i < byteCharacters.length; i++) {
+    byteNumbers[i] = byteCharacters.codePointAt(i);
+  }
+  const byteArray = new Uint8Array(byteNumbers);
+  return new Blob([byteArray], { type: 'application/pdf' });
+}
+
+async function getBase64Data(downloadUrl, isDataUrl) {
+  if (isDataUrl) {
+    return downloadUrl.split(',')[1];
+  }
+  const pdfResponse = await fetch(downloadUrl);
+  const blob = await pdfResponse.blob();
+  return blobToBase64(blob);
+}
+
+async function handleNativePdfDownload(filename, base64Data, dialogTitle = 'Open PDF with') {
+  const sanitizedFilename = filename.replace(/[^a-zA-Z0-9.-]/g, '_');
+  const result = await Filesystem.writeFile({
+    path: sanitizedFilename,
+    data: base64Data,
+    directory: Directory.Cache,
+  });
+
+  const platform = Capacitor.getPlatform();
+  if (platform === 'android') {
+    await Share.share({
+      title: filename,
+      url: result.uri,
+      dialogTitle,
+    });
+  } else {
+    await Share.share({
+      title: filename,
+      url: result.uri,
+    });
+  }
+}
+
+function handleWebPdfDownload(downloadUrl, isDataUrl, filename) {
+  if (isDataUrl) {
+    const base64Data = downloadUrl.split(',')[1];
+    const blob = createBlobFromBase64(base64Data);
+
+    const url = globalThis.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setTimeout(() => globalThis.URL.revokeObjectURL(url), 100);
+  } else {
+    window.open(downloadUrl, '_blank');
+  }
 }
 
 export const orderService = {
@@ -181,73 +241,18 @@ export const orderService = {
 
   async downloadInvoice(ticketNumber) {
     try {
-      // Get PDF data from backend (as base64 data URL)
       const response = await api.get(`/customer/orders/${encodeURIComponent(ticketNumber)}/invoice/download`);
       const downloadUrl = response.data?.data?.downloadUrl || response.data?.downloadUrl;
       const filename = response.data?.data?.filename || `Invoice-${ticketNumber}.pdf`;
 
-      if (!downloadUrl) {
-        throw new Error('Download URL not received from server');
-      }
+      if (!downloadUrl) throw new Error('Download URL not received from server');
 
-      // Use the same logic as downloadConfirmation
       const isDataUrl = downloadUrl.startsWith('data:');
-      const isNativeMobile = Capacitor.isNativePlatform();
-
-      if (isNativeMobile) {
-        let base64Data;
-
-        if (isDataUrl) {
-          base64Data = downloadUrl.split(',')[1];
-        } else {
-          const pdfResponse = await fetch(downloadUrl);
-          const blob = await pdfResponse.blob();
-          base64Data = await blobToBase64(blob);
-        }
-
-        const sanitizedFilename = filename.replace(/[^a-zA-Z0-9.-]/g, '_');
-        const result = await Filesystem.writeFile({
-          path: sanitizedFilename,
-          data: base64Data,
-          directory: Directory.Cache,
-        });
-
-        const platform = Capacitor.getPlatform();
-        if (platform === 'android') {
-          await Share.share({
-            title: filename,
-            url: result.uri,
-            dialogTitle: 'Open PDF with',
-          });
-        } else if (platform === 'ios') {
-          await Share.share({
-            title: filename,
-            url: result.uri,
-          });
-        }
+      if (Capacitor.isNativePlatform()) {
+        const base64Data = await getBase64Data(downloadUrl, isDataUrl);
+        await handleNativePdfDownload(filename, base64Data, 'Open PDF with');
       } else {
-        // Web browser
-        if (isDataUrl) {
-          const base64Data = downloadUrl.split(',')[1];
-          const byteCharacters = atob(base64Data);
-          const byteNumbers = new Array(byteCharacters.length);
-          for (let i = 0; i < byteCharacters.length; i++) {
-            byteNumbers[i] = byteCharacters.codePointAt(i);
-          }
-          const byteArray = new Uint8Array(byteNumbers);
-          const blob = new Blob([byteArray], { type: 'application/pdf' });
-
-          const url = globalThis.URL.createObjectURL(blob);
-          const link = document.createElement('a');
-          link.href = url;
-          link.download = filename;
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-          setTimeout(() => globalThis.URL.revokeObjectURL(url), 100);
-        } else {
-          window.open(downloadUrl, '_blank');
-        }
+        handleWebPdfDownload(downloadUrl, isDataUrl, filename);
       }
     } catch (error) {
       console.error('[downloadInvoice] Error:', error);
@@ -257,77 +262,18 @@ export const orderService = {
 
   async downloadConfirmation(ticketNumber) {
     try {
-      // Get PDF data from backend (as base64 data URL or S3 URL)
       const response = await api.get(`/customer/orders/${encodeURIComponent(ticketNumber)}/confirmation/download`);
       const downloadUrl = response.data?.data?.downloadUrl || response.data?.downloadUrl;
       const filename = response.data?.data?.filename || `Order-Confirmation-${ticketNumber}.pdf`;
 
-      if (!downloadUrl) {
-        throw new Error('Download URL not received from server');
-      }
+      if (!downloadUrl) throw new Error('Download URL not received from server');
 
-      // Check if it's a data URL (base64) or regular URL
       const isDataUrl = downloadUrl.startsWith('data:');
-      const isNativeMobile = Capacitor.isNativePlatform();
-
-      if (isNativeMobile) {
-        let base64Data;
-
-        if (isDataUrl) {
-          // Extract base64 from data URL
-          base64Data = downloadUrl.split(',')[1];
-        } else {
-          // Fetch from URL and convert to base64
-          const pdfResponse = await fetch(downloadUrl);
-          const blob = await pdfResponse.blob();
-          base64Data = await blobToBase64(blob);
-        }
-
-        const sanitizedFilename = filename.replace(/[^a-zA-Z0-9.-]/g, '_');
-        const result = await Filesystem.writeFile({
-          path: sanitizedFilename,
-          data: base64Data,
-          directory: Directory.Cache,
-        });
-
-        const platform = Capacitor.getPlatform();
-        if (platform === 'android') {
-          await Share.share({
-            title: filename,
-            url: result.uri,
-            dialogTitle: 'Open PDF with',
-          });
-        } else if (platform === 'ios') {
-          await Share.share({
-            title: filename,
-            url: result.uri,
-          });
-        }
+      if (Capacitor.isNativePlatform()) {
+        const base64Data = await getBase64Data(downloadUrl, isDataUrl);
+        await handleNativePdfDownload(filename, base64Data, 'Open PDF with');
       } else {
-        // Web browser
-        if (isDataUrl) {
-          // Create blob from data URL and trigger download
-          const base64Data = downloadUrl.split(',')[1];
-          const byteCharacters = atob(base64Data);
-          const byteNumbers = new Array(byteCharacters.length);
-          for (let i = 0; i < byteCharacters.length; i++) {
-            byteNumbers[i] = byteCharacters.codePointAt(i);
-          }
-          const byteArray = new Uint8Array(byteNumbers);
-          const blob = new Blob([byteArray], { type: 'application/pdf' });
-
-          const url = globalThis.URL.createObjectURL(blob);
-          const link = document.createElement('a');
-          link.href = url;
-          link.download = filename;
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-          setTimeout(() => globalThis.URL.revokeObjectURL(url), 100);
-        } else {
-          // Regular URL - open in new tab
-          window.open(downloadUrl, '_blank');
-        }
+        handleWebPdfDownload(downloadUrl, isDataUrl, filename);
       }
     } catch (error) {
       console.error('[downloadConfirmation] Error:', error);
@@ -337,73 +283,18 @@ export const orderService = {
 
   async downloadWarranty(ticketNumber) {
     try {
-      // Get PDF data from backend (as base64 data URL)
       const response = await api.get(`/customer/orders/${encodeURIComponent(ticketNumber)}/warranty/download`);
       const downloadUrl = response.data?.data?.downloadUrl || response.data?.downloadUrl;
       const filename = response.data?.data?.filename || `Warranty-${ticketNumber}.pdf`;
 
-      if (!downloadUrl) {
-        throw new Error('Download URL not received from server');
-      }
+      if (!downloadUrl) throw new Error('Download URL not received from server');
 
-      // Use the same logic as downloadConfirmation
       const isDataUrl = downloadUrl.startsWith('data:');
-      const isNativeMobile = Capacitor.isNativePlatform();
-
-      if (isNativeMobile) {
-        let base64Data;
-
-        if (isDataUrl) {
-          base64Data = downloadUrl.split(',')[1];
-        } else {
-          const pdfResponse = await fetch(downloadUrl);
-          const blob = await pdfResponse.blob();
-          base64Data = await blobToBase64(blob);
-        }
-
-        const sanitizedFilename = filename.replace(/[^a-zA-Z0-9.-]/g, '_');
-        const result = await Filesystem.writeFile({
-          path: sanitizedFilename,
-          data: base64Data,
-          directory: Directory.Cache,
-        });
-
-        const platform = Capacitor.getPlatform();
-        if (platform === 'android') {
-          await Share.share({
-            title: filename,
-            url: result.uri,
-            dialogTitle: 'Open PDF with',
-          });
-        } else if (platform === 'ios') {
-          await Share.share({
-            title: filename,
-            url: result.uri,
-          });
-        }
+      if (Capacitor.isNativePlatform()) {
+        const base64Data = await getBase64Data(downloadUrl, isDataUrl);
+        await handleNativePdfDownload(filename, base64Data, 'Open PDF with');
       } else {
-        // Web browser
-        if (isDataUrl) {
-          const base64Data = downloadUrl.split(',')[1];
-          const byteCharacters = atob(base64Data);
-          const byteNumbers = new Array(byteCharacters.length);
-          for (let i = 0; i < byteCharacters.length; i++) {
-            byteNumbers[i] = byteCharacters.codePointAt(i);
-          }
-          const byteArray = new Uint8Array(byteNumbers);
-          const blob = new Blob([byteArray], { type: 'application/pdf' });
-
-          const url = globalThis.URL.createObjectURL(blob);
-          const link = document.createElement('a');
-          link.href = url;
-          link.download = filename;
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-          setTimeout(() => globalThis.URL.revokeObjectURL(url), 100);
-        } else {
-          window.open(downloadUrl, '_blank');
-        }
+        handleWebPdfDownload(downloadUrl, isDataUrl, filename);
       }
     } catch (error) {
       console.error('[downloadWarranty] Error:', error);
@@ -413,75 +304,31 @@ export const orderService = {
 
   async shareWarranty(ticketNumber) {
     try {
-      // Get PDF data from backend (as base64 data URL)
       const response = await api.get(`/customer/orders/${encodeURIComponent(ticketNumber)}/warranty/download`);
       const downloadUrl = response.data?.data?.downloadUrl || response.data?.downloadUrl;
       const filename = response.data?.data?.filename || `Warranty-${ticketNumber}.pdf`;
 
-      if (!downloadUrl) {
-        throw new Error('Download URL not received from server');
-      }
+      if (!downloadUrl) throw new Error('Download URL not received from server');
 
       const isDataUrl = downloadUrl.startsWith('data:');
-      const isNativeMobile = Capacitor.isNativePlatform();
-
-      if (isNativeMobile) {
-        let base64Data;
-
-        if (isDataUrl) {
-          base64Data = downloadUrl.split(',')[1];
-        } else {
-          const pdfResponse = await fetch(downloadUrl);
-          const blob = await pdfResponse.blob();
-          base64Data = await blobToBase64(blob);
-        }
-
-        const sanitizedFilename = filename.replace(/[^a-zA-Z0-9.-]/g, '_');
-        const result = await Filesystem.writeFile({
-          path: sanitizedFilename,
-          data: base64Data,
-          directory: Directory.Cache,
-        });
-
-        const platform = Capacitor.getPlatform();
-        if (platform === 'android') {
-          await Share.share({
-            title: filename,
-            url: result.uri,
-            dialogTitle: 'Share PDF with',
-          });
-        } else if (platform === 'ios') {
-          await Share.share({
-            title: filename,
-            url: result.uri,
-          });
-        } else {
-          await Share.share({
-            title: filename,
-            url: result.uri,
-          });
-        }
+      
+      if (Capacitor.isNativePlatform()) {
+        const base64Data = await getBase64Data(downloadUrl, isDataUrl);
+        await handleNativePdfDownload(filename, base64Data, 'Share PDF with');
         return true;
       } else {
         // Web browser
-        let file;
+        let blob;
         if (isDataUrl) {
-          const base64Data = downloadUrl.split(',')[1];
-          const byteCharacters = atob(base64Data);
-          const byteNumbers = new Array(byteCharacters.length);
-          for (let i = 0; i < byteCharacters.length; i++) {
-            byteNumbers[i] = byteCharacters.codePointAt(i);
-          }
-          const byteArray = new Uint8Array(byteNumbers);
-          const blob = new Blob([byteArray], { type: 'application/pdf' });
-          file = new File([blob], filename, { type: 'application/pdf' });
+          blob = createBlobFromBase64(downloadUrl.split(',')[1]);
         } else {
           const pdfResponse = await fetch(downloadUrl);
-          const blob = await pdfResponse.blob();
-          file = new File([blob], filename, { type: 'application/pdf' });
+          blob = await pdfResponse.blob();
         }
+        
+        const file = new File([blob], filename, { type: 'application/pdf' });
 
-        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        if (navigator.canShare?.({ files: [file] })) {
           await navigator.share({
             files: [file],
             title: `Warranty Card - ${ticketNumber}`,

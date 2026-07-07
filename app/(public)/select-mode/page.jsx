@@ -56,7 +56,7 @@ function ServiceModeCard({ mode, isSelected, onSelect }) {
           <div className="flex gap-2 flex-wrap mb-0 lg:mb-1">
             {mode.badges.map((b, i) => (
               <span
-                key={i}
+                key={b}
                 className="text-[9px] font-extrabold uppercase tracking-wider px-3 py-1.5 rounded-full"
                 style={{
                   background: 'var(--color-tag-bg)',

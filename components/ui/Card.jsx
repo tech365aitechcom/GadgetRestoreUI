@@ -27,14 +27,13 @@ export default function Card({
   style = {},
 }) {
   const isInteractive = !!onClick;
+  const Component = isInteractive ? 'button' : 'div';
 
   return (
-    <div
-      className={`card ${className}`}
+    <Component
+      type={isInteractive ? 'button' : undefined}
+      className={`card ${className} ${isInteractive ? 'text-left w-full block' : ''}`}
       onClick={onClick}
-      role={isInteractive ? 'button' : undefined}
-      tabIndex={isInteractive ? 0 : undefined}
-      onKeyDown={isInteractive ? (e) => e.key === 'Enter' && onClick() : undefined}
       style={{
         padding: padding,
         cursor: isInteractive ? 'pointer' : 'default',
@@ -45,6 +44,6 @@ export default function Card({
       }}
     >
       {children}
-    </div>
+    </Component>
   );
 }

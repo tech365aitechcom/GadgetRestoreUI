@@ -10,11 +10,13 @@ Skeleton.propTypes = {
 
 export default function Skeleton({ className = '', circle = false, lines }) {
   if (lines && lines > 1) {
+    const items = Array.from({ length: lines }, (_, i) => `skeleton-line-${i}`)
+    
     return (
       <div className='flex flex-col gap-2 w-full'>
-        {Array.from({ length: lines }).map((_, i) => (
+        {items.map((id, i) => (
           <Skeleton
-            key={i}
+            key={id}
             className={`${className} ${i === lines - 1 ? 'w-[70%]' : 'w-full'}`}
           />
         ))}

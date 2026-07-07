@@ -29,7 +29,8 @@ function getDeviceId() {
   if (existing) return existing;
 
   const prefix = Capacitor.isNativePlatform() ? `native-${Capacitor.getPlatform()}-` : 'web-';
-  const nextId = `${prefix}${globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(16).slice(2)}`}`;
+  const uniquePart = globalThis.crypto?.randomUUID?.() || Date.now() + '-' + Math.random().toString(16).slice(2);
+  const nextId = `${prefix}${uniquePart}`;
   globalThis.localStorage.setItem(DEVICE_ID_KEY, nextId);
   return nextId;
 }

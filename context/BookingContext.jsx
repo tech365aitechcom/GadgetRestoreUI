@@ -1,20 +1,20 @@
 'use client';
 
-import { createContext, useContext, useReducer, useEffect, useState } from 'react';
+import { createContext, useContext, useReducer, useEffect, useState, useMemo } from 'react';
 import PropTypes from 'prop-types';
 
 // ── State shape ─────────────────────────────────────────────────────────────
 const INITIAL_STATE = {
   category:    null,  // { _id, name } — selected from homepage quick service grid
-  brand:       null,  // { _id, name, logo }
-  model:       null,  // { _id, name, modelNumber, images }
+  brand:       null,  
+  model:       null,  
   symptoms:    [],    // [{ id, name, repairType }]
-  partTier:    null,  // { id, name, price, warranty }
+  partTier:    null, 
   serviceMode: 'lab', // always 'lab' in Phase 1
   remarks:     '',
-  pricing:     null,  // { lineItems: [], subtotal }
-  address:     null,  // { id, label, line1, city, pincode, lat, lng }
-  slot:        null,  // { date, timeSlot, centreId }
+  pricing:     null,  
+  address:     null,  
+  slot:        null,  
 };
 
 const STORAGE_KEY = 'gr_booking_state';
@@ -90,7 +90,7 @@ export function BookingProvider({ children }) {
     }
   }, [state]);
 
-  const actions = {
+  const actions = useMemo(() => ({
     setCategory:    (category)    => dispatch({ type: 'SET_CATEGORY',    payload: category }),
     setBrand:       (brand)       => dispatch({ type: 'SET_BRAND',       payload: brand }),
     setModel:       (model)       => dispatch({ type: 'SET_MODEL',       payload: model }),
@@ -104,18 +104,27 @@ export function BookingProvider({ children }) {
     reset:          ()            => dispatch({ type: 'RESET' }),
     // Atomically set brand + category (safe for products-page → select-model flow)
     startBooking:   ({ brand, category }) => dispatch({ type: 'SET_BOOKING_START', payload: { brand, category } }),
-  };
+  }), [dispatch]);
 
-  // Computed: can customer proceed to login?
-  const canProceedToBook =
-    state.brand &&
-    state.model &&
-    state.symptoms.length > 0 &&
-    state.partTier &&
-    state.serviceMode;
+  const contextValue = useMemo(() => {
+    // Computed: can customer proceed to login?
+    const canProceedToBook =
+      state.brand &&
+      state.model &&
+      state.symptoms.length > 0 &&
+      state.partTier &&
+      state.serviceMode;
+
+    return {
+      ...state,
+      ...actions,
+      canProceedToBook,
+      isRestored
+    };
+  }, [state, actions, isRestored]);
 
   return (
-    <BookingContext.Provider value={{ ...state, ...actions, canProceedToBook, isRestored }}>
+    <BookingContext.Provider value={contextValue}>
       {children}
     </BookingContext.Provider>
   );

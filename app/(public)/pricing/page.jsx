@@ -89,11 +89,8 @@ export default function PricingPage() {
 
   // Compute Itemized Pricing per Symptom
   const hasPricingData =
-    pricingResults &&
-    pricingResults.results &&
-    pricingResults.results.length > 0
+    pricingResults?.results?.length > 0
   let grandTotal = 0
-  let hasVariableSymptom = false
 
   const itemizedSymptoms = symptoms.map((symp) => {
     let sympParts = 0
@@ -109,7 +106,7 @@ export default function PricingPage() {
           (r) => String(r.repairTypeId) === String(id),
         )
         // Sum up available pricing - even if some repair types don't have pricing
-        if (res && res.available && res.pricing) {
+        if (res?.available && res?.pricing) {
           sympParts += res.pricing.partsCost || 0
           sympLabour += res.pricing.labourCost || 0
           // Get warranty from pricing matrix (use maximum if multiple repairs)
@@ -126,8 +123,7 @@ export default function PricingPage() {
     // Mark as variable only if total is zero (no pricing found for any repair type)
     if (sympParts + sympLabour === 0) sympIsVariable = true
 
-    if (sympIsVariable) hasVariableSymptom = true
-    else grandTotal += sympParts + sympLabour
+    if (!sympIsVariable) grandTotal += sympParts + sympLabour
 
     return {
       ...symp,
@@ -183,7 +179,7 @@ export default function PricingPage() {
     }
 
     // Store intended redirect URL before navigating to login
-    if (typeof globalThis.window !== 'undefined') {
+    if (globalThis.window !== undefined) {
       sessionStorage.setItem('gr_redirect_after_login', '/schedule')
     }
     router.push('/login')
@@ -371,7 +367,7 @@ export default function PricingPage() {
               <div className='flex flex-col gap-4'>
                 {symptoms.map((symp, i) => (
                   <div
-                    key={i}
+                    key={symp._id || symp.name}
                     className={`flex justify-between items-center pb-4 ${i < symptoms.length - 1 ? 'border-b border-white/5' : ''
                       }`}
                   >
@@ -404,7 +400,7 @@ export default function PricingPage() {
                   const sympGst = Math.round(sympServiceCharge * 0.18)
 
                   return (
-                    <div key={index} className='flex flex-col gap-3'>
+                    <div key={symptom._id || symptom.name} className='flex flex-col gap-3'>
                       {/* Symptom Name Header */}
                       {itemizedSymptoms.length > 1 && (
                         <div className='text-[10px] font-bold text-gray-500 uppercase tracking-wider'>

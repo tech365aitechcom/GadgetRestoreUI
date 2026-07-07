@@ -39,11 +39,12 @@ export default function SupportCard({
 }) {
   const handleContactSupport = (method) => {
     switch (method) {
-      case 'whatsapp':
+      case 'whatsapp': {
         // Remove + and spaces for WhatsApp URL
         const cleanWhatsApp = whatsappNumber.replace(/\D/g, '');
         globalThis.window.open(`https://wa.me/${cleanWhatsApp}`, '_blank');
         break;
+      }
       case 'phone':
         globalThis.window.location.href = `tel:${phoneNumber}`;
         break;

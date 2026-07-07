@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useContext, useState, useEffect } from 'react'
+import { createContext, useContext, useState, useEffect, useMemo, useCallback } from 'react'
 import Cookies from 'js-cookie'
 import { TOKEN_COOKIE } from '@/lib/constants'
 import { redirectToLandingPage } from '@/lib/auth-utils'
@@ -66,29 +66,32 @@ export function AuthProvider({ children }) {
     }
   }
 
-  const updateUser = (updates) => {
+  const updateUser = useCallback((updates) => {
     setUser((prev) => ({
       ...prev,
       ...updates,
     }))
-  }
+  }, [])
 
-  const logout = () => {
+  const logout = useCallback(() => {
     setUser(null)
     // Clear all storage (cookies, localStorage, sessionStorage) and redirect to landing page
     redirectToLandingPage()
-  }
+  }, [])
+
+  const contextValue = useMemo(
+    () => ({
+      user,
+      setUser,
+      updateUser,
+      logout,
+      isLoading,
+    }),
+    [user, isLoading, updateUser, logout]
+  )
 
   return (
-    <AuthContext.Provider
-      value={{
-        user,
-        setUser,
-        updateUser,
-        logout,
-        isLoading,
-      }}
-    >
+    <AuthContext.Provider value={contextValue}>
       {children}
     </AuthContext.Provider>
   )

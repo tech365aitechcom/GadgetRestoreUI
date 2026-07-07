@@ -481,32 +481,8 @@ const useAddressManagement = (user) => {
   }
 }
 
-export default function AddressPage() {
-  const router = useRouter()
-  const { setAddress } = useBooking()
-  const { user } = useAuth()
-
-  const {
-    addresses,
-    isLoading,
-    selectedAddressId,
-    setSelectedAddressId,
-    isDeletingAddress,
-    handleDelete,
-    handleSetDefault,
-    refreshAddresses,
-  } = useAddressManagement(user)
-
-  const [isAddingNew, setIsAddingNew] = useState(false)
-  const [isEditingAddress, setIsEditingAddress] = useState(null)
-  const [deliveryNotes, setDeliveryNotes] = useState('')
-  const [isSavingAddress, setIsSavingAddress] = useState(false)
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(null)
-  const [newAddress, setNewAddress] = useState(getInitialAddressFormState())
-  const [errors, setErrors] = useState({})
-
-  // Leaflet Map State and References
-  const [selectedLocationText, setSelectedLocationText] = useState('Select location on map')
+// Custom hook to manage leaflet map and geocoding logic
+const useMapController = (setNewAddress, setSelectedLocationText, isLoading) => {
   const mapDesktopRef = useRef(null)
   const mapMobileRef = useRef(null)
   const isDesktopProgrammaticMoveRef = useRef(false)
@@ -520,12 +496,12 @@ export default function AddressPage() {
         const addr = data.address || {}
         const road = addr.road || addr.suburb || addr.neighbourhood || ''
         const city = addr.city || addr.town || addr.village || addr.county || ''
+        const displayName = data.display_name || 'Selected Location'
         let state = addr.state || addr.region || addr.state_district || ''
         if (!state && (city.toLowerCase().includes('delhi') || displayName.toLowerCase().includes('delhi'))) {
           state = 'Delhi'
         }
         const pincode = addr.postcode || ''
-        const displayName = data.display_name || 'Selected Location'
 
         setNewAddress((prev) => ({
           ...prev,
@@ -548,8 +524,8 @@ export default function AddressPage() {
       const data = await res.json()
       if (data && data.length > 0) {
         const { lat, lon } = data[0]
-        const latitude = parseFloat(lat)
-        const longitude = parseFloat(lon)
+        const latitude = Number.parseFloat(lat)
+        const longitude = Number.parseFloat(lon)
 
         isDesktopProgrammaticMoveRef.current = true
         isMobileProgrammaticMoveRef.current = true
@@ -656,7 +632,7 @@ export default function AddressPage() {
         if (!active) return
 
         const defaultLat = 28.6139
-        const defaultLng = 77.2090
+        const defaultLng = 77.209
 
         const desktopMapEl = document.getElementById('map-desktop')
         if (desktopMapEl && !desktopMapEl._leaflet_id) {
@@ -769,7 +745,60 @@ export default function AddressPage() {
         mapMobileRef.current = null
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoading])
+
+  return {
+    mapDesktopRef,
+    mapMobileRef,
+    isDesktopProgrammaticMoveRef,
+    isMobileProgrammaticMoveRef,
+    reverseGeocode,
+    geocodeAddressText,
+    handleUseCurrentLocation,
+    handleZoomIn,
+    handleZoomOut
+  }
+}
+
+export default function AddressPage() {
+  const router = useRouter()
+  const { setAddress } = useBooking()
+  const { user } = useAuth()
+
+  const {
+    addresses,
+    isLoading,
+    selectedAddressId,
+    setSelectedAddressId,
+    isDeletingAddress,
+    handleDelete,
+    handleSetDefault,
+    refreshAddresses,
+  } = useAddressManagement(user)
+
+  const [isAddingNew, setIsAddingNew] = useState(false)
+  const [isEditingAddress, setIsEditingAddress] = useState(null)
+  const [deliveryNotes, setDeliveryNotes] = useState('')
+  const [isSavingAddress, setIsSavingAddress] = useState(false)
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(null)
+  const [newAddress, setNewAddress] = useState(getInitialAddressFormState())
+  const [errors, setErrors] = useState({})
+
+  // Leaflet Map State and References
+  const [selectedLocationText, setSelectedLocationText] = useState('Select location on map')
+  
+  const {
+    mapDesktopRef,
+    mapMobileRef,
+    // isDesktopProgrammaticMoveRef,
+    // isMobileProgrammaticMoveRef,
+    reverseGeocode,
+    geocodeAddressText,
+    handleUseCurrentLocation,
+    handleZoomIn,
+    handleZoomOut
+  } = useMapController(setNewAddress, setSelectedLocationText, isLoading)
 
   // Sync map center to selected saved address
   useEffect(() => {
@@ -787,7 +816,7 @@ export default function AddressPage() {
     setErrors({})
 
     let lat = 28.6139
-    let lng = 77.2090
+    let lng = 77.209
     if (mapDesktopRef.current) {
       const center = mapDesktopRef.current.getCenter()
       lat = center.lat
@@ -893,6 +922,13 @@ export default function AddressPage() {
       default:
         return <MapPinned size={20} />
     }
+  }
+
+  let submitButtonText = 'Add Address'
+  let submitButtonSavingText = 'Adding...'
+  if (isEditingAddress) {
+    submitButtonText = 'Update Address'
+    submitButtonSavingText = 'Updating...'
   }
 
   if (isLoading) {
@@ -1337,14 +1373,14 @@ export default function AddressPage() {
                   <>
                     <div className='w-4 h-4 border-2 border-black/20 border-t-black rounded-full animate-spin' />
                     <span>
-                      {isEditingAddress ? 'Updating...' : 'Adding...'}
+                      {submitButtonSavingText}
                     </span>
                   </>
                 ) : (
                   <>
                     <Save size={18} />
                     <span>
-                      {isEditingAddress ? 'Update Address' : 'Add Address'}
+                      {submitButtonText}
                     </span>
                   </>
                 )}

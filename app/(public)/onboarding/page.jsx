@@ -75,7 +75,7 @@ export default function OnboardingPage() {
     } catch (e) {
       console.warn('Failed to set onboarding preference:', e);
       // Fallback for browser storage
-      if (typeof globalThis.window !== 'undefined') {
+      if (globalThis.window !== undefined) {
         localStorage.setItem('has_seen_onboarding', 'true');
       }
     }

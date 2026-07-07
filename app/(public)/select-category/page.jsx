@@ -3,8 +3,6 @@
 import { useRouter } from 'next/navigation'
 import {
   Smartphone,
-  Tablet,
-  Laptop,
   ChevronRight,
 } from 'lucide-react'
 import { useBooking } from '@/context/BookingContext'

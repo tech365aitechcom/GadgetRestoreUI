@@ -23,7 +23,7 @@ export default function LoginAlertModal({ isOpen, onClose, redirectPath = null }
 
   const handleLogin = () => {
     // Store the intended destination if provided
-    if (redirectPath && typeof globalThis.window !== 'undefined') {
+    if (redirectPath && globalThis.window !== undefined) {
       sessionStorage.setItem('gr_redirect_after_login', redirectPath);
     }
     // Close the modal before navigating

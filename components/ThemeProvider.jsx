@@ -29,7 +29,7 @@ export default function ThemeProvider({ children }) {
     })
 
     // Set data attribute for theme-specific selectors
-    document.documentElement.setAttribute('data-theme', theme)
+    document.documentElement.dataset.theme = theme
   }, [])
 
   return <>{children}</>

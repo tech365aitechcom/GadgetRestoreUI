@@ -3,13 +3,10 @@ import {
   ClipboardList,
   User,
   Bell,
-  HelpCircle,
   Search,
-  Plus,
   X,
   Loader2,
   ChevronRight,
-  Smartphone,
 } from 'lucide-react'
 import PropTypes from 'prop-types'
 import { usePathname, useRouter } from 'next/navigation'
@@ -116,11 +113,12 @@ export default function AppShell({ children, className = '' }) {
         if (matchedTickets.length === 0 && user) {
           try {
             const singleOrder = await orderService.getOrderDetails(queryTrimmed)
-            if (singleOrder && singleOrder.ticketNumber) {
+            if (singleOrder?.ticketNumber) {
               matchedTickets = [singleOrder]
             }
           } catch (err) {
-            // Ignore if order not found or doesn't belong to current customer
+            // Order not found or doesn't belong to the current customer — not a fatal error
+            console.warn('Ticket lookup fallback failed:', err?.message || err)
           }
         }
 
@@ -194,6 +192,118 @@ export default function AppShell({ children, className = '' }) {
     { href: '/profile', label: 'Profile', icon: User },
     // { href: '/settings', label: 'Settings', icon: Settings },
   ]
+
+  // Helper: resolve default device image based on brand name
+  const getDefaultDeviceImage = (brandName) =>
+    brandName?.toLowerCase().includes('apple')
+      ? '/images/default-apple.png'
+      : '/images/default-android.png'
+
+  // Extracted from nested ternary: determines what to show in the search dropdown
+  let searchDropdownContent
+  if (isLoading) {
+    searchDropdownContent = (
+      <div className="flex items-center justify-center gap-2 py-8 text-sm text-[var(--color-content-text-secondary)]">
+        <Loader2 size={16} className="animate-spin text-[var(--color-accent)]" />
+        Searching...
+      </div>
+    )
+  } else if (searchResults.devices.length === 0 && searchResults.tickets.length === 0) {
+    searchDropdownContent = (
+      <div className="py-8 text-center text-sm text-[var(--color-content-text-secondary)]">
+        No results found for "{searchQuery}"
+      </div>
+    )
+  } else {
+    searchDropdownContent = (
+      <div className="max-h-[380px] overflow-y-auto divide-y divide-[var(--color-content-divider)] scrollbar-none">
+        {/* Device results */}
+        {searchResults.devices.length > 0 && (
+          <div className="p-3">
+            <div className="text-[10px] font-bold uppercase tracking-wider text-[var(--color-content-text-secondary)] px-3.5 py-1.5 mb-1">
+              Devices / Models (Book Repair)
+            </div>
+            <div className="space-y-0.5">
+              {searchResults.devices.map((device) => (
+                <button
+                  key={device._id}
+                  onClick={() => handleSelectModel(device)}
+                  className="w-full text-left flex items-center justify-between px-3.5 py-2.5 rounded-xl hover:bg-white/5 transition-colors border-none bg-transparent cursor-pointer group"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-lg bg-[var(--color-content-bg)] border border-[var(--color-content-border)] flex items-center justify-center p-1 shrink-0">
+                      <img
+                        src={device.image || getDefaultDeviceImage(device.brandId?.name)}
+                        alt={device.name}
+                        className="w-full h-full object-contain"
+                        onError={(e) => {
+                          e.target.src = getDefaultDeviceImage(device.brandId?.name)
+                        }}
+                      />
+                    </div>
+                    <div>
+                      <span className="block text-sm font-semibold text-[var(--color-content-text)] group-hover:text-[var(--color-accent)] transition-colors">
+                        {device.name}
+                      </span>
+                      <span className="block text-[11px] text-[var(--color-content-text-secondary)] mt-0.5 uppercase tracking-wide font-bold">
+                        {device.brandId?.name} • {device.categoryId?.name}
+                      </span>
+                    </div>
+                  </div>
+                  <ChevronRight size={15} className="text-[var(--color-content-text-secondary)] group-hover:translate-x-0.5 transition-transform" />
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Ticket/Order results */}
+        {searchResults.tickets.length > 0 && (
+          <div className="p-3">
+            <div className="text-[10px] font-bold uppercase tracking-wider text-[var(--color-content-text-secondary)] px-3.5 py-1.5 mb-1">
+              Your Service Tickets
+            </div>
+            <div className="space-y-0.5">
+              {searchResults.tickets.map((ticket) => (
+                <button
+                  key={ticket.ticketNumber}
+                  onClick={() => handleSelectTicket(ticket)}
+                  className="w-full text-left flex items-center justify-between px-3.5 py-2.5 rounded-xl hover:bg-white/5 transition-colors border-none bg-transparent cursor-pointer group"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-lg bg-[var(--color-content-bg)] border border-[var(--color-content-border)] flex items-center justify-center p-1 shrink-0">
+                      <img
+                        src={ticket.modelRef?.image || getDefaultDeviceImage(ticket.brandRef?.name)}
+                        alt={ticket.modelRef?.name || 'Device'}
+                        className="w-full h-full object-contain"
+                        onError={(e) => {
+                          e.target.src = getDefaultDeviceImage(ticket.brandRef?.name)
+                        }}
+                      />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-semibold text-[var(--color-content-text)] font-mono">
+                          {ticket.ticketNumber}
+                        </span>
+                        <span className="px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider rounded bg-white/10 text-[var(--color-content-text-secondary)]">
+                          {ticket.repairStatus?.replaceAll('_', ' ')}
+                        </span>
+                      </div>
+                      <span className="block text-[11px] text-[var(--color-content-text-secondary)] mt-0.5 font-bold">
+                        {ticket.modelRef?.name}
+                      </span>
+                    </div>
+                  </div>
+                  <ChevronRight size={15} className="text-[var(--color-content-text-secondary)] group-hover:translate-x-0.5 transition-transform" />
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    )
+  }
 
   return (
     <div className={`app-shell ${className}`}>
@@ -279,103 +389,7 @@ export default function AppShell({ children, className = '' }) {
               <div
                 className="absolute top-[48px] left-0 w-[480px] bg-[var(--color-content-card)] border border-[var(--color-content-border)] rounded-2xl shadow-[0_12px_30px_rgba(0,0,0,0.4)] z-50 overflow-hidden"
               >
-                {isLoading ? (
-                  <div className="flex items-center justify-center gap-2 py-8 text-sm text-[var(--color-content-text-secondary)]">
-                    <Loader2 size={16} className="animate-spin text-[var(--color-accent)]" />
-                    Searching...
-                  </div>
-                ) : searchResults.devices.length === 0 && searchResults.tickets.length === 0 ? (
-                  <div className="py-8 text-center text-sm text-[var(--color-content-text-secondary)]">
-                    No results found for "{searchQuery}"
-                  </div>
-                ) : (
-                  <div className="max-h-[380px] overflow-y-auto divide-y divide-[var(--color-content-divider)] scrollbar-none">
-                    {/* Device results */}
-                    {searchResults.devices.length > 0 && (
-                      <div className="p-3">
-                        <div className="text-[10px] font-bold uppercase tracking-wider text-[var(--color-content-text-secondary)] px-3.5 py-1.5 mb-1">
-                          Devices / Models (Book Repair)
-                        </div>
-                        <div className="space-y-0.5">
-                          {searchResults.devices.map((device) => (
-                            <button
-                              key={device._id}
-                              onClick={() => handleSelectModel(device)}
-                              className="w-full text-left flex items-center justify-between px-3.5 py-2.5 rounded-xl hover:bg-white/5 transition-colors border-none bg-transparent cursor-pointer group"
-                            >
-                              <div className="flex items-center gap-3">
-                                <div className="w-9 h-9 rounded-lg bg-[var(--color-content-bg)] border border-[var(--color-content-border)] flex items-center justify-center p-1 shrink-0">
-                                  <img
-                                    src={device.image || (device.brandId?.name?.toLowerCase().includes('apple') ? '/images/default-apple.png' : '/images/default-android.png')}
-                                    alt={device.name}
-                                    className="w-full h-full object-contain"
-                                    onError={(e) => {
-                                      e.target.src = device.brandId?.name?.toLowerCase().includes('apple') ? '/images/default-apple.png' : '/images/default-android.png'
-                                    }}
-                                  />
-                                </div>
-                                <div>
-                                  <span className="block text-sm font-semibold text-[var(--color-content-text)] group-hover:text-[var(--color-accent)] transition-colors">
-                                    {device.name}
-                                  </span>
-                                  <span className="block text-[11px] text-[var(--color-content-text-secondary)] mt-0.5 uppercase tracking-wide font-bold">
-                                    {device.brandId?.name} • {device.categoryId?.name}
-                                  </span>
-                                </div>
-                              </div>
-                              <ChevronRight size={15} className="text-[var(--color-content-text-secondary)] group-hover:translate-x-0.5 transition-transform" />
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Ticket/Order results */}
-                    {searchResults.tickets.length > 0 && (
-                      <div className="p-3">
-                        <div className="text-[10px] font-bold uppercase tracking-wider text-[var(--color-content-text-secondary)] px-3.5 py-1.5 mb-1">
-                          Your Service Tickets
-                        </div>
-                        <div className="space-y-0.5">
-                          {searchResults.tickets.map((ticket) => (
-                            <button
-                              key={ticket.ticketNumber}
-                              onClick={() => handleSelectTicket(ticket)}
-                              className="w-full text-left flex items-center justify-between px-3.5 py-2.5 rounded-xl hover:bg-white/5 transition-colors border-none bg-transparent cursor-pointer group"
-                            >
-                              <div className="flex items-center gap-3">
-                                <div className="w-9 h-9 rounded-lg bg-[var(--color-content-bg)] border border-[var(--color-content-border)] flex items-center justify-center p-1 shrink-0">
-                                  <img
-                                    src={ticket.modelRef?.image || (ticket.brandRef?.name?.toLowerCase().includes('apple') ? '/images/default-apple.png' : '/images/default-android.png')}
-                                    alt={ticket.modelRef?.name || 'Device'}
-                                    className="w-full h-full object-contain"
-                                    onError={(e) => {
-                                      e.target.src = ticket.brandRef?.name?.toLowerCase().includes('apple') ? '/images/default-apple.png' : '/images/default-android.png'
-                                    }}
-                                  />
-                                </div>
-                                <div>
-                                  <div className="flex items-center gap-2">
-                                    <span className="text-sm font-semibold text-[var(--color-content-text)] font-mono">
-                                      {ticket.ticketNumber}
-                                    </span>
-                                    <span className="px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider rounded bg-white/10 text-[var(--color-content-text-secondary)]">
-                                      {ticket.repairStatus?.replaceAll('_', ' ')}
-                                    </span>
-                                  </div>
-                                  <span className="block text-[11px] text-[var(--color-content-text-secondary)] mt-0.5 font-bold">
-                                    {ticket.modelRef?.name}
-                                  </span>
-                                </div>
-                              </div>
-                              <ChevronRight size={15} className="text-[var(--color-content-text-secondary)] group-hover:translate-x-0.5 transition-transform" />
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )}
+                {searchDropdownContent}
               </div>
             )}
           </div>

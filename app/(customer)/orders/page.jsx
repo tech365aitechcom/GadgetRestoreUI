@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 import {
   ChevronRight,
   ClipboardList,
@@ -121,10 +120,8 @@ export default function OrdersPage() {
   const [orders, setOrders] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  const [searchQuery] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
-  const [totalCount, setTotalCount] = useState(0)
   const itemsPerPage = 10
 
   useEffect(() => {
@@ -136,7 +133,6 @@ export default function OrdersPage() {
         if (isMounted) {
           setOrders(response.orders)
           setTotalPages(response.totalPages)
-          setTotalCount(response.totalCount)
           setError('')
         }
       } catch (err) {
@@ -157,24 +153,17 @@ export default function OrdersPage() {
     }
   }, [currentPage])
 
-  const activeOrders = orders.filter(
+  const activeOrder = orders.find(
     (order) => !CLOSED_STATUSES.has(order.repairStatus),
   )
-  const currentOrder = activeOrders[0]
+  const currentOrder = activeOrder
 
   // Display all orders from current page (server-side pagination)
   const pastOrders = orders.slice(1)
 
-  return (
-    <div className='min-h-[100svh] lg:min-h-[calc(100vh-var(--topbar-height))] bg-[var(--theme-bg)] pb-20 lg:pb-0 px-5 lg:px-8 pt-6 lg:pt-8'>
-      {/* Page Header - Desktop Only */}
-      <div className='hidden lg:flex items-end justify-between mb-8'>
-        <h1 className='text-[28px] font-black text-[var(--theme-text-primary)]'>
-          My Orders
-        </h1>
-      </div>
-
-      {loading ? (
+  const renderContent = () => {
+    if (loading) {
+      return (
         <div className='flex flex-col gap-3 lg:grid lg:grid-cols-12 lg:gap-6'>
           {/* Active order skeleton */}
           <div className='lg:col-span-7 flex flex-col gap-3 lg:gap-6'>
@@ -193,14 +182,22 @@ export default function OrdersPage() {
             ))}
           </div>
         </div>
-      ) : error ? (
+      )
+    }
+
+    if (error) {
+      return (
         <ErrorState
           title="Failed to load orders"
           message={error}
           buttonText="Try Again"
           onButtonClick={() => globalThis.location.reload()}
         />
-      ) : orders.length === 0 ? (
+      )
+    }
+
+    if (orders.length === 0) {
+      return (
         <div className='grid place-items-center min-h-[200px] lg:min-h-[400px] rounded-2xl bg-[var(--theme-card)] border border-[var(--theme-border)] text-center p-6 lg:p-8'>
           <ClipboardList
             size={42}
@@ -217,8 +214,21 @@ export default function OrdersPage() {
             Book Repair
           </Link>
         </div>
-      ) : (
-        <div className='lg:grid lg:grid-cols-12 lg:gap-6'>
+      )
+    }
+
+    let dateLabel = 'BOOKED ON'
+    let dateValue = currentOrder ? formatDate(currentOrder.createdAt) : ''
+    if (currentOrder?.estimatedDeliveryDate) {
+      dateLabel = 'EST. DELIVERY'
+      dateValue = formatDate(currentOrder.estimatedDeliveryDate)
+    } else if (currentOrder?.slotDate) {
+      dateLabel = 'SCHEDULED FOR'
+      dateValue = formatDate(currentOrder.slotDate)
+    }
+
+    return (
+      <div className='lg:grid lg:grid-cols-12 lg:gap-6'>
           {/* Main Content Area */}
           <div className='lg:col-span-7'>
             {/* Current Active Order Card */}
@@ -231,7 +241,7 @@ export default function OrdersPage() {
                   <div className='flex items-start justify-between mb-3 lg:mb-5'>
                     <div className='flex-1'>
                       <p className='text-[9px] lg:text-[10px] uppercase tracking-[0.12em] lg:tracking-[0.14em] text-[var(--theme-text-tertiary)] mb-1 lg:mb-2 font-bold'>
-                        {formatOrderId(currentOrder.ticketNumber, currentOrder.createdAt)}
+                        {formatOrderId(currentOrder.ticketNumber)}
                       </p>
                       <h3 className='text-[18px] lg:text-[24px] font-extrabold lg:font-black text-[var(--theme-text-primary)] mb-0 lg:mb-2'>
                         {(() => {
@@ -257,9 +267,9 @@ export default function OrdersPage() {
                             Issues:
                           </span>
                           <div className='flex gap-1.5 lg:gap-2 flex-wrap'>
-                            {currentOrder.symptoms.slice(0, 2).map((symptom, idx) => (
+                            {currentOrder.symptoms.slice(0, 2).map((symptom) => (
                               <span
-                                key={idx}
+                                key={symptom.name}
                                 className='px-2 lg:px-2.5 py-0.5 lg:py-1 bg-red-500/10 text-red-400 text-[10px] lg:text-[11px] font-bold rounded border border-red-500/20'
                               >
                                 {symptom.name}
@@ -279,9 +289,9 @@ export default function OrdersPage() {
                             Repairs:
                           </span>
                           <div className='flex gap-1.5 lg:gap-2 flex-wrap'>
-                            {currentOrder.repairTypes.slice(0, 2).map((repair, idx) => (
+                            {currentOrder.repairTypes.slice(0, 2).map((repair) => (
                               <span
-                                key={idx}
+                                key={repair.name}
                                 className='px-2 lg:px-2.5 py-0.5 lg:py-1 bg-blue-500/10 text-blue-400 text-[10px] lg:text-[11px] font-bold rounded border border-blue-500/20'
                               >
                                 {repair.name}
@@ -316,18 +326,10 @@ export default function OrdersPage() {
                     <Clock size={14} className='lg:w-4 lg:h-4 text-[var(--theme-text-tertiary)]' />
                     <div className='flex-1'>
                       <p className='text-[9px] uppercase tracking-[0.12em] lg:tracking-[0.14em] text-[var(--theme-text-tertiary)] font-bold'>
-                        {currentOrder.estimatedDeliveryDate
-                          ? 'EST. DELIVERY'
-                          : currentOrder.slotDate
-                            ? 'SCHEDULED FOR'
-                            : 'BOOKED ON'}
+                        {dateLabel}
                       </p>
                       <p className='text-[12px] lg:text-[13px] font-bold text-[var(--theme-text-primary)]'>
-                        {currentOrder.estimatedDeliveryDate
-                          ? formatDate(currentOrder.estimatedDeliveryDate)
-                          : currentOrder.slotDate
-                            ? formatDate(currentOrder.slotDate)
-                            : formatDate(currentOrder.createdAt)}
+                        {dateValue}
                       </p>
                     </div>
                     <div className='text-right lg:flex lg:items-center lg:gap-6'>
@@ -514,7 +516,7 @@ export default function OrdersPage() {
                             {deviceName || 'Device Repair'}
                           </h3>
                           <p className='text-[11px] text-[var(--theme-text-tertiary)]'>
-                            {formatOrderId(order.ticketNumber, order.createdAt)} • {formatDate(order.createdAt)}
+                            {formatOrderId(order.ticketNumber)} • {formatDate(order.createdAt)}
                           </p>
                         </div>
                         <ChevronRight size={16} className='text-[var(--theme-text-tertiary)] shrink-0' />
@@ -557,7 +559,7 @@ export default function OrdersPage() {
                       >
                         <div className='col-span-2 flex items-center'>
                           <p className='text-[11px] text-[var(--theme-text-tertiary)] font-mono whitespace-nowrap'>
-                            {formatOrderId(order.ticketNumber, order.createdAt)}
+                            {formatOrderId(order.ticketNumber)}
                           </p>
                         </div>
                         <div className='col-span-4 flex items-center gap-3'>
@@ -625,7 +627,19 @@ export default function OrdersPage() {
             )}
           </div>
         </div>
-      )}
+    )
+  }
+
+  return (
+    <div className='min-h-[100svh] lg:min-h-[calc(100vh-var(--topbar-height))] bg-[var(--theme-bg)] pb-20 lg:pb-0 px-5 lg:px-8 pt-6 lg:pt-8'>
+      {/* Page Header - Desktop Only */}
+      <div className='hidden lg:flex items-end justify-between mb-8'>
+        <h1 className='text-[28px] font-black text-[var(--theme-text-primary)]'>
+          My Orders
+        </h1>
+      </div>
+
+      {renderContent()}
     </div>
   )
 }

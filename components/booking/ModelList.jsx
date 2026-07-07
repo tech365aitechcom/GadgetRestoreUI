@@ -34,7 +34,7 @@ export default function ModelList({
     return models.filter(
       (m) =>
         m.name.toLowerCase().includes(q) ||
-        (m.modelNumber && m.modelNumber.toLowerCase().includes(q)) ||
+        m.modelNumber?.toLowerCase().includes(q) ||
         (m.index && String(m.index).toLowerCase().includes(q)),
     )
   }, [models, search])
@@ -85,8 +85,8 @@ export default function ModelList({
             gap: 20,
           }}
         >
-          {Array.from({ length: 8 }).map((_, i) => (
-            <div key={i} className='skeleton model-grid-skeleton' />
+          {['sk-0','sk-1','sk-2','sk-3','sk-4','sk-5','sk-6','sk-7'].map((skKey) => (
+            <div key={skKey} className='skeleton model-grid-skeleton' />
           ))}
         </div>
       )}

@@ -317,7 +317,6 @@ export default function SelectTierPage() {
     symptoms,
     partTier: contextTier,
     setPartTier,
-    category,
   } = useBooking()
 
   const [tiers, setTiers] = useState([])

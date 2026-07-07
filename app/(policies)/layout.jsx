@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
+import PropTypes from 'prop-types'
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
 
@@ -8,8 +9,8 @@ export default function PoliciesLayout({ children }) {
   const [showBackToCheckout, setShowBackToCheckout] = useState(false)
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const params = new URLSearchParams(window.location.search)
+    if (globalThis.window !== undefined) {
+      const params = new URLSearchParams(globalThis.location.search)
       setShowBackToCheckout(params.get('from') === 'checkout')
     }
   }, [])
@@ -40,4 +41,8 @@ export default function PoliciesLayout({ children }) {
       </main>
     </div>
   )
+}
+
+PoliciesLayout.propTypes = {
+  children: PropTypes.node.isRequired,
 }

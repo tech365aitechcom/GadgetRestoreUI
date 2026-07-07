@@ -70,3 +70,8 @@ export function InlineError({ message, className = '' }) {
     </div>
   )
 }
+
+InlineError.propTypes = {
+  message: PropTypes.string.isRequired,
+  className: PropTypes.string,
+}

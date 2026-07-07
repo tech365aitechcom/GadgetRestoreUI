@@ -188,8 +188,8 @@ export default function BrandGrid({
             gap: 12,
           }}
         >
-          {Array.from({ length: 8 }).map((_, i) => (
-            <div key={i} className='skeleton brand-grid-skeleton' />
+          {['sk-0','sk-1','sk-2','sk-3','sk-4','sk-5','sk-6','sk-7'].map((skKey) => (
+            <div key={skKey} className='skeleton brand-grid-skeleton' />
           ))}
         </div>
       )}
