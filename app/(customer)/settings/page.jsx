@@ -14,7 +14,7 @@ export default function SettingsPage() {
 
   // Read persisted preference on mount and apply it
   useEffect(() => {
-    if (typeof globalThis.window !== 'undefined') {
+    if (globalThis.window !== undefined) {
       const saved = localStorage.getItem('gr_theme') || 'dark'
       setCurrentTheme(saved)
       applyTheme(saved)

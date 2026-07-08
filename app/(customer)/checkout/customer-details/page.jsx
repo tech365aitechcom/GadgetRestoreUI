@@ -259,7 +259,7 @@ export default function CustomerDetailsPage() {
       newErrors.fullName = 'Name too long (max 100 chars)'
 
     if (!formData.email.trim()) newErrors.email = 'Email ID is required'
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email))
+    else if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(formData.email))
       newErrors.email = 'Enter a valid email address'
 
     if (
