@@ -3,7 +3,8 @@ self.addEventListener('push', (event) => {
 
   try {
     payload = event.data ? event.data.json() : {}
-  } catch (_) {
+  } catch (error) {
+    console.error('Failed to parse push notification payload:', error)
     payload = {}
   }
 
@@ -19,7 +20,7 @@ self.addEventListener('push', (event) => {
     },
   }
 
-  event.waitUntil(self.registration.showNotification(title, options))
+  event.waitUntil(globalThis.registration.showNotification(title, options))
 })
 
 self.addEventListener('notificationclick', (event) => {
@@ -27,14 +28,14 @@ self.addEventListener('notificationclick', (event) => {
 
   const targetUrl = event.notification.data?.click_action || '/notifications'
   event.waitUntil(
-    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clients) => {
+    globalThis.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clients) => {
       const existingClient = clients.find((client) => client.url.includes(targetUrl))
 
       if (existingClient) {
         return existingClient.focus()
       }
 
-      return self.clients.openWindow(targetUrl)
+      return globalThis.clients.openWindow(targetUrl)
     }),
   )
 })

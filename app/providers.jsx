@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation'
 import { AuthProvider } from '@/context/AuthContext'
 import { BookingProvider } from '@/context/BookingContext'
 import { ToastProvider } from '@/components/ui/Toast'
+import PropTypes from 'prop-types'
 
 /**
  * ScrollToTop component to automatically reset scroll position on page transitions.
@@ -29,6 +30,10 @@ function ScrollToTop() {
  * Providers wrapper — all client-side context providers live here.
  * Kept separate so RootLayout stays a server component.
  */
+Providers.propTypes = {
+  children: PropTypes.node.isRequired,
+}
+
 export default function Providers({ children }) {
   return (
     <AuthProvider>

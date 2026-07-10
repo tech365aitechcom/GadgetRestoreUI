@@ -1,10 +1,11 @@
 'use client'
 
-import { createContext, useContext, useState, useEffect } from 'react'
+import { createContext, useContext, useState, useEffect, useMemo, useCallback } from 'react'
 import Cookies from 'js-cookie'
 import { TOKEN_COOKIE } from '@/lib/constants'
 import { redirectToLandingPage } from '@/lib/auth-utils'
 import customerService from '@/services/customer.service'
+import PropTypes from 'prop-types'
 
 const AuthContext = createContext({
   user: null,
@@ -13,6 +14,10 @@ const AuthContext = createContext({
   logout: () => { },
   isLoading: true,
 })
+
+AuthProvider.propTypes = {
+  children: PropTypes.node.isRequired,
+}
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
@@ -52,7 +57,8 @@ export function AuthProvider({ children }) {
             mobile: payload.phoneNumber || '',
           })
         }
-      } catch (_) {
+      } catch (error) {
+        console.error('Token parsing failed:', error)
         // Token parsing failed, user stays null
       }
     } finally {
@@ -60,29 +66,32 @@ export function AuthProvider({ children }) {
     }
   }
 
-  const updateUser = (updates) => {
+  const updateUser = useCallback((updates) => {
     setUser((prev) => ({
       ...prev,
       ...updates,
     }))
-  }
+  }, [])
 
-  const logout = () => {
+  const logout = useCallback(() => {
     setUser(null)
     // Clear all storage (cookies, localStorage, sessionStorage) and redirect to landing page
     redirectToLandingPage()
-  }
+  }, [])
+
+  const contextValue = useMemo(
+    () => ({
+      user,
+      setUser,
+      updateUser,
+      logout,
+      isLoading,
+    }),
+    [user, isLoading, updateUser, logout]
+  )
 
   return (
-    <AuthContext.Provider
-      value={{
-        user,
-        setUser,
-        updateUser,
-        logout,
-        isLoading,
-      }}
-    >
+    <AuthContext.Provider value={contextValue}>
       {children}
     </AuthContext.Provider>
   )

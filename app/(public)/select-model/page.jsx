@@ -52,7 +52,7 @@ export default function SelectModelPage() {
         const safeAll = all || [];
 
         // Filter by category if coming from the products flow
-        if (category && category.name && safeAll.length > 0) {
+        if (category?.name && safeAll.length > 0) {
           const catName = category.name.toLowerCase();
           const filtered = safeAll.filter((m) => {
             const mCat = (

@@ -1,5 +1,7 @@
 'use client';
 
+import PropTypes from 'prop-types';
+
 /**
  * Card component
  * Props:
@@ -7,6 +9,15 @@
  *   onClick  — makes card interactive
  *   selected — highlights card with accent border
  */
+Card.propTypes = {
+  children: PropTypes.node.isRequired,
+  padding: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  onClick: PropTypes.func,
+  selected: PropTypes.bool,
+  className: PropTypes.string,
+  style: PropTypes.object,
+};
+
 export default function Card({
   children,
   padding,
@@ -16,14 +27,13 @@ export default function Card({
   style = {},
 }) {
   const isInteractive = !!onClick;
+  const Component = isInteractive ? 'button' : 'div';
 
   return (
-    <div
-      className={`card ${className}`}
+    <Component
+      type={isInteractive ? 'button' : undefined}
+      className={`card ${className} ${isInteractive ? 'text-left w-full block' : ''}`}
       onClick={onClick}
-      role={isInteractive ? 'button' : undefined}
-      tabIndex={isInteractive ? 0 : undefined}
-      onKeyDown={isInteractive ? (e) => e.key === 'Enter' && onClick() : undefined}
       style={{
         padding: padding,
         cursor: isInteractive ? 'pointer' : 'default',
@@ -34,6 +44,6 @@ export default function Card({
       }}
     >
       {children}
-    </div>
+    </Component>
   );
 }

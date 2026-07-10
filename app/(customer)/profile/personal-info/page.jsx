@@ -139,8 +139,8 @@ export default function PersonalInfoPage() {
 
             {/* Form Fields skeletons */}
             <div className='space-y-5'>
-              {Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} className='space-y-2'>
+              {['skeleton-form-mob-1', 'skeleton-form-mob-2', 'skeleton-form-mob-3'].map((key) => (
+                <div key={key} className='space-y-2'>
                   <Skeleton className='h-3 w-24 rounded' />
                   <Skeleton className='h-[52px] w-full rounded-lg' />
                 </div>
@@ -178,8 +178,8 @@ export default function PersonalInfoPage() {
 
               {/* Form Fields skeletons */}
               <div className='space-y-6'>
-                {Array.from({ length: 3 }).map((_, i) => (
-                  <div key={i} className='space-y-2'>
+                {['skeleton-form-desk-1', 'skeleton-form-desk-2', 'skeleton-form-desk-3'].map((key) => (
+                  <div key={key} className='space-y-2'>
                     <Skeleton className='h-3 w-28 rounded' />
                     <Skeleton className='h-[54px] w-full rounded-lg' />
                   </div>
@@ -224,10 +224,11 @@ export default function PersonalInfoPage() {
           <form onSubmit={handleSubmit} className='space-y-5'>
             {/* Name Field */}
             <div>
-              <label className='block text-[10px] font-bold text-[var(--theme-text-tertiary)] tracking-[0.08em] mb-2 uppercase'>
+              <label htmlFor='mobile-fullName' className='block text-[10px] font-bold text-[var(--theme-text-tertiary)] tracking-[0.08em] mb-2 uppercase'>
                 FULL NAME
               </label>
               <input
+                id='mobile-fullName'
                 type='text'
                 value={formData.fullName}
                 onChange={(e) => handleChange('fullName', e.target.value)}
@@ -247,10 +248,11 @@ export default function PersonalInfoPage() {
 
             {/* Email Field */}
             <div>
-              <label className='block text-[10px] font-bold text-[var(--theme-text-tertiary)] tracking-[0.08em] mb-2 uppercase'>
+              <label htmlFor='mobile-email' className='block text-[10px] font-bold text-[var(--theme-text-tertiary)] tracking-[0.08em] mb-2 uppercase'>
                 EMAIL ADDRESS
               </label>
               <input
+                id='mobile-email'
                 type='email'
                 value={formData.email}
                 onChange={(e) => handleChange('email', e.target.value)}
@@ -270,10 +272,11 @@ export default function PersonalInfoPage() {
 
             {/* Phone Field (Read-only) */}
             <div>
-              <label className='block text-[10px] font-bold text-[var(--theme-text-tertiary)] tracking-[0.08em] mb-2 uppercase'>
+              <label htmlFor='mobile-phone' className='block text-[10px] font-bold text-[var(--theme-text-tertiary)] tracking-[0.08em] mb-2 uppercase'>
                 PHONE NUMBER (READ-ONLY)
               </label>
               <input
+                id='mobile-phone'
                 type='text'
                 value={formData.mobile}
                 disabled
@@ -351,10 +354,11 @@ export default function PersonalInfoPage() {
             <form onSubmit={handleSubmit} className='space-y-6'>
               {/* Name Field */}
               <div>
-                <label className='block text-[11px] font-bold text-[var(--theme-text-tertiary)] tracking-[0.08em] mb-2 uppercase'>
+                <label htmlFor='desktop-fullName' className='block text-[11px] font-bold text-[var(--theme-text-tertiary)] tracking-[0.08em] mb-2 uppercase'>
                   FULL NAME
                 </label>
                 <input
+                  id='desktop-fullName'
                   type='text'
                   value={formData.fullName}
                   onChange={(e) => handleChange('fullName', e.target.value)}
@@ -374,10 +378,11 @@ export default function PersonalInfoPage() {
 
               {/* Email Field */}
               <div>
-                <label className='block text-[11px] font-bold text-[var(--theme-text-tertiary)] tracking-[0.08em] mb-2 uppercase'>
+                <label htmlFor='desktop-email' className='block text-[11px] font-bold text-[var(--theme-text-tertiary)] tracking-[0.08em] mb-2 uppercase'>
                   EMAIL ADDRESS
                 </label>
                 <input
+                  id='desktop-email'
                   type='email'
                   value={formData.email}
                   onChange={(e) => handleChange('email', e.target.value)}
@@ -397,10 +402,11 @@ export default function PersonalInfoPage() {
 
               {/* Phone Field (Read-only) */}
               <div>
-                <label className='block text-[11px] font-bold text-[var(--theme-text-tertiary)] tracking-[0.08em] mb-2 uppercase'>
+                <label htmlFor='desktop-phone' className='block text-[11px] font-bold text-[var(--theme-text-tertiary)] tracking-[0.08em] mb-2 uppercase'>
                   PHONE NUMBER (READ-ONLY)
                 </label>
                 <input
+                  id='desktop-phone'
                   type='text'
                   value={formData.mobile}
                   disabled

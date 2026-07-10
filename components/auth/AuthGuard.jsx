@@ -6,6 +6,7 @@ import { useAuth } from '@/context/AuthContext'
 import LoginAlertModal from '@/components/ui/LoginAlertModal'
 import Cookies from 'js-cookie'
 import { TOKEN_COOKIE } from '@/lib/constants'
+import PropTypes from 'prop-types'
 
 /**
  * AuthGuard - Protects routes from unauthenticated access
@@ -14,6 +15,10 @@ import { TOKEN_COOKIE } from '@/lib/constants'
  *
  * @param {React.ReactNode} children - Protected content
  */
+AuthGuard.propTypes = {
+  children: PropTypes.node.isRequired,
+}
+
 export default function AuthGuard({ children }) {
   const { user, isLoading } = useAuth()
   const pathname = usePathname()
@@ -26,12 +31,12 @@ export default function AuthGuard({ children }) {
     const hasAuth = !!token || !!user
 
     if (!isLoading) {
-      if (!hasAuth) {
-        setShowLoginModal(true)
-        setIsAuthenticated(false)
-      } else {
+      if (hasAuth) {
         setShowLoginModal(false)
         setIsAuthenticated(true)
+      } else {
+        setShowLoginModal(true)
+        setIsAuthenticated(false)
       }
     }
   }, [user, isLoading])

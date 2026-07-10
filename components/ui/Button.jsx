@@ -1,5 +1,7 @@
 'use client';
 
+import PropTypes from 'prop-types';
+
 /**
  * Button component
  *
@@ -12,6 +14,18 @@
  *   onClick
  *   type      — 'button' | 'submit'                  default: 'button'
  */
+Button.propTypes = {
+  children: PropTypes.node.isRequired,
+  variant: PropTypes.oneOf(['primary', 'secondary', 'ghost']),
+  size: PropTypes.oneOf(['md', 'sm']),
+  fullWidth: PropTypes.bool,
+  loading: PropTypes.bool,
+  disabled: PropTypes.bool,
+  onClick: PropTypes.func,
+  type: PropTypes.oneOf(['button', 'submit', 'reset']),
+  className: PropTypes.string,
+};
+
 export default function Button({
   children,
   variant = 'primary',

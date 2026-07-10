@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import PropTypes from 'prop-types'
 import { useRouter } from 'next/navigation'
 import { Bell, MessageSquare, Mail, Smartphone } from 'lucide-react'
 import TopBar from '@/components/ui/TopBar'
@@ -10,6 +11,151 @@ import toast from 'react-hot-toast'
 import customerService from '@/services/customer.service'
 import pushNotificationService from '@/services/push-notification.service'
 import notificationService from '@/services/notification.service'
+
+const NOTIFICATION_TYPES = [
+  {
+    key: 'whatsappNotifications',
+    icon: MessageSquare,
+    iconColor: 'text-green-400',
+    iconBg: 'bg-green-500/10',
+    title: 'WhatsApp Notifications',
+    mobileDesc: 'Receive order updates and repair status via WhatsApp',
+    desktopDesc: 'Receive order updates, repair status, and delivery notifications via WhatsApp'
+  },
+  {
+    key: 'smsNotifications',
+    icon: Smartphone,
+    iconColor: 'text-blue-400',
+    iconBg: 'bg-blue-500/10',
+    title: 'SMS Notifications',
+    mobileDesc: 'Get text messages for important updates and confirmations',
+    desktopDesc: 'Get important updates and confirmations via text message to your registered mobile number'
+  },
+  {
+    key: 'emailNotifications',
+    icon: Mail,
+    iconColor: 'text-purple-400',
+    iconBg: 'bg-purple-500/10',
+    title: 'Email Notifications',
+    mobileDesc: 'Receive detailed repair reports and invoices via email',
+    desktopDesc: 'Receive detailed repair reports, invoices, and warranty information via email'
+  },
+  {
+    key: 'pushNotifications',
+    icon: Bell,
+    iconColor: 'text-orange-400',
+    iconBg: 'bg-orange-500/10',
+    title: 'Push Notifications',
+    mobileDesc: 'Get instant alerts on your device for real-time updates',
+    desktopDesc: 'Get instant push alerts on your device for real-time repair status updates'
+  }
+]
+
+const MobileToggle = ({ checked, onChange }) => (
+  <button
+    onClick={onChange}
+    className={`relative w-12 h-7 rounded-full transition-colors flex-shrink-0 ml-3 ${
+      checked ? 'bg-[var(--theme-toggle-bg-on)]' : 'bg-[var(--theme-toggle-bg-off)]'
+    }`}
+  >
+    <div
+      className={`absolute w-5 h-5 bg-[var(--theme-toggle-thumb)] rounded-full top-1 transition-transform ${
+        checked ? 'translate-x-6' : 'translate-x-1'
+      }`}
+    />
+  </button>
+)
+MobileToggle.propTypes = {
+  checked: PropTypes.bool.isRequired,
+  onChange: PropTypes.func.isRequired,
+}
+
+const DesktopToggle = ({ checked, onChange }) => (
+  <button
+    onClick={onChange}
+    className={`relative w-12 h-7 rounded-full transition-colors ${
+      checked ? 'bg-[var(--theme-toggle-bg-on)]' : 'bg-white/10'
+    }`}
+  >
+    <div
+      className={`absolute w-5 h-5 rounded-full top-1 transition-transform ${
+        checked ? 'translate-x-6 bg-black' : 'translate-x-1 bg-[var(--theme-btn-primary-bg)]'
+      }`}
+    />
+  </button>
+)
+DesktopToggle.propTypes = {
+  checked: PropTypes.bool.isRequired,
+  onChange: PropTypes.func.isRequired,
+}
+
+const MobileNotificationItem = ({ icon: Icon, iconColor, iconBg, title, description, checked, onChange }) => (
+  <div className='bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-xl p-4'>
+    <div className='flex items-start justify-between mb-3'>
+      <div className='flex items-start gap-3 flex-1'>
+        <div className={`w-10 h-10 rounded-lg ${iconBg} flex items-center justify-center flex-shrink-0`}>
+          <Icon size={20} className={iconColor} />
+        </div>
+        <div className='flex-1'>
+          <div className='text-[14px] font-semibold text-[var(--theme-text-primary)] mb-1'>
+            {title}
+          </div>
+          <div className='text-[12px] text-[var(--theme-text-tertiary)] leading-relaxed'>
+            {description}
+          </div>
+        </div>
+      </div>
+      <MobileToggle checked={checked} onChange={onChange} />
+    </div>
+  </div>
+)
+MobileNotificationItem.propTypes = {
+  icon: PropTypes.elementType.isRequired,
+  iconColor: PropTypes.string,
+  iconBg: PropTypes.string,
+  title: PropTypes.string.isRequired,
+  description: PropTypes.string.isRequired,
+  checked: PropTypes.bool.isRequired,
+  onChange: PropTypes.func.isRequired,
+}
+
+const DesktopNotificationItem = ({ icon: Icon, iconColor, iconBg, title, description, checked, onChange, children }) => (
+  <div className='flex items-start gap-4 p-5 bg-white/[0.03] border border-[var(--theme-border-strong)] rounded-xl'>
+    <div className={`w-12 h-12 rounded-xl ${iconBg} flex items-center justify-center flex-shrink-0`}>
+      <Icon size={22} className={iconColor} />
+    </div>
+    <div className='flex-1'>
+      <div className='flex items-center justify-between mb-2'>
+        <div className='text-[15px] font-semibold text-[var(--theme-text-primary)]'>
+          {title}
+        </div>
+        <DesktopToggle checked={checked} onChange={onChange} />
+      </div>
+      <div className='text-[13px] text-[var(--theme-text-secondary)] leading-relaxed'>
+        {description}
+      </div>
+      {children}
+    </div>
+  </div>
+)
+DesktopNotificationItem.propTypes = {
+  icon: PropTypes.elementType.isRequired,
+  iconColor: PropTypes.string,
+  iconBg: PropTypes.string,
+  title: PropTypes.string.isRequired,
+  description: PropTypes.string.isRequired,
+  checked: PropTypes.bool.isRequired,
+  onChange: PropTypes.func.isRequired,
+  children: PropTypes.node,
+}
+
+const disablePushNotifications = async () => {
+  try {
+    await pushNotificationService.unregister()
+  } catch (error) {
+    console.warn('Push unregister failed silently:', error)
+  }
+}
 
 export default function NotificationsPage() {
   const router = useRouter()
@@ -77,11 +223,7 @@ export default function NotificationsPage() {
         [key]: newValue,
       })
       if (key === 'pushNotifications' && !newValue) {
-        try {
-          await pushNotificationService.unregister()
-        } catch (error) {
-          console.warn('Push unregister failed silently:', error)
-        }
+        await disablePushNotifications()
       }
       toast.success('Notification preference updated')
     } catch (error) {
@@ -160,143 +302,19 @@ export default function NotificationsPage() {
           </p>
 
           <div className='space-y-3'>
-            {/* WhatsApp Notifications */}
-            <div className='bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-xl p-4'>
-              <div className='flex items-start justify-between mb-3'>
-                <div className='flex items-start gap-3 flex-1'>
-                  <div className='w-10 h-10 rounded-lg bg-green-500/10 flex items-center justify-center flex-shrink-0'>
-                    <MessageSquare size={20} className='text-green-400' />
-                  </div>
-                  <div className='flex-1'>
-                    <div className='text-[14px] font-semibold text-[var(--theme-text-primary)] mb-1'>
-                      WhatsApp Notifications
-                    </div>
-                    <div className='text-[12px] text-[var(--theme-text-tertiary)] leading-relaxed'>
-                      Receive order updates and repair status via WhatsApp
-                    </div>
-                  </div>
-                </div>
-                <button
-                  onClick={() =>
-                    handleToggleNotification('whatsappNotifications')
-                  }
-                  className={`relative w-12 h-7 rounded-full transition-colors flex-shrink-0 ml-3 ${
-                    notifications.whatsappNotifications
-                      ? 'bg-[var(--theme-toggle-bg-on)]'
-                      : 'bg-[var(--theme-toggle-bg-off)]'
-                  }`}
-                >
-                  <div
-                    className={`absolute w-5 h-5 bg-[var(--theme-toggle-thumb)] rounded-full top-1 transition-transform ${
-                      notifications.whatsappNotifications
-                        ? 'translate-x-6'
-                        : 'translate-x-1'
-                    }`}
-                  />
-                </button>
-              </div>
-            </div>
-
-            {/* SMS Notifications */}
-            <div className='bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-xl p-4'>
-              <div className='flex items-start justify-between mb-3'>
-                <div className='flex items-start gap-3 flex-1'>
-                  <div className='w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center flex-shrink-0'>
-                    <Smartphone size={20} className='text-blue-400' />
-                  </div>
-                  <div className='flex-1'>
-                    <div className='text-[14px] font-semibold text-[var(--theme-text-primary)] mb-1'>
-                      SMS Notifications
-                    </div>
-                    <div className='text-[12px] text-[var(--theme-text-tertiary)] leading-relaxed'>
-                      Get text messages for important updates and confirmations
-                    </div>
-                  </div>
-                </div>
-                <button
-                  onClick={() => handleToggleNotification('smsNotifications')}
-                  className={`relative w-12 h-7 rounded-full transition-colors flex-shrink-0 ml-3 ${
-                    notifications.smsNotifications ? 'bg-[var(--theme-toggle-bg-on)]' : 'bg-[var(--theme-toggle-bg-off)]'
-                  }`}
-                >
-                  <div
-                    className={`absolute w-5 h-5 bg-[var(--theme-toggle-thumb)] rounded-full top-1 transition-transform ${
-                      notifications.smsNotifications
-                        ? 'translate-x-6'
-                        : 'translate-x-1'
-                    }`}
-                  />
-                </button>
-              </div>
-            </div>
-
-            {/* Email Notifications */}
-            <div className='bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-xl p-4'>
-              <div className='flex items-start justify-between mb-3'>
-                <div className='flex items-start gap-3 flex-1'>
-                  <div className='w-10 h-10 rounded-lg bg-purple-500/10 flex items-center justify-center flex-shrink-0'>
-                    <Mail size={20} className='text-purple-400' />
-                  </div>
-                  <div className='flex-1'>
-                    <div className='text-[14px] font-semibold text-[var(--theme-text-primary)] mb-1'>
-                      Email Notifications
-                    </div>
-                    <div className='text-[12px] text-[var(--theme-text-tertiary)] leading-relaxed'>
-                      Receive detailed repair reports and invoices via email
-                    </div>
-                  </div>
-                </div>
-                <button
-                  onClick={() => handleToggleNotification('emailNotifications')}
-                  className={`relative w-12 h-7 rounded-full transition-colors flex-shrink-0 ml-3 ${
-                    notifications.emailNotifications
-                      ? 'bg-[var(--theme-toggle-bg-on)]'
-                      : 'bg-[var(--theme-toggle-bg-off)]'
-                  }`}
-                >
-                  <div
-                    className={`absolute w-5 h-5 bg-[var(--theme-toggle-thumb)] rounded-full top-1 transition-transform ${
-                      notifications.emailNotifications
-                        ? 'translate-x-6'
-                        : 'translate-x-1'
-                    }`}
-                  />
-                </button>
-              </div>
-            </div>
-
-            {/* Push Notifications */}
-            <div className='bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-xl p-4'>
-              <div className='flex items-start justify-between mb-3'>
-                <div className='flex items-start gap-3 flex-1'>
-                  <div className='w-10 h-10 rounded-lg bg-orange-500/10 flex items-center justify-center flex-shrink-0'>
-                    <Bell size={20} className='text-orange-400' />
-                  </div>
-                  <div className='flex-1'>
-                    <div className='text-[14px] font-semibold text-[var(--theme-text-primary)] mb-1'>
-                      Push Notifications
-                    </div>
-                    <div className='text-[12px] text-[var(--theme-text-tertiary)] leading-relaxed'>
-                      Get instant alerts on your device for real-time updates
-                    </div>
-                  </div>
-                </div>
-                <button
-                  onClick={() => handleToggleNotification('pushNotifications')}
-                  className={`relative w-12 h-7 rounded-full transition-colors flex-shrink-0 ml-3 ${
-                    notifications.pushNotifications ? 'bg-[var(--theme-toggle-bg-on)]' : 'bg-[var(--theme-toggle-bg-off)]'
-                  }`}
-                >
-                  <div
-                    className={`absolute w-5 h-5 bg-[var(--theme-toggle-thumb)] rounded-full top-1 transition-transform ${
-                      notifications.pushNotifications
-                        ? 'translate-x-6'
-                        : 'translate-x-1'
-                    }`}
-                  />
-                </button>
-              </div>
-            </div>
+            {NOTIFICATION_TYPES.map((type) => (
+              <MobileNotificationItem
+                key={type.key}
+                icon={type.icon}
+                iconColor={type.iconColor}
+                iconBg={type.iconBg}
+                title={type.title}
+                description={type.mobileDesc}
+                checked={notifications[type.key]}
+                onChange={() => handleToggleNotification(type.key)}
+              />
+            ))}
+            
             <div className='flex flex-col sm:flex-row gap-2'>
               <button
                 type='button'
@@ -355,165 +373,37 @@ export default function NotificationsPage() {
             </p>
 
             <div className='space-y-4'>
-              {/* WhatsApp Notifications */}
-              <div className='flex items-start gap-4 p-5 bg-white/[0.03] border border-[var(--theme-border-strong)] rounded-xl'>
-                <div className='w-12 h-12 rounded-xl bg-green-500/10 flex items-center justify-center flex-shrink-0'>
-                  <MessageSquare size={22} className='text-green-400' />
-                </div>
-                <div className='flex-1'>
-                  <div className='flex items-center justify-between mb-2'>
-                    <div className='text-[15px] font-semibold text-[var(--theme-text-primary)]'>
-                      WhatsApp Notifications
+              {NOTIFICATION_TYPES.map((type) => (
+                <DesktopNotificationItem
+                  key={type.key}
+                  icon={type.icon}
+                  iconColor={type.iconColor}
+                  iconBg={type.iconBg}
+                  title={type.title}
+                  description={type.desktopDesc}
+                  checked={notifications[type.key]}
+                  onChange={() => handleToggleNotification(type.key)}
+                >
+                  {type.key === 'pushNotifications' && (
+                    <div className='mt-4 flex flex-col sm:flex-row gap-2'>
+                      <button
+                        type='button'
+                        onClick={handleRegisterBrowserPush}
+                        className='rounded-xl bg-white/10 border border-white/10 px-4 py-3 text-[13px] font-semibold text-[var(--theme-text-primary)] hover:bg-white/15 transition-colors'
+                      >
+                        Enable this device
+                      </button>
+                      <button
+                        type='button'
+                        onClick={handleSendTestPush}
+                        className='rounded-xl bg-[var(--theme-btn-primary-bg)] px-4 py-3 text-[13px] font-semibold text-[var(--theme-btn-primary-text)] hover:opacity-90 transition-opacity'
+                      >
+                        Send test push
+                      </button>
                     </div>
-                    <button
-                      onClick={() =>
-                        handleToggleNotification('whatsappNotifications')
-                      }
-                      className={`relative w-12 h-7 rounded-full transition-colors ${
-                        notifications.whatsappNotifications
-                          ? 'bg-[var(--theme-toggle-bg-on)]'
-                          : 'bg-white/10'
-                      }`}
-                    >
-                      <div
-                        className={`absolute w-5 h-5 rounded-full top-1 transition-transform ${
-                          notifications.whatsappNotifications
-                            ? 'translate-x-6 bg-black'
-                            : 'translate-x-1 bg-[var(--theme-btn-primary-bg)]'
-                        }`}
-                      />
-                    </button>
-                  </div>
-                  <div className='text-[13px] text-[var(--theme-text-secondary)] leading-relaxed'>
-                    Receive order updates, repair status, and delivery
-                    notifications via WhatsApp
-                  </div>
-                </div>
-              </div>
-
-              {/* SMS Notifications */}
-              <div className='flex items-start gap-4 p-5 bg-white/[0.03] border border-[var(--theme-border-strong)] rounded-xl'>
-                <div className='w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center flex-shrink-0'>
-                  <Smartphone size={22} className='text-blue-400' />
-                </div>
-                <div className='flex-1'>
-                  <div className='flex items-center justify-between mb-2'>
-                    <div className='text-[15px] font-semibold text-[var(--theme-text-primary)]'>
-                      SMS Notifications
-                    </div>
-                    <button
-                      onClick={() =>
-                        handleToggleNotification('smsNotifications')
-                      }
-                      className={`relative w-12 h-7 rounded-full transition-colors ${
-                        notifications.smsNotifications
-                          ? 'bg-[var(--theme-toggle-bg-on)]'
-                          : 'bg-white/10'
-                      }`}
-                    >
-                      <div
-                        className={`absolute w-5 h-5 rounded-full top-1 transition-transform ${
-                          notifications.smsNotifications
-                            ? 'translate-x-6 bg-black'
-                            : 'translate-x-1 bg-[var(--theme-btn-primary-bg)]'
-                        }`}
-                      />
-                    </button>
-                  </div>
-                  <div className='text-[13px] text-[var(--theme-text-secondary)] leading-relaxed'>
-                    Get important updates and confirmations via text message to
-                    your registered mobile number
-                  </div>
-                </div>
-              </div>
-
-              {/* Email Notifications */}
-              <div className='flex items-start gap-4 p-5 bg-white/[0.03] border border-[var(--theme-border-strong)] rounded-xl'>
-                <div className='w-12 h-12 rounded-xl bg-purple-500/10 flex items-center justify-center flex-shrink-0'>
-                  <Mail size={22} className='text-purple-400' />
-                </div>
-                <div className='flex-1'>
-                  <div className='flex items-center justify-between mb-2'>
-                    <div className='text-[15px] font-semibold text-[var(--theme-text-primary)]'>
-                      Email Notifications
-                    </div>
-                    <button
-                      onClick={() =>
-                        handleToggleNotification('emailNotifications')
-                      }
-                      className={`relative w-12 h-7 rounded-full transition-colors ${
-                        notifications.emailNotifications
-                          ? 'bg-[var(--theme-toggle-bg-on)]'
-                          : 'bg-white/10'
-                      }`}
-                    >
-                      <div
-                        className={`absolute w-5 h-5 rounded-full top-1 transition-transform ${
-                          notifications.emailNotifications
-                            ? 'translate-x-6 bg-black'
-                            : 'translate-x-1 bg-[var(--theme-btn-primary-bg)]'
-                        }`}
-                      />
-                    </button>
-                  </div>
-                  <div className='text-[13px] text-[var(--theme-text-secondary)] leading-relaxed'>
-                    Receive detailed repair reports, invoices, and warranty
-                    information via email
-                  </div>
-                </div>
-              </div>
-
-              {/* Push Notifications */}
-              <div className='flex items-start gap-4 p-5 bg-white/[0.03] border border-[var(--theme-border-strong)] rounded-xl'>
-                <div className='w-12 h-12 rounded-xl bg-orange-500/10 flex items-center justify-center flex-shrink-0'>
-                  <Bell size={22} className='text-orange-400' />
-                </div>
-                <div className='flex-1'>
-                  <div className='flex items-center justify-between mb-2'>
-                    <div className='text-[15px] font-semibold text-[var(--theme-text-primary)]'>
-                      Push Notifications
-                    </div>
-                    <button
-                      onClick={() =>
-                        handleToggleNotification('pushNotifications')
-                      }
-                      className={`relative w-12 h-7 rounded-full transition-colors ${
-                        notifications.pushNotifications
-                          ? 'bg-[var(--theme-toggle-bg-on)]'
-                          : 'bg-white/10'
-                      }`}
-                    >
-                      <div
-                        className={`absolute w-5 h-5 rounded-full top-1 transition-transform ${
-                          notifications.pushNotifications
-                            ? 'translate-x-6 bg-black'
-                            : 'translate-x-1 bg-[var(--theme-btn-primary-bg)]'
-                        }`}
-                      />
-                    </button>
-                  </div>
-                  <div className='text-[13px] text-[var(--theme-text-secondary)] leading-relaxed'>
-                    Get instant push alerts on your device for real-time repair
-                    status updates
-                  </div>
-                  <div className='mt-4 flex flex-col sm:flex-row gap-2'>
-                    <button
-                      type='button'
-                      onClick={handleRegisterBrowserPush}
-                      className='rounded-xl bg-white/10 border border-white/10 px-4 py-3 text-[13px] font-semibold text-[var(--theme-text-primary)] hover:bg-white/15 transition-colors'
-                    >
-                      Enable this device
-                    </button>
-                    <button
-                      type='button'
-                      onClick={handleSendTestPush}
-                      className='rounded-xl bg-[var(--theme-btn-primary-bg)] px-4 py-3 text-[13px] font-semibold text-[var(--theme-btn-primary-text)] hover:opacity-90 transition-opacity'
-                    >
-                      Send test push
-                    </button>
-                  </div>
-                </div>
-              </div>
+                  )}
+                </DesktopNotificationItem>
+              ))}
             </div>
 
             {/* Info Box */}

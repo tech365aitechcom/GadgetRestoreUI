@@ -264,7 +264,7 @@ function OrderDetailContent() {
   const [error, setError] = useState('')
   const [reloadVersion, setReloadVersion] = useState(0)
   const [expandedSteps, setExpandedSteps] = useState(new Set())
-  const [showDetailedTimeline, setShowDetailedTimeline] = useState(false)
+  // const [showDetailedTimeline, setShowDetailedTimeline] = useState(false)
 
   useEffect(() => {
     let isMounted = true
@@ -395,71 +395,6 @@ function OrderDetailContent() {
     order.repairTypes?.map((repair) => repair.name).join(' + ') ||
     'Inspection and Diagnosis'
 
-  // Map backend status to active milestone index (0 to 5)
-  const getActiveStageIndex = (status) => {
-    const mapping = {
-      ORDER_PLACED: 0,
-      CS_CONFIRMED: 0,
-
-      PICKUP_ASSIGNED: 1,
-      PICKUP_IN_PROGRESS: 1,
-
-      PICKUP_COMPLETED: 2,
-      DEVICE_PICKED_UP: 2,
-      DEVICE_AT_CENTRE: 2,
-      RECEIVED_AT_CENTRE: 2,
-
-      DIAGNOSIS_PENDING: 3,
-      DIAGNOSIS_IN_PROGRESS: 3,
-      DIAGNOSIS_COMPLETE: 3,
-      CUSTOMER_APPROVED: 3,
-      REPAIR_IN_PROGRESS: 3,
-
-      REPAIR_COMPLETED: 4,
-      QC_PASSED: 4,
-      PAYMENT_PENDING: 4,
-      PAYMENT_COMPLETED: 4,
-
-      DELIVERY_ASSIGNED: 5,
-      DELIVERY_IN_PROGRESS: 5,
-      DELIVERED: 5,
-    }
-    return mapping[status] === undefined ? 0 : mapping[status]
-  }
-
-  const activeStageIndex = getActiveStageIndex(order.repairStatus)
-
-  // Helper to extract stage timestamps from status history
-  const getStageTimestamp = (stageIndex) => {
-    if (!order.repairStatusHistory) return null
-    const targetStatuses = milestones[stageIndex].statuses
-
-    const entry = [...order.repairStatusHistory]
-      .reverse()
-      .find((h) => targetStatuses.includes(h.status))
-
-    if (entry) {
-      return new Date(entry.timestamp).toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: true,
-      })
-    }
-
-    if (stageIndex === 0 && order.createdAt) {
-      return new Date(order.createdAt).toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: true,
-      })
-    }
-
-    return null
-  }
 
   // Formatting display status
   const getDisplayStatusLabel = (status) => {
@@ -578,6 +513,31 @@ function OrderDetailContent() {
 
     const StepIcon = step.icon
 
+    const renderBulletIndicator = () => {
+      if (isCompleted) {
+        return (
+          <div className='w-8 h-8 lg:w-9 lg:h-9 rounded-full bg-green-500 flex items-center justify-center shadow-lg shadow-green-500/10 text-white'>
+            <Check size={16} className='lg:w-[18px] lg:h-[18px] stroke-[3]' />
+          </div>
+        )
+      }
+      if (isCurrent) {
+        return (
+          <div className='w-8 h-8 lg:w-9 lg:h-9 rounded-full border-2 border-white bg-black flex items-center justify-center shadow-md animate-pulse'>
+            <div className='w-2.5 h-2.5 rounded-full bg-white'></div>
+          </div>
+        )
+      }
+      return (
+        <div className='w-8 h-8 lg:w-9 lg:h-9 rounded-full bg-[var(--theme-card-darker)] border border-[var(--theme-border)] flex items-center justify-center text-[var(--theme-text-tertiary)]'>
+          <StepIcon
+            size={14}
+            className='lg:w-[15px] lg:h-[15px] opacity-40'
+          />
+        </div>
+      )
+    }
+
     return (
       <div
         key={step.status}
@@ -593,22 +553,7 @@ function OrderDetailContent() {
 
         {/* Bullet indicator */}
         <div className='relative z-10 shrink-0'>
-          {isCompleted ? (
-            <div className='w-8 h-8 lg:w-9 lg:h-9 rounded-full bg-green-500 flex items-center justify-center shadow-lg shadow-green-500/10 text-white'>
-              <Check size={16} className='lg:w-[18px] lg:h-[18px] stroke-[3]' />
-            </div>
-          ) : isCurrent ? (
-            <div className='w-8 h-8 lg:w-9 lg:h-9 rounded-full border-2 border-white bg-black flex items-center justify-center shadow-md animate-pulse'>
-              <div className='w-2.5 h-2.5 rounded-full bg-white'></div>
-            </div>
-          ) : (
-            <div className='w-8 h-8 lg:w-9 lg:h-9 rounded-full bg-[var(--theme-card-darker)] border border-[var(--theme-border)] flex items-center justify-center text-[var(--theme-text-tertiary)]'>
-              <StepIcon
-                size={14}
-                className='lg:w-[15px] lg:h-[15px] opacity-40'
-              />
-            </div>
-          )}
+          {renderBulletIndicator()}
         </div>
 
         {/* Step Content */}

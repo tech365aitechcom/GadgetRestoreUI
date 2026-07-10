@@ -7,7 +7,6 @@ import {
   X,
   Trash2,
   CheckCheck,
-  Inbox,
   ArrowRight,
   Clock,
   RefreshCw,
@@ -15,6 +14,12 @@ import {
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import notificationService from '@/services/notification.service'
+import PropTypes from 'prop-types'
+
+NotificationDrawer.propTypes = {
+  isOpen: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+}
 
 export default function NotificationDrawer({ isOpen, onClose }) {
   const router = useRouter()
@@ -31,10 +36,10 @@ export default function NotificationDrawer({ isOpen, onClose }) {
       if (e.key === 'Escape') onClose()
     }
     if (isOpen) {
-      window.addEventListener('keydown', handleKeyDown)
+      globalThis.addEventListener('keydown', handleKeyDown)
       fetchNotifications()
     }
-    return () => window.removeEventListener('keydown', handleKeyDown)
+    return () => globalThis.removeEventListener('keydown', handleKeyDown)
   }, [isOpen])
 
   // Click outside to close
@@ -56,7 +61,7 @@ export default function NotificationDrawer({ isOpen, onClose }) {
       // Check if user is authenticated before making API call
       const token = document.cookie
         .split('; ')
-        .find((row) => row.startsWith('customer_token='))
+        .some((row) => row.startsWith('customer_token='))
       if (!token) {
         setIsLoading(false)
         return
@@ -64,18 +69,19 @@ export default function NotificationDrawer({ isOpen, onClose }) {
 
       const res = await notificationService.getNotifications({
         unreadOnly: unreadOnly || undefined,
-        eventType: filterType !== 'all' ? filterType : undefined,
+        eventType: filterType === 'all' ? undefined : filterType,
         limit: 20,
       })
 
       // Backend returns: { success: true, data: { notifications: [...], pagination: {...} } }
-      const list = Array.isArray(res?.data?.notifications)
-        ? res.data.notifications
-        : Array.isArray(res?.data)
-          ? res.data
-          : Array.isArray(res)
-            ? res
-            : []
+      let list = []
+      if (Array.isArray(res?.data?.notifications)) {
+        list = res.data.notifications
+      } else if (Array.isArray(res?.data)) {
+        list = res.data
+      } else if (Array.isArray(res)) {
+        list = res
+      }
 
       setNotifications(list)
 
@@ -126,7 +132,7 @@ export default function NotificationDrawer({ isOpen, onClose }) {
 
   const handleDelete = async (id, e) => {
     e.stopPropagation()
-    const isUnread = notifications.find((n) => n._id === id && !n.isRead)
+    const isUnread = notifications.some((n) => n._id === id && !n.isRead)
     setNotifications((prev) => prev.filter((n) => n._id !== id))
     if (isUnread) setUnreadCount((c) => Math.max(0, c - 1))
 
@@ -195,6 +201,115 @@ export default function NotificationDrawer({ isOpen, onClose }) {
     } catch {
       return ''
     }
+  }
+
+  const eventTypeStyles = {
+    status_change: 'bg-blue-500/10 text-blue-400',
+    payment: 'bg-green-500/10 text-green-400',
+    default: 'bg-purple-500/10 text-purple-400',
+  }
+  const getEventTypeClass = (type) => eventTypeStyles[type] || eventTypeStyles.default
+
+  const renderContent = () => {
+    if (isLoading) {
+      return (
+        <div className='flex flex-col items-center justify-center h-48'>
+          <div className='w-8 h-8 border-2 border-[var(--theme-border-strong)] border-t-[var(--theme-text-primary)] rounded-full animate-spin mb-3' />
+          <p className='text-[12px] text-[var(--theme-text-secondary)]'>
+            Syncing notifications...
+          </p>
+        </div>
+      )
+    }
+
+    if (notifications.length === 0) {
+      return (
+        <div className='flex flex-col items-center justify-center py-20 px-6 text-center'>
+          <div className='w-12 h-12 rounded-full bg-[var(--theme-btn-secondary-bg)] flex items-center justify-center text-[var(--theme-placeholder)] mb-3'>
+            <Bell size={20} />
+          </div>
+          <h4 className='text-[14px] font-bold text-[var(--theme-text-primary)] mb-1'>
+            Inbox is empty
+          </h4>
+          <p className='text-[12px] text-[var(--theme-text-secondary)] max-w-[200px]'>
+            {unreadOnly
+              ? 'No unread notifications matched.'
+              : 'No notifications found at the moment.'}
+          </p>
+        </div>
+      )
+    }
+
+    return notifications.map((n) => (
+      <div
+        key={n._id}
+        className={`group relative overflow-hidden rounded-xl border transition-all duration-200 text-left w-full ${
+          n.isRead
+            ? 'bg-[var(--theme-bg)] border-[var(--theme-border)] hover:bg-[var(--theme-card)] opacity-85'
+            : 'bg-[var(--theme-card)] border-[var(--theme-border-strong)] shadow-sm hover:translate-y-[-1px]'
+        }`}
+      >
+        <button
+          type='button'
+          onClick={() => handleNotificationClick(n)}
+          className='w-full p-3.5 text-left flex items-start justify-between gap-3 cursor-pointer'
+        >
+          {!n.isRead && (
+            <span className='absolute top-4 left-3 w-1.5 h-1.5 rounded-full bg-[var(--theme-btn-primary-bg)]' />
+          )}
+
+          <div className={`${n.isRead ? '' : 'pl-3'} flex-1 min-w-0 pr-8`}>
+            <div className='flex items-center gap-2 mb-1 flex-wrap'>
+              {n.eventType && (
+                <span
+                  className={`px-1.5 py-0.5 rounded text-[8px] font-bold uppercase tracking-wider ${getEventTypeClass(
+                    n.eventType
+                  )}`}
+                >
+                  {n.eventType === 'status_change'
+                    ? 'Status'
+                    : n.eventType}
+                </span>
+              )}
+              {n.ticketNumber && (
+                <span className='text-[10px] font-bold text-[var(--theme-text-secondary)]'>
+                  Ticket: {n.ticketNumber}
+                </span>
+              )}
+            </div>
+            <p className='text-[12px] text-[var(--theme-text-secondary)] leading-relaxed mb-2 break-words'>
+              {n.message}
+            </p>
+
+            <div className='flex items-center gap-2 text-[10px] text-[var(--theme-text-tertiary)] font-medium'>
+              <span className='flex items-center gap-0.5'>
+                <Clock size={10} /> {formatTime(n.createdAt)}
+              </span>
+              {n.ticketNumber && (
+                <span className='text-[var(--theme-btn-primary-bg)] font-semibold flex items-center gap-0.5'>
+                  View Details <ArrowRight size={8} />
+                </span>
+              )}
+            </div>
+          </div>
+        </button>
+
+        {/* Individual delete */}
+        <div className='absolute top-3.5 right-3.5'>
+          <button
+            type='button'
+            onClick={(e) => {
+              e.stopPropagation()
+              handleDelete(n._id, e)
+            }}
+            className='w-7 h-7 rounded-lg bg-[var(--theme-btn-secondary-bg)] hover:bg-red-500/10 hover:text-red-500 flex items-center justify-center text-[var(--theme-text-disabled)] transition-all opacity-0 group-hover:opacity-100 active:scale-90'
+            title='Delete'
+          >
+            <Trash2 size={12} />
+          </button>
+        </div>
+      </div>
+    ))
   }
 
   return (
@@ -279,7 +394,7 @@ export default function NotificationDrawer({ isOpen, onClose }) {
                 checked={unreadOnly}
                 onChange={(e) => setUnreadOnly(e.target.checked)}
                 className='rounded border-[var(--theme-border)] text-[var(--theme-btn-primary-bg)] focus:ring-[var(--theme-btn-primary-bg)] w-3.5 h-3.5'
-              />
+              />{' '}
               Unread only
             </label>
           </div>
@@ -307,96 +422,7 @@ export default function NotificationDrawer({ isOpen, onClose }) {
 
         {/* Notifications list or states */}
         <div className='flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar'>
-          {isLoading ? (
-            <div className='flex flex-col items-center justify-center h-48'>
-              <div className='w-8 h-8 border-2 border-[var(--theme-border-strong)] border-t-[var(--theme-text-primary)] rounded-full animate-spin mb-3' />
-              <p className='text-[12px] text-[var(--theme-text-secondary)]'>
-                Syncing notifications...
-              </p>
-            </div>
-          ) : notifications.length === 0 ? (
-            <div className='flex flex-col items-center justify-center py-20 px-6 text-center'>
-              <div className='w-12 h-12 rounded-full bg-[var(--theme-btn-secondary-bg)] flex items-center justify-center text-[var(--theme-placeholder)] mb-3'>
-                <Bell size={20} />
-              </div>
-              <h4 className='text-[14px] font-bold text-[var(--theme-text-primary)] mb-1'>
-                Inbox is empty
-              </h4>
-              <p className='text-[12px] text-[var(--theme-text-secondary)] max-w-[200px]'>
-                {unreadOnly
-                  ? 'No unread notifications matched.'
-                  : 'No notifications found at the moment.'}
-              </p>
-            </div>
-          ) : (
-            notifications.map((n) => (
-              <div
-                key={n._id}
-                onClick={() => handleNotificationClick(n)}
-                className={`group relative overflow-hidden p-3.5 rounded-xl border transition-all duration-200 cursor-pointer ${
-                  !n.isRead
-                    ? 'bg-[var(--theme-card)] border-[var(--theme-border-strong)] shadow-sm hover:translate-y-[-1px]'
-                    : 'bg-[var(--theme-bg)] border-[var(--theme-border)] hover:bg-[var(--theme-card)] opacity-85'
-                }`}
-              >
-                {!n.isRead && (
-                  <span className='absolute top-4 left-3 w-1.5 h-1.5 rounded-full bg-[var(--theme-btn-primary-bg)]' />
-                )}
-
-                <div
-                  className={`${!n.isRead ? 'pl-3' : ''} flex items-start justify-between gap-3`}
-                >
-                  <div className='flex-1 min-w-0'>
-                    <div className='flex items-center gap-2 mb-1 flex-wrap'>
-                      {n.eventType && (
-                        <span
-                          className={`px-1.5 py-0.5 rounded text-[8px] font-bold uppercase tracking-wider ${
-                            n.eventType === 'status_change'
-                              ? 'bg-blue-500/10 text-blue-400'
-                              : n.eventType === 'payment'
-                                ? 'bg-green-500/10 text-green-400'
-                                : 'bg-purple-500/10 text-purple-400'
-                          }`}
-                        >
-                          {n.eventType === 'status_change'
-                            ? 'Status'
-                            : n.eventType}
-                        </span>
-                      )}
-                      {n.ticketNumber && (
-                        <span className='text-[10px] font-bold text-[var(--theme-text-secondary)]'>
-                          Ticket: {n.ticketNumber}
-                        </span>
-                      )}
-                    </div>
-                    <p className='text-[12px] text-[var(--theme-text-secondary)] leading-relaxed mb-2 break-words'>
-                      {n.message}
-                    </p>
-
-                    <div className='flex items-center gap-2 text-[10px] text-[var(--theme-text-tertiary)] font-medium'>
-                      <span className='flex items-center gap-0.5'>
-                        <Clock size={10} /> {formatTime(n.createdAt)}
-                      </span>
-                      {n.ticketNumber && (
-                        <span className='text-[var(--theme-btn-primary-bg)] font-semibold flex items-center gap-0.5'>
-                          View Details <ArrowRight size={8} />
-                        </span>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Individual delete */}
-                  <button
-                    onClick={(e) => handleDelete(n._id, e)}
-                    className='w-7 h-7 rounded-lg bg-[var(--theme-btn-secondary-bg)] hover:bg-red-500/10 hover:text-red-500 flex items-center justify-center text-[var(--theme-text-disabled)] transition-all opacity-0 group-hover:opacity-100 active:scale-90'
-                    title='Delete'
-                  >
-                    <Trash2 size={12} />
-                  </button>
-                </div>
-              </div>
-            ))
-          )}
+          {renderContent()}
         </div>
       </aside>
     </>

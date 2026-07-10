@@ -25,7 +25,11 @@ import catalogueService from '@/services/catalogue.service'
 import { useBooking } from '@/context/BookingContext'
 import { getBrandLogo } from '@/lib/utils'
 import { useBookingGuard } from '@/hooks/useBookingGuard'
+import PropTypes from 'prop-types'
 
+
+// Static keys for placeholder skeleton cards (avoids array-index-as-key lint)
+const SKELETON_IDS = ['sk-a', 'sk-b', 'sk-c', 'sk-d', 'sk-e', 'sk-f']
 
 // Helper to determine symptom icon dynamically based on name and properties
 const getSymptomIcon = (symptom) => {
@@ -102,6 +106,442 @@ const getSymptomIcon = (symptom) => {
   return <Wrench size={20} />
 }
 
+/* ─── SymptomIcon ─────────────────────────────────────────────────────── */
+function SymptomIcon({ symptom, scale = '1.25' }) {
+  if (symptom.icon) {
+    return (
+      <img
+        src={symptom.icon}
+        alt={symptom.name}
+        className="symptom-icon-img"
+      />
+    )
+  }
+  return (
+    <div style={{ transform: `scale(${scale})`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      {getSymptomIcon(symptom)}
+    </div>
+  )
+}
+
+SymptomIcon.propTypes = {
+  symptom: PropTypes.shape({
+    _id: PropTypes.string,
+    name: PropTypes.string,
+    icon: PropTypes.string,
+    isOther: PropTypes.bool,
+  }).isRequired,
+  scale: PropTypes.string,
+}
+
+/* ─── DesktopSymptomCard ──────────────────────────────────────────────── */
+function DesktopSymptomCard({ symptom, isSelected, onToggle }) {
+  return (
+    <button
+      onClick={() => onToggle(symptom._id)}
+      aria-pressed={isSelected}
+      className={`symptom-card ${isSelected ? 'selected' : ''}`}
+    >
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 16,
+          flex: 1,
+          minWidth: 0,
+        }}
+      >
+        <div className="symptom-icon-container">
+          <SymptomIcon symptom={symptom} scale="1.25" />
+        </div>
+        <div style={{ minWidth: 0, paddingRight: 4 }}>
+          <div
+            style={{
+              fontWeight: 800,
+              fontSize: 16,
+              color: isSelected
+                ? 'var(--color-accent)'
+                : 'var(--color-content-text)',
+              marginBottom: 4,
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+            }}
+          >
+            {symptom.name}
+          </div>
+          <div
+            style={{
+              fontSize: 12,
+              color: 'var(--color-content-text-secondary)',
+              display: '-webkit-box',
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: 'vertical',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              lineHeight: 1.4,
+            }}
+          >
+            {symptom.description || 'Common hardware repair requirement'}
+          </div>
+        </div>
+      </div>
+
+      {/* Custom Checkbox circle */}
+      <div
+        style={{
+          width: 20,
+          height: 20,
+          borderRadius: '50%',
+          border: isSelected
+            ? 'none'
+            : '2px solid var(--color-content-border)',
+          background: isSelected
+            ? 'var(--color-accent)'
+            : 'transparent',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          color: '#fff',
+          flexShrink: 0,
+          marginLeft: 8,
+        }}
+      >
+        {isSelected && <Check size={12} strokeWidth={3} />}
+      </div>
+    </button>
+  )
+}
+
+DesktopSymptomCard.propTypes = {
+  symptom: PropTypes.shape({
+    _id: PropTypes.string.isRequired,
+    name: PropTypes.string,
+    description: PropTypes.string,
+    icon: PropTypes.string,
+    isOther: PropTypes.bool,
+  }).isRequired,
+  isSelected: PropTypes.bool.isRequired,
+  onToggle: PropTypes.func.isRequired,
+}
+
+/* ─── MobileSymptomCard ───────────────────────────────────────────────── */
+function MobileSymptomCard({ symptom, isSelected, onToggle }) {
+  return (
+    <button
+      onClick={() => onToggle(symptom._id)}
+      className={`symptom-card ${isSelected ? 'selected' : ''}`}
+    >
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 12,
+          flex: 1,
+          minWidth: 0,
+        }}
+      >
+        <div className="symptom-icon-container">
+          <SymptomIcon symptom={symptom} scale="1.1" />
+        </div>
+        <div style={{ minWidth: 0 }}>
+          <span
+            style={{
+              display: 'block',
+              fontWeight: 700,
+              fontSize: 13,
+              color: isSelected
+                ? 'var(--color-accent)'
+                : 'var(--color-content-text)',
+              marginBottom: 2,
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+            }}
+          >
+            {symptom.name}
+          </span>
+        </div>
+      </div>
+    </button>
+  )
+}
+
+MobileSymptomCard.propTypes = {
+  symptom: PropTypes.shape({
+    _id: PropTypes.string.isRequired,
+    name: PropTypes.string,
+    icon: PropTypes.string,
+    isOther: PropTypes.bool,
+  }).isRequired,
+  isSelected: PropTypes.bool.isRequired,
+  onToggle: PropTypes.func.isRequired,
+}
+
+/* ─── SelectedIssuesPanel ─────────────────────────────────────────────── */
+function SelectedIssuesPanel({ symptomsList, selectedIds }) {
+  return (
+    <div style={{ marginBottom: 24 }}>
+      <span
+        style={{
+          fontSize: 11,
+          fontWeight: 700,
+          color: 'var(--color-content-text-secondary)',
+          textTransform: 'uppercase',
+          display: 'block',
+          marginBottom: 8,
+        }}
+      >
+        Selected Issues ({selectedIds.length})
+      </span>
+
+      {selectedIds.length === 0 ? (
+        <div
+          style={{
+            padding: '16px',
+            background: 'var(--color-content-bg)',
+            borderRadius: 10,
+            textAlign: 'center',
+            fontSize: 13,
+            color: 'var(--color-content-text-secondary)',
+          }}
+        >
+          No symptoms selected. Tap cards on the left to add issues.
+        </div>
+      ) : (
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 8,
+            maxHeight: 200,
+            overflowY: 'auto',
+            paddingRight: 4,
+          }}
+        >
+          {symptomsList
+            .filter((s) => selectedIds.includes(s._id))
+            .map((s) => (
+              <div
+                key={s._id}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  padding: '8px 12px',
+                  background: 'var(--color-content-bg)',
+                  borderRadius: 8,
+                  fontSize: 13,
+                  fontWeight: 600,
+                }}
+              >
+                <div
+                  style={{
+                    color: 'var(--color-accent)',
+                    display: 'flex',
+                    alignItems: 'center',
+                  }}
+                >
+                  <Check size={14} strokeWidth={3} />
+                </div>
+                <span
+                  style={{
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                    flex: 1,
+                  }}
+                >
+                  {s.name}
+                </span>
+              </div>
+            ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+SelectedIssuesPanel.propTypes = {
+  symptomsList: PropTypes.arrayOf(
+    PropTypes.shape({
+      _id: PropTypes.string.isRequired,
+      name: PropTypes.string,
+    })
+  ).isRequired,
+  selectedIds: PropTypes.arrayOf(PropTypes.string).isRequired,
+}
+
+/* ─── DesktopCTAButton ────────────────────────────────────────────────── */
+function DesktopCTAButton({ isIpadOrMac, selectedIds, onContinue }) {
+  const hasSelection = selectedIds.length > 0
+  const btnStyle = {
+    width: '100%',
+    height: 'var(--btn-height-primary)',
+    background: hasSelection
+      ? 'var(--color-accent)'
+      : 'var(--color-content-divider)',
+    color: hasSelection ? '#fff' : 'var(--color-content-text-secondary)',
+    border: 'none',
+    borderRadius: 'var(--radius-btn)',
+    fontWeight: 700,
+    fontSize: 14,
+    cursor: hasSelection ? 'pointer' : 'not-allowed',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    transition: 'all 0.2s ease',
+    boxShadow: hasSelection ? '0 4px 16px rgba(108,123,255,0.25)' : 'none',
+  }
+
+  if (isIpadOrMac) {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <div style={{ fontSize: 13, color: 'var(--color-content-text-secondary)', textAlign: 'center', lineHeight: 1.5 }}>
+          For iPad, Tablet, Mac &amp; PC repairs, please contact customer support directly.
+        </div>
+        <button
+          onClick={() => globalThis.location.href = 'tel:+918800003785'}
+          disabled={!hasSelection}
+          style={btnStyle}
+        >
+          <Phone size={16} /> Call +91 8800003785
+        </button>
+      </div>
+    )
+  }
+
+  return (
+    <button
+      onClick={onContinue}
+      disabled={!hasSelection}
+      style={btnStyle}
+    >
+      Continue to Pricing <ChevronRight size={16} />
+    </button>
+  )
+}
+
+DesktopCTAButton.propTypes = {
+  isIpadOrMac: PropTypes.bool.isRequired,
+  selectedIds: PropTypes.arrayOf(PropTypes.string).isRequired,
+  onContinue: PropTypes.func.isRequired,
+}
+
+/* ─── MobileBottomBar ─────────────────────────────────────────────────── */
+function MobileBottomBar({ isIpadOrMac, selectedIds, onContinue }) {
+  const hasSelection = selectedIds.length > 0
+  const btnStyle = {
+    height: 44,
+    padding: '0 24px',
+    background: hasSelection
+      ? 'var(--color-accent)'
+      : 'var(--color-content-divider)',
+    color: hasSelection ? '#fff' : 'var(--color-content-text-secondary)',
+    border: 'none',
+    borderRadius: 'var(--radius-btn)',
+    fontWeight: 700,
+    fontSize: 13,
+    cursor: hasSelection ? 'pointer' : 'not-allowed',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    transition: 'all 0.15s ease',
+  }
+
+  const symptomSuffix = selectedIds.length === 1 ? '' : 's'
+  const selectedText = hasSelection
+    ? `${selectedIds.length} symptom${symptomSuffix} selected`
+    : 'No symptoms selected'
+
+  if (isIpadOrMac) {
+    return (
+      <>
+        <div>
+          <span
+            style={{
+              display: 'block',
+              fontSize: 10,
+              fontWeight: 700,
+              color: 'var(--color-content-text-secondary)',
+              textTransform: 'uppercase',
+              letterSpacing: '0.05em',
+            }}
+          >
+            {hasSelection ? `${selectedIds.length} issue selected` : 'No symptoms selected'}
+          </span>
+          <span
+            style={{
+              fontSize: 13,
+              fontWeight: 800,
+              color: hasSelection
+                ? 'var(--color-accent)'
+                : 'var(--color-content-text)',
+            }}
+          >
+            {hasSelection ? '+91 8800003785' : 'Select at least one issue'}
+          </span>
+        </div>
+        <button
+          onClick={() => globalThis.location.href = 'tel:+918800003785'}
+          disabled={!hasSelection}
+          style={{ ...btnStyle, padding: '0 20px' }}
+        >
+          <Phone size={14} /> Call Support
+        </button>
+      </>
+    )
+  }
+
+  return (
+    <>
+      <div>
+        <span
+          style={{
+            display: 'block',
+            fontSize: 10,
+            fontWeight: 700,
+            color: 'var(--color-content-text-secondary)',
+            textTransform: 'uppercase',
+            letterSpacing: '0.05em',
+          }}
+        >
+          {selectedText}
+        </span>
+        <span
+          style={{
+            fontSize: 13,
+            fontWeight: 800,
+            color: hasSelection
+              ? 'var(--color-accent)'
+              : 'var(--color-content-text)',
+          }}
+        >
+          {hasSelection ? 'Ready to continue ✓' : 'Select at least one issue'}
+        </span>
+      </div>
+      <button
+        onClick={onContinue}
+        disabled={!hasSelection}
+        style={btnStyle}
+      >
+        Continue <ChevronRight size={14} />
+      </button>
+    </>
+  )
+}
+
+MobileBottomBar.propTypes = {
+  isIpadOrMac: PropTypes.bool.isRequired,
+  selectedIds: PropTypes.arrayOf(PropTypes.string).isRequired,
+  onContinue: PropTypes.func.isRequired,
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Main Page Component
+   ═══════════════════════════════════════════════════════════════════════ */
 export default function SelectSymptomsPage() {
   const router = useRouter()
   const {
@@ -150,9 +590,8 @@ export default function SelectSymptomsPage() {
         setSymptomsList(activeSymptoms)
 
         // Restore selection state from BookingContext if present
-        if (contextSymptoms && contextSymptoms.length > 0) {
-          const restoredIds = contextSymptoms.map((s) => s._id)
-          setSelectedIds(restoredIds)
+        if (contextSymptoms?.length > 0) {
+          setSelectedIds(contextSymptoms.map((s) => s._id))
         }
         if (contextRemarks) {
           setOtherText(contextRemarks)
@@ -167,12 +606,6 @@ export default function SelectSymptomsPage() {
       })
   }, [model, category, contextSymptoms, contextRemarks])
 
-  // Check if "Other" symptom is selected
-  const isOtherSelected = useMemo(() => {
-    const otherSymptom = symptomsList.find((s) => s.isOther)
-    return otherSymptom && selectedIds.includes(otherSymptom._id)
-  }, [symptomsList, selectedIds])
-
   // Filter symptoms list based on search query
   const filteredSymptoms = useMemo(() => {
     if (!searchQuery.trim()) return symptomsList
@@ -180,36 +613,28 @@ export default function SelectSymptomsPage() {
     return symptomsList.filter(
       (s) =>
         s.name.toLowerCase().includes(query) ||
-        (s.description && s.description.toLowerCase().includes(query)),
+        s.description?.toLowerCase().includes(query),
     )
   }, [symptomsList, searchQuery])
 
   // Handle toggling of a symptom item (Only one symptom can be selected at a time)
   const handleToggleSymptom = (id) => {
-    setSelectedIds((prev) => {
-      if (prev.includes(id)) {
-        return []
-      } else {
-        return [id]
-      }
-    })
+    setSelectedIds((prev) => (prev.includes(id) ? [] : [id]))
   }
 
   // Process and save choices, then navigate
   const handleContinue = () => {
     if (selectedIds.length === 0) return
-
-    // Filter full symptom objects corresponding to selected IDs
-    const selectedObjects = symptomsList.filter((s) =>
-      selectedIds.includes(s._id),
-    )
-
-    // Save choices to context
+    const selectedObjects = symptomsList.filter((s) => selectedIds.includes(s._id))
     setSymptoms(selectedObjects)
     setRemarks(otherText)
-
-    // Go to next step: Part Type Selection (Pro vs Premium Comparison)
     router.push('/select-tier')
+  }
+
+  const handleImageError = (e) => {
+    if (e.target.src !== globalThis.window.location.origin + defaultImage) {
+      e.target.src = defaultImage
+    }
   }
 
   if (!isReady) return null
@@ -390,11 +815,7 @@ export default function SelectSymptomsPage() {
                       filter: 'drop-shadow(0 15px 25px rgba(0, 0, 0, 0.6))',
                     }}
                     className="device-card-image"
-                    onError={(e) => {
-                      if (e.target.src !== window.location.origin + defaultImage) {
-                        e.target.src = defaultImage;
-                      }
-                    }}
+                    onError={handleImageError}
                   />
                 </div>
               </div>
@@ -442,9 +863,9 @@ export default function SelectSymptomsPage() {
                     gap: 16,
                   }}
                 >
-                  {Array.from({ length: 6 }).map((_, i) => (
+                  {SKELETON_IDS.map((id) => (
                     <div
-                      key={i}
+                      key={id}
                       className='skeleton'
                       style={{
                         height: 100,
@@ -455,7 +876,7 @@ export default function SelectSymptomsPage() {
                 </div>
               )}
 
-              {/* Symptoms Grid */}
+              {/* Error State */}
               {!isLoading && error && (
                 <div
                   style={{
@@ -469,6 +890,7 @@ export default function SelectSymptomsPage() {
                 </div>
               )}
 
+              {/* Symptoms Grid */}
               {!isLoading && !error && (
                 <>
                   {/* 3-column grid per implementation plan (Desktop: responsive 3-col) */}
@@ -479,96 +901,14 @@ export default function SelectSymptomsPage() {
                       gap: 16,
                     }}
                   >
-                    {filteredSymptoms.map((symptom) => {
-                      const isSelected = selectedIds.includes(symptom._id)
-                      return (
-                        <button
-                          key={symptom._id}
-                          onClick={() => handleToggleSymptom(symptom._id)}
-                          aria-pressed={isSelected}
-                          className={`symptom-card ${isSelected ? 'selected' : ''}`}
-                        >
-                          <div
-                            style={{
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: 16,
-                              flex: 1,
-                              minWidth: 0,
-                            }}
-                          >
-                            <div className="symptom-icon-container">
-                              {symptom.icon ? (
-                                <img
-                                  src={symptom.icon}
-                                  alt={symptom.name}
-                                  className="symptom-icon-img"
-                                />
-                              ) : (
-                                <div style={{ transform: 'scale(1.25)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                  {getSymptomIcon(symptom)}
-                                </div>
-                              )}
-                            </div>
-                            <div style={{ minWidth: 0, paddingRight: 4 }}>
-                              <div
-                                style={{
-                                  fontWeight: 800,
-                                  fontSize: 16,
-                                  color: isSelected
-                                    ? 'var(--color-accent)'
-                                    : 'var(--color-content-text)',
-                                  marginBottom: 4,
-                                  whiteSpace: 'nowrap',
-                                  overflow: 'hidden',
-                                  textOverflow: 'ellipsis',
-                                }}
-                              >
-                                {symptom.name}
-                              </div>
-                              <div
-                                style={{
-                                  fontSize: 12,
-                                  color: 'var(--color-content-text-secondary)',
-                                  display: '-webkit-box',
-                                  WebkitLineClamp: 2,
-                                  WebkitBoxOrient: 'vertical',
-                                  overflow: 'hidden',
-                                  textOverflow: 'ellipsis',
-                                  lineHeight: 1.4,
-                                }}
-                              >
-                                {symptom.description ||
-                                  'Common hardware repair requirement'}
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* Custom Checkbox circle */}
-                          <div
-                            style={{
-                              width: 20,
-                              height: 20,
-                              borderRadius: '50%',
-                              border: isSelected
-                                ? 'none'
-                                : '2px solid var(--color-content-border)',
-                              background: isSelected
-                                ? 'var(--color-accent)'
-                                : 'transparent',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              color: '#fff',
-                              flexShrink: 0,
-                              marginLeft: 8,
-                            }}
-                          >
-                            {isSelected && <Check size={12} strokeWidth={3} />}
-                          </div>
-                        </button>
-                      )
-                    })}
+                    {filteredSymptoms.map((symptom) => (
+                      <DesktopSymptomCard
+                        key={symptom._id}
+                        symptom={symptom}
+                        isSelected={selectedIds.includes(symptom._id)}
+                        onToggle={handleToggleSymptom}
+                      />
+                    ))}
                   </div>
 
                   {filteredSymptoms.length === 0 && (
@@ -584,7 +924,7 @@ export default function SelectSymptomsPage() {
                         No issues found
                       </div>
                       <div style={{ fontSize: 13 }}>
-                        We can still help! Type your issue using the "Other"
+                        We can still help! Type your issue using the &quot;Other&quot;
                         option or search again.
                       </div>
                     </div>
@@ -612,6 +952,7 @@ export default function SelectSymptomsPage() {
                   }}
                 >
                   <label
+                    htmlFor='other-text-desktop'
                     style={{
                       fontSize: 13,
                       fontWeight: 700,
@@ -634,6 +975,7 @@ export default function SelectSymptomsPage() {
                   </span>
                 </div>
                 <textarea
+                  id='other-text-desktop'
                   rows={4}
                   placeholder='Provide additional details here (e.g., screen flashes green, back panel loose, mic crackling)...'
                   value={otherText}
@@ -824,158 +1166,17 @@ export default function SelectSymptomsPage() {
                 </h3>
 
                 {/* Selected Issues List */}
-                <div style={{ marginBottom: 24 }}>
-                  <span
-                    style={{
-                      fontSize: 11,
-                      fontWeight: 700,
-                      color: 'var(--color-content-text-secondary)',
-                      textTransform: 'uppercase',
-                      display: 'block',
-                      marginBottom: 8,
-                    }}
-                  >
-                    Selected Issues ({selectedIds.length})
-                  </span>
-
-                  {selectedIds.length === 0 ? (
-                    <div
-                      style={{
-                        padding: '16px',
-                        background: 'var(--color-content-bg)',
-                        borderRadius: 10,
-                        textAlign: 'center',
-                        fontSize: 13,
-                        color: 'var(--color-content-text-secondary)',
-                      }}
-                    >
-                      No symptoms selected. Tap cards on the left to add issues.
-                    </div>
-                  ) : (
-                    <div
-                      style={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: 8,
-                        maxHeight: 200,
-                        overflowY: 'auto',
-                        paddingRight: 4,
-                      }}
-                    >
-                      {symptomsList
-                        .filter((s) => selectedIds.includes(s._id))
-                        .map((s) => (
-                          <div
-                            key={s._id}
-                            style={{
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: 8,
-                              padding: '8px 12px',
-                              background: 'var(--color-content-bg)',
-                              borderRadius: 8,
-                              fontSize: 13,
-                              fontWeight: 600,
-                            }}
-                          >
-                            <div
-                              style={{
-                                color: 'var(--color-accent)',
-                                display: 'flex',
-                                alignItems: 'center',
-                              }}
-                            >
-                              <Check size={14} strokeWidth={3} />
-                            </div>
-                            <span
-                              style={{
-                                overflow: 'hidden',
-                                textOverflow: 'ellipsis',
-                                whiteSpace: 'nowrap',
-                                flex: 1,
-                              }}
-                            >
-                              {s.name}
-                            </span>
-                          </div>
-                        ))}
-                    </div>
-                  )}
-                </div>
+                <SelectedIssuesPanel
+                  symptomsList={symptomsList}
+                  selectedIds={selectedIds}
+                />
 
                 {/* CTA Button */}
-                {isIpadOrMac ? (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                    <div style={{ fontSize: 13, color: 'var(--color-content-text-secondary)', textAlign: 'center', lineHeight: 1.5 }}>
-                      For iPad, Tablet, Mac & PC repairs, please contact customer support directly.
-                    </div>
-                    <button
-                      onClick={() => window.location.href = 'tel:+918800003785'}
-                      disabled={selectedIds.length === 0}
-                      style={{
-                        width: '100%',
-                        height: 'var(--btn-height-primary)',
-                        background:
-                          selectedIds.length > 0
-                            ? 'var(--color-accent)'
-                            : 'var(--color-content-divider)',
-                        color:
-                          selectedIds.length > 0
-                            ? '#fff'
-                            : 'var(--color-content-text-secondary)',
-                        border: 'none',
-                        borderRadius: 'var(--radius-btn)',
-                        fontWeight: 700,
-                        fontSize: 14,
-                        cursor: selectedIds.length > 0 ? 'pointer' : 'not-allowed',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: 8,
-                        transition: 'all 0.2s ease',
-                        boxShadow:
-                          selectedIds.length > 0
-                            ? '0 4px 16px rgba(108,123,255,0.25)'
-                            : 'none',
-                      }}
-                    >
-                      <Phone size={16} /> Call +91 8800003785
-                    </button>
-                  </div>
-                ) : (
-                  <button
-                    onClick={handleContinue}
-                    disabled={selectedIds.length === 0}
-                    style={{
-                      width: '100%',
-                      height: 'var(--btn-height-primary)',
-                      background:
-                        selectedIds.length > 0
-                          ? 'var(--color-accent)'
-                          : 'var(--color-content-divider)',
-                      color:
-                        selectedIds.length > 0
-                          ? '#fff'
-                          : 'var(--color-content-text-secondary)',
-                      border: 'none',
-                      borderRadius: 'var(--radius-btn)',
-                      fontWeight: 700,
-                      fontSize: 14,
-                      cursor: selectedIds.length > 0 ? 'pointer' : 'not-allowed',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: 8,
-                      transition: 'all 0.2s ease',
-                      boxShadow:
-                        selectedIds.length > 0
-                          ? '0 4px 16px rgba(108,123,255,0.25)'
-                          : 'none',
-                    }}
-                  >
-                    Continue to Pricing <ChevronRight size={16} />
-                  </button>
-                )}
+                <DesktopCTAButton
+                  isIpadOrMac={isIpadOrMac}
+                  selectedIds={selectedIds}
+                  onContinue={handleContinue}
+                />
               </div>
             </div>
           </div>
@@ -1030,7 +1231,8 @@ export default function SelectSymptomsPage() {
             </div>
 
             {/* Device Info Card */}
-            <div
+            <button
+              type='button'
               onClick={() => router.push('/select-model')}
               className="mobile-device-card"
               style={{
@@ -1044,6 +1246,8 @@ export default function SelectSymptomsPage() {
                 cursor: 'pointer',
                 boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)',
                 transition: 'all 0.2s ease',
+                textAlign: 'left',
+                width: '100%',
               }}
             >
               {/* Left Section: Device Image */}
@@ -1068,11 +1272,7 @@ export default function SelectSymptomsPage() {
                     height: '100%',
                     objectFit: 'contain',
                   }}
-                  onError={(e) => {
-                    if (e.target.src !== window.location.origin + defaultImage) {
-                      e.target.src = defaultImage;
-                    }
-                  }}
+                  onError={handleImageError}
                 />
               </div>
 
@@ -1119,7 +1319,7 @@ export default function SelectSymptomsPage() {
                   />
                 </div>
               )}
-            </div>
+            </button>
           </div>
 
           {/* Mobile Search input */}
@@ -1158,9 +1358,9 @@ export default function SelectSymptomsPage() {
           {/* Loading Indicator */}
           {isLoading && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              {Array.from({ length: 6 }).map((_, i) => (
+              {SKELETON_IDS.map((id) => (
                 <div
-                  key={i}
+                  key={id}
                   className='skeleton'
                   style={{ height: 72, borderRadius: 'var(--radius-card)' }}
                 />
@@ -1168,7 +1368,7 @@ export default function SelectSymptomsPage() {
             </div>
           )}
 
-          {/* Mobile checklist results */}
+          {/* Mobile error state */}
           {!isLoading && error && (
             <div
               style={{
@@ -1182,60 +1382,17 @@ export default function SelectSymptomsPage() {
             </div>
           )}
 
+          {/* Mobile checklist results */}
           {!isLoading && !error && (
             <div className='grid grid-cols-2 gap-4'>
-              {filteredSymptoms.map((symptom) => {
-                const isSelected = selectedIds.includes(symptom._id)
-                return (
-                  <button
-                    key={symptom._id}
-                    onClick={() => handleToggleSymptom(symptom._id)}
-                    className={`symptom-card ${isSelected ? 'selected' : ''}`}
-                  >
-                    <div
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 12,
-                        flex: 1,
-                        minWidth: 0,
-                      }}
-                    >
-                      <div className="symptom-icon-container">
-                        {symptom.icon ? (
-                          <img
-                            src={symptom.icon}
-                            alt={symptom.name}
-                            className="symptom-icon-img"
-                          />
-                        ) : (
-                          <div style={{ transform: 'scale(1.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            {getSymptomIcon(symptom)}
-                          </div>
-                        )}
-                      </div>
-                      <div style={{ minWidth: 0 }}>
-                        <span
-                          style={{
-                            display: 'block',
-                            fontWeight: 700,
-                            fontSize: 13,
-                            color: isSelected
-                              ? 'var(--color-accent)'
-                              : 'var(--color-content-text)',
-                            marginBottom: 2,
-                            whiteSpace: 'nowrap',
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                          }}
-                        >
-                          {symptom.name}
-                        </span>
-                      </div>
-                    </div>
-                  </button>
-                )
-              })}
+              {filteredSymptoms.map((symptom) => (
+                <MobileSymptomCard
+                  key={symptom._id}
+                  symptom={symptom}
+                  isSelected={selectedIds.includes(symptom._id)}
+                  onToggle={handleToggleSymptom}
+                />
+              ))}
 
               {filteredSymptoms.length === 0 && (
                 <div
@@ -1252,7 +1409,7 @@ export default function SelectSymptomsPage() {
                     No results found
                   </div>
                   <div style={{ fontSize: 12 }}>
-                    Check spelling or select "Other" to describe your issue.
+                    Check spelling or select &quot;Other&quot; to describe your issue.
                   </div>
                 </div>
               )}
@@ -1280,6 +1437,7 @@ export default function SelectSymptomsPage() {
               }}
             >
               <label
+                htmlFor='other-text-mobile'
                 style={{
                   fontSize: 11,
                   fontWeight: 700,
@@ -1303,6 +1461,7 @@ export default function SelectSymptomsPage() {
               </span>
             </div>
             <textarea
+              id='other-text-mobile'
               rows={3}
               placeholder='Tell us what is wrong with the device...'
               value={otherText}
@@ -1342,129 +1501,11 @@ export default function SelectSymptomsPage() {
             boxShadow: '0 -4px 10px rgba(0,0,0,0.04)',
           }}
         >
-          {isIpadOrMac ? (
-            <>
-              <div>
-                <span
-                  style={{
-                    display: 'block',
-                    fontSize: 10,
-                    fontWeight: 700,
-                    color: 'var(--color-content-text-secondary)',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.05em',
-                  }}
-                >
-                  {selectedIds.length > 0
-                    ? `${selectedIds.length} issue selected`
-                    : 'No symptoms selected'}
-                </span>
-                <span
-                  style={{
-                    fontSize: 13,
-                    fontWeight: 800,
-                    color:
-                      selectedIds.length > 0
-                        ? 'var(--color-accent)'
-                        : 'var(--color-content-text)',
-                  }}
-                >
-                  {selectedIds.length > 0
-                    ? '+91 8800003785'
-                    : 'Select at least one issue'}
-                </span>
-              </div>
-              <button
-                onClick={() => window.location.href = 'tel:+918800003785'}
-                disabled={selectedIds.length === 0}
-                style={{
-                  height: 44,
-                  padding: '0 20px',
-                  background:
-                    selectedIds.length > 0
-                      ? 'var(--color-accent)'
-                      : 'var(--color-content-divider)',
-                  color:
-                    selectedIds.length > 0
-                      ? '#fff'
-                      : 'var(--color-content-text-secondary)',
-                  border: 'none',
-                  borderRadius: 'var(--radius-btn)',
-                  fontWeight: 700,
-                  fontSize: 13,
-                  cursor: selectedIds.length > 0 ? 'pointer' : 'not-allowed',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: 6,
-                  transition: 'all 0.15s ease',
-                }}
-              >
-                <Phone size={14} /> Call Support
-              </button>
-            </>
-          ) : (
-            <>
-              <div>
-                <span
-                  style={{
-                    display: 'block',
-                    fontSize: 10,
-                    fontWeight: 700,
-                    color: 'var(--color-content-text-secondary)',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.05em',
-                  }}
-                >
-                  {selectedIds.length > 0
-                    ? `${selectedIds.length} symptom${selectedIds.length === 1 ? '' : 's'} selected`
-                    : 'No symptoms selected'}
-                </span>
-                <span
-                  style={{
-                    fontSize: 13,
-                    fontWeight: 800,
-                    color:
-                      selectedIds.length > 0
-                        ? 'var(--color-accent)'
-                        : 'var(--color-content-text)',
-                  }}
-                >
-                  {selectedIds.length > 0
-                    ? 'Ready to continue ✓'
-                    : 'Select at least one issue'}
-                </span>
-              </div>
-              <button
-                onClick={handleContinue}
-                disabled={selectedIds.length === 0}
-                style={{
-                  height: 44,
-                  padding: '0 24px',
-                  background:
-                    selectedIds.length > 0
-                      ? 'var(--color-accent)'
-                      : 'var(--color-content-divider)',
-                  color:
-                    selectedIds.length > 0
-                      ? '#fff'
-                      : 'var(--color-content-text-secondary)',
-                  border: 'none',
-                  borderRadius: 'var(--radius-btn)',
-                  fontWeight: 700,
-                  fontSize: 13,
-                  cursor: selectedIds.length > 0 ? 'pointer' : 'not-allowed',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: 6,
-                  transition: 'all 0.15s ease',
-                }}
-              >
-                Continue <ChevronRight size={14} />
-              </button>
-            </>
-          )}
+          <MobileBottomBar
+            isIpadOrMac={isIpadOrMac}
+            selectedIds={selectedIds}
+            onContinue={handleContinue}
+          />
         </div>
       </div>
 

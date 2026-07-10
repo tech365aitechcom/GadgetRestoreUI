@@ -27,8 +27,8 @@ api.interceptors.response.use(
       // Clear all storage (cookies, localStorage, sessionStorage) and redirect to landing page
       // This ensures no stale data remains when the token is invalid
       if (
-        typeof window !== 'undefined' &&
-        !window.location.pathname.includes('/login')
+        globalThis.window !== undefined &&
+        !globalThis.location.pathname.includes('/login')
       ) {
         redirectToLandingPage()
       }

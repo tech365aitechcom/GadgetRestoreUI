@@ -2,6 +2,7 @@
 
 import Badge from '@/components/ui/Badge';
 import { STATUS_LABELS } from '@/lib/constants';
+import PropTypes from 'prop-types';
 
 function variantFor(status) {
   if (status === 'DELIVERED') return 'success';
@@ -11,6 +12,11 @@ function variantFor(status) {
   }
   return 'accent';
 }
+
+OrderStatusBadge.propTypes = {
+  status: PropTypes.string.isRequired,
+  size: PropTypes.string,
+};
 
 export default function OrderStatusBadge({ status, size = 'md' }) {
   return (

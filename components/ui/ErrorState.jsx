@@ -1,6 +1,17 @@
 'use client'
 
 import { AlertCircle } from 'lucide-react'
+import PropTypes from 'prop-types'
+
+ErrorState.propTypes = {
+  title: PropTypes.string,
+  message: PropTypes.string,
+  buttonText: PropTypes.string,
+  onButtonClick: PropTypes.func,
+  icon: PropTypes.node,
+  className: PropTypes.string,
+  fullScreen: PropTypes.bool,
+}
 
 export default function ErrorState({
   title = 'Something went wrong',
@@ -58,4 +69,9 @@ export function InlineError({ message, className = '' }) {
       <span>{message}</span>
     </div>
   )
+}
+
+InlineError.propTypes = {
+  message: PropTypes.string.isRequired,
+  className: PropTypes.string,
 }

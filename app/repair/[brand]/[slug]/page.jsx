@@ -1,16 +1,11 @@
 import Script from 'next/script'
 import {
-  Smartphone,
-  Monitor,
-  Tablet,
-  Gamepad,
-  Laptop,
-  Check,
   Star,
   ShieldCheck,
   Clock,
 } from 'lucide-react'
 import RepairLandingClient from '../RepairLandingClient'
+import PropTypes from 'prop-types'
 import catalogueService from '@/services/catalogue.service'
 
 // Helper to check if a slug is a repair type or a device model
@@ -54,11 +49,101 @@ function parseSlug(slug) {
 
   // Fix capitalization anomalies for well-known terms
   formatted = formatted
-    .replace(/Iphone/g, 'iPhone')
-    .replace(/Ipad/g, 'iPad')
-    .replace(/Macbook/g, 'MacBook')
+    .replaceAll('Iphone', 'iPhone')
+    .replaceAll('Ipad', 'iPad')
+    .replaceAll('Macbook', 'MacBook')
 
   return { isRepairType, name: formatted }
+}
+
+// Returns the starting display price based on parsed slug info
+function getStartingPrice(parsed) {
+  if (!parsed.isRepairType) return '999'
+  return parsed.name.toLowerCase().includes('screen') ? '1,999' : '999'
+}
+
+// Builds the initial brand object with Apple/non-Apple logo fallback
+function buildInitialBrandObj(brandName) {
+  const isApple = brandName === 'Apple'
+  return {
+    name: brandName,
+    _id: isApple ? '65f8c8577adcd9e5c544d673' : '65f8c8577adcd9e5c544d674',
+    logo: isApple ? '/images/apple-logo.png' : '/images/samsung-logo.png',
+  }
+}
+
+// Processes the SEO API response and returns structured pricing/brand/model data
+function processSeoData(seoData, brandName, initialBrandObj) {
+  let parsedBrandObj = { ...initialBrandObj }
+  let parsedModelObj = null
+  let tiersList = []
+  let pricingList = []
+
+  if (!seoData) return { parsedBrandObj, parsedModelObj, tiersList, pricingList }
+
+  if (seoData.brand) {
+    parsedBrandObj = {
+      name: seoData.brand.name || brandName,
+      _id: seoData.brand._id,
+      logo: seoData.brand.logo || initialBrandObj.logo,
+    }
+  }
+
+  if (seoData.type === 'model' && seoData.model) {
+    parsedModelObj = {
+      name: seoData.model.name,
+      _id: seoData.model._id,
+      images: seoData.model.image ? [seoData.model.image] : ['/images/iphone-15.png'],
+    }
+  }
+
+  if (seoData.tiers && seoData.tiers.length > 0) {
+    tiersList = seoData.tiers
+  }
+
+  if (seoData.pricing && seoData.pricing.length > 0) {
+    pricingList = seoData.pricing.map((item) => {
+      const row = { name: item.name }
+      tiersList.forEach((t) => {
+        const price = item.prices ? item.prices[t.tier] : null
+        row[t.tier] = price ? `₹${price.toLocaleString('en-IN')}` : 'Estimate Required'
+      })
+      return row
+    })
+  }
+
+  return { parsedBrandObj, parsedModelObj, tiersList, pricingList }
+}
+
+// Builds fallback pricing rows when the API returned nothing
+function buildFallbackPricing(parsed, brandName, tiersList, startingPrice) {
+  if (parsed.isRepairType) {
+    const rows = [
+      { name: `Flagship ${brandName} Series (e.g. Pro/Ultra)` },
+      { name: `Mid-Range ${brandName} Series (e.g. Plus/Neo)` },
+      { name: `Standard ${brandName} Series (e.g. base model)` },
+    ]
+    rows.forEach((row) => {
+      tiersList.forEach((t) => {
+        row[t.tier] = t.tier === 'Original' || t.tier === 'Pro' ? `₹${startingPrice}` : '₹3,999'
+      })
+    })
+    return rows
+  }
+
+  const rows = [
+    { name: 'Screen Replacement', Original: '₹6,000', Pro: '₹2,499', Premium: '₹4,199', Compatible: '₹1,499' },
+    { name: 'Battery Replacement', Original: '₹2,500', Pro: '₹999', Premium: '₹1,699', Compatible: '₹799' },
+    { name: 'Charging Interface Repair', Original: '₹1,999', Pro: '₹899', Premium: '₹1,499', Compatible: '₹699' },
+    { name: 'Rear Back Panel Swap', Original: '₹2,999', Pro: '₹1,199', Premium: '₹2,199', Compatible: '₹999' },
+    { name: 'Camera Component Refit', Original: '₹3,999', Pro: '₹1,899', Premium: '₹2,999', Compatible: '₹1,299' },
+  ]
+  rows.forEach((row) => {
+    tiersList.forEach((t) => {
+      if (!row[t.tier]) row[t.tier] = 'Estimate Required'
+    })
+  })
+  return rows
 }
 
 // Server-side dynamic metadata generation for SEO
@@ -103,16 +188,15 @@ export async function generateMetadata({ params }) {
   }
 }
 
+ModelOrRepairPage.propTypes = {
+  params: PropTypes.any.isRequired,
+}
+
 export default async function ModelOrRepairPage({ params }) {
   const { brand: brandRaw, slug: slugRaw } = await params
 
-  // Handle undefined params (e.g., placeholder pages) - redirect or show error
-  if (
-    !brandRaw ||
-    !slugRaw ||
-    brandRaw === '_placeholder' ||
-    slugRaw === '_placeholder'
-  ) {
+  const isPlaceholder = !brandRaw || !slugRaw || brandRaw === '_placeholder' || slugRaw === '_placeholder'
+  if (isPlaceholder) {
     return (
       <div className='min-h-screen bg-[#07080e] text-white flex items-center justify-center'>
         <div className='text-center'>
@@ -123,15 +207,9 @@ export default async function ModelOrRepairPage({ params }) {
     )
   }
 
-  const brandName =
-    brandRaw.charAt(0).toUpperCase() + brandRaw.slice(1).toLowerCase()
+  const brandName = brandRaw.charAt(0).toUpperCase() + brandRaw.slice(1).toLowerCase()
   const parsed = parseSlug(slugRaw)
-
-  const startingPrice = parsed.isRepairType
-    ? parsed.name.toLowerCase().includes('screen')
-      ? '1,999'
-      : '999'
-    : '999'
+  const startingPrice = getStartingPrice(parsed)
 
   // Core structured Schema.org JSON-LD data
   const schemaMarkup = {
@@ -174,69 +252,27 @@ export default async function ModelOrRepairPage({ params }) {
     ],
   }
 
-  // Dynamic pricing and brand/model details fetching from cs-back
-  let pricingList = []
-  let tiersList = []
-  let parsedBrandObj = {
-    name: brandName,
-    _id:
-      brandName === 'Apple'
-        ? '65f8c8577adcd9e5c544d673'
-        : '65f8c8577adcd9e5c544d674',
-    logo:
-      brandName === 'Apple'
-        ? '/images/apple-logo.png'
-        : '/images/samsung-logo.png',
+  // Fetch dynamic pricing and brand/model details
+  const initialBrandObj = buildInitialBrandObj(brandName)
+  let { parsedBrandObj, parsedModelObj, tiersList, pricingList } = {
+    parsedBrandObj: initialBrandObj,
+    parsedModelObj: null,
+    tiersList: [],
+    pricingList: [],
   }
 
-  let parsedModelObj = null
-
   try {
-    const seoData = await catalogueService.getSEOPricing({
-      brand: brandName,
-      slug: slugRaw,
-    })
-    if (seoData) {
-      if (seoData.brand) {
-        parsedBrandObj = {
-          name: seoData.brand.name || brandName,
-          _id: seoData.brand._id,
-          logo: seoData.brand.logo || parsedBrandObj.logo,
-        }
-      }
-
-      if (seoData.type === 'model' && seoData.model) {
-        parsedModelObj = {
-          name: seoData.model.name,
-          _id: seoData.model._id,
-          images: seoData.model.image
-            ? [seoData.model.image]
-            : ['/images/iphone-15.png'],
-        }
-      }
-
-      if (seoData.tiers && seoData.tiers.length > 0) {
-        tiersList = seoData.tiers
-      }
-
-      if (seoData.pricing && seoData.pricing.length > 0) {
-        pricingList = seoData.pricing.map((item) => {
-          const row = { name: item.name }
-          tiersList.forEach((t) => {
-            const price = item.prices ? item.prices[t.tier] : null
-            row[t.tier] = price
-              ? `₹${price.toLocaleString('en-IN')}`
-              : 'Estimate Required'
-          })
-          return row
-        })
-      }
-    }
+    const seoData = await catalogueService.getSEOPricing({ brand: brandName, slug: slugRaw })
+    const processed = processSeoData(seoData, brandName, initialBrandObj)
+    parsedBrandObj = processed.parsedBrandObj
+    parsedModelObj = processed.parsedModelObj
+    tiersList = processed.tiersList
+    pricingList = processed.pricingList
   } catch (error) {
     console.error('Error fetching dynamic slug SEO pricing:', error)
   }
 
-  // Fallbacks if tiersList is empty (call failed or DB empty)
+  // Fallback tiers
   if (tiersList.length === 0) {
     tiersList = [
       { tier: 'Pro', description: 'Pro Quality' },
@@ -244,68 +280,9 @@ export default async function ModelOrRepairPage({ params }) {
     ]
   }
 
-  // Fallbacks if pricingList is empty or call failed
+  // Fallback pricing rows
   if (pricingList.length === 0) {
-    if (parsed.isRepairType) {
-      pricingList = [
-        { name: `Flagship ${brandName} Series (e.g. Pro/Ultra)` },
-        { name: `Mid-Range ${brandName} Series (e.g. Plus/Neo)` },
-        { name: `Standard ${brandName} Series (e.g. base model)` },
-      ]
-      pricingList.forEach((row) => {
-        tiersList.forEach((t) => {
-          row[t.tier] =
-            t.tier === 'Original' || t.tier === 'Pro'
-              ? `₹${startingPrice}`
-              : '₹3,999'
-        })
-      })
-    } else {
-      pricingList = [
-        {
-          name: 'Screen Replacement',
-          Original: '₹6,000',
-          Pro: '₹2,499',
-          Premium: '₹4,199',
-          Compatible: '₹1,499',
-        },
-        {
-          name: 'Battery Replacement',
-          Original: '₹2,500',
-          Pro: '₹999',
-          Premium: '₹1,699',
-          Compatible: '₹799',
-        },
-        {
-          name: 'Charging Interface Repair',
-          Original: '₹1,999',
-          Pro: '₹899',
-          Premium: '₹1,499',
-          Compatible: '₹699',
-        },
-        {
-          name: 'Rear Back Panel Swap',
-          Original: '₹2,999',
-          Pro: '₹1,199',
-          Premium: '₹2,199',
-          Compatible: '₹999',
-        },
-        {
-          name: 'Camera Component Refit',
-          Original: '₹3,999',
-          Pro: '₹1,899',
-          Premium: '₹2,999',
-          Compatible: '₹1,299',
-        },
-      ]
-      pricingList.forEach((row) => {
-        tiersList.forEach((t) => {
-          if (!row[t.tier]) {
-            row[t.tier] = 'Estimate Required'
-          }
-        })
-      })
-    }
+    pricingList = buildFallbackPricing(parsed, brandName, tiersList, startingPrice)
   }
 
   return (
@@ -389,9 +366,9 @@ export default async function ModelOrRepairPage({ params }) {
             </div>
 
             <div className='divide-y divide-white/5'>
-              {pricingList.map((row, idx) => (
+              {pricingList.map((row) => (
                 <div
-                  key={idx}
+                  key={row.name}
                   className='p-6 lg:p-8 flex justify-between items-center text-xs lg:text-sm hover:bg-white/1 transition-colors'
                 >
                   <span className='font-extrabold uppercase tracking-wide text-white'>

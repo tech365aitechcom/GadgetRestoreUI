@@ -3,10 +3,7 @@
 import { useRouter } from 'next/navigation'
 import {
   Smartphone,
-  Tablet,
-  Laptop,
   ChevronRight,
-  ArrowLeft,
 } from 'lucide-react'
 import { useBooking } from '@/context/BookingContext'
 
@@ -119,7 +116,6 @@ export default function SelectCategoryPage() {
         <div className='max-w-5xl mx-auto flex justify-center'>
           <div className='grid grid-cols-1 gap-6 lg:gap-8 w-full max-w-sm'>
           {SLOTS.map((slot) => {
-            const Icon = slot.icon
             return (
               <button
                 key={slot.id}

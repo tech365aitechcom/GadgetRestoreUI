@@ -1,18 +1,11 @@
 import Script from 'next/script'
 import {
-  Smartphone,
-  Monitor,
-  Tablet,
-  Gamepad,
-  Laptop,
-  Check,
   Star,
-  MapPin,
   ShieldCheck,
-  ArrowRight,
   Clock,
 } from 'lucide-react'
 import RepairLandingClient from './RepairLandingClient'
+import PropTypes from 'prop-types'
 import catalogueService from '@/services/catalogue.service'
 
 // Server-side dynamic metadata generation for SEO
@@ -42,6 +35,10 @@ export async function generateMetadata({ params }) {
       type: 'website',
     },
   }
+}
+
+BrandRepairPage.propTypes = {
+  params: PropTypes.any.isRequired,
 }
 
 export default async function BrandRepairPage({ params }) {
@@ -295,9 +292,9 @@ export default async function BrandRepairPage({ params }) {
             </div>
 
             <div className='divide-y divide-white/5'>
-              {pricingList.map((row, idx) => (
+              {pricingList.map((row) => (
                 <div
-                  key={idx}
+                  key={row.name}
                   className='p-6 lg:p-8 flex justify-between items-center text-xs lg:text-sm hover:bg-white/1 transition-colors'
                 >
                   <span className='font-extrabold uppercase tracking-wide text-white'>

@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { ChevronLeft, ChevronRight, MoreHorizontal } from "lucide-react"
+import PropTypes from "prop-types"
 
 const Pagination = ({ className = '', ...props }) => (
   <nav
@@ -97,6 +98,14 @@ const PaginationEllipsis = ({
   </span>
 )
 PaginationEllipsis.displayName = "PaginationEllipsis"
+
+Pagination.propTypes = { className: PropTypes.string }
+PaginationContent.propTypes = { className: PropTypes.string, children: PropTypes.node }
+PaginationItem.propTypes = { className: PropTypes.string, children: PropTypes.node }
+PaginationLink.propTypes = { className: PropTypes.string, isActive: PropTypes.bool, disabled: PropTypes.bool, children: PropTypes.node }
+PaginationPrevious.propTypes = { className: PropTypes.string, disabled: PropTypes.bool }
+PaginationNext.propTypes = { className: PropTypes.string, disabled: PropTypes.bool }
+PaginationEllipsis.propTypes = { className: PropTypes.string }
 
 export {
   Pagination,

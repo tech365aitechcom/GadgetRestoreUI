@@ -2,15 +2,15 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, Bell, ShieldCheck, Box, Compass } from 'lucide-react'
+import { ShieldCheck, Box, Compass } from 'lucide-react'
 import authService from '@/services/auth.service'
 
 export default function LoginPage() {
   const router = useRouter()
   const searchParams =
-    typeof window !== 'undefined'
-      ? new URLSearchParams(window.location.search)
-      : null
+    globalThis.window === undefined
+      ? null
+      : new URLSearchParams(globalThis.window.location.search)
   const [phone, setPhone] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
@@ -18,7 +18,7 @@ export default function LoginPage() {
 
   // Store redirect URL from query params on mount
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (globalThis.window !== undefined) {
       const redirectParam = searchParams?.get('redirect')
       if (redirectParam) {
         sessionStorage.setItem('gr_redirect_after_login', redirectParam)
@@ -77,13 +77,13 @@ export default function LoginPage() {
     try {
       await authService.sendOtp(cleanMobile)
       // Store phone in session storage for the OTP page
-      if (typeof window !== 'undefined') {
+      if (globalThis.window !== undefined) {
         sessionStorage.setItem('gr_login_phone', cleanMobile)
       }
 
       // Check if there's a redirect URL from query params or session storage
       let redirectUrl = null
-      if (typeof window !== 'undefined') {
+      if (globalThis.window !== undefined) {
         // Priority: query param > session storage
         redirectUrl =
           searchParams?.get('redirect') ||
@@ -98,7 +98,7 @@ export default function LoginPage() {
       const errMsg = err.message || 'Failed to send OTP. Please try again.'
       const match = errMsg.match(/Please wait (\d+) seconds/i)
       if (match) {
-        setErrorCountdown(parseInt(match[1], 10))
+        setErrorCountdown(Number.parseInt(match[1], 10))
       } else {
         setErrorCountdown(null)
       }
@@ -141,7 +141,7 @@ export default function LoginPage() {
 
             <form onSubmit={handleSubmit}>
               <div className='mb-10'>
-                <label className='block text-[10px] font-bold text-white/50 tracking-[0.08em] mb-2 uppercase'>
+                <label htmlFor='phone-dark' className='block text-[10px] font-bold text-white/50 tracking-[0.08em] mb-2 uppercase'>
                   PHONE NUMBER
                 </label>
                 <div className='flex gap-2 items-center'>
@@ -149,6 +149,7 @@ export default function LoginPage() {
                     +91
                   </div>
                   <input
+                    id='phone-dark'
                     type='tel'
                     value={phone}
                     onChange={handlePhoneChange}
@@ -254,7 +255,7 @@ export default function LoginPage() {
 
             <form onSubmit={handleSubmit}>
               <div className='mb-6'>
-                <label className='block text-[9.5px] font-bold text-[#000000] tracking-[0.12em] mb-2 uppercase'>
+                <label htmlFor='phone-light' className='block text-[9.5px] font-bold text-[#000000] tracking-[0.12em] mb-2 uppercase'>
                   PHONE NUMBER
                 </label>
                 <div className='flex gap-2 items-center'>
@@ -262,6 +263,7 @@ export default function LoginPage() {
                     +91
                   </div>
                   <input
+                    id='phone-light'
                     type='tel'
                     value={phone}
                     onChange={handlePhoneChange}

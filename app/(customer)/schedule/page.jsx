@@ -6,6 +6,202 @@ import { ArrowLeft, ChevronDown } from 'lucide-react'
 import { useBooking } from '@/context/BookingContext'
 import slotService from '@/services/slot.service'
 import serviceCentreService from '@/services/serviceCentre.service'
+import PropTypes from 'prop-types'
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+/** Normalises a raw slot object from the API into { time, available }. */
+function parseSlot(s) {
+  return {
+    time: s.startTime && s.endTime ? `${s.startTime} - ${s.endTime}` : (s.startTime || s.time),
+    available: s.isAvailable === undefined ? s.available : s.isAvailable,
+  }
+}
+
+/** Converts the raw API response map into a sorted array of { date, slots[] }. */
+function parseAvailableDates(data) {
+  const parsed = Object.entries(data).map(([dateStr, slots]) => ({
+    date: dateStr,
+    slots: slots.map(parseSlot),
+  }))
+  parsed.sort((a, b) => new Date(a.date) - new Date(b.date))
+  return parsed
+}
+
+// ── Sub-components ────────────────────────────────────────────────────────────
+
+function ServiceCentreOption({ sc, isSelected, onSelect }) {
+  return (
+    <button
+      key={sc._id}
+      type="button"
+      onClick={onSelect}
+      className='w-full text-left p-4 last:border-none cursor-pointer transition-colors block'
+      style={{
+        borderBottom: '1px solid var(--color-content-border)',
+        background: isSelected ? 'var(--color-content-bg)' : 'transparent',
+      }}
+    >
+      <h4 className='text-sm font-extrabold' style={{ color: 'var(--color-content-text)' }}>
+        {sc.name}
+      </h4>
+      <p className='text-xs mt-1' style={{ color: 'var(--color-content-text-secondary)' }}>
+        {sc.address?.city || 'Service Center'}
+      </p>
+    </button>
+  )
+}
+
+ServiceCentreOption.propTypes = {
+  sc: PropTypes.object.isRequired,
+  isSelected: PropTypes.bool.isRequired,
+  onSelect: PropTypes.func.isRequired,
+}
+
+function DesktopServiceCentreOption({ sc, isSelected, onSelect }) {
+  return (
+    <button
+      key={sc._id}
+      type="button"
+      onClick={onSelect}
+      className='w-full text-left p-4 last:border-none cursor-pointer transition-colors flex items-center gap-4 block'
+      style={{
+        borderBottom: '1px solid var(--color-content-border)',
+        background: isSelected ? 'var(--color-content-bg)' : 'transparent',
+      }}
+    >
+      <div className='w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0' style={{ background: 'var(--color-content-bg)' }}>
+        <span style={{ color: 'var(--color-content-text)' }} className='font-bold text-[10px]'>GR</span>
+      </div>
+      <div className='flex-1 text-left'>
+        <h4 className='text-sm font-extrabold' style={{ color: 'var(--color-content-text)' }}>
+          {sc.name}
+        </h4>
+        <p className='text-[11px] mt-0.5' style={{ color: 'var(--color-content-text-secondary)' }}>
+          {sc.address?.city || 'Service Center'}
+        </p>
+      </div>
+    </button>
+  )
+}
+
+DesktopServiceCentreOption.propTypes = {
+  sc: PropTypes.object.isRequired,
+  isSelected: PropTypes.bool.isRequired,
+  onSelect: PropTypes.func.isRequired,
+}
+
+function MobileDateButton({ d, isSelected, onSelect }) {
+  const dj = new Date(d.date)
+  const dayLabel = dj.toLocaleDateString('en-US', { weekday: 'short' })
+  const dateLabel = dj.toLocaleDateString('en-US', { day: '2-digit' })
+  const monthLabel = dj.toLocaleDateString('en-US', { month: 'short' })
+
+  return (
+    <button
+      key={d.date}
+      onClick={onSelect}
+      className={`flex-shrink-0 w-[72px] py-3 rounded-2xl flex flex-col items-center justify-center transition-all ${isSelected
+        ? 'shadow-lg scale-[1.02]'
+        : 'shadow-sm'
+        }`}
+      style={{
+        background: 'var(--color-content-card)',
+        border: isSelected ? '1px solid var(--color-content-text)' : '1px solid var(--color-content-border)',
+      }}
+    >
+      <span className='text-[11px] font-bold' style={{ color: 'var(--color-content-text-secondary)' }}>{dayLabel}</span>
+      <span className='text-2xl font-black mt-0.5 mb-0.5' style={{ color: 'var(--color-content-text)' }}>{dateLabel}</span>
+      <span className='text-[11px] font-bold' style={{ color: 'var(--color-content-text-secondary)' }}>{monthLabel}</span>
+    </button>
+  )
+}
+
+MobileDateButton.propTypes = {
+  d: PropTypes.object.isRequired,
+  isSelected: PropTypes.bool.isRequired,
+  onSelect: PropTypes.func.isRequired,
+}
+
+function MobileTimeSlotButton({ t, isSelected, onSelect }) {
+  const isAvailable = t.available !== false
+
+  let buttonStyle = {
+    border: '1px solid var(--color-content-border)',
+    background: 'var(--color-content-bg)',
+    borderColor: 'transparent',
+    color: 'var(--color-content-border)',
+    cursor: 'not-allowed',
+    opacity: 0.4,
+  }
+
+  if (isAvailable) {
+    buttonStyle = {
+      ...buttonStyle,
+      background: 'var(--color-content-card)',
+      borderColor: isSelected ? 'var(--color-content-text)' : 'var(--color-content-border)',
+      color: isSelected ? 'var(--color-content-text)' : 'var(--color-content-text-secondary)',
+      cursor: 'pointer',
+      opacity: 1,
+    }
+  }
+
+  return (
+    <button
+      key={t.time}
+      disabled={!isAvailable}
+      onClick={onSelect}
+      className='h-[52px] rounded-2xl text-xs font-bold transition-all'
+      style={buttonStyle}
+    >
+      {t.time}
+    </button>
+  )
+}
+
+MobileTimeSlotButton.propTypes = {
+  t: PropTypes.object.isRequired,
+  isSelected: PropTypes.bool.isRequired,
+  onSelect: PropTypes.func.isRequired,
+}
+
+function DesktopTimeSlotButton({ t, isSelected, onSelect }) {
+  const isAvailable = t.available !== false
+
+  let background = 'var(--color-content-bg)'
+  let borderColor = 'transparent'
+  let color = 'var(--color-content-border)'
+
+  if (isAvailable) {
+    background = isSelected ? 'var(--color-content-text)' : 'var(--theme-bg-300)'
+    borderColor = isSelected ? 'var(--color-content-text)' : 'transparent'
+    color = isSelected ? 'var(--color-content-bg)' : 'var(--color-content-text-secondary)'
+  }
+
+  return (
+    <button
+      key={t.time}
+      disabled={!isAvailable}
+      onClick={onSelect}
+      className='h-14 rounded-xl text-xs font-bold transition-all border-2'
+      style={{
+        background,
+        borderColor,
+        color,
+        cursor: isAvailable ? 'pointer' : 'not-allowed',
+        opacity: isAvailable ? 1 : 0.4,
+      }}
+    >
+      {t.time}
+    </button>
+  )
+}
+
+DesktopTimeSlotButton.propTypes = {
+  t: PropTypes.object.isRequired,
+  isSelected: PropTypes.bool.isRequired,
+  onSelect: PropTypes.func.isRequired,
+}
 
 // ── Custom Desktop Calendar Picker ───────────────────────────────────────────
 function DesktopCalendar({ selectedDate, setSelectedDate, availableDates, setSelectedTimeSlot, setError, isLoading }) {
@@ -31,7 +227,7 @@ function DesktopCalendar({ selectedDate, setSelectedDate, availableDates, setSel
 
   const days = []
   for (let i = 0; i < firstDay; i++) {
-    days.push(null)
+    days.push(`empty-${i}`)
   }
   for (let i = 1; i <= daysInMonth; i++) {
     days.push(new Date(currentMonth.getFullYear(), currentMonth.getMonth(), i))
@@ -39,13 +235,16 @@ function DesktopCalendar({ selectedDate, setSelectedDate, availableDates, setSel
 
   const monthName = currentMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
 
-  // Today's date string for past-date detection
-  const todayStr = (() => {
-    const t = new Date()
-    return `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`
-  })()
+  const t = new Date()
+  const todayStr = `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`
 
   const GAP = 8
+
+  const handleDayClick = (dateStr) => {
+    setSelectedDate(dateStr)
+    setSelectedTimeSlot(null)
+    setError('')
+  }
 
   return (
     <div className='w-full flex justify-start'>
@@ -98,16 +297,16 @@ function DesktopCalendar({ selectedDate, setSelectedDate, availableDates, setSel
           {/* Date cells — responsive aspect-ratio squares */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: GAP, width: '100%' }}>
             {isLoading ? (
-              Array.from({ length: 35 }).map((_, idx) => (
+              Array.from({ length: 35 }, (_, i) => `cal-skel-${i}`).map((key) => (
                 <div
-                  key={`skeleton-${idx}`}
+                  key={key}
                   className='animate-pulse'
                   style={{ width: '100%', aspectRatio: '1', borderRadius: 7, background: 'var(--theme-bg-400)', opacity: 0.35 }}
                 />
               ))
             ) : (
-              days.map((day, idx) => {
-                if (!day) return <div key={`empty-${idx}`} style={{ width: '100%', aspectRatio: '1' }} />
+              days.map((day) => {
+                if (typeof day === 'string') return <div key={day} style={{ width: '100%', aspectRatio: '1' }} />
 
                 const year = day.getFullYear()
                 const month = String(day.getMonth() + 1).padStart(2, '0')
@@ -133,7 +332,6 @@ function DesktopCalendar({ selectedDate, setSelectedDate, availableDates, setSel
                   border = '1px solid var(--color-content-text)'
                   cursor = 'pointer'
                 } else if (isPast) {
-                  color = 'var(--theme-text-muted)'
                   opacity = 0.35
                 } else if (hasSlots) {
                   bg = 'var(--theme-bg-300)'
@@ -154,13 +352,7 @@ function DesktopCalendar({ selectedDate, setSelectedDate, availableDates, setSel
                     key={dateStr}
                     type='button'
                     disabled={isDisabled}
-                    onClick={() => {
-                      if (!isDisabled) {
-                        setSelectedDate(dateStr)
-                        setSelectedTimeSlot(null)
-                        setError('')
-                      }
-                    }}
+                    onClick={() => handleDayClick(dateStr)}
                     style={{
                       width: '100%',
                       aspectRatio: '1',
@@ -196,6 +388,15 @@ function DesktopCalendar({ selectedDate, setSelectedDate, availableDates, setSel
       </div>
     </div>
   )
+}
+
+DesktopCalendar.propTypes = {
+  selectedDate: PropTypes.string,
+  setSelectedDate: PropTypes.func.isRequired,
+  availableDates: PropTypes.array.isRequired,
+  setSelectedTimeSlot: PropTypes.func.isRequired,
+  setError: PropTypes.func.isRequired,
+  isLoading: PropTypes.bool.isRequired,
 }
 
 // ── Main Page Component ──────────────────────────────────────────────────────
@@ -241,25 +442,11 @@ export default function SchedulePage() {
 
         const data = await slotService.getAvailableSlotsForNextDays(30, selectedServiceCentre._id)
         if (data && typeof data === 'object') {
-          const parsedDates = Object.entries(data).map(([dateStr, slots]) => {
-            return {
-              date: dateStr,
-              slots: slots.map((s) => ({
-                time: s.startTime && s.endTime ? `${s.startTime} - ${s.endTime}` : (s.startTime || s.time),
-                available: s.isAvailable !== undefined ? s.isAvailable : s.available,
-              })),
-            }
-          })
-
-          parsedDates.sort((a, b) => new Date(a.date) - new Date(b.date))
+          const parsedDates = parseAvailableDates(data)
           setAvailableDates(parsedDates)
 
           if (!parsedDates.some(d => d.date === selectedDate)) {
-            if (parsedDates.length > 0) {
-              setSelectedDate(parsedDates[0].date)
-            } else {
-              setSelectedDate(null)
-            }
+            setSelectedDate(parsedDates.length > 0 ? parsedDates[0].date : null)
             setSelectedTimeSlot(null)
           }
         }
@@ -287,8 +474,58 @@ export default function SchedulePage() {
     }
   }
 
+  const handleMobileDateSelect = (date) => {
+    setSelectedDate(date)
+    setSelectedTimeSlot(null)
+    setError('')
+  }
+
+  const handleTimeSlotSelect = (time) => {
+    setSelectedTimeSlot(time)
+    setError('')
+  }
+
+  const handleMobileServiceCentreSelect = (sc) => {
+    setSelectedServiceCentre(sc)
+    setIsMobileDropdownOpen(false)
+  }
+
+  const handleDesktopServiceCentreSelect = (sc) => {
+    setSelectedServiceCentre(sc)
+    setIsDesktopDropdownOpen(false)
+  }
+
   const selectedDateObj = availableDates.find((d) => d.date === selectedDate)
   const timeSlots = selectedDateObj?.slots || []
+
+  const renderMobileTimeSlots = () => {
+    if (isLoading) {
+      return (
+        <>
+          {['sk-mob-1', 'sk-mob-2', 'sk-mob-3', 'sk-mob-4'].map(key => (
+            <div key={key} className="skeleton h-[52px] rounded-2xl animate-pulse bg-gray-200" />
+          ))}
+        </>
+      )
+    }
+
+    if (timeSlots.length > 0) {
+      return timeSlots.map((t) => (
+        <MobileTimeSlotButton
+          key={t.time}
+          t={t}
+          isSelected={selectedTimeSlot === t.time}
+          onSelect={() => handleTimeSlotSelect(t.time)}
+        />
+      ))
+    }
+
+    return (
+      <div className='col-span-2 text-center text-sm py-4' style={{ color: 'var(--color-content-text-secondary)' }}>
+        No slots available for this date.
+      </div>
+    )
+  }
 
   return (
     <div className='schedule-page-shell'>
@@ -320,36 +557,14 @@ export default function SchedulePage() {
               Select Date
             </h3>
             <div className='flex overflow-x-auto gap-3 px-5 p-2 -m-2 pb-2 scrollbar-hide'>
-              {availableDates.map((d, idx) => {
-                const isSelected = d.date === selectedDate
-                const dj = new Date(d.date)
-                const dayLabel = dj.toLocaleDateString('en-US', { weekday: 'short' })
-                const dateLabel = dj.toLocaleDateString('en-US', { day: '2-digit' })
-                const monthLabel = dj.toLocaleDateString('en-US', { month: 'short' })
-
-                return (
-                  <button
-                    key={idx}
-                    onClick={() => {
-                      setSelectedDate(d.date)
-                      setSelectedTimeSlot(null)
-                      setError('')
-                    }}
-                    className={`flex-shrink-0 w-[72px] py-3 rounded-2xl flex flex-col items-center justify-center transition-all ${isSelected
-                      ? 'shadow-lg scale-[1.02]'
-                      : 'shadow-sm'
-                      }`}
-                    style={{
-                      background: 'var(--color-content-card)',
-                      border: isSelected ? '1px solid var(--color-content-text)' : '1px solid var(--color-content-border)',
-                    }}
-                  >
-                    <span className='text-[11px] font-bold' style={{ color: 'var(--color-content-text-secondary)' }}>{dayLabel}</span>
-                    <span className='text-2xl font-black mt-0.5 mb-0.5' style={{ color: 'var(--color-content-text)' }}>{dateLabel}</span>
-                    <span className='text-[11px] font-bold' style={{ color: 'var(--color-content-text-secondary)' }}>{monthLabel}</span>
-                  </button>
-                )
-              })}
+              {availableDates.map((d) => (
+                <MobileDateButton
+                  key={d.date}
+                  d={d}
+                  isSelected={d.date === selectedDate}
+                  onSelect={() => handleMobileDateSelect(d.date)}
+                />
+              ))}
             </div>
           </div>
 
@@ -359,55 +574,7 @@ export default function SchedulePage() {
               Select Time Slot
             </h3>
             <div className='grid grid-cols-2 gap-3'>
-              {isLoading ? (
-                <>
-                  {[0, 1, 2, 3].map(i => (
-                    <div key={i} className="skeleton h-[52px] rounded-2xl animate-pulse bg-gray-200" />
-                  ))}
-                </>
-              ) : timeSlots.length > 0 ? (
-                timeSlots.map((t, idx) => {
-                  const isSelected = selectedTimeSlot === t.time
-                  const isAvailable = t.available !== false
-                  return (
-                    <button
-                      key={idx}
-                      disabled={!isAvailable}
-                      onClick={() => {
-                        setSelectedTimeSlot(t.time)
-                        setError('')
-                      }}
-                      className='h-[52px] rounded-2xl text-xs font-bold transition-all'
-                      style={{
-                        border: '1px solid var(--color-content-border)',
-                        background: !isAvailable
-                          ? 'var(--color-content-bg)'
-                          : isSelected
-                            ? 'var(--color-content-card)'
-                            : 'var(--color-content-card)',
-                        borderColor: !isAvailable
-                          ? 'transparent'
-                          : isSelected
-                            ? 'var(--color-content-text)'
-                            : 'var(--color-content-border)',
-                        color: !isAvailable
-                          ? 'var(--color-content-border)'
-                          : isSelected
-                            ? 'var(--color-content-text)'
-                            : 'var(--color-content-text-secondary)',
-                        cursor: !isAvailable ? 'not-allowed' : 'pointer',
-                        opacity: !isAvailable ? 0.4 : 1,
-                      }}
-                    >
-                      {t.time}
-                    </button>
-                  )
-                })
-              ) : (
-                <div className='col-span-2 text-center text-sm py-4' style={{ color: 'var(--color-content-text-secondary)' }}>
-                  No slots available for this date.
-                </div>
-              )}
+              {renderMobileTimeSlots()}
             </div>
           </div>
 
@@ -417,12 +584,13 @@ export default function SchedulePage() {
               Shop / Service Center
             </h3>
             <div className='relative'>
-              <div
+              <button
+                type="button"
                 onClick={() => setIsMobileDropdownOpen(!isMobileDropdownOpen)}
-                className='rounded-2xl p-4 flex items-center justify-between shadow-sm cursor-pointer'
+                className='w-full text-left rounded-2xl p-4 flex items-center justify-between shadow-sm cursor-pointer'
                 style={{ background: 'var(--color-content-card)', border: '1px solid var(--color-content-border)' }}
               >
-                <div>
+                <div className='text-left'>
                   <h4 className='text-sm font-extrabold' style={{ color: 'var(--color-content-text)' }}>
                     {selectedServiceCentre ? selectedServiceCentre.name : 'Loading...'}
                   </h4>
@@ -431,32 +599,24 @@ export default function SchedulePage() {
                   </p>
                 </div>
                 <ChevronDown size={18} color='#999' className={`transition-transform ${isMobileDropdownOpen ? 'rotate-180' : ''}`} />
-              </div>
+              </button>
 
               {isMobileDropdownOpen && (
                 <>
-                  <div className="fixed inset-0 z-40" onClick={() => setIsMobileDropdownOpen(false)} />
+                  <button
+                    type="button"
+                    className="fixed inset-0 z-40 w-full cursor-default bg-transparent border-none"
+                    aria-label="Close dropdown"
+                    onClick={() => setIsMobileDropdownOpen(false)}
+                  />
                   <div className="absolute top-full left-0 w-full mt-2 rounded-2xl shadow-2xl z-50 overflow-hidden flex flex-col max-h-[240px] overflow-y-auto" style={{ background: 'var(--color-content-card)', border: '1px solid var(--color-content-border)' }}>
                     {serviceCentres.map((sc) => (
-                      <div
+                      <ServiceCentreOption
                         key={sc._id}
-                        onClick={() => {
-                          setSelectedServiceCentre(sc)
-                          setIsMobileDropdownOpen(false)
-                        }}
-                        className='p-4 last:border-none cursor-pointer transition-colors'
-                        style={{
-                          borderBottom: '1px solid var(--color-content-border)',
-                          background: selectedServiceCentre?._id === sc._id ? 'var(--color-content-bg)' : 'transparent',
-                        }}
-                      >
-                        <h4 className='text-sm font-extrabold' style={{ color: 'var(--color-content-text)' }}>
-                          {sc.name}
-                        </h4>
-                        <p className='text-xs mt-1' style={{ color: 'var(--color-content-text-secondary)' }}>
-                          {sc.address?.city || 'Service Center'}
-                        </p>
-                      </div>
+                        sc={sc}
+                        isSelected={selectedServiceCentre?._id === sc._id}
+                        onSelect={() => handleMobileServiceCentreSelect(sc)}
+                      />
                     ))}
                   </div>
                 </>
@@ -533,50 +693,24 @@ export default function SchedulePage() {
                   }}
                 >
                   <div className='grid grid-cols-4 gap-3 w-full'>
-                    {isLoading ? (
+                    {isLoading && (
                       <>
-                        {[0, 1, 2, 3].map(i => (
-                          <div key={i} className="skeleton h-14 rounded-xl animate-pulse bg-gray-200" />
+                        {['sk-desk-1', 'sk-desk-2', 'sk-desk-3', 'sk-desk-4'].map(key => (
+                          <div key={key} className="skeleton h-14 rounded-xl animate-pulse bg-gray-200" />
                         ))}
                       </>
-                    ) : timeSlots.length > 0 ? (
-                      timeSlots.map((t, idx) => {
-                        const isSelected = selectedTimeSlot === t.time
-                        const isAvailable = t.available !== false
-                        return (
-                          <button
-                            key={idx}
-                            disabled={!isAvailable}
-                            onClick={() => {
-                              setSelectedTimeSlot(t.time)
-                              setError('')
-                            }}
-                            className='h-14 rounded-xl text-xs font-bold transition-all border-2'
-                            style={{
-                              background: !isAvailable
-                                ? 'var(--color-content-bg)'
-                                : isSelected
-                                  ? 'var(--color-content-text)'
-                                  : 'var(--theme-bg-300)',
-                              borderColor: !isAvailable
-                                ? 'transparent'
-                                : isSelected
-                                  ? 'var(--color-content-text)'
-                                  : 'transparent',
-                              color: !isAvailable
-                                ? 'var(--color-content-border)'
-                                : isSelected
-                                  ? 'var(--color-content-bg)'
-                                  : 'var(--color-content-text-secondary)',
-                              cursor: !isAvailable ? 'not-allowed' : 'pointer',
-                              opacity: !isAvailable ? 0.4 : 1,
-                            }}
-                          >
-                            {t.time}
-                          </button>
-                        )
-                      })
-                    ) : (
+                    )}
+
+                    {!isLoading && timeSlots.length > 0 && timeSlots.map((t) => (
+                      <DesktopTimeSlotButton
+                        key={t.time}
+                        t={t}
+                        isSelected={selectedTimeSlot === t.time}
+                        onSelect={() => handleTimeSlotSelect(t.time)}
+                      />
+                    ))}
+
+                    {!isLoading && timeSlots.length === 0 && (
                       <div className='col-span-2 text-left text-sm py-4' style={{ color: 'var(--color-content-text-secondary)' }}>
                         No slots available for this date.
                       </div>
@@ -603,15 +737,16 @@ export default function SchedulePage() {
               </h3>
 
               <div className='relative mb-6'>
-                <div
+                <button
+                  type="button"
                   onClick={() => setIsDesktopDropdownOpen(!isDesktopDropdownOpen)}
-                  className='rounded-2xl p-4 flex items-center gap-4 shadow-sm cursor-pointer transition-colors'
+                  className='w-full text-left rounded-2xl p-4 flex items-center gap-4 shadow-sm cursor-pointer transition-colors'
                   style={{ background: 'var(--color-content-card)', border: '1px solid var(--color-content-border)' }}
                 >
                   <div className='w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0' style={{ background: 'var(--color-content-bg)' }}>
                     <span style={{ color: 'var(--color-content-text)' }} className='font-bold text-xs'>GR</span>
                   </div>
-                  <div className='flex-1'>
+                  <div className='flex-1 text-left'>
                     <h4 className='text-sm font-extrabold' style={{ color: 'var(--color-content-text)' }}>
                       {selectedServiceCentre ? selectedServiceCentre.name : 'Loading...'}
                     </h4>
@@ -620,37 +755,24 @@ export default function SchedulePage() {
                     </p>
                   </div>
                   <ChevronDown size={20} color='var(--color-content-text-secondary)' className={`transition-transform ${isDesktopDropdownOpen ? 'rotate-180' : ''}`} />
-                </div>
+                </button>
 
                 {isDesktopDropdownOpen && (
                   <>
-                    <div className="fixed inset-0 z-40" onClick={() => setIsDesktopDropdownOpen(false)} />
+                    <button
+                      type="button"
+                      className="fixed inset-0 z-40 w-full cursor-default bg-transparent border-none"
+                      aria-label="Close dropdown"
+                      onClick={() => setIsDesktopDropdownOpen(false)}
+                    />
                     <div className="absolute top-full left-0 w-full mt-2 rounded-2xl shadow-2xl z-50 overflow-hidden flex flex-col max-h-[300px] overflow-y-auto" style={{ background: 'var(--color-content-card)', border: '1px solid var(--color-content-border)' }}>
                       {serviceCentres.map((sc) => (
-                        <div
+                        <DesktopServiceCentreOption
                           key={sc._id}
-                          onClick={() => {
-                            setSelectedServiceCentre(sc)
-                            setIsDesktopDropdownOpen(false)
-                          }}
-                          className='p-4 last:border-none cursor-pointer transition-colors flex items-center gap-4'
-                          style={{
-                            borderBottom: '1px solid var(--color-content-border)',
-                            background: selectedServiceCentre?._id === sc._id ? 'var(--color-content-bg)' : 'transparent',
-                          }}
-                        >
-                          <div className='w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0' style={{ background: 'var(--color-content-bg)' }}>
-                            <span style={{ color: 'var(--color-content-text)' }} className='font-bold text-[10px]'>GR</span>
-                          </div>
-                          <div className='flex-1'>
-                            <h4 className='text-sm font-extrabold' style={{ color: 'var(--color-content-text)' }}>
-                              {sc.name}
-                            </h4>
-                            <p className='text-[11px] mt-0.5' style={{ color: 'var(--color-content-text-secondary)' }}>
-                              {sc.address?.city || 'Service Center'}
-                            </p>
-                          </div>
-                        </div>
+                          sc={sc}
+                          isSelected={selectedServiceCentre?._id === sc._id}
+                          onSelect={() => handleDesktopServiceCentreSelect(sc)}
+                        />
                       ))}
                     </div>
                   </>

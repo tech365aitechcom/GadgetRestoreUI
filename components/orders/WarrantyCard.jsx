@@ -3,6 +3,35 @@
 import { useState } from 'react';
 import { Download, Share2, ShieldCheck } from 'lucide-react';
 import orderService from '@/services/order.service';
+import PropTypes from 'prop-types';
+
+WarrantyCard.propTypes = {
+  ticketNumber: PropTypes.string.isRequired,
+  warranty: PropTypes.shape({
+    device: PropTypes.string,
+    orderReference: PropTypes.string,
+    startDate: PropTypes.string,
+    expiryDate: PropTypes.string,
+    durationDays: PropTypes.number,
+    terms: PropTypes.string,
+    coverage: PropTypes.arrayOf(PropTypes.string),
+    exclusions: PropTypes.arrayOf(PropTypes.string),
+    claimContact: PropTypes.shape({
+      phone: PropTypes.string,
+      email: PropTypes.string,
+    }),
+    repairs: PropTypes.arrayOf(
+      PropTypes.shape({
+        repairType: PropTypes.string,
+        description: PropTypes.string,
+        partTier: PropTypes.string,
+        warrantyDays: PropTypes.number,
+        warrantyStartDate: PropTypes.string,
+        warrantyEndDate: PropTypes.string,
+      })
+    ),
+  }),
+};
 
 function formatDate(value) {
   if (!value) return '-';
@@ -26,7 +55,8 @@ export default function WarrantyCard({ ticketNumber, warranty }) {
     setError('');
     try {
       await orderService.downloadWarranty(ticketNumber);
-    } catch (_) {
+    } catch (error) {
+      console.error('Download warranty error:', error);
       setError('Unable to download the warranty card right now.');
     } finally {
       setDownloading(false);
@@ -106,6 +136,11 @@ export default function WarrantyCard({ ticketNumber, warranty }) {
   );
 }
 
+Field.propTypes = {
+  label: PropTypes.string.isRequired,
+  value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+};
+
 function Field({ label, value }) {
   return (
     <div>
@@ -114,6 +149,11 @@ function Field({ label, value }) {
     </div>
   );
 }
+
+TermList.propTypes = {
+  title: PropTypes.string.isRequired,
+  values: PropTypes.arrayOf(PropTypes.string),
+};
 
 function TermList({ title, values = [] }) {
   if (!values.length) return null;

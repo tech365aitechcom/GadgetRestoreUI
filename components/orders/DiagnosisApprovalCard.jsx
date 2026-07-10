@@ -3,10 +3,38 @@
 import { useState } from 'react';
 import { IndianRupee, PhoneCall } from 'lucide-react';
 import orderService from '@/services/order.service';
+import PropTypes from 'prop-types';
 
 function formatAmount(amount) {
   return Number(amount || 0).toLocaleString('en-IN');
 }
+
+DiagnosisApprovalCard.propTypes = {
+  ticketNumber: PropTypes.string.isRequired,
+  approval: PropTypes.shape({
+    canApprove: PropTypes.bool,
+    diagnosis: PropTypes.shape({
+      cost: PropTypes.shape({
+        original: PropTypes.number,
+        final: PropTypes.number,
+        isRevised: PropTypes.bool,
+      }),
+      revisionReason: PropTypes.string,
+      findings: PropTypes.string,
+      pricingItems: PropTypes.arrayOf(
+        PropTypes.shape({
+          description: PropTypes.string,
+          totalCost: PropTypes.number,
+          partCost: PropTypes.number,
+          labourCost: PropTypes.number,
+        })
+      ),
+      advancePaymentRequired: PropTypes.bool,
+      advancePaymentRecommended: PropTypes.bool,
+    }),
+  }),
+  onUpdated: PropTypes.func.isRequired,
+};
 
 export default function DiagnosisApprovalCard({ ticketNumber, approval, onUpdated }) {
   const [busy, setBusy] = useState('');
@@ -107,6 +135,12 @@ export default function DiagnosisApprovalCard({ ticketNumber, approval, onUpdate
     </div>
   );
 }
+
+Price.propTypes = {
+  label: PropTypes.string.isRequired,
+  value: PropTypes.number,
+  emphasized: PropTypes.bool,
+};
 
 function Price({ label, value, emphasized = false }) {
   return (

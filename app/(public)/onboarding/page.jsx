@@ -41,6 +41,7 @@ export default function OnboardingPage() {
         const { value } = await Preferences.get({ key: 'has_seen_onboarding' });
         hasSeen = value || 'false';
       } catch (e) {
+        console.warn('Failed to read onboarding preference:', e);
         hasSeen = 'false';
       }
 
@@ -72,8 +73,9 @@ export default function OnboardingPage() {
     try {
       await Preferences.set({ key: 'has_seen_onboarding', value: 'true' });
     } catch (e) {
+      console.warn('Failed to set onboarding preference:', e);
       // Fallback for browser storage
-      if (typeof window !== 'undefined') {
+      if (globalThis.window !== undefined) {
         localStorage.setItem('has_seen_onboarding', 'true');
       }
     }

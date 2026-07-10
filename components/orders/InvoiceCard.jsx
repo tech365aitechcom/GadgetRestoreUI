@@ -3,6 +3,20 @@
 import { useState } from 'react';
 import { CheckCircle2, Clock3, Download, FileText } from 'lucide-react';
 import orderService from '@/services/order.service';
+import PropTypes from 'prop-types';
+
+InvoiceCard.propTypes = {
+  ticketNumber: PropTypes.string.isRequired,
+  invoice: PropTypes.shape({
+    invoiceNumber: PropTypes.string,
+    paymentMethod: PropTypes.string,
+    pricing: PropTypes.shape({
+      grandTotal: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+      advancePayment: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+      balanceDue: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    }),
+  }),
+};
 
 export default function InvoiceCard({ ticketNumber, invoice }) {
   const [downloading, setDownloading] = useState('');
@@ -13,7 +27,8 @@ export default function InvoiceCard({ ticketNumber, invoice }) {
     setError('');
     try {
       await orderService.downloadConfirmation(ticketNumber);
-    } catch (_) {
+    } catch (error) {
+      console.error('Download confirmation error:', error);
       setError('Unable to download order confirmation right now.');
     } finally {
       setDownloading('');
@@ -25,7 +40,8 @@ export default function InvoiceCard({ ticketNumber, invoice }) {
     setError('');
     try {
       await orderService.downloadInvoice(ticketNumber);
-    } catch (_) {
+    } catch (error) {
+      console.error('Download invoice error:', error);
       setError('Unable to download final invoice right now.');
     } finally {
       setDownloading('');
@@ -78,6 +94,15 @@ export default function InvoiceCard({ ticketNumber, invoice }) {
   );
 }
 
+DocumentRow.propTypes = {
+  title: PropTypes.string.isRequired,
+  description: PropTypes.string.isRequired,
+  ready: PropTypes.bool,
+  buttonText: PropTypes.string,
+  onDownload: PropTypes.func,
+  disabled: PropTypes.bool,
+};
+
 function DocumentRow({ title, description, ready = false, buttonText, onDownload, disabled }) {
   return (
     <div className="bg-[var(--theme-card-darker)] border border-[var(--theme-border)] rounded-xl p-4">
@@ -99,6 +124,11 @@ function DocumentRow({ title, description, ready = false, buttonText, onDownload
     </div>
   );
 }
+
+InvoiceValue.propTypes = {
+  label: PropTypes.string.isRequired,
+  value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+};
 
 function InvoiceValue({ label, value }) {
   return (

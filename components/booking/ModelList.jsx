@@ -4,12 +4,21 @@ import { useState, useMemo } from 'react'
 import { Search } from 'lucide-react'
 import OptimizedImage from '@/components/ui/OptimizedImage'
 import { useBooking } from '@/context/BookingContext';
+import PropTypes from 'prop-types';
 
 /* ══════════════════════════════════════════════════════════════════════════
    MODEL LIST / GRID
    Requirements: 2-col mobile, 4–5 col desktop. Image + name + model number.
    Search filters in real time (<300ms). 
    ══════════════════════════════════════════════════════════════════════════ */
+ModelList.propTypes = {
+  models: PropTypes.array,
+  brandName: PropTypes.string,
+  isLoading: PropTypes.bool,
+  onSelectModel: PropTypes.func.isRequired,
+  selectedModelId: PropTypes.string,
+}
+
 export default function ModelList({
   models = [],
   brandName = '',
@@ -25,7 +34,7 @@ export default function ModelList({
     return models.filter(
       (m) =>
         m.name.toLowerCase().includes(q) ||
-        (m.modelNumber && m.modelNumber.toLowerCase().includes(q)) ||
+        m.modelNumber?.toLowerCase().includes(q) ||
         (m.index && String(m.index).toLowerCase().includes(q)),
     )
   }, [models, search])
@@ -76,8 +85,8 @@ export default function ModelList({
             gap: 20,
           }}
         >
-          {Array.from({ length: 8 }).map((_, i) => (
-            <div key={i} className='skeleton model-grid-skeleton' />
+          {['sk-0','sk-1','sk-2','sk-3','sk-4','sk-5','sk-6','sk-7'].map((skKey) => (
+            <div key={skKey} className='skeleton model-grid-skeleton' />
           ))}
         </div>
       )}

@@ -38,140 +38,123 @@
   /* ── Extended Palette — Background shades ─────────────────────────────────
      Bridged to theme.js where the value differs between dark and light.
      Fixed tokens (same in both themes) keep their literal value.           */
-  --color-bg-base: #000000; /* fixed: pure black (phone icon bg, editorial) */
-  --color-bg-900: var(
-    --theme-bg-900
-  ); /* page-wrapper bg: dark=#0a0a0a, light=#f5f5f7 */
-  --color-bg-600: var(
-    --theme-bg-600
-  ); /* card-face bg:    dark=#141414, light=#f0f0f0 */
-  --color-bg-500: var(
-    --theme-input-bg
-  ); /* input field bg:  dark=rgba(fff,0.04), light=#f8f8f8 */
-  --color-bg-500-alt: var(--theme-input-bg); /* input tint (same as input-bg) */
-  --color-bg-400: var(
-    --theme-bg-400
-  ); /* border/divider:  dark=#222222, light=#e0e0e0 */
-  --color-bg-300: var(
-    --theme-bg-300
-  ); /* banner bg:       dark=#2b2b2b, light=#e8e8e8 */
-  --color-bg-200: var(
-    --theme-bg-200
-  ); /* strong border:   dark=#333333, light=#d0d0d0 */
-  --color-bg-100: var(
-    --theme-bg-100
-  ); /* muted pill bg:   dark=#555555, light=#909090 */
+  --color-bg-base: #000000;
+  /* fixed: pure black (phone icon bg, editorial) */
+  --color-bg-900: var(--theme-bg-900);
+  /* page-wrapper bg: dark=#0a0a0a, light=#f5f5f7 */
+  --color-bg-600: var(--theme-bg-600);
+  /* card-face bg:    dark=#141414, light=#f0f0f0 */
+  --color-bg-500: var(--theme-input-bg);
+  /* input field bg:  dark=rgba(fff,0.04), light=#f8f8f8 */
+  --color-bg-500-alt: var(--theme-input-bg);
+  /* input tint (same as input-bg) */
+  --color-bg-400: var(--theme-bg-400);
+  /* border/divider:  dark=#222222, light=#e0e0e0 */
+  --color-bg-300: var(--theme-bg-300);
+  /* banner bg:       dark=#2b2b2b, light=#e8e8e8 */
+  --color-bg-200: var(--theme-bg-200);
+  /* strong border:   dark=#333333, light=#d0d0d0 */
+  --color-bg-100: var(--theme-bg-100);
+  /* muted pill bg:   dark=#555555, light=#909090 */
 
   /* ── Extended Palette — Text shades ────────────────────────────────────── */
-  --color-text-muted: var(
-    --theme-text-muted
-  ); /* section-header: dark=#666, light=#999 */
-  --color-text-dim: var(
-    --theme-text-secondary
-  ); /* dim text ≈ secondary (reuses theme token) */
-  --color-text-mid: var(
-    --theme-text-mid
-  ); /* subtitle: dark=#a0a0a0, light=#555555 */
-  --color-text-soft: var(
-    --theme-text-soft
-  ); /* soft/banner text: dark=#ccc, light=#333 */
-  --color-text-near-white: var(
-    --theme-text-near-white
-  ); /* near-white: dark=#e0e0e0, light=#1a1a1a */
+  --color-text-muted: var(--theme-text-muted);
+  /* section-header: dark=#666, light=#999 */
+  --color-text-dim: var(--theme-text-secondary);
+  /* dim text ≈ secondary (reuses theme token) */
+  --color-text-mid: var(--theme-text-mid);
+  /* subtitle: dark=#a0a0a0, light=#555555 */
+  --color-text-soft: var(--theme-text-soft);
+  /* soft/banner text: dark=#ccc, light=#333 */
+  --color-text-near-white: var(--theme-text-near-white);
+  /* near-white: dark=#e0e0e0, light=#1a1a1a */
 
   /* ── Accent tints — same in both themes (accent colour is unchanged) ─── */
-  --color-accent-tint-4: rgba(108, 123, 255, 0.04); /* pricing disclaimer bg */
-  --color-accent-tint-8: rgba(
-    108,
-    123,
-    255,
-    0.08
-  ); /* selected symptom card bg */
-  --color-accent-tint-10: rgba(
-    108,
-    123,
-    255,
-    0.1
-  ); /* model chip / tier chip bg */
-  --color-accent-tint-12: rgba(
-    108,
-    123,
-    255,
-    0.12
-  ); /* selected icon bg (mobile) */
-  --color-accent-tint-14: rgba(
-    108,
-    123,
-    255,
-    0.14
-  ); /* pricing disclaimer border */
-  --color-accent-tint-15: rgba(
-    108,
-    123,
-    255,
-    0.15
-  ); /* selected icon bg (desktop) */
+  --color-accent-tint-4: rgba(108, 123, 255, 0.04);
+  /* pricing disclaimer bg */
+  --color-accent-tint-8: rgba(108,
+      123,
+      255,
+      0.08);
+  /* selected symptom card bg */
+  --color-accent-tint-10: rgba(108,
+      123,
+      255,
+      0.1);
+  /* model chip / tier chip bg */
+  --color-accent-tint-12: rgba(108,
+      123,
+      255,
+      0.12);
+  /* selected icon bg (mobile) */
+  --color-accent-tint-14: rgba(108,
+      123,
+      255,
+      0.14);
+  /* pricing disclaimer border */
+  --color-accent-tint-15: rgba(108,
+      123,
+      255,
+      0.15);
+  /* selected icon bg (desktop) */
 
   /* ── Accent shadows — same in both themes ─────────────────────────────── */
-  --color-accent-shadow-10: rgba(108, 123, 255, 0.1); /* card hover shadow */
-  --color-accent-shadow-12: rgba(
-    108,
-    123,
-    255,
-    0.12
-  ); /* service mode card shadow */
-  --color-accent-shadow-25: rgba(108, 123, 255, 0.25); /* CTA button glow */
+  --color-accent-shadow-10: rgba(108, 123, 255, 0.1);
+  /* card hover shadow */
+  --color-accent-shadow-12: rgba(108,
+      123,
+      255,
+      0.12);
+  /* service mode card shadow */
+  --color-accent-shadow-25: rgba(108, 123, 255, 0.25);
+  /* CTA button glow */
 
   /* ── Status tints — semi-transparent, work in both themes ─────────────── */
-  --color-warning-tint: rgba(
-    245,
-    158,
-    11,
-    0.1
-  ); /* warning alert bg (pricing/summary) */
-  --color-danger-tint: rgba(
-    239,
-    68,
-    68,
-    0.1
-  ); /* error alert bg (schedule desktop) */
-  --color-success-tint: rgba(
-    34,
-    197,
-    94,
-    0.2
-  ); /* success ring bg (checkout/success) */
+  --color-warning-tint: rgba(245,
+      158,
+      11,
+      0.1);
+  /* warning alert bg (pricing/summary) */
+  --color-danger-tint: rgba(239,
+      68,
+      68,
+      0.1);
+  /* error alert bg (schedule desktop) */
+  --color-success-tint: rgba(34,
+      197,
+      94,
+      0.2);
+  /* success ring bg (checkout/success) */
 
   /* ── Tag / Badge — intentionally fixed (always light label on any theme) ─ */
-  --color-tag-bg: #f2f2f2; /* e.g. "Pro Quality" badge background */
-  --color-tag-text: #111111; /* badge text */
+  --color-tag-bg: #f2f2f2;
+  /* e.g. "Pro Quality" badge background */
+  --color-tag-text: #111111;
+  /* badge text */
 
   /* ── CTA buttons — bridged to theme.js (inverts between dark/light) ───── */
-  --color-btn-cta-bg: var(--theme-btn-primary-bg); /* dark=#fff,  light=#000 */
-  --color-btn-cta-text: var(
-    --theme-btn-primary-text
-  ); /* dark=#000,  light=#fff */
-  --color-btn-cta-hover: var(
-    --theme-btn-primary-hover
-  ); /* dark=rgba(fff,0.9), light=#222 */
+  --color-btn-cta-bg: var(--theme-btn-primary-bg);
+  /* dark=#fff,  light=#000 */
+  --color-btn-cta-text: var(--theme-btn-primary-text);
+  /* dark=#000,  light=#fff */
+  --color-btn-cta-hover: var(--theme-btn-primary-hover);
+  /* dark=rgba(fff,0.9), light=#222 */
 
   /* ── Dark overlay button — fixed, always dark (editorial design element) ─ */
   --color-btn-dark-bg: #000000;
   --color-btn-dark-text: #ffffff;
 
   /* ── Overlays ──────────────────────────────────────────────────────────── */
-  --color-overlay-white-10: rgba(
-    255,
-    255,
-    255,
-    0.1
-  ); /* semi-transparent white overlay */
-  --color-overlay-black-50: rgba(
-    0,
-    0,
-    0,
-    0.5
-  ); /* semi-transparent black overlay */
+  --color-overlay-white-10: rgba(255,
+      255,
+      255,
+      0.1);
+  /* semi-transparent white overlay */
+  --color-overlay-black-50: rgba(0,
+      0,
+      0,
+      0.5);
+  /* semi-transparent black overlay */
 
   /* Spacing — 8pt grid */
   --sp-1: 4px;
@@ -233,9 +216,11 @@
     opacity: 0;
     transform: scale(0.55);
   }
+
   65% {
     transform: scale(1.08);
   }
+
   100% {
     opacity: 1;
     transform: scale(1);
@@ -253,6 +238,7 @@
 }
 
 /* ─── Tailwind v4 Theme Extension ─────────────────────────────────────────── */
+/* stylelint-disable-next-line at-rule-no-unknown */
 @theme inline {
   --color-bg: var(--color-bg);
   --color-bg-card: var(--color-bg-card);
@@ -349,26 +335,27 @@
   /* ── Tag / Badge — light mode: invert to dark-on-light ──────────────── */
   /* These are intentional "always contrast" labels — in light mode a
      near-black badge on a light page makes more design sense.              */
-  --color-tag-bg: #1a1a1a; /* dark label bg in light mode */
-  --color-tag-text: #f2f2f2; /* light label text in light mode */
+  --color-tag-bg: #1a1a1a;
+  /* dark label bg in light mode */
+  --color-tag-text: #f2f2f2;
+  /* light label text in light mode */
 
   /* ── Overlays — invert for light surfaces ───────────────────────────── */
-  --color-overlay-white-10: rgba(
-    0,
-    0,
-    0,
-    0.08
-  ); /* was white overlay, now subtle dark tint */
-  --color-overlay-black-50: rgba(
-    0,
-    0,
-    0,
-    0.4
-  ); /* slightly lighter on light surfaces */
+  --color-overlay-white-10: rgba(0,
+      0,
+      0,
+      0.08);
+  /* was white overlay, now subtle dark tint */
+  --color-overlay-black-50: rgba(0,
+      0,
+      0,
+      0.4);
+  /* slightly lighter on light surfaces */
 }
 
 /* ─── Base Reset ──────────────────────────────────────────────────────────── */
 @layer base {
+
   *,
   *::before,
   *::after {
@@ -552,6 +539,7 @@
 .sidebar-nav-item:hover {
   color: #fff;
   background-color: rgba(255, 255, 255, 0.06);
+  /* nosonar */
 }
 
 .sidebar-nav-item.active {
@@ -939,11 +927,9 @@
 .popular-card-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(
-    to top,
-    rgba(0, 0, 0, 0.78) 35%,
-    transparent 100%
-  );
+  background: linear-gradient(to top,
+      rgba(0, 0, 0, 0.78) 35%,
+      transparent 100%);
 }
 
 .popular-card-content {
@@ -1009,12 +995,10 @@
 
 .skeleton {
   border-radius: var(--radius-sm);
-  background: linear-gradient(
-    90deg,
-    rgba(255, 255, 255, 0.05) 25%,
-    rgba(255, 255, 255, 0.1) 50%,
-    rgba(255, 255, 255, 0.05) 75%
-  );
+  background: linear-gradient(90deg,
+      rgba(255, 255, 255, 0.05) 25%,
+      rgba(255, 255, 255, 0.1) 50%,
+      rgba(255, 255, 255, 0.05) 75%);
   background-size: 800px 100%;
   animation: skeleton-shimmer 1.4s infinite linear;
 }
@@ -1094,8 +1078,8 @@ hr,
 }
 
 /* Consistent spacing for booking content after the sticky header/step-progress */
-.home-mobile + .app-shell .home-mobile > div:first-child,
-.home-mobile + .home-mobile > div:first-child {
+.home-mobile+.app-shell .home-mobile>div:first-child,
+.home-mobile+.home-mobile>div:first-child {
   padding-top: 16px !important;
 }
 
@@ -1116,12 +1100,10 @@ hr,
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.1),
-    transparent
-  );
+  background: linear-gradient(90deg,
+      transparent,
+      rgba(255, 255, 255, 0.1),
+      transparent);
   transform: translateX(-100%);
 }
 
@@ -1225,7 +1207,8 @@ hr,
   padding: 24px 16px 20px;
   background-color: var(--color-content-card);
   border: 1px solid var(--color-content-border);
-  border-radius: 20px; /* Rounded corners as shown in the design */
+  border-radius: 20px;
+  /* Rounded corners as shown in the design */
   cursor: pointer;
   transition:
     border-color 200ms ease,
@@ -1235,7 +1218,8 @@ hr,
   box-shadow: var(--theme-shadow-sm);
   -webkit-tap-highlight-color: transparent;
   user-select: none;
-  min-height: 200px; /* Let height flow naturally with content but ensure min-height for vertical layout */
+  min-height: 200px;
+  /* Let height flow naturally with content but ensure min-height for vertical layout */
   width: 100%;
 }
 
@@ -1258,7 +1242,8 @@ hr,
 /* Light Theme Overrides to match the Figma mockup exactly */
 [data-theme='light'] .model-card {
   border-color: transparent;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05); /* Soft, elegant shadow */
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+  /* Soft, elegant shadow */
 }
 
 [data-theme='light'] .model-card:hover {
@@ -1308,13 +1293,15 @@ hr,
   overflow: hidden;
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
 }
 
 .model-card-id {
   font-size: 10px;
   font-weight: 600;
-  letter-spacing: 0.12em; /* Spaced out code text */
+  letter-spacing: 0.12em;
+  /* Spaced out code text */
   color: var(--color-content-text-secondary);
   text-align: center;
   text-transform: uppercase;
@@ -1369,6 +1356,7 @@ hr,
   background-color: rgba(255, 255, 255, 0.07);
   border-radius: 11px;
   color: #aaa;
+  /* nosonar */
   flex-shrink: 0;
 }
 
@@ -1528,7 +1516,8 @@ hr,
 
 .model-grid-skeleton {
   width: 100%;
-  height: 200px; /* Increased to match new aspect-ratio height on mobile */
+  height: 200px;
+  /* Increased to match new aspect-ratio height on mobile */
   border-radius: var(--radius-card);
 }
 
@@ -1541,7 +1530,8 @@ hr,
 
   .model-grid-inner {
     grid-template-columns: repeat(5, 1fr) !important;
-    gap: 24px !important; /* Increased gap for desktop to match Figma design spacing */
+    gap: 24px !important;
+    /* Increased gap for desktop to match Figma design spacing */
   }
 
   .brand-grid-skeleton {
@@ -1549,15 +1539,18 @@ hr,
   }
 
   .model-card {
-    min-height: 250px; /* Taller height on desktop */
+    min-height: 250px;
+    /* Taller height on desktop */
   }
 
   .model-card-image {
-    height: 120px; /* Scale up image area on desktop */
+    height: 120px;
+    /* Scale up image area on desktop */
   }
 
   .model-grid-skeleton {
-    height: 250px; /* Increased to match new aspect-ratio height on desktop */
+    height: 250px;
+    /* Increased to match new aspect-ratio height on desktop */
   }
 }
 
@@ -1565,6 +1558,7 @@ hr,
    MOBILE FIXED STATUS BAR & TOP BAR SAFE AREA FIXES
    ══════════════════════════════════════════════════════════════════════════ */
 @media (max-width: 1023px) {
+
   /* Solid Fixed Status Bar Shield at the very top of the viewport */
   .app-shell::before {
     content: '';
@@ -1591,7 +1585,7 @@ hr,
   /* Removed - padding handled by individual pages now */
 
   /* Automatically push down adjacent content of the fixed top-bar */
-  .top-bar + * {
+  .top-bar+* {
     margin-top: calc(52px + env(safe-area-inset-top, 0px)) !important;
   }
 
@@ -1601,7 +1595,7 @@ hr,
   }
 
   /* If the layout header has the step progress indicator, it occupies flow space, so content-col doesn't need safe area padding */
-  .home-mobile:has(.step-progress) + .app-shell .content-col {
+  .home-mobile:has(.step-progress)+.app-shell .content-col {
     padding-top: 0 !important;
   }
 }
@@ -1659,6 +1653,7 @@ hr,
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
   color: #ffffff;
+  /* nosonar */
   font-size: 22px;
   font-weight: 700;
   text-align: center;
@@ -1781,7 +1776,7 @@ hr,
   }
 
   /* Bypasses standard sibling margin to permit absolute background overlap */
-  .auth-page-shell .top-bar + * {
+  .auth-page-shell .top-bar+* {
     margin-top: 0 !important;
   }
 }
@@ -1791,14 +1786,14 @@ hr,
   .landing-header {
     padding-top: env(safe-area-inset-top, 0px) !important;
   }
+
   .landing-spacer {
     height: calc(73px + env(safe-area-inset-top, 0px)) !important;
   }
+
   .landing-mobile-menu {
     top: calc(73px + env(safe-area-inset-top, 0px)) !important;
     height: calc(100vh - 73px - env(safe-area-inset-top, 0px)) !important;
     height: calc(100svh - 73px - env(safe-area-inset-top, 0px)) !important;
   }
 }
-
-

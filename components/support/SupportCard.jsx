@@ -1,6 +1,7 @@
 'use client';
 
 import { MessageCircle, Phone, Mail } from 'lucide-react';
+import PropTypes from 'prop-types';
 
 /**
  * SupportCard - Reusable component for customer support access
@@ -15,6 +16,17 @@ import { MessageCircle, Phone, Mail } from 'lucide-react';
  *   title - Optional custom title
  *   description - Optional custom description
  */
+SupportCard.propTypes = {
+  variant: PropTypes.oneOf(['compact', 'full']),
+  theme: PropTypes.oneOf(['light', 'dark']),
+  whatsappNumber: PropTypes.string,
+  phoneNumber: PropTypes.string,
+  email: PropTypes.string,
+  title: PropTypes.string,
+  description: PropTypes.string,
+  className: PropTypes.string,
+};
+
 export default function SupportCard({
   variant = 'full',
   theme = 'dark',
@@ -27,16 +39,17 @@ export default function SupportCard({
 }) {
   const handleContactSupport = (method) => {
     switch (method) {
-      case 'whatsapp':
+      case 'whatsapp': {
         // Remove + and spaces for WhatsApp URL
-        const cleanWhatsApp = whatsappNumber.replace(/[^0-9]/g, '');
-        window.open(`https://wa.me/${cleanWhatsApp}`, '_blank');
+        const cleanWhatsApp = whatsappNumber.replace(/\D/g, '');
+        globalThis.window.open(`https://wa.me/${cleanWhatsApp}`, '_blank');
         break;
+      }
       case 'phone':
-        window.location.href = `tel:${phoneNumber}`;
+        globalThis.window.location.href = `tel:${phoneNumber}`;
         break;
       case 'email':
-        window.location.href = `mailto:${email}`;
+        globalThis.window.location.href = `mailto:${email}`;
         break;
       default:
         break;

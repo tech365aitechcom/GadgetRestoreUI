@@ -37,13 +37,14 @@ export default function NotificationsPage() {
 
         // Format response based on standard backend layout
         // Backend returns: { success: true, message: "...", data: { notifications: [...], pagination: {...} } }
-        const list = Array.isArray(res?.data?.notifications)
-          ? res.data.notifications
-          : Array.isArray(res?.data)
-            ? res.data
-            : Array.isArray(res)
-              ? res
-              : []
+        let list = []
+        if (Array.isArray(res?.data?.notifications)) {
+          list = res.data.notifications
+        } else if (Array.isArray(res?.data)) {
+          list = res.data
+        } else if (Array.isArray(res)) {
+          list = res
+        }
 
         setNotifications(list)
 
@@ -56,9 +57,9 @@ export default function NotificationsPage() {
             : 0
           setUnreadCount(
             countRes?.data?.unreadCount ??
-              countRes?.data?.count ??
-              countRes?.count ??
-              unreadFromList,
+            countRes?.data?.count ??
+            countRes?.count ??
+            unreadFromList,
           )
         } catch {
           const unreadFromList = Array.isArray(list)
@@ -214,6 +215,136 @@ export default function NotificationsPage() {
     }
   }
 
+  const renderContent = () => {
+    if (isLoading) {
+      return (
+        <div className='space-y-3'>
+          {[1, 2, 3, 4].map((id) => (
+            <div
+              key={`skeleton-${id}`}
+              className='bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-xl p-4 flex gap-3'
+            >
+              <div className='flex-1 space-y-3'>
+                <div className='flex items-center gap-2'>
+                  <Skeleton className='h-4 w-12 rounded' />
+                  <Skeleton className='h-4 w-28 rounded' />
+                </div>
+                <Skeleton className='h-5 w-[70%] rounded-lg' />
+                <Skeleton className='h-4 w-[90%] rounded' />
+                <Skeleton className='h-3.5 w-20 rounded' />
+              </div>
+              <div className='flex flex-col gap-2 shrink-0'>
+                <Skeleton className='w-8 h-8 rounded-lg' />
+                <Skeleton className='w-8 h-8 rounded-lg' />
+              </div>
+            </div>
+          ))}
+        </div>
+      )
+    }
+
+    if (notifications.length === 0) {
+      return (
+        <div className='flex flex-col items-center justify-center py-16 px-4 bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-2xl text-center'>
+          <div className='w-16 h-16 rounded-full bg-[var(--theme-btn-secondary-bg)] flex items-center justify-center text-[var(--theme-placeholder)] mb-4'>
+            <Inbox size={28} />
+          </div>
+          <h3 className='text-[16px] font-bold mb-1'>All caught up!</h3>
+          <p className='text-[13px] text-[var(--theme-text-secondary)] max-w-xs'>
+            {unreadOnly
+              ? 'No unread notifications match your current filter preferences.'
+              : 'You have no notifications in your inbox at this moment.'}
+          </p>
+        </div>
+      )
+    }
+
+    return (
+      <div className='space-y-3'>
+        {notifications.map((n) => (
+          <button
+            key={n._id}
+            type="button"
+            onClick={() => handleNotificationClick(n)}
+            className={`w-full text-left block relative overflow-hidden p-4 rounded-xl border transition-all duration-200 cursor-pointer ${n.isRead
+                ? 'bg-[var(--theme-bg)] border-[var(--theme-border)] hover:bg-[var(--theme-card)] opacity-85'
+                : 'bg-[var(--theme-card)] border-[var(--theme-border-strong)] shadow-sm hover:translate-y-[-1px]'
+              }`}
+          >
+            {/* Unread indicator dot */}
+            {!n.isRead && (
+              <span className='absolute top-4 left-4 w-2 h-2 rounded-full bg-[var(--theme-btn-primary-bg)]' />
+            )}
+
+            <div
+              className={`${n.isRead ? '' : 'pl-4'} flex items-start justify-between gap-3`}
+            >
+              <div className='flex-1 min-w-0'>
+                <div className='flex flex-wrap items-center gap-2 mb-1'>
+                  {n.eventType && (
+                    <span
+                      className={`px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider ${getEventBadgeStyles(n.eventType)}`}
+                    >
+                      {n.eventType === 'status_change'
+                        ? 'Status'
+                        : n.eventType}
+                    </span>
+                  )}
+                  {n.ticketNumber && (
+                    <span className='text-[11px] font-bold text-[var(--theme-text-secondary)]'>
+                      Ticket: {n.ticketNumber}
+                    </span>
+                  )}
+                </div>
+                <p className='text-[13px] text-[var(--theme-text-secondary)] leading-relaxed mb-2.5 break-words'>
+                  {n.message}
+                </p>
+
+                <div className='flex items-center gap-3 text-[11px] text-[var(--theme-text-tertiary)] font-medium'>
+                  <span className='flex items-center gap-1'>
+                    <Clock size={11} /> {formatTime(n.createdAt)}
+                  </span>
+                  {n.ticketNumber && (
+                    <span className='text-[var(--theme-btn-primary-bg)] font-semibold flex items-center gap-0.5 group'>
+                      View details{' '}
+                      <ArrowRight
+                        size={10}
+                        className='transition-transform group-hover:translate-x-0.5'
+                      />
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              {/* Actions column */}
+              <div className='flex flex-col items-end gap-2 flex-shrink-0'>
+                <button
+                  onClick={(e) => handleDelete(n._id, e)}
+                  className='w-8 h-8 rounded-lg bg-[var(--theme-btn-secondary-bg)] hover:bg-red-500/10 hover:text-red-500 flex items-center justify-center text-[var(--theme-text-disabled)] transition-all active:scale-90'
+                  title='Delete notification'
+                >
+                  <Trash2 size={13} />
+                </button>
+                {!n.isRead && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      handleMarkAsRead(n._id)
+                    }}
+                    className='w-8 h-8 rounded-lg bg-[var(--theme-btn-secondary-bg)] hover:bg-[var(--theme-btn-secondary-hover)] flex items-center justify-center text-[var(--theme-text-secondary)] transition-all active:scale-90'
+                    title='Mark as read'
+                  >
+                    <CheckCheck size={13} />
+                  </button>
+                )}
+              </div>
+            </div>
+          </button>
+        ))}
+      </div>
+    )
+  }
+
   return (
     <div className='min-h-screen bg-[var(--theme-bg)] pb-24 text-[var(--theme-text-primary)]'>
       {/* Mobile Top Bar */}
@@ -286,11 +417,10 @@ export default function NotificationsPage() {
               <button
                 key={tab.id}
                 onClick={() => setFilterType(tab.id)}
-                className={`px-3 py-1.5 rounded-lg text-[12px] font-semibold transition-all ${
-                  filterType === tab.id
+                className={`px-3 py-1.5 rounded-lg text-[12px] font-semibold transition-all ${filterType === tab.id
                     ? 'bg-[var(--theme-text-primary)] text-[var(--theme-bg)]'
                     : 'bg-[var(--theme-btn-secondary-bg)] text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] border border-[var(--theme-border)]'
-                }`}
+                  }`}
               >
                 {tab.label}
               </button>
@@ -298,136 +428,8 @@ export default function NotificationsPage() {
           </div>
         </div>
 
-        {/* Loading Skeleton */}
-        {isLoading ? (
-          <div className='space-y-3'>
-            {Array.from({ length: 4 }).map((_, i) => (
-              <div
-                key={i}
-                className='bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-xl p-4 flex gap-3'
-              >
-                <div className='flex-1 space-y-3'>
-                  <div className='flex items-center gap-2'>
-                    <Skeleton className='h-4 w-12 rounded' />
-                    <Skeleton className='h-4 w-28 rounded' />
-                  </div>
-                  <Skeleton className='h-5 w-[70%] rounded-lg' />
-                  <Skeleton className='h-4 w-[90%] rounded' />
-                  <Skeleton className='h-3.5 w-20 rounded' />
-                </div>
-                <div className='flex flex-col gap-2 shrink-0'>
-                  <Skeleton className='w-8 h-8 rounded-lg' />
-                  <Skeleton className='w-8 h-8 rounded-lg' />
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : notifications.length === 0 ? (
-          /* Empty State */
-          <div className='flex flex-col items-center justify-center py-16 px-4 bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-2xl text-center'>
-            <div className='w-16 h-16 rounded-full bg-[var(--theme-btn-secondary-bg)] flex items-center justify-center text-[var(--theme-placeholder)] mb-4'>
-              <Inbox size={28} />
-            </div>
-            <h3 className='text-[16px] font-bold mb-1'>All caught up!</h3>
-            <p className='text-[13px] text-[var(--theme-text-secondary)] max-w-xs'>
-              {unreadOnly
-                ? 'No unread notifications match your current filter preferences.'
-                : 'You have no notifications in your inbox at this moment.'}
-            </p>
-          </div>
-        ) : (
-          /* Notifications List */
-          <div className='space-y-3'>
-            {notifications.map((n) => (
-              <div
-                key={n._id}
-                role="button"
-                tabIndex={0}
-                onClick={() => handleNotificationClick(n)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault()
-                    handleNotificationClick(n)
-                  }
-                }}
-                className={`relative overflow-hidden p-4 rounded-xl border transition-all duration-200 cursor-pointer ${
-                  n.isRead
-                    ? 'bg-[var(--theme-bg)] border-[var(--theme-border)] hover:bg-[var(--theme-card)] opacity-85'
-                    : 'bg-[var(--theme-card)] border-[var(--theme-border-strong)] shadow-sm hover:translate-y-[-1px]'
-                }`}
-              >
-                {/* Unread indicator dot */}
-                {!n.isRead && (
-                  <span className='absolute top-4 left-4 w-2 h-2 rounded-full bg-[var(--theme-btn-primary-bg)]' />
-                )}
-
-                <div
-                  className={`${n.isRead ? '' : 'pl-4'} flex items-start justify-between gap-3`}
-                >
-                  <div className='flex-1 min-w-0'>
-                    <div className='flex flex-wrap items-center gap-2 mb-1'>
-                      {n.eventType && (
-                        <span
-                          className={`px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider ${getEventBadgeStyles(n.eventType)}`}
-                        >
-                          {n.eventType === 'status_change'
-                            ? 'Status'
-                            : n.eventType}
-                        </span>
-                      )}
-                      {n.ticketNumber && (
-                        <span className='text-[11px] font-bold text-[var(--theme-text-secondary)]'>
-                          Ticket: {n.ticketNumber}
-                        </span>
-                      )}
-                    </div>
-                    <p className='text-[13px] text-[var(--theme-text-secondary)] leading-relaxed mb-2.5 break-words'>
-                      {n.message}
-                    </p>
-
-                    <div className='flex items-center gap-3 text-[11px] text-[var(--theme-text-tertiary)] font-medium'>
-                      <span className='flex items-center gap-1'>
-                        <Clock size={11} /> {formatTime(n.createdAt)}
-                      </span>
-                      {n.ticketNumber && (
-                        <span className='text-[var(--theme-btn-primary-bg)] font-semibold flex items-center gap-0.5 group'>
-                          View details{' '}
-                          <ArrowRight
-                            size={10}
-                            className='transition-transform group-hover:translate-x-0.5'
-                          />
-                        </span>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Actions column */}
-                  <div className='flex flex-col items-end gap-2 flex-shrink-0'>
-                    <button
-                      onClick={(e) => handleDelete(n._id, e)}
-                      className='w-8 h-8 rounded-lg bg-[var(--theme-btn-secondary-bg)] hover:bg-red-500/10 hover:text-red-500 flex items-center justify-center text-[var(--theme-text-disabled)] transition-all active:scale-90'
-                      title='Delete notification'
-                    >
-                      <Trash2 size={13} />
-                    </button>
-                    {!n.isRead && (
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          handleMarkAsRead(n._id)
-                        }}
-                        className='w-8 h-8 rounded-lg bg-[var(--theme-btn-secondary-bg)] hover:bg-[var(--theme-btn-secondary-hover)] flex items-center justify-center text-[var(--theme-text-secondary)] transition-all active:scale-90'
-                        title='Mark as read'
-                      >
-                        <CheckCheck size={13} />
-                      </button>
-                    )}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
+        {/* Content */}
+        {renderContent()}
       </div>
     </div>
   )

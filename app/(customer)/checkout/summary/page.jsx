@@ -64,88 +64,13 @@ SummarySection.propTypes = {
   children: PropTypes.node.isRequired,
 }
 
-export default function OrderSummaryPage() {
-  const router = useRouter()
-  const {
-    brand,
-    model,
-    symptoms,
-    partTier,
-    serviceMode,
-    remarks,
-    setRemarks,
-    address,
-    slot,
-  } = useBooking()
-
-  const [pricingResults, setPricingResults] = useState(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const [, setError] = useState(null)
-  const [isSubmitting] = useState(false)
-
-  // Local edit state for remarks
-  const [isEditingRemarks, setIsEditingRemarks] = useState(false)
-  const [localRemarks, setLocalRemarks] = useState(remarks || '')
-
-  /* Guard */
-  useEffect(() => {
-    if (
-      !brand ||
-      !model ||
-      !symptoms?.length ||
-      !partTier ||
-      !address ||
-      !slot
-    ) {
-      router.replace('/')
-    }
-  }, [brand, model, symptoms, partTier, address, slot, router])
-
-  /* Fetch pricing breakdown */
-  useEffect(() => {
-    if (!brand || !model || !symptoms?.length || !partTier) return
-
-    const repairTypeIds = collectRepairTypeIds(symptoms)
-    if (!repairTypeIds.length) {
-      setIsLoading(false)
-      return
-    }
-
-    setIsLoading(true)
-    catalogueService
-      .checkPricingAvailability({
-        brandId: brand._id,
-        modelId: model._id,
-        repairTypeIds,
-        partTier: partTier.tier,
-      })
-      .then((result) => setPricingResults(result))
-      .catch((err) => {
-        console.error(err)
-        setError('Failed to load pricing for summary.')
-      })
-      .finally(() => setIsLoading(false))
-  }, [brand, model, symptoms, partTier])
-
-  if (!brand || !model || !symptoms?.length || !partTier || !address || !slot)
-    return null
-
-  // Determine device image
-  const isApple = brand?.name?.toLowerCase() === 'apple'
-  const defaultImage = isApple
-    ? '/images/default-apple.png'
-    : '/images/default-android.png'
-  const modelImage = model?.image || defaultImage
-
-  // Compute Itemized Pricing per Symptom
-  const hasPricingData =
-    pricingResults &&
-    pricingResults.results &&
-    pricingResults.results.length > 0
+// Extract Pricing Logic to reduce cognitive complexity
+function calculatePricingSummary(symptoms, pricingResults) {
+  const hasPricingData = pricingResults?.results?.length > 0
   let grandTotal = 0
   let hasVariableSymptom = false
 
-  const itemizedSymptoms = symptoms.map((symp) => {
+  const itemizedSymptoms = (symptoms || []).map((symp) => {
     let sympParts = 0
     let sympLabour = 0
     let sympIsVariable = false
@@ -156,7 +81,7 @@ export default function OrderSummaryPage() {
         const id = typeof rtId === 'object' ? rtId._id : rtId
         const res = pricingResults.results.find((r) => r.repairTypeId === id)
         // Sum up available pricing - even if some repair types don't have pricing
-        if (res && res.available && res.pricing) {
+        if (res?.available && res?.pricing) {
           sympParts += res.pricing.partsCost || 0
           sympLabour += res.pricing.labourCost || 0
         }
@@ -178,6 +103,440 @@ export default function OrderSummaryPage() {
       total: sympParts + sympLabour,
     }
   })
+
+  return { itemizedSymptoms, grandTotal, hasVariableSymptom }
+}
+
+function checkCompleteBooking(brand, model, symptoms, partTier, address, slot) {
+  return Boolean(
+    brand && model && symptoms?.length && partTier && address && slot
+  )
+}
+
+function checkPricingPrerequisites(brand, model, symptoms, partTier) {
+  return Boolean(brand && model && symptoms?.length && partTier)
+}
+
+function usePricingBreakdown(brand, model, symptoms, partTier) {
+  const [pricingResults, setPricingResults] = useState(null)
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    if (!checkPricingPrerequisites(brand, model, symptoms, partTier)) return
+
+    const repairTypeIds = collectRepairTypeIds(symptoms)
+    if (!repairTypeIds.length) {
+      setIsLoading(false)
+      return
+    }
+
+    setIsLoading(true)
+    catalogueService
+      .checkPricingAvailability({
+        brandId: brand._id,
+        modelId: model._id,
+        repairTypeIds,
+        partTier: partTier.tier,
+      })
+      .then((result) => setPricingResults(result))
+      .catch((err) => {
+        console.error(err)
+      })
+      .finally(() => setIsLoading(false))
+  }, [brand, model, symptoms, partTier])
+
+  return { pricingResults, isLoading }
+}
+
+function getButtonText(isLoading, isSubmitting) {
+  if (isLoading) return 'Calculating...'
+  if (isSubmitting) return 'Processing...'
+  return 'Proceed to Details'
+}
+
+function MobilePricingSummary({
+  itemizedSymptoms,
+  partTier,
+  hasVariableSymptom,
+  subtotal,
+  gstAmount,
+  totalAmount,
+}) {
+  return (
+    <div
+      className='rounded-[24px] p-6 mt-4 mb-10'
+      style={{
+        background: 'var(--color-content-card)',
+        border: '1px solid var(--color-content-border)',
+      }}
+    >
+      <h3
+        className='text-[18px] font-black mb-4'
+        style={{ color: 'var(--color-content-text)' }}
+      >
+        Total Estimate
+      </h3>
+
+      <div
+        className='flex flex-col gap-4 pb-6 mb-6'
+        style={{
+          borderBottom: '1px solid var(--color-content-border)',
+        }}
+      >
+        {itemizedSymptoms.map((item, idx) => (
+          <div key={item._id || item.name || idx} className='flex justify-between items-start'>
+            <div className='pr-4'>
+              <div
+                className='text-sm font-bold mb-1'
+                style={{ color: 'var(--color-content-text)' }}
+              >
+                {item.name}
+              </div>
+              <div
+                className='text-[10px] uppercase'
+                style={{ color: 'var(--color-content-text-secondary)' }}
+              >
+                {partTier.tier} Quality
+              </div>
+            </div>
+            <div
+              className='text-sm font-black whitespace-nowrap'
+              style={{ color: 'var(--color-content-text)' }}
+            >
+              {item.isVariable
+                ? 'Estimate Required'
+                : `₹${item.total.toLocaleString('en-IN')}`}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {hasVariableSymptom && (
+        <div className='flex items-start gap-3 bg-[rgba(245,158,11,0.1)] p-4 rounded-xl mb-6'>
+          <AlertCircle
+            size={16}
+            color='var(--color-warning)'
+            className='mt-0.5'
+          />
+          <div
+            className='text-xs leading-snug'
+            style={{ color: 'var(--color-content-text)' }}
+          >
+            <span className='text-warning font-bold block mb-1'>
+              Post-diagnosis estimate required
+            </span>{' '}
+            Final cost confirmed after diagnosis for some items.
+          </div>
+        </div>
+      )}
+
+      <div className='flex flex-col gap-3'>
+        {/* Subtotal Row */}
+        <div className='flex justify-between items-center'>
+          <span
+            className='text-sm font-semibold'
+            style={{ color: 'var(--color-content-text-secondary)' }}
+          >
+            Subtotal
+          </span>
+          <span
+            className='text-sm font-bold'
+            style={{ color: 'var(--color-content-text)' }}
+          >
+            {hasVariableSymptom && subtotal === 0 ? (
+              'Estimate Required'
+            ) : (
+              <>
+                {hasVariableSymptom && 'Starting from '}₹
+                {subtotal.toLocaleString('en-IN')}
+              </>
+            )}
+          </span>
+        </div>
+
+        {/* GST Row */}
+        {(!hasVariableSymptom || subtotal > 0) && (
+          <div className='flex justify-between items-center'>
+            <span
+              className='text-sm font-semibold'
+              style={{ color: 'var(--color-content-text-secondary)' }}
+            >
+              GST
+            </span>
+            <span
+              className='text-sm font-bold'
+              style={{ color: 'var(--color-content-text)' }}
+            >
+              {hasVariableSymptom && 'Starting from '}₹
+              {gstAmount.toLocaleString('en-IN')}
+            </span>
+          </div>
+        )}
+
+        {/* Divider Line */}
+        <div
+          className='my-2 border-t border-dashed'
+          style={{ borderColor: 'var(--color-content-border)' }}
+        />
+
+        {/* Total Row */}
+        <div className='flex justify-between items-end'>
+          <span
+            className='text-[15px] font-black uppercase'
+            style={{ color: 'var(--color-content-text)' }}
+          >
+            Total
+          </span>
+          <span
+            className='text-[28px] font-black leading-none tracking-tight'
+            style={{ color: 'var(--color-content-text)' }}
+          >
+            {hasVariableSymptom && subtotal === 0 ? (
+              'Estimate Required'
+            ) : (
+              <>
+                {hasVariableSymptom && (
+                  <span
+                    className='block text-[10px] font-bold mb-1 text-right'
+                    style={{
+                      color: 'var(--color-content-text-secondary)',
+                    }}
+                  >
+                    Starting from
+                  </span>
+                )}
+                ₹{totalAmount.toLocaleString('en-IN')}
+              </>
+            )}
+          </span>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+MobilePricingSummary.propTypes = {
+  itemizedSymptoms: PropTypes.array.isRequired,
+  partTier: PropTypes.object.isRequired,
+  hasVariableSymptom: PropTypes.bool.isRequired,
+  subtotal: PropTypes.number.isRequired,
+  gstAmount: PropTypes.number.isRequired,
+  totalAmount: PropTypes.number.isRequired,
+}
+
+function DesktopPricingSummary({
+  itemizedSymptoms,
+  partTier,
+  hasVariableSymptom,
+  subtotal,
+  gstAmount,
+  totalAmount,
+}) {
+  return (
+    <div
+      className='rounded-[32px] p-8 sticky top-[100px] shadow-2xl'
+      style={{
+        background: 'var(--color-content-card)',
+        border: '1px solid var(--color-content-border)',
+      }}
+    >
+      <h3
+        className='text-[24px] font-black mb-8'
+        style={{ color: 'var(--color-content-text)' }}
+      >
+        Technical Quote
+      </h3>
+
+      <div
+        className='flex flex-col gap-5 pb-8 mb-8'
+        style={{
+          borderBottom: '1px solid var(--color-content-border)',
+        }}
+      >
+        {itemizedSymptoms.map((item, idx) => (
+          <div key={item._id || item.name || idx} className='flex justify-between items-start'>
+            <div className='pr-6'>
+              <div
+                className='text-base font-bold mb-1'
+                style={{ color: 'var(--color-content-text)' }}
+              >
+                {item.name}
+              </div>
+              <div
+                className='text-[11px] font-bold tracking-wider uppercase'
+                style={{
+                  color: 'var(--color-content-text-secondary)',
+                }}
+              >
+                {partTier.tier} Quality
+              </div>
+            </div>
+            <div
+              className='text-lg font-black whitespace-nowrap'
+              style={{ color: 'var(--color-content-text)' }}
+            >
+              {item.isVariable
+                ? 'Estimate Required'
+                : `₹${item.total.toLocaleString('en-IN')}`}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {hasVariableSymptom && (
+        <div className='flex items-start gap-3 bg-[rgba(245,158,11,0.1)] p-5 rounded-2xl mb-8 border border-[rgba(245,158,11,0.2)]'>
+          <AlertCircle
+            size={20}
+            color='var(--color-warning)'
+            className='flex-shrink-0'
+          />
+          <div
+            className='text-sm leading-snug'
+            style={{ color: 'var(--color-content-text)' }}
+          >
+            <strong className='text-warning font-bold block mb-1'>
+              Post-diagnosis estimate required
+            </strong>{' '}
+            Final cost will be confirmed after physical inspection of
+            the device.
+          </div>
+        </div>
+      )}
+
+      <div className='flex flex-col gap-4 mb-10'>
+        {/* Subtotal Row */}
+        <div className='flex justify-between items-center'>
+          <span
+            className='text-sm font-bold uppercase tracking-wider'
+            style={{ color: 'var(--color-content-text-secondary)' }}
+          >
+            Subtotal
+          </span>
+          <span
+            className='text-lg font-extrabold'
+            style={{ color: 'var(--color-content-text)' }}
+          >
+            {hasVariableSymptom && subtotal === 0 ? (
+              'Estimate Required'
+            ) : (
+              <>
+                {hasVariableSymptom && 'Starting from '}₹
+                {subtotal.toLocaleString('en-IN')}
+              </>
+            )}
+          </span>
+        </div>
+
+        {/* GST Row */}
+        {(!hasVariableSymptom || subtotal > 0) && (
+          <div className='flex justify-between items-center'>
+            <span
+              className='text-sm font-bold uppercase tracking-wider'
+              style={{ color: 'var(--color-content-text-secondary)' }}
+            >
+              GST
+            </span>
+            <span
+              className='text-lg font-extrabold'
+              style={{ color: 'var(--color-content-text)' }}
+            >
+              {hasVariableSymptom && 'Starting from '}₹
+              {gstAmount.toLocaleString('en-IN')}
+            </span>
+          </div>
+        )}
+
+        {/* Divider Line */}
+        <div
+          className='border-t border-dashed'
+          style={{ borderColor: 'var(--color-content-border)' }}
+        />
+
+        {/* Total Row */}
+        <div className='flex justify-between items-end'>
+          <span
+            className='text-base font-black uppercase tracking-wider'
+            style={{ color: 'var(--color-content-text)' }}
+          >
+            Total
+          </span>
+          <span
+            className='text-[42px] font-black leading-none tracking-tight'
+            style={{ color: 'var(--color-content-text)' }}
+          >
+            {hasVariableSymptom && subtotal === 0 ? (
+              'Estimate Required'
+            ) : (
+              <>
+                {hasVariableSymptom && (
+                  <span
+                    className='block text-[12px] font-bold mb-2 text-right'
+                    style={{
+                      color: 'var(--color-content-text-secondary)',
+                    }}
+                  >
+                    Starting from
+                  </span>
+                )}
+                ₹{totalAmount.toLocaleString('en-IN')}
+              </>
+            )}
+          </span>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+DesktopPricingSummary.propTypes = {
+  itemizedSymptoms: PropTypes.array.isRequired,
+  partTier: PropTypes.object.isRequired,
+  hasVariableSymptom: PropTypes.bool.isRequired,
+  subtotal: PropTypes.number.isRequired,
+  gstAmount: PropTypes.number.isRequired,
+  totalAmount: PropTypes.number.isRequired,
+}
+
+export default function OrderSummaryPage() {
+  const router = useRouter()
+  const {
+    brand,
+    model,
+    symptoms,
+    partTier,
+    serviceMode,
+    remarks,
+    setRemarks,
+    address,
+    slot,
+  } = useBooking()
+
+  const { pricingResults, isLoading } = usePricingBreakdown(brand, model, symptoms, partTier)
+  const isSubmitting = false
+
+  // Local edit state for remarks
+  const [isEditingRemarks, setIsEditingRemarks] = useState(false)
+  const [localRemarks, setLocalRemarks] = useState(remarks || '')
+
+  /* Guard */
+  useEffect(() => {
+    if (!checkCompleteBooking(brand, model, symptoms, partTier, address, slot)) {
+      router.replace('/')
+    }
+  }, [brand, model, symptoms, partTier, address, slot, router])
+
+  if (!checkCompleteBooking(brand, model, symptoms, partTier, address, slot)) return null
+
+  // Determine device image
+  const isApple = brand?.name?.toLowerCase() === 'apple'
+  const defaultImage = isApple
+    ? '/images/default-apple.png'
+    : '/images/default-android.png'
+  const modelImage = model?.image || defaultImage
+
+  // Compute Itemized Pricing per Symptom
+  const { itemizedSymptoms, grandTotal, hasVariableSymptom } =
+    calculatePricingSummary(symptoms, pricingResults)
 
   const subtotal = grandTotal
   const gstAmount = Math.round(subtotal * 0.18)
@@ -247,7 +606,7 @@ export default function OrderSummaryPage() {
               <div className='flex flex-wrap gap-2'>
                 {symptoms.map((s, i) => (
                   <span
-                    key={i}
+                    key={s._id || s.name || i}
                     className='text-[11px] font-bold px-3 py-1.5 rounded-full'
                     style={{
                       color: 'var(--color-content-text)',
@@ -402,155 +761,14 @@ export default function OrderSummaryPage() {
             </SummarySection>
 
             {/* Pricing Summary */}
-            <div
-              className='rounded-[24px] p-6 mt-4 mb-10'
-              style={{
-                background: 'var(--color-content-card)',
-                border: '1px solid var(--color-content-border)',
-              }}
-            >
-              <h3
-                className='text-[18px] font-black mb-4'
-                style={{ color: 'var(--color-content-text)' }}
-              >
-                Total Estimate
-              </h3>
-
-              <div
-                className='flex flex-col gap-4 pb-6 mb-6'
-                style={{
-                  borderBottom: '1px solid var(--color-content-border)',
-                }}
-              >
-                {itemizedSymptoms.map((item, idx) => (
-                  <div key={idx} className='flex justify-between items-start'>
-                    <div className='pr-4'>
-                      <div
-                        className='text-sm font-bold mb-1'
-                        style={{ color: 'var(--color-content-text)' }}
-                      >
-                        {item.name}
-                      </div>
-                      <div
-                        className='text-[10px] uppercase'
-                        style={{ color: 'var(--color-content-text-secondary)' }}
-                      >
-                        {partTier.tier} Quality
-                      </div>
-                    </div>
-                    <div
-                      className='text-sm font-black whitespace-nowrap'
-                      style={{ color: 'var(--color-content-text)' }}
-                    >
-                      {item.isVariable
-                        ? 'Estimate Required'
-                        : `₹${item.total.toLocaleString('en-IN')}`}
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {hasVariableSymptom && (
-                <div className='flex items-start gap-3 bg-[rgba(245,158,11,0.1)] p-4 rounded-xl mb-6'>
-                  <AlertCircle
-                    size={16}
-                    color='var(--color-warning)'
-                    className='mt-0.5'
-                  />
-                  <div
-                    className='text-xs leading-snug'
-                    style={{ color: 'var(--color-content-text)' }}
-                  >
-                    <span className='text-warning font-bold block mb-1'>
-                      Post-diagnosis estimate required
-                    </span>{' '}
-                    Final cost confirmed after diagnosis for some items.
-                  </div>
-                </div>
-              )}
-
-              <div className='flex flex-col gap-3'>
-                {/* Subtotal Row */}
-                <div className='flex justify-between items-center'>
-                  <span
-                    className='text-sm font-semibold'
-                    style={{ color: 'var(--color-content-text-secondary)' }}
-                  >
-                    Subtotal
-                  </span>
-                  <span
-                    className='text-sm font-bold'
-                    style={{ color: 'var(--color-content-text)' }}
-                  >
-                    {hasVariableSymptom && subtotal === 0 ? (
-                      'Estimate Required'
-                    ) : (
-                      <>
-                        {hasVariableSymptom && 'Starting from '}₹
-                        {subtotal.toLocaleString('en-IN')}
-                      </>
-                    )}
-                  </span>
-                </div>
-
-                {/* GST Row */}
-                {(!hasVariableSymptom || subtotal > 0) && (
-                  <div className='flex justify-between items-center'>
-                    <span
-                      className='text-sm font-semibold'
-                      style={{ color: 'var(--color-content-text-secondary)' }}
-                    >
-                      GST
-                    </span>
-                    <span
-                      className='text-sm font-bold'
-                      style={{ color: 'var(--color-content-text)' }}
-                    >
-                      {hasVariableSymptom && 'Starting from '}₹
-                      {gstAmount.toLocaleString('en-IN')}
-                    </span>
-                  </div>
-                )}
-
-                {/* Divider Line */}
-                <div
-                  className='my-2 border-t border-dashed'
-                  style={{ borderColor: 'var(--color-content-border)' }}
-                />
-
-                {/* Total Row */}
-                <div className='flex justify-between items-end'>
-                  <span
-                    className='text-[15px] font-black uppercase'
-                    style={{ color: 'var(--color-content-text)' }}
-                  >
-                    Total
-                  </span>
-                  <span
-                    className='text-[28px] font-black leading-none tracking-tight'
-                    style={{ color: 'var(--color-content-text)' }}
-                  >
-                    {hasVariableSymptom && subtotal === 0 ? (
-                      'Estimate Required'
-                    ) : (
-                      <>
-                        {hasVariableSymptom && (
-                          <span
-                            className='block text-[10px] font-bold mb-1 text-right'
-                            style={{
-                              color: 'var(--color-content-text-secondary)',
-                            }}
-                          >
-                            Starting from
-                          </span>
-                        )}
-                        ₹{totalAmount.toLocaleString('en-IN')}
-                      </>
-                    )}
-                  </span>
-                </div>
-              </div>
-            </div>
+            <MobilePricingSummary
+              itemizedSymptoms={itemizedSymptoms}
+              partTier={partTier}
+              hasVariableSymptom={hasVariableSymptom}
+              subtotal={subtotal}
+              gstAmount={gstAmount}
+              totalAmount={totalAmount}
+            />
           </div>
         </div>
 
@@ -572,11 +790,7 @@ export default function OrderSummaryPage() {
               color: 'var(--theme-btn-primary-text)',
             }}
           >
-            {isLoading
-              ? 'Calculating...'
-              : isSubmitting
-              ? 'Processing...'
-              : 'Proceed to Details'}{' '}
+            {getButtonText(isLoading, isSubmitting)}{' '}
             <ChevronRight size={18} />
           </button>
         </div>
@@ -644,7 +858,7 @@ export default function OrderSummaryPage() {
                 <div className='flex flex-wrap gap-2'>
                   {symptoms.map((s, i) => (
                     <span
-                      key={i}
+                      key={s._id || s.name || i}
                       className='text-xs font-bold px-4 py-2 rounded-full'
                       style={{
                         color: 'var(--color-content-text)',
@@ -815,158 +1029,15 @@ export default function OrderSummaryPage() {
 
             {/* Right Column - Pricing */}
             <div className='w-[40%]'>
-              <div
-                className='rounded-[32px] p-8 sticky top-[100px] shadow-2xl'
-                style={{
-                  background: 'var(--color-content-card)',
-                  border: '1px solid var(--color-content-border)',
-                }}
-              >
-                <h3
-                  className='text-[24px] font-black mb-8'
-                  style={{ color: 'var(--color-content-text)' }}
-                >
-                  Technical Quote
-                </h3>
-
-                <div
-                  className='flex flex-col gap-5 pb-8 mb-8'
-                  style={{
-                    borderBottom: '1px solid var(--color-content-border)',
-                  }}
-                >
-                  {itemizedSymptoms.map((item, idx) => (
-                    <div key={idx} className='flex justify-between items-start'>
-                      <div className='pr-6'>
-                        <div
-                          className='text-base font-bold mb-1'
-                          style={{ color: 'var(--color-content-text)' }}
-                        >
-                          {item.name}
-                        </div>
-                        <div
-                          className='text-[11px] font-bold tracking-wider uppercase'
-                          style={{
-                            color: 'var(--color-content-text-secondary)',
-                          }}
-                        >
-                          {partTier.tier} Quality
-                        </div>
-                      </div>
-                      <div
-                        className='text-lg font-black whitespace-nowrap'
-                        style={{ color: 'var(--color-content-text)' }}
-                      >
-                        {item.isVariable
-                          ? 'Estimate Required'
-                          : `₹${item.total.toLocaleString('en-IN')}`}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                {hasVariableSymptom && (
-                  <div className='flex items-start gap-3 bg-[rgba(245,158,11,0.1)] p-5 rounded-2xl mb-8 border border-[rgba(245,158,11,0.2)]'>
-                    <AlertCircle
-                      size={20}
-                      color='var(--color-warning)'
-                      className='flex-shrink-0'
-                    />
-                    <div
-                      className='text-sm leading-snug'
-                      style={{ color: 'var(--color-content-text)' }}
-                    >
-                      <strong className='text-warning font-bold block mb-1'>
-                        Post-diagnosis estimate required
-                      </strong>{' '}
-                      Final cost will be confirmed after physical inspection of
-                      the device.
-                    </div>
-                  </div>
-                )}
-
-                <div className='flex flex-col gap-4 mb-10'>
-                  {/* Subtotal Row */}
-                  <div className='flex justify-between items-center'>
-                    <span
-                      className='text-sm font-bold uppercase tracking-wider'
-                      style={{ color: 'var(--color-content-text-secondary)' }}
-                    >
-                      Subtotal
-                    </span>
-                    <span
-                      className='text-lg font-extrabold'
-                      style={{ color: 'var(--color-content-text)' }}
-                    >
-                      {hasVariableSymptom && subtotal === 0 ? (
-                        'Estimate Required'
-                      ) : (
-                        <>
-                          {hasVariableSymptom && 'Starting from '}₹
-                          {subtotal.toLocaleString('en-IN')}
-                        </>
-                      )}
-                    </span>
-                  </div>
-
-                  {/* GST Row */}
-                  {(!hasVariableSymptom || subtotal > 0) && (
-                    <div className='flex justify-between items-center'>
-                      <span
-                        className='text-sm font-bold uppercase tracking-wider'
-                        style={{ color: 'var(--color-content-text-secondary)' }}
-                      >
-                        GST
-                      </span>
-                      <span
-                        className='text-lg font-extrabold'
-                        style={{ color: 'var(--color-content-text)' }}
-                      >
-                        {hasVariableSymptom && 'Starting from '}₹
-                        {gstAmount.toLocaleString('en-IN')}
-                      </span>
-                    </div>
-                  )}
-
-                  {/* Divider Line */}
-                  <div
-                    className='border-t border-dashed'
-                    style={{ borderColor: 'var(--color-content-border)' }}
-                  />
-
-                  {/* Total Row */}
-                  <div className='flex justify-between items-end'>
-                    <span
-                      className='text-base font-black uppercase tracking-wider'
-                      style={{ color: 'var(--color-content-text)' }}
-                    >
-                      Total
-                    </span>
-                    <span
-                      className='text-[42px] font-black leading-none tracking-tight'
-                      style={{ color: 'var(--color-content-text)' }}
-                    >
-                      {hasVariableSymptom && subtotal === 0 ? (
-                        'Estimate Required'
-                      ) : (
-                        <>
-                          {hasVariableSymptom && (
-                            <span
-                              className='block text-[12px] font-bold mb-2 text-right'
-                              style={{
-                                color: 'var(--color-content-text-secondary)',
-                              }}
-                            >
-                              Starting from
-                            </span>
-                          )}
-                          ₹{totalAmount.toLocaleString('en-IN')}
-                        </>
-                      )}
-                    </span>
-                  </div>
-                </div>
-
+              <div className='flex flex-col gap-6'>
+                <DesktopPricingSummary
+                  itemizedSymptoms={itemizedSymptoms}
+                  partTier={partTier}
+                  hasVariableSymptom={hasVariableSymptom}
+                  subtotal={subtotal}
+                  gstAmount={gstAmount}
+                  totalAmount={totalAmount}
+                />
                 <button
                   onClick={handlePlaceOrder}
                   disabled={isSubmitting || isLoading}
@@ -976,11 +1047,7 @@ export default function OrderSummaryPage() {
                     color: 'var(--theme-btn-primary-text)',
                   }}
                 >
-                  {isLoading
-                    ? 'Calculating...'
-                    : isSubmitting
-                    ? 'Processing...'
-                    : 'Proceed to Details'}{' '}
+                  {getButtonText(isLoading, isSubmitting)}{' '}
                   <ChevronRight size={20} />
                 </button>
               </div>

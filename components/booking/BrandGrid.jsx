@@ -2,9 +2,9 @@
 
 import { useState, useMemo } from 'react'
 import { Search, ScanLine } from 'lucide-react'
-import Skeleton from '@/components/ui/Skeleton'
 import OptimizedImage from '@/components/ui/OptimizedImage'
 import { getBrandLogo } from '@/lib/utils'
+import PropTypes from 'prop-types'
 
 /* ── Gear SVG (reusable decoration) ─────────────────────────────────────── */
 const GearDecoration = () => (
@@ -19,6 +19,10 @@ const GearDecoration = () => (
 )
 
 /* ── "Can't Find" dark banner ─────────────────────────────────────────────── */
+CantFindBanner.propTypes = {
+  desktop: PropTypes.bool,
+}
+
 export function CantFindBanner({ desktop = false }) {
   return (
     <div
@@ -74,6 +78,10 @@ export function TrustBadges() {
 }
 
 /* ── Scan Serial Button ────────────────────────────────────────────────────── */
+ScanSerialButton.propTypes = {
+  compact: PropTypes.bool,
+}
+
 export function ScanSerialButton({ compact = false }) {
   return (
     <button
@@ -115,6 +123,13 @@ export function ScanSerialButton({ compact = false }) {
 /* ══════════════════════════════════════════════════════════════════════════
    BRAND GRID
    ══════════════════════════════════════════════════════════════════════════ */
+BrandGrid.propTypes = {
+  brands: PropTypes.array,
+  isLoading: PropTypes.bool,
+  onSelectBrand: PropTypes.func.isRequired,
+  selectedBrandId: PropTypes.string,
+}
+
 export default function BrandGrid({
   brands = [],
   isLoading,
@@ -173,8 +188,8 @@ export default function BrandGrid({
             gap: 12,
           }}
         >
-          {Array.from({ length: 8 }).map((_, i) => (
-            <div key={i} className='skeleton brand-grid-skeleton' />
+          {['sk-0','sk-1','sk-2','sk-3','sk-4','sk-5','sk-6','sk-7'].map((skKey) => (
+            <div key={skKey} className='skeleton brand-grid-skeleton' />
           ))}
         </div>
       )}

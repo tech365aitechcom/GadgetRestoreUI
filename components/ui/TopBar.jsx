@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, X } from 'lucide-react';
+import PropTypes from 'prop-types';
 
 /**
  * TopBar — sticky mobile header
@@ -14,6 +15,15 @@ import { ArrowLeft, X } from 'lucide-react';
  *   borderless  — hide bottom border (default: false)
  *   closeMode   — use X icon instead of arrow (default: false)
  */
+TopBar.propTypes = {
+  title: PropTypes.string,
+  onBack: PropTypes.func,
+  showBack: PropTypes.bool,
+  rightAction: PropTypes.node,
+  borderless: PropTypes.bool,
+  closeMode: PropTypes.bool,
+};
+
 export default function TopBar({
   title,
   onBack,

@@ -3,16 +3,10 @@
 import { useEffect, useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import {
-  ArrowLeft,
   Shield,
   Award,
-  ChevronRight,
-  Check,
-  Clock,
-  Smartphone,
-  AlertCircle,
-  Sparkles,
 } from 'lucide-react'
+import PropTypes from 'prop-types'
 
 import catalogueService from '@/services/catalogue.service'
 import { useBooking } from '@/context/BookingContext'
@@ -77,6 +71,19 @@ function collectRepairTypeIds(symptoms) {
 }
 
 /* ─── TierCard ──────────────────────────────────────────────────────────────── */
+TierCard.propTypes = {
+  tier: PropTypes.shape({
+    tier: PropTypes.string.isRequired,
+    defaultWarrantyMonths: PropTypes.number,
+    image: PropTypes.string,
+    description: PropTypes.string,
+  }).isRequired,
+  isSelected: PropTypes.bool.isRequired,
+  availability: PropTypes.object.isRequired,
+  onSelect: PropTypes.func.isRequired,
+  compact: PropTypes.bool,
+}
+
 function TierCard({
   tier,
   isSelected,
@@ -310,7 +317,6 @@ export default function SelectTierPage() {
     symptoms,
     partTier: contextTier,
     setPartTier,
-    category,
   } = useBooking()
 
   const [tiers, setTiers] = useState([])
@@ -421,7 +427,6 @@ export default function SelectTierPage() {
 
   if (!isReady) return null
 
-  const categoryName = category?.name || model?.categoryId?.name || 'Device'
   const canContinue = !!selectedTier
 
 
@@ -617,7 +622,11 @@ export default function SelectTierPage() {
                 transition: 'color 0.2s',
               }}
               onMouseOver={(e) => (e.target.style.color = '#ffffff')}
+              onFocus={(e) => (e.target.style.color = '#ffffff')}
               onMouseOut={(e) =>
+                (e.target.style.color = 'rgba(255, 255, 255, 0.6)')
+              }
+              onBlur={(e) =>
                 (e.target.style.color = 'rgba(255, 255, 255, 0.6)')
               }
             >

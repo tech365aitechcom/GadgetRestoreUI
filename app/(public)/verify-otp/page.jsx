@@ -2,9 +2,41 @@
 
 import { Suspense, useState, useEffect, useRef } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { ArrowLeft, Bell, Lock, Shield } from 'lucide-react'
+import { Lock, Shield } from 'lucide-react'
 import authService from '@/services/auth.service'
 import { OTP_RESEND_SECONDS } from '@/lib/constants'
+
+/**
+ * Determines the post-login redirect URL.
+ * Priority: URL param > booking state > session storage > default '/'
+ */
+function resolveRedirectUrl(searchParams) {
+  const redirectParam = searchParams.get('redirect')
+  if (redirectParam) return redirectParam
+
+  if (globalThis.window === undefined) return '/'
+
+  // Check for an active booking state that should route to schedule
+  const bookingStateStr = localStorage.getItem('gr_booking_state')
+  if (bookingStateStr) {
+    try {
+      const bookingState = JSON.parse(bookingStateStr)
+      if (bookingState.brand && bookingState.model) return null // signal: go to /schedule
+    } catch (e) {
+      console.error('Failed to parse booking state:', e)
+    }
+  }
+
+  const storedRedirect = sessionStorage.getItem('gr_redirect_after_login')
+  if (storedRedirect) {
+    sessionStorage.removeItem('gr_redirect_after_login')
+    return storedRedirect
+  }
+
+  return '/'
+}
+
+const OTP_SLOTS = ['s0', 's1', 's2', 's3', 's4', 's5']
 
 function VerifyOtpContent() {
   const router = useRouter()
@@ -16,7 +48,7 @@ function VerifyOtpContent() {
     const queryPhone = searchParams.get('phone')
     if (queryPhone) {
       setPhone(queryPhone)
-    } else if (typeof window !== 'undefined') {
+    } else if (globalThis.window !== undefined) {
       const stored = sessionStorage.getItem('gr_login_phone')
       if (stored) {
         setPhone(stored)
@@ -65,7 +97,7 @@ function VerifyOtpContent() {
     setOtpString(digitsOnly)
 
     // Update individual boxes
-    const newOtp = Array(6).fill('')
+    const newOtp = new Array(6).fill('')
     for (let i = 0; i < digitsOnly.length; i++) {
       newOtp[i] = digitsOnly[i]
     }
@@ -187,41 +219,20 @@ function VerifyOtpContent() {
       localStorage.removeItem(`gr_otp_blocked_${phone}`)
 
       // Save authenticated phone for checkout flow
-      if (typeof window !== 'undefined') {
+      if (globalThis.window !== undefined) {
         localStorage.setItem('gr_authenticated_phone', phone)
       }
 
-      // Determine redirect URL with priority: URL param > session storage > default
-      let redirectUrl = '/'
-
-      // First check URL params (highest priority)
-      const redirectParam = searchParams.get('redirect')
-      if (redirectParam) {
-        redirectUrl = redirectParam
-      } else if (typeof window !== 'undefined') {
-        // Then check session storage
-        const storedRedirect = sessionStorage.getItem('gr_redirect_after_login')
-        if (storedRedirect) {
-          redirectUrl = storedRedirect
-          sessionStorage.removeItem('gr_redirect_after_login')
-        }
+      // Determine redirect URL and navigate
+      if (globalThis.window !== undefined) {
         sessionStorage.removeItem('gr_login_phone')
-
-        // Check if there is an active booking state
-        const bookingStateStr = localStorage.getItem('gr_booking_state')
-        if (bookingStateStr) {
-          try {
-            const bookingState = JSON.parse(bookingStateStr)
-            if (bookingState.brand && bookingState.model) {
-              router.push('/schedule')
-              return
-            }
-          } catch (e) { }
-        }
       }
-
-      // Successfully authenticated, route to intended page
-      router.push(redirectUrl)
+      const redirectUrl = resolveRedirectUrl(searchParams)
+      if (redirectUrl === null) {
+        router.push('/schedule')
+      } else {
+        router.push(redirectUrl)
+      }
     } catch (err) {
       setError(err.message || 'Verification failed. Please try again.')
     } finally {
@@ -305,13 +316,20 @@ function VerifyOtpContent() {
               />
 
               {/* Visual OTP boxes */}
-              <div
-                className='flex justify-between gap-2 mb-6 ltr'
+              <button
+                type='button'
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    hiddenInputRef.current?.focus();
+                  }
+                }}
+                className='flex justify-between gap-2 mb-6 ltr w-full border-0 bg-transparent p-0'
                 onClick={() => hiddenInputRef.current?.focus()}
               >
                 {otp.map((digit, idx) => (
                   <div
-                    key={idx}
+                    key={OTP_SLOTS[idx]}
                     className='otp-box-mobile w-11 h-12 bg-white/[0.04] border border-white/10 rounded text-white text-center text-xl font-bold flex items-center justify-center cursor-pointer transition-colors'
                     style={{
                       borderBottom:
@@ -325,7 +343,7 @@ function VerifyOtpContent() {
                     {digit}
                   </div>
                 ))}
-              </div>
+              </button>
 
               {error && (
                 <span className='block text-xs text-red-500 mb-5 font-medium'>
@@ -408,7 +426,7 @@ function VerifyOtpContent() {
               >
                 {otp.map((digit, idx) => (
                   <input
-                    key={idx}
+                    key={OTP_SLOTS[idx]}
                     type='text'
                     pattern='[0-9]*'
                     inputMode='numeric'

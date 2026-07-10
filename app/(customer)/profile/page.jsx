@@ -23,8 +23,6 @@ import {
 } from '@/lib/constants'
 import { useAuth } from '@/context/AuthContext'
 import customerService from '@/services/customer.service'
-import notificationService from '@/services/notification.service'
-import pushNotificationService from '@/services/push-notification.service'
 import Skeleton from '@/components/ui/Skeleton'
 
 export default function ProfilePage() {
@@ -46,12 +44,7 @@ export default function ProfilePage() {
     addressCount: 0,
   })
 
-  const [notifications, setNotifications] = useState({
-    whatsappNotifications: true,
-    smsNotifications: true,
-    emailNotifications: false,
-    pushNotifications: true,
-  })
+
 
   const fetchProfileData = useCallback(async () => {
     try {
@@ -78,20 +71,10 @@ export default function ProfilePage() {
         addressCount: profile.addresses?.length || 0,
       })
 
-      // Set notification preferences
-      if (profile.preferences) {
-        setNotifications({
-          whatsappNotifications:
-            profile.preferences.whatsappNotifications ?? true,
-          smsNotifications: profile.preferences.smsNotifications ?? true,
-          emailNotifications: profile.preferences.emailNotifications ?? false,
-          pushNotifications: profile.preferences.pushNotifications ?? true,
-        })
-      }
+
     } catch (error) {
       if (
-        error.message &&
-        error.message.toLowerCase().includes('customer not found')
+        error.message?.toLowerCase().includes('customer not found')
       ) {
         // Expected for new users, set default guest profile
         setUserData((prev) => ({
@@ -125,106 +108,7 @@ export default function ProfilePage() {
     logout()
   }
 
-  const handleToggleNotification = async (key) => {
-    const newValue = !notifications[key]
 
-    if (key === 'pushNotifications' && newValue) {
-      try {
-        await pushNotificationService.requestAndRegister()
-      } catch (error) {
-        toast.error(error.message || 'Push notifications could not be enabled')
-        return
-      }
-    }
-
-    // Optimistically update UI
-    setNotifications((prev) => ({
-      ...prev,
-      [key]: newValue,
-    }))
-
-    try {
-      await customerService.updatePreferences({
-        [key]: newValue,
-      })
-      if (key === 'pushNotifications' && !newValue) {
-        try {
-          await pushNotificationService.unregister()
-        } catch (error) {
-          // Push unregister failed silently
-        }
-      }
-      toast.success('Notification preference updated')
-    } catch (error) {
-      console.error('Failed to update notification preference:', error)
-      // Revert on error
-      setNotifications((prev) => ({
-        ...prev,
-        [key]: !newValue,
-      }))
-      toast.error('Failed to update preference')
-    }
-  }
-
-  const handleRegisterBrowserPush = async () => {
-    try {
-      await pushNotificationService.requestAndRegister()
-      await customerService.updatePreferences({ pushNotifications: true })
-      setNotifications((prev) => ({
-        ...prev,
-        pushNotifications: true,
-      }))
-      toast.success('Browser push enabled for this device')
-    } catch (error) {
-      toast.error(error.message || 'Push notifications could not be enabled')
-    }
-  }
-
-  const handleSendTestPush = async () => {
-    try {
-      const response = await notificationService.sendTestPush()
-      const result = response.data || {}
-
-      if (result.success) {
-        await pushNotificationService.showLocalNotification(
-          'Gadget Restore test notification',
-          {
-            body: 'Push notification display is working on this browser.',
-          },
-        )
-        toast.success('Test push sent. Check your browser notifications.')
-        return
-      }
-
-      const reasonMap = {
-        customer_preference_disabled:
-          'Push preference is disabled. Enable it first.',
-        firebase_not_configured:
-          'Backend Firebase credentials are not configured.',
-        no_registered_devices:
-          'This browser is not registered yet. Click Enable this device first.',
-      }
-      toast.error(reasonMap[result.reason] || 'Test push was not sent.')
-    } catch (error) {
-      toast.error(error.message || 'Failed to send test push')
-    }
-  }
-
-  const handleContactSupport = (method) => {
-    switch (method) {
-      case 'whatsapp':
-        globalThis.open(SUPPORT_WHATSAPP, '_blank')
-        break
-      case 'phone':
-        globalThis.location.href = SUPPORT_PHONE
-        break
-      case 'email':
-        globalThis.location.href = SUPPORT_EMAIL
-        break
-      default:
-        break
-    }
-  }
 
   if (isLoading) {
     return (
@@ -243,8 +127,8 @@ export default function ProfilePage() {
             <div>
               <Skeleton className='h-3 w-28 rounded mb-3' />
               <div className='space-y-2'>
-                {Array.from({ length: 3 }).map((_, i) => (
-                  <Skeleton key={i} className='h-[72px] w-full rounded-xl' />
+                {['skeleton-mob-1', 'skeleton-mob-2', 'skeleton-mob-3'].map((key) => (
+                  <Skeleton key={key} className='h-[72px] w-full rounded-xl' />
                 ))}
               </div>
             </div>
@@ -252,8 +136,8 @@ export default function ProfilePage() {
             <div>
               <Skeleton className='h-3 w-20 rounded mb-3' />
               <div className='space-y-2'>
-                {Array.from({ length: 3 }).map((_, i) => (
-                  <Skeleton key={i} className='h-[72px] w-full rounded-xl' />
+                {['skeleton-mob-addr-1', 'skeleton-mob-addr-2', 'skeleton-mob-addr-3'].map((key) => (
+                  <Skeleton key={key} className='h-[72px] w-full rounded-xl' />
                 ))}
               </div>
             </div>
@@ -278,8 +162,8 @@ export default function ProfilePage() {
             <div className='bg-[var(--theme-card)] rounded-2xl border border-[var(--theme-border)] p-6 shadow-sm space-y-5'>
               <Skeleton className='h-6 w-36 rounded-lg mb-2' />
               <div className='space-y-3'>
-                {Array.from({ length: 3 }).map((_, i) => (
-                  <div key={i} className='flex items-center gap-4 p-2'>
+                {['skeleton-desk-left-1', 'skeleton-desk-left-2', 'skeleton-desk-left-3'].map((key) => (
+                  <div key={key} className='flex items-center gap-4 p-2'>
                     <Skeleton className='w-11 h-11 rounded-xl' />
                     <div className='flex-1 space-y-2'>
                       <Skeleton className='h-4 w-32 rounded' />
@@ -296,9 +180,9 @@ export default function ProfilePage() {
                 <Skeleton className='h-6 w-44 rounded-lg mb-2' />
                 <Skeleton className='h-4 w-full rounded-md' />
                 <div className='space-y-3'>
-                  {Array.from({ length: 3 }).map((_, i) => (
+                  {['skeleton-desk-right-1', 'skeleton-desk-right-2', 'skeleton-desk-right-3'].map((key) => (
                     <div
-                      key={i}
+                      key={key}
                       className='flex items-center gap-4 p-4 bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl'
                     >
                       <Skeleton className='w-10 h-10 rounded-lg' />
