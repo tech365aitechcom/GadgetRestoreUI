@@ -118,7 +118,7 @@ export default function CustomerDetailsPage() {
   const handleOpenPolicy = async (e, policyKey) => {
     e.preventDefault()
     e.stopPropagation()
-    
+
     const paths = {
       privacy: '/privacy-policy',
       terms: '/terms-and-conditions',
@@ -127,7 +127,7 @@ export default function CustomerDetailsPage() {
       replacement: '/replacement-cancellation-policy',
       cookie: '/cookie-policy',
     }
-    
+
     const path = paths[policyKey]
     if (!path) return
     const pathWithQuery = `${path}?from=checkout`
@@ -359,7 +359,7 @@ export default function CustomerDetailsPage() {
               icon={Phone}
               name='mobile'
               value={formData.mobile}
-              onChange={() => {}}
+              onChange={() => { }}
               readOnly
             />
 
@@ -573,7 +573,7 @@ export default function CustomerDetailsPage() {
                       icon={Phone}
                       name='mobile'
                       value={formData.mobile}
-                      onChange={() => {}}
+                      onChange={() => { }}
                       readOnly
                     />
                   </div>

@@ -1217,16 +1217,19 @@ export default function SelectSymptomsPage() {
                       <div style={{ minWidth: 0 }}>
                         <span
                           style={{
-                            display: 'block',
+                            display: '-webkit-box',
+                            WebkitLineClamp: 2,
+                            WebkitBoxOrient: 'vertical',
                             fontWeight: 700,
                             fontSize: 13,
+                            lineHeight: 1.2,
                             color: isSelected
                               ? 'var(--color-accent)'
                               : 'var(--color-content-text)',
                             marginBottom: 2,
-                            whiteSpace: 'nowrap',
                             overflow: 'hidden',
                             textOverflow: 'ellipsis',
+                            wordBreak: 'break-word',
                           }}
                         >
                           {symptom.name}

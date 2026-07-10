@@ -17,12 +17,12 @@ import PropTypes from 'prop-types'
 
 function collectRepairTypeIds(symptoms) {
   const ids = new Set()
-  ;(symptoms || []).forEach((s) => {
-    ;(s.repairTypes || []).forEach((rt) => {
-      const id = typeof rt === 'object' ? rt._id : rt
-      if (id) ids.add(id)
+    ; (symptoms || []).forEach((s) => {
+      ; (s.repairTypes || []).forEach((rt) => {
+        const id = typeof rt === 'object' ? rt._id : rt
+        if (id) ids.add(id)
+      })
     })
-  })
   return [...ids]
 }
 
@@ -575,8 +575,8 @@ export default function OrderSummaryPage() {
             {isLoading
               ? 'Calculating...'
               : isSubmitting
-              ? 'Processing...'
-              : 'Proceed to Details'}{' '}
+                ? 'Processing...'
+                : 'Proceed to Details'}{' '}
             <ChevronRight size={18} />
           </button>
         </div>
@@ -979,8 +979,8 @@ export default function OrderSummaryPage() {
                   {isLoading
                     ? 'Calculating...'
                     : isSubmitting
-                    ? 'Processing...'
-                    : 'Proceed to Details'}{' '}
+                      ? 'Processing...'
+                      : 'Proceed to Details'}{' '}
                   <ChevronRight size={20} />
                 </button>
               </div>
