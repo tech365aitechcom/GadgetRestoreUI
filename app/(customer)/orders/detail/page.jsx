@@ -561,14 +561,15 @@ function OrderDetailContent() {
 
   // Render a detailed timeline step with expansion
   const renderDetailedTimelineStep = (step, index, isLast) => {
-    const isCompleted =
-      isStatusCompleted(step.status) ||
-      (step.status === 'DELIVERED' && order.repairStatus === 'DELIVERED') ||
-      (step.status === 'CANCELLED' && order.repairStatus === 'CANCELLED')
     const isCurrent =
       step.status === order.repairStatus &&
       order.repairStatus !== 'DELIVERED' &&
       order.repairStatus !== 'CANCELLED'
+    const isCompleted =
+      !isCurrent &&
+      (isStatusCompleted(step.status) ||
+        (step.status === 'DELIVERED' && order.repairStatus === 'DELIVERED') ||
+        (step.status === 'CANCELLED' && order.repairStatus === 'CANCELLED'))
     const isFuture = !isCompleted && !isCurrent
     const timelineDetails = getTimelineDetails(step.status)
     const isExpanded = expandedSteps.has(step.status)
