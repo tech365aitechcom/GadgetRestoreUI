@@ -337,7 +337,7 @@ export default function SelectSymptomsPage() {
                         gap: 6,
                       }}
                     >
-                      {/* <span>{category?.name || ''}</span> */}
+                      <span>{brand.name}</span>
                       {/* <span style={{ opacity: 0.5 }}>•</span>
                       <span>{model?.ramRom?.[0] || (model?.year ? `${model.year}` : '256GB')}</span> */}
                     </p>
@@ -1097,7 +1097,7 @@ export default function SelectSymptomsPage() {
                     margin: 0,
                   }}
                 >
-                  {category?.name || ''}
+                  Selected Brand: {brand.name}
                 </p>
               </div>
 
