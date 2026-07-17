@@ -1546,6 +1546,10 @@ export default function SplashOrLandingPage() {
                   q: 'What devices do you repair?',
                   a: 'We specialize in the repair and service of the entire Apple product ecosystem, including iPhones, iPads, MacBooks, iMacs, and Apple Watches.',
                 },
+                {
+                  q: 'What Kind of parts will be used in the repair?',
+                  a: "Unless explicitly mentioned otherwise, Gadget Restore uses Premium Grade parts. The performance will be the same as that of the original part. Gadget Restore's quality team certifies every part through a thorough grading process.",
+                },
               ].map((faq, idx) => {
                 const isOpen = activeFaq === idx
                 return (

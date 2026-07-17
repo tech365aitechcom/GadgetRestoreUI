@@ -338,8 +338,8 @@ export default function SelectSymptomsPage() {
                       }}
                     >
                       <span>{brand.name}</span>
-                      <span style={{ opacity: 0.5 }}>•</span>
-                      <span>{model?.ramRom?.[0] || (model?.year ? `${model.year}` : '256GB')}</span>
+                      {/* <span style={{ opacity: 0.5 }}>•</span>
+                      <span>{model?.ramRom?.[0] || (model?.year ? `${model.year}` : '256GB')}</span> */}
                     </p>
                   </div>
 
