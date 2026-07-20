@@ -2061,6 +2061,12 @@ export default function SplashOrLandingPage() {
           </div>
         </div>
 
+        <div className='max-w-7xl mx-auto mb-8 px-4 text-center'>
+          <p className='text-[10px] text-zinc-500 leading-relaxed max-w-4xl mx-auto'>
+            <strong className='text-zinc-400'>Disclaimer:</strong> Unless explicitly mentioned otherwise, Gadget Restore uses Premium Grade parts. The performance will be the same as that of the original part.
+          </p>
+        </div>
+
         <div className='max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6'>
           <img
             src='/gadget-restore-logo.svg'
