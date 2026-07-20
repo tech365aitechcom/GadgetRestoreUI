@@ -107,28 +107,7 @@ export default function SelectModelPage() {
               <ArrowLeft size={14} /> {backLabel}
             </button>
 
-            {/* Selected Brand logo/chip (Mobile only) */}
-            <div className="lg:hidden mb-3.5">
-              {logoUrl ? (
-                <div className="flex items-center gap-2.5">
-                  <img
-                    src={logoUrl}
-                    alt={brandName}
-                    className="h-7 object-contain"
-                    style={{
-                      filter: ['google', 'realme'].includes(brandName.toLowerCase())
-                        ? 'none'
-                        : 'var(--brand-logo-filter)',
-                    }}
-                  />
-                  <span className="text-xs font-semibold text-[var(--color-content-text-secondary)] uppercase tracking-wider">{brandName}</span>
-                </div>
-              ) : (
-                <span className="text-[11px] font-bold text-[var(--color-accent)] uppercase tracking-widest bg-[rgba(108,123,255,0.1)] px-3 py-1 rounded-full">
-                  {brandName}
-                </span>
-              )}
-            </div>
+            {/* Selected Brand logo/chip (Mobile only) - Removed for iOS app branch */}
 
             {/* Page Heading */}
             <h1 className="text-[26px] lg:text-[36px] font-black tracking-tight lg:tracking-tighter text-[var(--color-content-text)] uppercase mb-2 lg:mb-2.5">
@@ -139,7 +118,7 @@ export default function SelectModelPage() {
             <p className="text-sm text-[var(--color-content-text-secondary)] leading-relaxed max-w-[500px]">
               {fromProductsFlow
                 ? `Choose your ${category?.name || brandName} model to get a precise repair quote from our certified technicians.`
-                : `Identify your ${brandName} model to receive a precise technical evaluation and repair quote.`}
+                : `Identify your model to receive a precise technical evaluation and repair quote.`}
             </p>
           </div>
 
