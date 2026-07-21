@@ -471,12 +471,14 @@ export default function SelectSymptomsPage() {
 
               {!isLoading && !error && (
                 <>
-                  {/* 3-column grid per implementation plan (Desktop: responsive 3-col) */}
+                  {/* Responsive symptom cards */}
                   <div
                     style={{
-                      display: 'grid',
-                      gridTemplateColumns: 'repeat(3, 1fr)',
+                      display: 'flex',
+                      flexWrap: 'wrap',
                       gap: 16,
+                      justifyContent: 'flex-start',
+                      alignItems: 'stretch',
                     }}
                   >
                     {filteredSymptoms.map((symptom) => {
@@ -510,7 +512,7 @@ export default function SelectSymptomsPage() {
                                 </div>
                               )}
                             </div>
-                            <div style={{ minWidth: 0, paddingRight: 4 }}>
+                            <div style={{ minWidth: 0, flex: 1 }}>
                               <div
                                 style={{
                                   fontWeight: 800,
@@ -519,9 +521,7 @@ export default function SelectSymptomsPage() {
                                     ? 'var(--color-accent)'
                                     : 'var(--color-content-text)',
                                   marginBottom: 4,
-                                  whiteSpace: 'nowrap',
-                                  overflow: 'hidden',
-                                  textOverflow: 'ellipsis',
+                                  wordBreak: 'break-word',
                                 }}
                               >
                                 {symptom.name}
@@ -530,12 +530,8 @@ export default function SelectSymptomsPage() {
                                 style={{
                                   fontSize: 12,
                                   color: 'var(--color-content-text-secondary)',
-                                  display: '-webkit-box',
-                                  WebkitLineClamp: 2,
-                                  WebkitBoxOrient: 'vertical',
-                                  overflow: 'hidden',
-                                  textOverflow: 'ellipsis',
                                   lineHeight: 1.4,
+                                  wordBreak: 'break-word',
                                 }}
                               >
                                 {symptom.description ||
@@ -1156,7 +1152,14 @@ export default function SelectSymptomsPage() {
           )}
 
           {!isLoading && !error && (
-            <div className='grid grid-cols-2 gap-4'>
+            <div
+              style={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                gap: 12,
+                justifyContent: 'flex-start',
+              }}
+            >
               {filteredSymptoms.map((symptom) => {
                 const isSelected = selectedIds.includes(symptom._id)
                 return (
@@ -1164,14 +1167,14 @@ export default function SelectSymptomsPage() {
                     key={symptom._id}
                     onClick={() => handleToggleSymptom(symptom._id)}
                     className={`symptom-card ${isSelected ? 'selected' : ''}`}
+                    style={{ flex: '1 1 140px', maxWidth: '100%' }}
                   >
                     <div
                       style={{
                         display: 'flex',
                         alignItems: 'center',
-                        gap: 12,
-                        flex: 1,
-                        minWidth: 0,
+                        gap: 10,
+                        width: '100%',
                       }}
                     >
                       <div className="symptom-icon-container">
@@ -1187,23 +1190,30 @@ export default function SelectSymptomsPage() {
                           </div>
                         )}
                       </div>
-                      <div style={{ minWidth: 0 }}>
-                        <span
+                      <div style={{ minWidth: 0, flex: 1 }}>
+                        <div
                           style={{
-                            display: 'block',
                             fontWeight: 700,
                             fontSize: 13,
                             color: isSelected
                               ? 'var(--color-accent)'
                               : 'var(--color-content-text)',
                             marginBottom: 2,
-                            whiteSpace: 'nowrap',
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
+                            wordBreak: 'break-word',
                           }}
                         >
                           {symptom.name}
-                        </span>
+                        </div>
+                        <div
+                          style={{
+                            fontSize: 11,
+                            color: 'var(--color-content-text-secondary)',
+                            lineHeight: 1.3,
+                            wordBreak: 'break-word',
+                          }}
+                        >
+                          {symptom.description || 'Common hardware repair'}
+                        </div>
                       </div>
                     </div>
                   </button>
@@ -1503,8 +1513,10 @@ export default function SelectSymptomsPage() {
           transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
           outline: none;
           position: relative;
-          overflow: hidden;
+          overflow: visible;
           box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+          flex: 1 1 280px;
+          max-width: 400px;
         }
         
         .symptom-card:hover {
@@ -1525,8 +1537,10 @@ export default function SelectSymptomsPage() {
           display: flex;
           align-items: center;
           justify-content: center;
-          width: 100px;
-          height: 100px;
+          width: 52px;
+          height: 52px;
+          min-width: 40px;
+          min-height: 40px;
           border-radius: 16px;
           background: var(--color-content-bg);
           color: var(--color-content-text-secondary);
@@ -1568,8 +1582,8 @@ export default function SelectSymptomsPage() {
             border-radius: 12px !important;
           }
           .symptom-icon-container {
-            width: 68px;
-            height: 68px;
+            width: 40px;
+            height: 40px;
             border-radius: 12px;
           }
           .symptom-icon-img {
