@@ -1085,36 +1085,11 @@ export default function SelectSymptomsPage() {
                 >
                   {model.name}
                 </h3>
-                <p
-                  style={{
-                    fontSize: 13,
-                    fontWeight: 500,
-                    color: 'var(--color-content-text-secondary)',
-                    margin: 0,
-                  }}
-                >
-                  Selected Brand: {brand.name}
-                </p>
+               
               </div>
 
                {/* Right Section: Brand Logo */}
-              {logoUrl && (
-                <div style={{ flexShrink: 0, display: 'flex', alignItems: 'center' }}>
-                  <img
-                    src={logoUrl}
-                    alt={brand.name}
-                    style={{
-                      height: 22,
-                      width: 'auto',
-                      objectFit: 'contain',
-                      filter: ['google', 'realme'].includes(brand.name.toLowerCase())
-                        ? 'none'
-                        : 'var(--brand-logo-filter)',
-                    }}
-                    className="mobile-device-brand-logo"
-                  />
-                </div>
-              )}       
+                 
               </div>
           </div>
 
