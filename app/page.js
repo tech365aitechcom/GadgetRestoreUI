@@ -651,10 +651,10 @@ export default function SplashOrLandingPage() {
               </div>
               <div>
                 <div className='font-extrabold text-zinc-800 text-[11px] tracking-wider'>
-                  Opening Time
+                Timings
                 </div>
                 <div className='text-[11px] font-medium'>
-                  Mon - Sat 10:00 - 19:00
+                  Mon - Sat 10:00 AM - 07:00 PM
                 </div>
               </div>
             </div>
@@ -1057,7 +1057,7 @@ export default function SplashOrLandingPage() {
         <div className='grid grid-cols-1 md:grid-cols-3 gap-8 max-w-7xl mx-auto'>
           {[
             {
-              title: 'Smart Phone Repair',
+              title: 'Phone Repair',
               img: '/images/pcb3.png',
               slotKey: 'mobile',
             },
@@ -1076,7 +1076,7 @@ export default function SplashOrLandingPage() {
               key={item.title}
               type='button'
               onClick={() => {
-                if (item.title === 'Smart Phone Repair') {
+                if (item.title === 'Phone Repair') {
                   handleCategorySelect(item.slotKey)
                 } else {
                   const contactSec = document.getElementById('contact')
@@ -1548,7 +1548,7 @@ export default function SplashOrLandingPage() {
                 },
                 {
                   q: 'What Kind of parts will be used in the repair?',
-                  a: "Unless explicitly mentioned otherwise, Gadget Restore uses Premium Grade parts. The performance will be the same as that of the original part. Gadget Restore's quality team certifies every part through a thorough grading process.",
+                  a: "Unless explicitly mentioned , Gadget Restore uses Premium Grade parts. The performance will be the same as that of the original part. Gadget Restore's quality team certifies every part through a thorough grading process.",
                 },
               ].map((faq, idx) => {
                 const isOpen = activeFaq === idx
@@ -1987,10 +1987,10 @@ export default function SplashOrLandingPage() {
             </div>
             <div className='text-left'>
               <div className='font-extrabold text-white text-[11px] tracking-wider'>
-                Opening Time
+              Timings
               </div>
               <div className='text-[11px] font-medium text-zinc-400'>
-                Mon - Sat 10:00 - 19:00
+             Mon - Sat 10:00 AM - 07:00 PM
               </div>
             </div>
           </div>
@@ -2063,7 +2063,7 @@ export default function SplashOrLandingPage() {
 
         <div className='max-w-7xl mx-auto mb-8 px-4 text-center'>
           <p className='text-[10px] text-zinc-500 leading-relaxed max-w-4xl mx-auto'>
-            <strong className='text-zinc-400'>Disclaimer:</strong> Unless explicitly mentioned otherwise, Gadget Restore uses Premium Grade parts. The performance will be the same as that of the original part.
+            <strong className='text-zinc-400'>Disclaimer:</strong> Unless explicitly mentioned, Gadget Restore uses Premium Grade parts. The performance will be the same as that of the original part.
           </p>
         </div>
 
