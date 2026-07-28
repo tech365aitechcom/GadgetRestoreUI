@@ -950,13 +950,16 @@ export default function SplashOrLandingPage() {
             expertise.
           </p>
 
-          <div className='flex flex-wrap gap-4'>
+          <div className='flex flex-wrap items-center gap-6'>
             <a
               href='#contact'
-              className='border border-black/30 hover:border-black text-black font-black tracking-wider text-xs px-8 py-4 rounded-none flex items-center justify-center gap-2 hover:bg-black/5 active:scale-95 transition-all cursor-pointer'
+              className='border border-black/30 hover:border-black text-black font-black tracking-wider text-xs px-8 py-4 rounded-none flex items-center justify-center gap-2 hover:bg-black/5 active:scale-95 transition-all cursor-pointer shrink-0'
             >
               Contact Us
             </a>
+            <p className='text-[10px] text-zinc-600 leading-relaxed max-w-[280px]'>
+              <strong className='text-zinc-900'>Disclaimer:</strong> Unless explicitly mentioned, Gadget Restore uses Premium Grade parts. The performance will be the same as that of the original part.
+            </p>
           </div>
         </div>
       </section>
@@ -2059,12 +2062,6 @@ export default function SplashOrLandingPage() {
               </a>
             </div>
           </div>
-        </div>
-
-        <div className='max-w-7xl mx-auto mb-8 px-4 text-center'>
-          <p className='text-[10px] text-zinc-500 leading-relaxed max-w-4xl mx-auto'>
-            <strong className='text-zinc-400'>Disclaimer:</strong> Unless explicitly mentioned, Gadget Restore uses Premium Grade parts. The performance will be the same as that of the original part.
-          </p>
         </div>
 
         <div className='max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6'>
