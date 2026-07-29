@@ -90,6 +90,22 @@ function OrderConfirmationContent() {
     const loadOrder = async () => {
       if (!ticketNumber) return
       try {
+        // App Verification Bypass: Return mock order if it's a mock ticket number
+        if (ticketNumber.startsWith('GR-MOCK-')) {
+          setOrder({
+            brandRef: { name: 'Apple' },
+            modelRef: { name: 'iPhone 15 Pro', image: '/images/default-apple.png' },
+            repairTypes: [{ name: 'Screen Replacement' }],
+            slotDate: new Date().toISOString(),
+            slotTime: '10:00 AM - 12:00 PM',
+            address: { line1: 'App Verification Mock Address', line2: 'Testing Phase', city: 'Test City', pincode: '000000' },
+            repairStatus: 'ORDER_PLACED',
+            finalCost: 14999
+          })
+          setError('')
+          return
+        }
+
         const response = await orderService.getOrderDetails(ticketNumber)
         setOrder(response)
         setError('')

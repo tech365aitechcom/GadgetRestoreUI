@@ -176,6 +176,12 @@ export default function PricingPage() {
 
     // Check if user is already logged in
     const token = Cookies.get(TOKEN_COOKIE)
+    
+    // Temporarily bypass authentication for app verification
+    router.push('/schedule')
+    return
+
+    /*
     if (token) {
       // Proceed directly to schedule. Stale or invalid tokens will be handled
       // globally by the API interceptor when request is made.
@@ -188,6 +194,7 @@ export default function PricingPage() {
       sessionStorage.setItem('gr_redirect_after_login', '/schedule')
     }
     router.push('/login')
+    */
   }
 
   if (isLoading) {

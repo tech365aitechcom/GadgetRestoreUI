@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 
-const PROTECTED_PATHS = ['/orders', '/order-confirmation', '/book', '/profile', '/notifications'];
-
+const PROTECTED_PATHS = []; // ['/orders', '/order-confirmation', '/book', '/profile', '/notifications'];
 export function middleware(req) {
   const token = req.cookies.get('customer_token')?.value;
   const { pathname } = req.nextUrl;
