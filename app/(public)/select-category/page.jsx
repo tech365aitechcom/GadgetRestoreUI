@@ -61,6 +61,7 @@ const SLOTS = [
 
 export default function SelectCategoryPage() {
   const router = useRouter()
+  // Force rebuild
   const { reset, setBrand } = useBooking()
 
   const handleSelectSlot = (slot) => {

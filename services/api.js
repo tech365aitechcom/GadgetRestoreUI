@@ -30,7 +30,8 @@ api.interceptors.response.use(
         typeof window !== 'undefined' &&
         !window.location.pathname.includes('/login')
       ) {
-        redirectToLandingPage()
+        // App verification: temporarily bypass 401 redirect
+        // redirectToLandingPage()
       }
     }
 

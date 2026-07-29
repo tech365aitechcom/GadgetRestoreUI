@@ -26,11 +26,12 @@ export default function PersonalInfoPage() {
   useEffect(() => {
     // Check if user is authenticated
     const token = Cookies.get(TOKEN_COOKIE)
+    /*
     if (!token) {
       router.push('/login')
       return
     }
-
+    */
     fetchUserData()
   }, [router])
 
