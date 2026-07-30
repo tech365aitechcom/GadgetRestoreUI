@@ -184,13 +184,13 @@ export default function SelectSymptomsPage() {
     )
   }, [symptomsList, searchQuery])
 
-  // Handle toggling of a symptom item (Only one symptom can be selected at a time)
+  // Handle toggling of a symptom item (Allow multiple symptoms to be selected)
   const handleToggleSymptom = (id) => {
     setSelectedIds((prev) => {
       if (prev.includes(id)) {
-        return []
+        return prev.filter((symptomId) => symptomId !== id)
       } else {
-        return [id]
+        return [...prev, id]
       }
     })
   }
