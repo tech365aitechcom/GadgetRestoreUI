@@ -217,7 +217,7 @@ export default function SchedulePage() {
   useEffect(() => {
     async function fetchCentres() {
       try {
-        const scData = await serviceCentreService.getAllServiceCentres({ limit: 100 })
+        const scData = await serviceCentreService.getAllServiceCentres({ limit: 100, isActive: true })
         if (scData?.serviceCentres?.length > 0) {
           setServiceCentres(scData.serviceCentres)
           const existingCentre = scData.serviceCentres.find(sc => sc._id === slot?.centreId)
