@@ -659,11 +659,10 @@ function LandingHeader({
     <header className='fixed top-0 left-0 right-0 z-50 w-full bg-white shadow-sm transition-all duration-300 landing-header'>
       {/* PROMOTIONAL TOP INFO HEADER BAR (Figma Header - Desktop only) */}
       <div
-        className={`hidden md:flex bg-[#FAF9FF] border-b border-zinc-100 py-4 px-6 lg:px-20 justify-between items-center gap-4 text-xs transition-all duration-300 ${
-          isScrolled
+        className={`hidden md:flex bg-[#FAF9FF] border-b border-zinc-100 py-4 px-6 lg:px-20 justify-between items-center gap-4 text-xs transition-all duration-300 ${isScrolled
             ? 'h-0 py-0 overflow-hidden opacity-0 border-b-0'
             : 'h-auto opacity-100'
-        }`}
+          }`}
       >
         <div className='flex items-center'>
           <button
@@ -976,11 +975,10 @@ function ReviewsAndFaqSection({
                     key={`dot-${review.name}`}
                     type='button'
                     onClick={() => setCurrentReviewIndex(idx)}
-                    className={`w-1.5 h-1.5 rounded-full transition-all duration-300 shrink-0 ${
-                      idx === currentReviewIndex
+                    className={`w-1.5 h-1.5 rounded-full transition-all duration-300 shrink-0 ${idx === currentReviewIndex
                         ? 'bg-black w-4'
                         : 'bg-zinc-200 hover:bg-zinc-300'
-                    }`}
+                      }`}
                     aria-label={`Go to review ${idx + 1}`}
                   />
                 ))}
@@ -1062,9 +1060,8 @@ function ReviewsAndFaqSection({
                     <span>{faq.q}</span>
                     <ChevronDown
                       size={14}
-                      className={`text-zinc-500 transform transition-transform duration-300 ${
-                        isOpen ? 'rotate-180' : ''
-                      }`}
+                      className={`text-zinc-500 transform transition-transform duration-300 ${isOpen ? 'rotate-180' : ''
+                        }`}
                     />
                   </button>
                   {isOpen && (
@@ -1142,11 +1139,10 @@ function ContactSchedulerSection() {
             {/* Success/Error Message */}
             {submitMessage && (
               <div
-                className={`p-4 rounded-lg border ${
-                  submitMessage.type === 'success'
+                className={`p-4 rounded-lg border ${submitMessage.type === 'success'
                     ? 'bg-emerald-900/20 border-emerald-500/30 text-emerald-300'
                     : 'bg-red-900/20 border-red-500/30 text-red-300'
-                } text-xs leading-relaxed animate-fadeIn`}
+                  } text-xs leading-relaxed animate-fadeIn`}
               >
                 {submitMessage.text}
               </div>
@@ -1257,14 +1253,14 @@ function ContactSchedulerSection() {
                             borderBottom: '1px solid rgba(255,255,255,0.05)',
                           }}
                           onMouseEnter={(e) =>
-                            (e.currentTarget.style.background =
-                              'rgba(255,255,255,0.06)')
+                          (e.currentTarget.style.background =
+                            'rgba(255,255,255,0.06)')
                           }
                           onMouseLeave={(e) =>
-                            (e.currentTarget.style.background =
-                              formData.time === slot
-                                ? 'rgba(255,255,255,0.08)'
-                                : 'transparent')
+                          (e.currentTarget.style.background =
+                            formData.time === slot
+                              ? 'rgba(255,255,255,0.08)'
+                              : 'transparent')
                           }
                         >
                           {slot}
