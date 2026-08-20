@@ -47,6 +47,7 @@ export default function LoginAlertModal({ isOpen, onClose, redirectPath = null }
           {/* Close (X) button — only if onClose is provided */}
           {onClose && (
             <button
+              type='button'
               onClick={onClose}
               aria-label="Close"
               style={{
@@ -111,6 +112,7 @@ export default function LoginAlertModal({ isOpen, onClose, redirectPath = null }
 
             {/* Login Button */}
             <button
+              type='button'
               onClick={handleLogin}
               className="w-full rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
               style={{

@@ -1,13 +1,19 @@
 'use client'
 
+import { useId } from 'react'
+
 export default function Skeleton({ className = '', circle = false, lines }) {
+  const baseId = useId()
+
   if (lines && lines > 1) {
+    const lineItems = Array.from({ length: lines }, (_, idx) => `${baseId}-line-${idx + 1}`)
+
     return (
       <div className='flex flex-col gap-2 w-full'>
-        {Array.from({ length: lines }).map((_, i) => (
+        {lineItems.map((lineId, idx) => (
           <Skeleton
-            key={i}
-            className={`${className} ${i === lines - 1 ? 'w-[70%]' : 'w-full'}`}
+            key={lineId}
+            className={`${className} ${idx === lines - 1 ? 'w-[70%]' : 'w-full'}`}
           />
         ))}
       </div>

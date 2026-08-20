@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useContext, useState, useEffect } from 'react'
+import { createContext, useContext, useState, useEffect, useMemo, useCallback } from 'react'
 import Cookies from 'js-cookie'
 import { TOKEN_COOKIE } from '@/lib/constants'
 import { redirectToLandingPage } from '@/lib/auth-utils'
@@ -18,11 +18,7 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
 
-  useEffect(() => {
-    loadUserData()
-  }, [])
-
-  const loadUserData = async () => {
+  const loadUserData = useCallback(async () => {
     try {
       const token = Cookies.get(TOKEN_COOKIE)
       if (!token) {
@@ -43,8 +39,8 @@ export function AuthProvider({ children }) {
       // Try to get basic info from token
       try {
         const token = Cookies.get(TOKEN_COOKIE)
-        const parts = token.split('.')
-        if (parts.length === 3) {
+        const parts = token?.split('.')
+        if (parts?.length === 3) {
           const payload = JSON.parse(atob(parts[1]))
           setUser({
             name: payload.name || payload.phoneNumber || 'Guest User',
@@ -52,37 +48,41 @@ export function AuthProvider({ children }) {
             mobile: payload.phoneNumber || '',
           })
         }
-      } catch (_) {
-        // Token parsing failed, user stays null
+      } catch (tokenError) {
+        console.debug('Failed to parse token payload fallback:', tokenError)
       }
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [])
 
-  const updateUser = (updates) => {
+  useEffect(() => {
+    loadUserData()
+  }, [loadUserData])
+
+  const updateUser = useCallback((updates) => {
     setUser((prev) => ({
       ...prev,
       ...updates,
     }))
-  }
+  }, [])
 
-  const logout = () => {
+  const logout = useCallback(() => {
     setUser(null)
     // Clear all storage (cookies, localStorage, sessionStorage) and redirect to landing page
     redirectToLandingPage()
-  }
+  }, [])
+
+  const contextValue = useMemo(() => ({
+    user,
+    setUser,
+    updateUser,
+    logout,
+    isLoading,
+  }), [user, updateUser, logout, isLoading])
 
   return (
-    <AuthContext.Provider
-      value={{
-        user,
-        setUser,
-        updateUser,
-        logout,
-        isLoading,
-      }}
-    >
+    <AuthContext.Provider value={contextValue}>
       {children}
     </AuthContext.Provider>
   )

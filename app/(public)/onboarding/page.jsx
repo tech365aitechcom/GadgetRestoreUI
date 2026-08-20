@@ -41,6 +41,7 @@ export default function OnboardingPage() {
         const { value } = await Preferences.get({ key: 'has_seen_onboarding' });
         hasSeen = value || 'false';
       } catch (e) {
+        console.error('Failed to read onboarding preference:', e);
         hasSeen = 'false';
       }
 
@@ -100,6 +101,7 @@ export default function OnboardingPage() {
           <div className="w-8 h-8 flex items-center justify-start">
             {currentSlide > 0 && (
               <button
+                type='button'
                 onClick={handleBack}
                 className="w-8 h-8 rounded-full border border-white/10 bg-white/[0.04] text-white flex items-center justify-center hover:bg-white/10 hover:border-white/20 active:scale-90 transition-all cursor-pointer"
                 aria-label="Go back"
@@ -123,6 +125,7 @@ export default function OnboardingPage() {
           {/* Skip Button */}
           <div className="w-12 flex justify-end">
             <button
+              type='button'
               onClick={finishOnboarding}
               className="border border-white/20 hover:border-white/40 active:scale-95 text-white rounded-full px-3 py-1 text-[10px] font-extrabold tracking-wider transition uppercase cursor-pointer"
             >
@@ -176,6 +179,7 @@ export default function OnboardingPage() {
 
             {/* Action button */}
             <button
+              type='button'
               onClick={handleNext}
               className="w-full h-[54px] bg-transparent border border-white hover:bg-white/10 active:scale-[0.98] text-white rounded-lg text-xs font-bold tracking-[0.2em] uppercase flex items-center justify-center gap-1 transition-all duration-200 select-none cursor-pointer"
             >

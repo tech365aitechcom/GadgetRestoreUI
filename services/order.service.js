@@ -82,7 +82,7 @@ async function downloadDocument(path, filename) {
         link.target = '_blank';
         document.body.appendChild(link);
         link.click();
-        document.body.removeChild(link);
+        link.remove();
 
         setTimeout(() => {
           window.URL.revokeObjectURL(url);
@@ -102,7 +102,7 @@ async function downloadDocument(path, filename) {
     // Append to body, click, then remove (more reliable)
     document.body.appendChild(link);
     link.click();
-    document.body.removeChild(link);
+    link.remove();
 
     // Clean up
     setTimeout(() => {
@@ -123,6 +123,47 @@ function blobToBase64(blob) {
     reader.onerror = reject;
     reader.readAsDataURL(blob);
   });
+}
+
+async function resolveBase64FromUrl(url) {
+  if (url.startsWith('data:')) {
+    return url.split(',')[1];
+  }
+  const response = await fetch(url);
+  const blob = await response.blob();
+  return blobToBase64(blob);
+}
+
+async function createPdfFileFromUrl(url, filename) {
+  if (url.startsWith('data:')) {
+    const base64Data = url.split(',')[1];
+    const byteCharacters = atob(base64Data);
+    const byteNumbers = new Uint8Array(byteCharacters.length);
+    for (let i = 0; i < byteCharacters.length; i++) {
+      byteNumbers[i] = byteCharacters.codePointAt(i);
+    }
+    const blob = new Blob([byteNumbers], { type: 'application/pdf' });
+    return new File([blob], filename, { type: 'application/pdf' });
+  }
+  const pdfResponse = await fetch(url);
+  const blob = await pdfResponse.blob();
+  return new File([blob], filename, { type: 'application/pdf' });
+}
+
+async function shareNativeMobileFile(filename, uri, dialogTitle = 'Share PDF with') {
+  const platform = Capacitor.getPlatform();
+  if (platform === 'android') {
+    await Share.share({
+      title: filename,
+      url: uri,
+      dialogTitle,
+    });
+  } else {
+    await Share.share({
+      title: filename,
+      url: uri,
+    });
+  }
 }
 
 export const orderService = {
@@ -225,29 +266,27 @@ export const orderService = {
             url: result.uri,
           });
         }
-      } else {
+      } else if (isDataUrl) {
         // Web browser
-        if (isDataUrl) {
-          const base64Data = downloadUrl.split(',')[1];
-          const byteCharacters = atob(base64Data);
-          const byteNumbers = new Array(byteCharacters.length);
-          for (let i = 0; i < byteCharacters.length; i++) {
-            byteNumbers[i] = byteCharacters.charCodeAt(i);
-          }
-          const byteArray = new Uint8Array(byteNumbers);
-          const blob = new Blob([byteArray], { type: 'application/pdf' });
-
-          const url = window.URL.createObjectURL(blob);
-          const link = document.createElement('a');
-          link.href = url;
-          link.download = filename;
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-          setTimeout(() => window.URL.revokeObjectURL(url), 100);
-        } else {
-          window.open(downloadUrl, '_blank');
+        const base64Data = downloadUrl.split(',')[1];
+        const byteCharacters = atob(base64Data);
+        const byteNumbers = new Array(byteCharacters.length);
+        for (let i = 0; i < byteCharacters.length; i++) {
+          byteNumbers[i] = byteCharacters.codePointAt(i);
         }
+        const byteArray = new Uint8Array(byteNumbers);
+        const blob = new Blob([byteArray], { type: 'application/pdf' });
+
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        setTimeout(() => window.URL.revokeObjectURL(url), 100);
+      } else {
+        window.open(downloadUrl, '_blank');
       }
     } catch (error) {
       console.error('[downloadInvoice] Error:', error);
@@ -303,31 +342,28 @@ export const orderService = {
             url: result.uri,
           });
         }
-      } else {
-        // Web browser
-        if (isDataUrl) {
-          // Create blob from data URL and trigger download
-          const base64Data = downloadUrl.split(',')[1];
-          const byteCharacters = atob(base64Data);
-          const byteNumbers = new Array(byteCharacters.length);
-          for (let i = 0; i < byteCharacters.length; i++) {
-            byteNumbers[i] = byteCharacters.charCodeAt(i);
-          }
-          const byteArray = new Uint8Array(byteNumbers);
-          const blob = new Blob([byteArray], { type: 'application/pdf' });
-
-          const url = window.URL.createObjectURL(blob);
-          const link = document.createElement('a');
-          link.href = url;
-          link.download = filename;
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-          setTimeout(() => window.URL.revokeObjectURL(url), 100);
-        } else {
-          // Regular URL - open in new tab
-          window.open(downloadUrl, '_blank');
+      } else if (isDataUrl) {
+        // Web browser - Create blob from data URL and trigger download
+        const base64Data = downloadUrl.split(',')[1];
+        const byteCharacters = atob(base64Data);
+        const byteNumbers = new Array(byteCharacters.length);
+        for (let i = 0; i < byteCharacters.length; i++) {
+          byteNumbers[i] = byteCharacters.codePointAt(i);
         }
+        const byteArray = new Uint8Array(byteNumbers);
+        const blob = new Blob([byteArray], { type: 'application/pdf' });
+
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        setTimeout(() => window.URL.revokeObjectURL(url), 100);
+      } else {
+        // Regular URL - open in new tab
+        window.open(downloadUrl, '_blank');
       }
     } catch (error) {
       console.error('[downloadConfirmation] Error:', error);
@@ -381,29 +417,27 @@ export const orderService = {
             url: result.uri,
           });
         }
-      } else {
+      } else if (isDataUrl) {
         // Web browser
-        if (isDataUrl) {
-          const base64Data = downloadUrl.split(',')[1];
-          const byteCharacters = atob(base64Data);
-          const byteNumbers = new Array(byteCharacters.length);
-          for (let i = 0; i < byteCharacters.length; i++) {
-            byteNumbers[i] = byteCharacters.charCodeAt(i);
-          }
-          const byteArray = new Uint8Array(byteNumbers);
-          const blob = new Blob([byteArray], { type: 'application/pdf' });
-
-          const url = window.URL.createObjectURL(blob);
-          const link = document.createElement('a');
-          link.href = url;
-          link.download = filename;
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-          setTimeout(() => window.URL.revokeObjectURL(url), 100);
-        } else {
-          window.open(downloadUrl, '_blank');
+        const base64Data = downloadUrl.split(',')[1];
+        const byteCharacters = atob(base64Data);
+        const byteNumbers = new Array(byteCharacters.length);
+        for (let i = 0; i < byteCharacters.length; i++) {
+          byteNumbers[i] = byteCharacters.codePointAt(i);
         }
+        const byteArray = new Uint8Array(byteNumbers);
+        const blob = new Blob([byteArray], { type: 'application/pdf' });
+
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        setTimeout(() => window.URL.revokeObjectURL(url), 100);
+      } else {
+        window.open(downloadUrl, '_blank');
       }
     } catch (error) {
       console.error('[downloadWarranty] Error:', error);
@@ -422,20 +456,8 @@ export const orderService = {
         throw new Error('Download URL not received from server');
       }
 
-      const isDataUrl = downloadUrl.startsWith('data:');
-      const isNativeMobile = Capacitor.isNativePlatform();
-
-      if (isNativeMobile) {
-        let base64Data;
-
-        if (isDataUrl) {
-          base64Data = downloadUrl.split(',')[1];
-        } else {
-          const pdfResponse = await fetch(downloadUrl);
-          const blob = await pdfResponse.blob();
-          base64Data = await blobToBase64(blob);
-        }
-
+      if (Capacitor.isNativePlatform()) {
+        const base64Data = await resolveBase64FromUrl(downloadUrl);
         const sanitizedFilename = filename.replace(/[^a-zA-Z0-9.-]/g, '_');
         const result = await Filesystem.writeFile({
           path: sanitizedFilename,
@@ -443,55 +465,22 @@ export const orderService = {
           directory: Directory.Cache,
         });
 
-        const platform = Capacitor.getPlatform();
-        if (platform === 'android') {
-          await Share.share({
-            title: filename,
-            url: result.uri,
-            dialogTitle: 'Share PDF with',
-          });
-        } else if (platform === 'ios') {
-          await Share.share({
-            title: filename,
-            url: result.uri,
-          });
-        } else {
-          await Share.share({
-            title: filename,
-            url: result.uri,
-          });
-        }
+        await shareNativeMobileFile(filename, result.uri, 'Share PDF with');
         return true;
-      } else {
-        // Web browser
-        let file;
-        if (isDataUrl) {
-          const base64Data = downloadUrl.split(',')[1];
-          const byteCharacters = atob(base64Data);
-          const byteNumbers = new Array(byteCharacters.length);
-          for (let i = 0; i < byteCharacters.length; i++) {
-            byteNumbers[i] = byteCharacters.charCodeAt(i);
-          }
-          const byteArray = new Uint8Array(byteNumbers);
-          const blob = new Blob([byteArray], { type: 'application/pdf' });
-          file = new File([blob], filename, { type: 'application/pdf' });
-        } else {
-          const pdfResponse = await fetch(downloadUrl);
-          const blob = await pdfResponse.blob();
-          file = new File([blob], filename, { type: 'application/pdf' });
-        }
-
-        if (navigator.canShare && navigator.canShare({ files: [file] })) {
-          await navigator.share({
-            files: [file],
-            title: `Warranty Card - ${ticketNumber}`,
-            text: `Digital warranty card for order ${ticketNumber}`,
-          });
-          return true;
-        }
-
-        return false;
       }
+
+      // Web browser
+      const file = await createPdfFileFromUrl(downloadUrl, filename);
+      if (navigator.canShare?.({ files: [file] })) {
+        await navigator.share({
+          files: [file],
+          title: `Warranty Card - ${ticketNumber}`,
+          text: `Digital warranty card for order ${ticketNumber}`,
+        });
+        return true;
+      }
+
+      return false;
     } catch (error) {
       console.error('[shareWarranty] Error:', error);
       throw error;

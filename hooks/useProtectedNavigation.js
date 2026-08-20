@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useState } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import Cookies from 'js-cookie';
 import { TOKEN_COOKIE } from '@/lib/constants';
@@ -13,7 +13,6 @@ import { TOKEN_COOKIE } from '@/lib/constants';
  */
 export function useProtectedNavigation() {
   const router = useRouter();
-  const pathname = usePathname();
   const { user } = useAuth();
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [redirectPath, setRedirectPath] = useState(null);

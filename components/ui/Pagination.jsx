@@ -35,13 +35,13 @@ const PaginationLink = ({
   ...props
 }) => (
   <button
+    type="button"
     aria-current={isActive ? "page" : undefined}
     disabled={disabled}
-    className={`w-9 h-9 flex items-center justify-center text-xs font-bold rounded-lg transition-all ${
-      isActive
+    className={`w-9 h-9 flex items-center justify-center text-xs font-bold rounded-lg transition-all ${isActive
         ? 'bg-[var(--theme-text-primary)] text-[var(--theme-bg)] cursor-default'
         : 'border border-[var(--theme-border)] bg-[var(--theme-card)] text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] hover:bg-[var(--theme-surface)] disabled:opacity-40 disabled:cursor-not-allowed'
-    } ${className}`}
+      } ${className}`}
     {...props}
   >
     {children}

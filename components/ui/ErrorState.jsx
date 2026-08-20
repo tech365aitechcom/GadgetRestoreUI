@@ -38,6 +38,7 @@ export default function ErrorState({
         {/* Action Button */}
         {buttonText && onButtonClick && (
           <button
+            type='button'
             onClick={onButtonClick}
             className='px-6 py-3 bg-white text-black font-semibold rounded-xl hover:bg-gray-100 transition-colors'
           >

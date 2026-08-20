@@ -42,7 +42,6 @@ export default function PricingPage() {
     symptoms,
     partTier,
     serviceMode,
-    remarks,
     canProceedToBook,
   } = useBooking()
 
@@ -90,11 +89,7 @@ export default function PricingPage() {
 
   // Compute Itemized Pricing per Symptom
   const hasPricingData =
-    pricingResults &&
-    pricingResults.results &&
-    pricingResults.results.length > 0
-  let grandTotal = 0
-  let hasVariableSymptom = false
+    pricingResults?.results?.length > 0
 
   const itemizedSymptoms = symptoms.map((symp) => {
     let sympParts = 0
@@ -110,7 +105,7 @@ export default function PricingPage() {
           (r) => String(r.repairTypeId) === String(id),
         )
         // Sum up available pricing - even if some repair types don't have pricing
-        if (res && res.available && res.pricing) {
+        if (res?.available && res?.pricing) {
           sympParts += res.pricing.partsCost || 0
           sympLabour += res.pricing.labourCost || 0
           // Get warranty from pricing matrix (use maximum if multiple repairs)
@@ -127,9 +122,6 @@ export default function PricingPage() {
     // Mark as variable only if total is zero (no pricing found for any repair type)
     if (sympParts + sympLabour === 0) sympIsVariable = true
 
-    if (sympIsVariable) hasVariableSymptom = true
-    else grandTotal += sympParts + sympLabour
-
     return {
       ...symp,
       isVariable: sympIsVariable,
@@ -141,7 +133,7 @@ export default function PricingPage() {
   })
 
   // Generate a mock quote ID
-  const quoteId = `RC-${Math.floor(100 + Math.random() * 900)}-${brand.name
+  const quoteId = `RC-${Date.now().toString().slice(-3)}-${brand.name
     .substring(0, 2)
     .toUpperCase()}`
 
@@ -239,6 +231,7 @@ export default function PricingPage() {
         {/* Back link & Header */}
         <div className='mb-8 lg:mb-10 pt-4 lg:pt-5'>
           <button
+            type='button'
             onClick={() => router.push('/select-mode')}
             className='hidden md:inline-flex items-center gap-1.5 bg-transparent border-none cursor-pointer text-gray-400 hover:text-white text-xs font-semibold uppercase tracking-wider mb-6 p-0 transition-colors'
           >
@@ -372,7 +365,7 @@ export default function PricingPage() {
               <div className='flex flex-col gap-4'>
                 {symptoms.map((symp, i) => (
                   <div
-                    key={i}
+                    key={symp._id || symp.name || i}
                     className={`flex justify-between items-center pb-4 ${i < symptoms.length - 1 ? 'border-b border-white/5' : ''
                       }`}
                   >
@@ -405,7 +398,7 @@ export default function PricingPage() {
                   const sympGst = Math.round(sympServiceCharge * 0.18)
 
                   return (
-                    <div key={index} className='flex flex-col gap-3'>
+                    <div key={symptom._id || symptom.name || index} className='flex flex-col gap-3'>
                       {/* Symptom Name Header */}
                       {itemizedSymptoms.length > 1 && (
                         <div className='text-[10px] font-bold text-gray-500 uppercase tracking-wider'>
@@ -495,11 +488,12 @@ export default function PricingPage() {
         {/* Desktop Bottom Action Bar */}
         <div className='mt-8 bg-white rounded-3xl p-6 lg:p-8 justify-end items-center hidden lg:flex'>
           <button
+            type='button'
             onClick={handleConfirm}
             disabled={!canProceedToBook}
             className={`h-14 px-10 bg-black text-white font-extrabold text-xs uppercase tracking-wider rounded-[var(--radius-btn)] flex items-center justify-center gap-3 transition-opacity ${canProceedToBook
-                ? 'cursor-pointer hover:opacity-90'
-                : 'cursor-not-allowed opacity-50'
+              ? 'cursor-pointer hover:opacity-90'
+              : 'cursor-not-allowed opacity-50'
               }`}
           >
             Confirm & Continue <ChevronRight size={18} />
@@ -516,11 +510,12 @@ export default function PricingPage() {
         }}
       >
         <button
+          type='button'
           onClick={handleConfirm}
           disabled={!canProceedToBook}
           className={`w-full h-14 bg-white text-black font-extrabold text-sm uppercase tracking-wider rounded-2xl flex items-center justify-center gap-2 shadow-lg transition-opacity ${canProceedToBook
-              ? 'cursor-pointer hover:opacity-90'
-              : 'cursor-not-allowed opacity-50'
+            ? 'cursor-pointer hover:opacity-90'
+            : 'cursor-not-allowed opacity-50'
             }`}
         >
           Confirm & Continue <ChevronRight size={18} />

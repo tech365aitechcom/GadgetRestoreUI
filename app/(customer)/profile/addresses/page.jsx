@@ -258,6 +258,7 @@ export default function AddressesPage() {
         <div className='p-5'>
           {/* Add Address Button */}
           <button
+            type='button'
             onClick={handleAddAddress}
             className='w-full h-[52px] bg-[var(--theme-btn-primary-bg)] hover:bg-neutral-100 text-[var(--theme-btn-primary-text)] rounded-lg text-[15px] font-bold cursor-pointer flex items-center justify-center gap-2 transition-all duration-200 mb-5'
           >
@@ -304,6 +305,7 @@ export default function AddressesPage() {
                 <div className='flex gap-2'>
                   {!address.isDefault && (
                     <button
+                      type='button'
                       onClick={() => handleSetDefault(address.id)}
                       className='flex-1 h-[40px] bg-white/5 border border-[var(--theme-border-strong)] text-[var(--theme-text-primary)] rounded-lg text-[12px] font-semibold hover:bg-[var(--theme-btn-secondary-hover)] active:scale-[0.98] transition-all'
                     >
@@ -311,6 +313,7 @@ export default function AddressesPage() {
                     </button>
                   )}
                   <button
+                    type='button'
                     onClick={() => handleEditAddress(address.id)}
                     className='flex-1 h-[40px] bg-white/5 border border-[var(--theme-border-strong)] text-[var(--theme-text-primary)] rounded-lg text-[12px] font-semibold hover:bg-[var(--theme-btn-secondary-hover)] active:scale-[0.98] transition-all flex items-center justify-center gap-2'
                   >
@@ -318,6 +321,7 @@ export default function AddressesPage() {
                     Edit
                   </button>
                   <button
+                    type='button'
                     onClick={() => handleDeleteAddress(address.id)}
                     className='h-[40px] px-4 bg-red-500/10 border border-red-500/20 text-red-400 rounded-lg text-[12px] font-semibold hover:bg-red-500/20 active:scale-[0.98] transition-all flex items-center justify-center'
                   >
@@ -354,6 +358,7 @@ export default function AddressesPage() {
           {/* Breadcrumb */}
           <div className='flex items-center gap-2 mb-6'>
             <button
+              type='button'
               onClick={() => router.push('/profile')}
               className='text-[13px] text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] transition-colors'
             >
@@ -378,6 +383,7 @@ export default function AddressesPage() {
               </p>
             </div>
             <button
+              type='button'
               onClick={handleAddAddress}
               className='btn-primary text-[13px] px-5 h-[46px] flex items-center gap-2'
             >
@@ -425,6 +431,7 @@ export default function AddressesPage() {
                 <div className='flex gap-2'>
                   {!address.isDefault && (
                     <button
+                      type='button'
                       onClick={() => handleSetDefault(address.id)}
                       className='flex-1 h-[40px] bg-white/5 border border-[var(--theme-border-strong)] text-[var(--theme-text-primary)] rounded-lg text-[12px] font-semibold hover:bg-[var(--theme-btn-secondary-hover)] active:scale-[0.98] transition-all'
                     >
@@ -432,6 +439,7 @@ export default function AddressesPage() {
                     </button>
                   )}
                   <button
+                    type='button'
                     onClick={() => handleEditAddress(address.id)}
                     className='flex-1 h-[40px] bg-white/5 border border-[var(--theme-border-strong)] text-[var(--theme-text-primary)] rounded-lg text-[12px] font-semibold hover:bg-[var(--theme-btn-secondary-hover)] active:scale-[0.98] transition-all flex items-center justify-center gap-2'
                   >
@@ -439,6 +447,7 @@ export default function AddressesPage() {
                     Edit
                   </button>
                   <button
+                    type='button'
                     onClick={() => handleDeleteAddress(address.id)}
                     className='h-[40px] px-4 bg-red-500/10 border border-red-500/20 text-red-400 rounded-lg text-[12px] font-semibold hover:bg-red-500/20 active:scale-[0.98] transition-all flex items-center justify-center'
                   >
@@ -463,6 +472,7 @@ export default function AddressesPage() {
                 Add an address for faster checkout and seamless device pick-up
               </p>
               <button
+                type='button'
                 onClick={handleAddAddress}
                 className='btn-primary text-[13px] px-6 h-[46px] flex items-center gap-2 mx-auto'
               >
@@ -487,12 +497,14 @@ export default function AddressesPage() {
             </p>
             <div className='flex gap-3'>
               <button
+                type='button'
                 onClick={() => setShowDeleteConfirm(null)}
                 className='flex-1 h-[46px] bg-white/5 border border-[var(--theme-border-strong)] text-[var(--theme-text-primary)] rounded-lg text-[13px] font-bold hover:bg-[var(--theme-btn-secondary-hover)] transition-all'
               >
                 Cancel
               </button>
               <button
+                type='button'
                 onClick={confirmDelete}
                 className='flex-1 h-[46px] bg-red-600 hover:bg-red-700 text-[var(--theme-text-primary)] rounded-lg text-[13px] font-bold transition-all'
               >

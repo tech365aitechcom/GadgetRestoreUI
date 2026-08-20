@@ -91,6 +91,7 @@ const AddressCard = ({ addr, selectedAddressId, setSelectedAddressId, handleSetD
       <div className='flex gap-2 mt-3 pt-3' style={{ borderTop: '1px solid var(--color-content-border)' }}>
         {!addr.isDefault && (
           <button
+            type="button"
             onClick={() => handleSetDefault(addr.id)}
             className='flex-1 h-[36px] border rounded-lg text-[11px] font-semibold hover:bg-white/10 active:scale-[0.98] transition-all'
             style={{ background: 'var(--color-content-border)', borderColor: 'var(--color-content-border)', color: 'var(--color-content-text)' }}
@@ -99,6 +100,7 @@ const AddressCard = ({ addr, selectedAddressId, setSelectedAddressId, handleSetD
           </button>
         )}
         <button
+          type="button"
           onClick={() => handleEditAddress(addr)}
           className='flex-1 h-[36px] border rounded-lg text-[11px] font-semibold hover:bg-white/10 active:scale-[0.98] transition-all flex items-center justify-center gap-1.5'
           style={{ background: 'var(--color-content-border)', borderColor: 'var(--color-content-border)', color: 'var(--color-content-text)' }}
@@ -107,6 +109,7 @@ const AddressCard = ({ addr, selectedAddressId, setSelectedAddressId, handleSetD
           Edit
         </button>
         <button
+          type="button"
           onClick={() => setShowDeleteConfirm(addr.id)}
           className='h-[36px] px-3 bg-red-500/10 border border-red-500/20 text-red-400 rounded-lg text-[11px] font-semibold hover:bg-red-500/20 active:scale-[0.98] transition-all flex items-center justify-center'
         >
@@ -481,6 +484,606 @@ const useAddressManagement = (user) => {
   }
 }
 
+// Helper to retrieve map center
+const getMapCenter = (mapDesktop, mapMobile) => {
+  if (mapDesktop) {
+    const center = mapDesktop.getCenter()
+    return { lat: center.lat, lng: center.lng }
+  }
+  if (mapMobile) {
+    const center = mapMobile.getCenter()
+    return { lat: center.lat, lng: center.lng }
+  }
+  return { lat: 28.6139, lng: 77.2090 }
+}
+
+// Helper for reverse geocoding API call
+const reverseGeocodeHelper = async (lat, lon, setNewAddress, setSelectedLocationText) => {
+  try {
+    const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&addressdetails=1`)
+    const data = await res.json()
+    if (data) {
+      const addr = data.address || {}
+      const road = addr.road || addr.suburb || addr.neighbourhood || ''
+      const city = addr.city || addr.town || addr.village || addr.county || ''
+      const displayName = data.display_name || 'Selected Location'
+      let state = addr.state || addr.region || addr.state_district || ''
+      if (!state && (city.toLowerCase().includes('delhi') || displayName.toLowerCase().includes('delhi'))) {
+        state = 'Delhi'
+      }
+      const pincode = addr.postcode || ''
+
+      setNewAddress((prev) => ({
+        ...prev,
+        addressLine1: road ? `${road}, ${addr.suburb || ''}`.replace(/,\s*$/, '').slice(0, 100) : displayName.split(',').slice(0, 2).join(', ').slice(0, 100),
+        city: city || prev.city,
+        state: state || prev.state,
+        pincode: pincode ? pincode.replace(/\D/g, '').slice(0, 6) : prev.pincode,
+      }))
+
+      setSelectedLocationText(displayName.split(',').slice(0, 3).join(', '))
+    }
+  } catch (e) {
+    console.error('Reverse geocoding failed:', e)
+  }
+}
+
+// Helper to retrieve the address icon based on type
+const getAddressIcon = (type) => {
+  switch (type?.toLowerCase()) {
+    case 'home':
+      return <Home size={20} />
+    case 'work':
+    case 'office':
+      return <Briefcase size={20} />
+    default:
+      return <MapPinned size={20} />
+  }
+}
+
+// Helper for forward geocoding API call
+const executeGeocodeAddressText = async (
+  addressText,
+  mapDesktopRef,
+  mapMobileRef,
+  isDesktopProgrammaticMoveRef,
+  isMobileProgrammaticMoveRef
+) => {
+  try {
+    const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(addressText)}&limit=1`)
+    const data = await res.json()
+    if (data && data.length > 0) {
+      const { lat, lon } = data[0]
+      const latitude = Number.parseFloat(lat)
+      const longitude = Number.parseFloat(lon)
+
+      isDesktopProgrammaticMoveRef.current = true
+      isMobileProgrammaticMoveRef.current = true
+
+      if (mapDesktopRef.current) {
+        mapDesktopRef.current.setView([latitude, longitude], 16)
+      }
+      if (mapMobileRef.current) {
+        mapMobileRef.current.setView([latitude, longitude], 16)
+      }
+    }
+  } catch (e) {
+    console.error('Forward geocoding failed:', e)
+  }
+}
+
+// Helper for geolocation API handling
+const executeUseCurrentLocation = (
+  mapDesktopRef,
+  mapMobileRef,
+  isDesktopProgrammaticMoveRef,
+  isMobileProgrammaticMoveRef,
+  reverseGeocode
+) => {
+  if (navigator.geolocation) {
+    const onSuccess = (position) => {
+      const { latitude, longitude } = position.coords
+
+      isDesktopProgrammaticMoveRef.current = true
+      isMobileProgrammaticMoveRef.current = true
+
+      if (mapDesktopRef.current) {
+        mapDesktopRef.current.setView([latitude, longitude], 16)
+      }
+      if (mapMobileRef.current) {
+        mapMobileRef.current.setView([latitude, longitude], 16)
+      }
+      reverseGeocode(latitude, longitude)
+    }
+
+    const onError = (error) => {
+      console.warn('Geolocation high accuracy failed, retrying with low accuracy...', error)
+      navigator.geolocation.getCurrentPosition(
+        onSuccess,
+        (err) => {
+          console.error('Geolocation fallback failed:', err)
+        },
+        {
+          enableHighAccuracy: false,
+          timeout: 5000,
+          maximumAge: 60000
+        }
+      )
+    }
+
+    navigator.geolocation.getCurrentPosition(onSuccess, onError, {
+      enableHighAccuracy: true,
+      timeout: 12000,
+      maximumAge: 0
+    })
+  } else {
+    toast.error('Geolocation is not supported by your browser.')
+  }
+}
+
+// Helper for adding/saving a new address
+const executeAddNewAddress = async ({
+  newAddress,
+  setErrors,
+  isEditingAddress,
+  refreshAddresses,
+  setSelectedAddressId,
+  setIsSavingAddress,
+  resetFormAndSyncToMap,
+}) => {
+  const validationErrors = validateAddressForm(newAddress)
+  setErrors(validationErrors)
+
+  if (Object.keys(validationErrors).length > 0) {
+    toast.error('Please fill in all required fields')
+    return
+  }
+
+  setIsSavingAddress(true)
+
+  try {
+    const addressData = buildAddressPayload(newAddress)
+    await saveAddressToServer(isEditingAddress, addressData)
+
+    // Refresh and select address
+    const mappedAddresses = await refreshAddresses()
+    const newSelectedId = getPostSaveSelectedId(isEditingAddress, mappedAddresses)
+
+    if (newSelectedId) {
+      setSelectedAddressId(newSelectedId)
+    }
+
+    // Close modal and reset form
+    resetFormAndSyncToMap()
+  } catch (error) {
+    console.error('Failed to save address:', error)
+    toast.error(error.message || 'Failed to save address. Please try again.')
+  } finally {
+    setIsSavingAddress(false)
+  }
+}
+
+// Helper: initialize desktop map instance
+const initDesktopMap = (L, defaultLat, defaultLng, refs, active, reverseGeocode) => {
+  const { mapDesktopRef, mapMobileRef, isDesktopProgrammaticMoveRef, isMobileProgrammaticMoveRef } = refs
+  const desktopMapEl = document.getElementById('map-desktop')
+  if (!desktopMapEl || desktopMapEl._leaflet_id) return null
+  try {
+    const mapDesktop = L.map(desktopMapEl, {
+      zoomControl: false,
+      attributionControl: false,
+    }).setView([defaultLat, defaultLng], 14)
+
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png', {
+      subdomains: 'abcd',
+      maxZoom: 20,
+    }).addTo(mapDesktop)
+
+    mapDesktopRef.current = mapDesktop
+
+    setTimeout(() => {
+      if (mapDesktop && active) {
+        mapDesktop.invalidateSize()
+      }
+    }, 250)
+
+    mapDesktop.on('moveend', () => {
+      const center = mapDesktop.getCenter()
+
+      if (isDesktopProgrammaticMoveRef.current) {
+        isDesktopProgrammaticMoveRef.current = false
+        return
+      }
+
+      reverseGeocode(center.lat, center.lng)
+      if (mapMobileRef.current) {
+        const mobileCenter = mapMobileRef.current.getCenter()
+        const diffLat = Math.abs(mobileCenter.lat - center.lat)
+        const diffLng = Math.abs(mobileCenter.lng - center.lng)
+        if (diffLat > 0.0001 || diffLng > 0.0001) {
+          isMobileProgrammaticMoveRef.current = true
+          mapMobileRef.current.setView(center, mapDesktop.getZoom(), { animate: false })
+        }
+      }
+    })
+
+    return mapDesktop
+  } catch (err) {
+    console.error('Error initializing desktop map:', err)
+    return null
+  }
+}
+
+// Helper: initialize mobile map instance
+const initMobileMap = (L, defaultLat, defaultLng, refs, active, reverseGeocode) => {
+  const { mapDesktopRef, mapMobileRef, isDesktopProgrammaticMoveRef, isMobileProgrammaticMoveRef } = refs
+  const mobileMapEl = document.getElementById('map-mobile')
+  if (!mobileMapEl || mobileMapEl._leaflet_id) return null
+  try {
+    const mapMobile = L.map(mobileMapEl, {
+      zoomControl: false,
+      attributionControl: false,
+    }).setView([defaultLat, defaultLng], 14)
+
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png', {
+      subdomains: 'abcd',
+      maxZoom: 20,
+    }).addTo(mapMobile)
+
+    mapMobileRef.current = mapMobile
+
+    setTimeout(() => {
+      if (mapMobile && active) {
+        mapMobile.invalidateSize()
+      }
+    }, 250)
+
+    mapMobile.on('moveend', () => {
+      const center = mapMobile.getCenter()
+
+      if (isMobileProgrammaticMoveRef.current) {
+        isMobileProgrammaticMoveRef.current = false
+        return
+      }
+
+      reverseGeocode(center.lat, center.lng)
+      if (mapDesktopRef.current) {
+        const desktopCenter = mapDesktopRef.current.getCenter()
+        const diffLat = Math.abs(desktopCenter.lat - center.lat)
+        const diffLng = Math.abs(desktopCenter.lng - center.lng)
+        if (diffLat > 0.0001 || diffLng > 0.0001) {
+          isDesktopProgrammaticMoveRef.current = true
+          mapDesktopRef.current.setView(center, mapMobile.getZoom(), { animate: false })
+        }
+      }
+    })
+
+    return mapMobile
+  } catch (err) {
+    console.error('Error initializing mobile map:', err)
+    return null
+  }
+}
+
+// Extracted modal: Add / Edit address form
+const AddressFormModal = ({
+  isEditingAddress,
+  newAddress,
+  errors,
+  isSavingAddress,
+  handleChange,
+  handleAddNewAddress,
+  handleUseCurrentLocation,
+  resetFormAndSyncToMap,
+}) => (
+  <div className='fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[1000] p-4'>
+    <div className='rounded-2xl p-6 max-w-[600px] w-full max-h-[90vh] overflow-y-auto shadow-2xl' style={{ background: 'var(--color-content-bg)', border: '1px solid var(--color-content-border)' }}>
+      <div className='flex items-center justify-between mb-6'>
+        <h3 className='text-[20px] font-black uppercase' style={{ color: 'var(--color-content-text)' }}>
+          {isEditingAddress ? 'Edit Address' : 'Add New Address'}
+        </h3>
+        <button
+          type="button"
+          onClick={resetFormAndSyncToMap}
+          className='w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-[#888] hover:bg-white/10 transition-colors'
+        >
+          <X size={18} />
+        </button>
+      </div>
+
+      <form
+        onSubmit={(e) => {
+          e.preventDefault()
+          handleAddNewAddress()
+        }}
+        className='space-y-5'
+      >
+        {/* Address Type */}
+        <fieldset>
+          <legend className='block text-[10px] font-bold tracking-[0.08em] mb-2 uppercase' style={{ color: 'var(--color-content-text-secondary)' }}>
+            ADDRESS TYPE
+          </legend>
+          <div className='flex gap-2'>
+            {['Home', 'Work', 'Other'].map((type) => (
+              <button
+                key={type}
+                type='button'
+                onClick={() => handleChange('addressType', type)}
+                className={`flex-1 h-[44px] rounded-lg text-[13px] font-semibold transition-all ${newAddress.addressType === type
+                  ? ''
+                  : 'hover:bg-white/10'
+                  }`}
+                style={{
+                  background: newAddress.addressType === type ? 'var(--theme-btn-primary-bg)' : 'var(--color-content-border)',
+                  border: newAddress.addressType === type ? 'none' : '1px solid var(--color-content-border)',
+                  color: newAddress.addressType === type ? 'var(--theme-btn-primary-text)' : 'var(--color-content-text)',
+                }}
+              >
+                {type}
+              </button>
+            ))}
+          </div>
+        </fieldset>
+
+        {/* Address Line 1 */}
+        <div>
+          <div className='flex justify-between items-center mb-2'>
+            <label htmlFor='address-line-1' className='block text-[10px] font-bold tracking-[0.08em] uppercase' style={{ color: 'var(--color-content-text-secondary)' }}>
+              ADDRESS LINE 1 *
+            </label>
+            <button
+              type='button'
+              onClick={handleUseCurrentLocation}
+              className='text-[10px] font-bold uppercase tracking-wider text-[var(--color-accent)] hover:underline flex items-center gap-1 cursor-pointer bg-transparent border-0 p-0'
+            >
+              <Locate size={12} /> Use Current Location
+            </button>
+          </div>
+          <input
+            id='address-line-1'
+            type='text'
+            value={newAddress.addressLine1}
+            onChange={(e) => handleChange('addressLine1', e.target.value.slice(0, 100))}
+            className={`w-full h-[52px] rounded-lg text-[15px] px-4 outline-none transition-colors`}
+            style={{
+              background: 'var(--color-content-card)',
+              border: errors.addressLine1 ? '1px solid var(--color-danger)' : '1px solid var(--color-content-border)',
+              color: 'var(--color-content-text)',
+            }}
+            placeholder='House/Flat no., Building name'
+            maxLength={100}
+          />
+          {errors.addressLine1 && (
+            <span className='block text-xs text-red-400 mt-2'>
+              {errors.addressLine1}
+            </span>
+          )}
+        </div>
+
+        {/* Address Line 2 */}
+        <div>
+          <label htmlFor='address-line-2' className='block text-[10px] font-bold tracking-[0.08em] mb-2 uppercase' style={{ color: 'var(--color-content-text-secondary)' }}>
+            ADDRESS LINE 2
+          </label>
+          <input
+            id='address-line-2'
+            type='text'
+            value={newAddress.addressLine2}
+            onChange={(e) => handleChange('addressLine2', e.target.value.slice(0, 200))}
+            className='w-full h-[52px] rounded-lg text-[15px] px-4 outline-none transition-colors'
+            style={{ background: 'var(--color-content-card)', border: '1px solid var(--color-content-border)', color: 'var(--color-content-text)' }}
+            placeholder='Road name, Area, Colony'
+            maxLength={200}
+          />
+        </div>
+
+        {/* Landmark */}
+        <div>
+          <label htmlFor='address-landmark' className='block text-[10px] font-bold tracking-[0.08em] mb-2 uppercase' style={{ color: 'var(--color-content-text-secondary)' }}>
+            LANDMARK
+          </label>
+          <input
+            id='address-landmark'
+            type='text'
+            value={newAddress.landmark}
+            onChange={(e) => handleChange('landmark', e.target.value)}
+            className='w-full h-[52px] rounded-lg text-[15px] px-4 outline-none transition-colors'
+            style={{ background: 'var(--color-content-card)', border: '1px solid var(--color-content-border)', color: 'var(--color-content-text)' }}
+            placeholder='Nearby landmark (optional)'
+          />
+        </div>
+
+        {/* Pincode and City */}
+        <div className='grid grid-cols-2 gap-3'>
+          <div>
+            <label htmlFor='address-pincode' className='block text-[10px] font-bold tracking-[0.08em] mb-2 uppercase' style={{ color: 'var(--color-content-text-secondary)' }}>
+              PINCODE *
+            </label>
+            <input
+              id='address-pincode'
+              type='text'
+              value={newAddress.pincode}
+              onChange={(e) => {
+                const value = e.target.value
+                  .replace(/\D/g, '')
+                  .slice(0, 6)
+                handleChange('pincode', value)
+              }}
+              className={`w-full h-[52px] rounded-lg text-[15px] px-4 outline-none transition-colors`}
+              style={{
+                background: 'var(--color-content-card)',
+                border: errors.pincode ? '1px solid var(--color-danger)' : '1px solid var(--color-content-border)',
+                color: 'var(--color-content-text)',
+              }}
+              placeholder='000000'
+              maxLength={6}
+            />
+            {errors.pincode && (
+              <span className='block text-xs text-red-400 mt-2'>
+                {errors.pincode}
+              </span>
+            )}
+          </div>
+
+          <div>
+            <label htmlFor='address-city' className='block text-[10px] font-bold tracking-[0.08em] mb-2 uppercase' style={{ color: 'var(--color-content-text-secondary)' }}>
+              CITY *
+            </label>
+            <input
+              id='address-city'
+              type='text'
+              value={newAddress.city}
+              onChange={(e) => handleChange('city', e.target.value)}
+              className={`w-full h-[52px] rounded-lg text-[15px] px-4 outline-none transition-colors`}
+              style={{
+                background: 'var(--color-content-card)',
+                border: errors.city ? '1px solid var(--color-danger)' : '1px solid var(--color-content-border)',
+                color: 'var(--color-content-text)',
+              }}
+              placeholder='City'
+            />
+            {errors.city && (
+              <span className='block text-xs text-red-400 mt-2'>
+                {errors.city}
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* State */}
+        <div>
+          <label htmlFor='address-state' className='block text-[10px] font-bold tracking-[0.08em] mb-2 uppercase' style={{ color: 'var(--color-content-text-secondary)' }}>
+            STATE *
+          </label>
+          <input
+            id='address-state'
+            type='text'
+            value={newAddress.state}
+            onChange={(e) => handleChange('state', e.target.value)}
+            className={`w-full h-[52px] rounded-lg text-[15px] px-4 outline-none transition-colors`}
+            style={{
+              background: 'var(--color-content-card)',
+              border: errors.state ? '1px solid var(--color-danger)' : '1px solid var(--color-content-border)',
+              color: 'var(--color-content-text)',
+            }}
+            placeholder='State'
+          />
+          {errors.state && (
+            <span className='block text-xs text-red-400 mt-2'>
+              {errors.state}
+            </span>
+          )}
+        </div>
+
+        {/* Set as Default */}
+        <div className='flex items-center gap-3 p-4 rounded-xl' style={{ background: 'var(--color-content-border)', border: '1px solid var(--color-content-border)' }}>
+          <input
+            type='checkbox'
+            id='setAsDefault'
+            checked={newAddress.setAsDefault}
+            onChange={(e) =>
+              handleChange('setAsDefault', e.target.checked)
+            }
+            className='w-5 h-5 rounded bg-white/10 border-[#333] text-white focus:ring-2 focus:ring-white/40'
+          />
+          <label
+            htmlFor='setAsDefault'
+            className='flex-1 text-[13px] font-medium cursor-pointer'
+            style={{ color: 'var(--color-content-text)' }}
+          >
+            Set as default address
+          </label>
+        </div>
+
+        {/* Submit Button */}
+        <button
+          type='submit'
+          disabled={isSavingAddress}
+          className='w-full h-[52px] rounded-lg text-[15px] font-bold cursor-pointer flex items-center justify-center gap-2 transition-all duration-200'
+          style={{
+            background: isSavingAddress ? 'var(--color-content-border)' : 'var(--theme-btn-primary-bg)',
+            color: isSavingAddress ? 'var(--color-content-text-secondary)' : 'var(--theme-btn-primary-text)',
+          }}
+        >
+          {isSavingAddress ? (
+            <>
+              <div className='w-4 h-4 border-2 border-black/20 border-t-black rounded-full animate-spin' />
+              <span>
+                {isEditingAddress ? 'Updating...' : 'Adding...'}
+              </span>
+            </>
+          ) : (
+            <>
+              <Save size={18} />
+              <span>
+                {isEditingAddress ? 'Update Address' : 'Add Address'}
+              </span>
+            </>
+          )}
+        </button>
+      </form>
+    </div>
+  </div>
+)
+
+AddressFormModal.propTypes = {
+  isEditingAddress: PropTypes.string,
+  newAddress: PropTypes.object.isRequired,
+  errors: PropTypes.object.isRequired,
+  isSavingAddress: PropTypes.bool.isRequired,
+  handleChange: PropTypes.func.isRequired,
+  handleAddNewAddress: PropTypes.func.isRequired,
+  handleUseCurrentLocation: PropTypes.func.isRequired,
+  resetFormAndSyncToMap: PropTypes.func.isRequired,
+}
+
+// Extracted modal: Delete confirmation
+const DeleteConfirmModal = ({ isDeletingAddress, handleDeleteAddress, setShowDeleteConfirm }) => (
+  <div className='fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[1100] p-4'>
+    <div className='rounded-2xl p-6 max-w-[400px] w-full shadow-2xl' style={{ background: 'var(--color-content-bg)', border: '1px solid var(--color-content-border)' }}>
+      <h3 className='text-[18px] font-black mb-2' style={{ color: 'var(--color-content-text)' }}>
+        Delete Address?
+      </h3>
+      <p className='text-[13px] mb-6' style={{ color: 'var(--color-content-text-secondary)' }}>
+        Are you sure you want to delete this address? This action cannot
+        be undone.
+      </p>
+      <div className='flex gap-3'>
+        <button
+          type="button"
+          onClick={() => setShowDeleteConfirm(null)}
+          disabled={isDeletingAddress}
+          className='flex-1 h-[46px] border rounded-lg text-[13px] font-bold hover:bg-white/10 transition-all disabled:opacity-50'
+          style={{ background: 'var(--color-content-border)', borderColor: 'var(--color-content-border)', color: 'var(--color-content-text)' }}
+        >
+          Cancel
+        </button>
+        <button
+          type="button"
+          onClick={handleDeleteAddress}
+          disabled={isDeletingAddress}
+          className='flex-1 h-[46px] bg-red-600 hover:bg-red-700 text-white rounded-lg text-[13px] font-bold transition-all disabled:opacity-50 flex items-center justify-center gap-2'
+        >
+          {isDeletingAddress ? (
+            <>
+              <div className='w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin' />
+              Deleting...
+            </>
+          ) : (
+            'Delete'
+          )}
+        </button>
+      </div>
+    </div>
+  </div>
+)
+
+DeleteConfirmModal.propTypes = {
+  isDeletingAddress: PropTypes.bool.isRequired,
+  handleDeleteAddress: PropTypes.func.isRequired,
+  setShowDeleteConfirm: PropTypes.func.isRequired,
+}
+
 export default function AddressPage() {
   const router = useRouter()
   const { setAddress } = useBooking()
@@ -512,101 +1115,28 @@ export default function AddressPage() {
   const isDesktopProgrammaticMoveRef = useRef(false)
   const isMobileProgrammaticMoveRef = useRef(false)
 
-  const reverseGeocode = async (lat, lon) => {
-    try {
-      const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&addressdetails=1`)
-      const data = await res.json()
-      if (data) {
-        const addr = data.address || {}
-        const road = addr.road || addr.suburb || addr.neighbourhood || ''
-        const city = addr.city || addr.town || addr.village || addr.county || ''
-        let state = addr.state || addr.region || addr.state_district || ''
-        if (!state && (city.toLowerCase().includes('delhi') || displayName.toLowerCase().includes('delhi'))) {
-          state = 'Delhi'
-        }
-        const pincode = addr.postcode || ''
-        const displayName = data.display_name || 'Selected Location'
-
-        setNewAddress((prev) => ({
-          ...prev,
-          addressLine1: road ? `${road}, ${addr.suburb || ''}`.replace(/,\s*$/, '').slice(0, 100) : displayName.split(',').slice(0, 2).join(', ').slice(0, 100),
-          city: city || prev.city,
-          state: state || prev.state,
-          pincode: pincode ? pincode.replace(/\D/g, '').slice(0, 6) : prev.pincode,
-        }))
-
-        setSelectedLocationText(displayName.split(',').slice(0, 3).join(', '))
-      }
-    } catch (e) {
-      console.error('Reverse geocoding failed:', e)
-    }
+  const reverseGeocode = (lat, lon) => {
+    reverseGeocodeHelper(lat, lon, setNewAddress, setSelectedLocationText)
   }
 
-  const geocodeAddressText = async (addressText) => {
-    try {
-      const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(addressText)}&limit=1`)
-      const data = await res.json()
-      if (data && data.length > 0) {
-        const { lat, lon } = data[0]
-        const latitude = parseFloat(lat)
-        const longitude = parseFloat(lon)
-
-        isDesktopProgrammaticMoveRef.current = true
-        isMobileProgrammaticMoveRef.current = true
-
-        if (mapDesktopRef.current) {
-          mapDesktopRef.current.setView([latitude, longitude], 16)
-        }
-        if (mapMobileRef.current) {
-          mapMobileRef.current.setView([latitude, longitude], 16)
-        }
-      }
-    } catch (e) {
-      console.error('Forward geocoding failed:', e)
-    }
+  const geocodeAddressText = (addressText) => {
+    executeGeocodeAddressText(
+      addressText,
+      mapDesktopRef,
+      mapMobileRef,
+      isDesktopProgrammaticMoveRef,
+      isMobileProgrammaticMoveRef
+    )
   }
 
   const handleUseCurrentLocation = () => {
-    if (navigator.geolocation) {
-      const onSuccess = (position) => {
-        const { latitude, longitude } = position.coords
-
-        isDesktopProgrammaticMoveRef.current = true
-        isMobileProgrammaticMoveRef.current = true
-
-        if (mapDesktopRef.current) {
-          mapDesktopRef.current.setView([latitude, longitude], 16)
-        }
-        if (mapMobileRef.current) {
-          mapMobileRef.current.setView([latitude, longitude], 16)
-        }
-        reverseGeocode(latitude, longitude)
-      }
-
-      const onError = (error) => {
-        console.warn('Geolocation high accuracy failed, retrying with low accuracy...', error)
-        // Fallback to low accuracy
-        navigator.geolocation.getCurrentPosition(
-          onSuccess,
-          (err) => {
-            console.error('Geolocation fallback failed:', err)
-          },
-          {
-            enableHighAccuracy: false,
-            timeout: 5000,
-            maximumAge: 60000
-          }
-        )
-      }
-
-      navigator.geolocation.getCurrentPosition(onSuccess, onError, {
-        enableHighAccuracy: true,
-        timeout: 12000,
-        maximumAge: 0
-      })
-    } else {
-      toast.error('Geolocation is not supported by your browser.')
-    }
+    executeUseCurrentLocation(
+      mapDesktopRef,
+      mapMobileRef,
+      isDesktopProgrammaticMoveRef,
+      isMobileProgrammaticMoveRef,
+      reverseGeocode
+    )
   }
 
   const handleZoomIn = () => {
@@ -658,95 +1188,9 @@ export default function AddressPage() {
         const defaultLat = 28.6139
         const defaultLng = 77.2090
 
-        const desktopMapEl = document.getElementById('map-desktop')
-        if (desktopMapEl && !desktopMapEl._leaflet_id) {
-          try {
-            mapDesktop = L.map(desktopMapEl, {
-              zoomControl: false,
-              attributionControl: false,
-            }).setView([defaultLat, defaultLng], 14)
-
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png', {
-              subdomains: 'abcd',
-              maxZoom: 20,
-            }).addTo(mapDesktop)
-
-            mapDesktopRef.current = mapDesktop
-
-            setTimeout(() => {
-              if (mapDesktop && active) {
-                mapDesktop.invalidateSize()
-              }
-            }, 250)
-
-            mapDesktop.on('moveend', () => {
-              const center = mapDesktop.getCenter()
-
-              if (isDesktopProgrammaticMoveRef.current) {
-                isDesktopProgrammaticMoveRef.current = false
-                return
-              }
-
-              reverseGeocode(center.lat, center.lng)
-              if (mapMobileRef.current) {
-                const mobileCenter = mapMobileRef.current.getCenter()
-                const diffLat = Math.abs(mobileCenter.lat - center.lat)
-                const diffLng = Math.abs(mobileCenter.lng - center.lng)
-                if (diffLat > 0.0001 || diffLng > 0.0001) {
-                  isMobileProgrammaticMoveRef.current = true
-                  mapMobileRef.current.setView(center, mapDesktop.getZoom(), { animate: false })
-                }
-              }
-            })
-          } catch (err) {
-            console.error('Error initializing desktop map:', err)
-          }
-        }
-
-        const mobileMapEl = document.getElementById('map-mobile')
-        if (mobileMapEl && !mobileMapEl._leaflet_id) {
-          try {
-            mapMobile = L.map(mobileMapEl, {
-              zoomControl: false,
-              attributionControl: false,
-            }).setView([defaultLat, defaultLng], 14)
-
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png', {
-              subdomains: 'abcd',
-              maxZoom: 20,
-            }).addTo(mapMobile)
-
-            mapMobileRef.current = mapMobile
-
-            setTimeout(() => {
-              if (mapMobile && active) {
-                mapMobile.invalidateSize()
-              }
-            }, 250)
-
-            mapMobile.on('moveend', () => {
-              const center = mapMobile.getCenter()
-
-              if (isMobileProgrammaticMoveRef.current) {
-                isMobileProgrammaticMoveRef.current = false
-                return
-              }
-
-              reverseGeocode(center.lat, center.lng)
-              if (mapDesktopRef.current) {
-                const desktopCenter = mapDesktopRef.current.getCenter()
-                const diffLat = Math.abs(desktopCenter.lat - center.lat)
-                const diffLng = Math.abs(desktopCenter.lng - center.lng)
-                if (diffLat > 0.0001 || diffLng > 0.0001) {
-                  isDesktopProgrammaticMoveRef.current = true
-                  mapDesktopRef.current.setView(center, mapMobile.getZoom(), { animate: false })
-                }
-              }
-            })
-          } catch (err) {
-            console.error('Error initializing mobile map:', err)
-          }
-        }
+        const mapRefs = { mapDesktopRef, mapMobileRef, isDesktopProgrammaticMoveRef, isMobileProgrammaticMoveRef }
+        mapDesktop = initDesktopMap(L, defaultLat, defaultLng, mapRefs, active, reverseGeocode)
+        mapMobile = initMobileMap(L, defaultLat, defaultLng, mapRefs, active, reverseGeocode)
 
         reverseGeocode(defaultLat, defaultLng)
       } catch (err) {
@@ -786,51 +1230,20 @@ export default function AddressPage() {
     setIsEditingAddress(null)
     setErrors({})
 
-    let lat = 28.6139
-    let lng = 77.2090
-    if (mapDesktopRef.current) {
-      const center = mapDesktopRef.current.getCenter()
-      lat = center.lat
-      lng = center.lng
-    } else if (mapMobileRef.current) {
-      const center = mapMobileRef.current.getCenter()
-      lat = center.lat
-      lng = center.lng
-    }
+    const { lat, lng } = getMapCenter(mapDesktopRef.current, mapMobileRef.current)
     reverseGeocode(lat, lng)
   }
 
-  const handleAddNewAddress = async () => {
-    const validationErrors = validateAddressForm(newAddress)
-    setErrors(validationErrors)
-
-    if (Object.keys(validationErrors).length > 0) {
-      toast.error('Please fill in all required fields')
-      return
-    }
-
-    setIsSavingAddress(true)
-
-    try {
-      const addressData = buildAddressPayload(newAddress)
-      await saveAddressToServer(isEditingAddress, addressData)
-
-      // Refresh and select address
-      const mappedAddresses = await refreshAddresses()
-      const newSelectedId = getPostSaveSelectedId(isEditingAddress, mappedAddresses)
-
-      if (newSelectedId) {
-        setSelectedAddressId(newSelectedId)
-      }
-
-      // Close modal and reset form
-      resetFormAndSyncToMap()
-    } catch (error) {
-      console.error('Failed to save address:', error)
-      toast.error(error.message || 'Failed to save address. Please try again.')
-    } finally {
-      setIsSavingAddress(false)
-    }
+  const handleAddNewAddress = () => {
+    executeAddNewAddress({
+      newAddress,
+      setErrors,
+      isEditingAddress,
+      refreshAddresses,
+      setSelectedAddressId,
+      setIsSavingAddress,
+      resetFormAndSyncToMap,
+    })
   }
 
   const handleEditAddress = (address) => {
@@ -883,17 +1296,6 @@ export default function AddressPage() {
     })
   }
 
-  const getAddressIcon = (type) => {
-    switch (type?.toLowerCase()) {
-      case 'home':
-        return <Home size={20} />
-      case 'work':
-      case 'office':
-        return <Briefcase size={20} />
-      default:
-        return <MapPinned size={20} />
-    }
-  }
 
   if (isLoading) {
     return (
@@ -1060,6 +1462,7 @@ export default function AddressPage() {
               )}
 
               <button
+                type="button"
                 onClick={handleOpenAddressForm}
                 className='w-full h-[60px] lg:h-16 rounded-2xl lg:rounded-xl flex items-center justify-center gap-2 lg:gap-3 font-bold text-[13px] lg:text-[14px] uppercase tracking-wide hover:opacity-80 mt-2 transition-colors'
                 style={{ border: '1px lg:2px dashed var(--color-content-border)', color: 'var(--color-content-text-secondary)' }}
@@ -1086,6 +1489,7 @@ export default function AddressPage() {
             {/* Confirm Button - Fixed on Mobile, Static on Desktop */}
             <div className='fixed lg:static left-0 right-0 p-5 lg:p-0 z-40 pointer-events-none lg:pointer-events-auto' style={{ bottom: 'calc(var(--nav-height) + env(safe-area-inset-bottom, 0px))', background: 'linear-gradient(to top, var(--color-content-bg) 60%, transparent)' }}>
               <button
+                type="button"
                 onClick={handleConfirm}
                 disabled={!selectedAddressId}
                 className='w-full h-[50px] lg:h-[64px] rounded-[20px] text-sm lg:text-[15px] font-bold lg:font-black uppercase lg:tracking-[0.1em] flex items-center justify-center gap-2 lg:gap-3 shadow-xl active:scale-95 lg:active:scale-100 transition-transform lg:transition-colors pointer-events-auto cursor-pointer'
@@ -1105,292 +1509,25 @@ export default function AddressPage() {
 
       {/* Add New Address Modal */}
       {isAddingNew && (
-        <div className='fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[1000] p-4'>
-          <div className='rounded-2xl p-6 max-w-[600px] w-full max-h-[90vh] overflow-y-auto shadow-2xl' style={{ background: 'var(--color-content-bg)', border: '1px solid var(--color-content-border)' }}>
-            <div className='flex items-center justify-between mb-6'>
-              <h3 className='text-[20px] font-black uppercase' style={{ color: 'var(--color-content-text)' }}>
-                {isEditingAddress ? 'Edit Address' : 'Add New Address'}
-              </h3>
-              <button
-                onClick={resetFormAndSyncToMap}
-                className='w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-[#888] hover:bg-white/10 transition-colors'
-              >
-                <X size={18} />
-              </button>
-            </div>
-
-            <form
-              onSubmit={(e) => {
-                e.preventDefault()
-                handleAddNewAddress()
-              }}
-              className='space-y-5'
-            >
-              {/* Address Type */}
-              <fieldset>
-                <legend className='block text-[10px] font-bold tracking-[0.08em] mb-2 uppercase' style={{ color: 'var(--color-content-text-secondary)' }}>
-                  ADDRESS TYPE
-                </legend>
-                <div className='flex gap-2'>
-                  {['Home', 'Work', 'Other'].map((type) => (
-                    <button
-                      key={type}
-                      type='button'
-                      onClick={() => handleChange('addressType', type)}
-                      className={`flex-1 h-[44px] rounded-lg text-[13px] font-semibold transition-all ${newAddress.addressType === type
-                        ? ''
-                        : 'hover:bg-white/10'
-                        }`}
-                      style={{
-                        background: newAddress.addressType === type ? 'var(--theme-btn-primary-bg)' : 'var(--color-content-border)',
-                        border: newAddress.addressType === type ? 'none' : '1px solid var(--color-content-border)',
-                        color: newAddress.addressType === type ? 'var(--theme-btn-primary-text)' : 'var(--color-content-text)',
-                      }}
-                    >
-                      {type}
-                    </button>
-                  ))}
-                </div>
-              </fieldset>
-
-              {/* Address Line 1 */}
-              <div>
-                <div className='flex justify-between items-center mb-2'>
-                  <label htmlFor='address-line-1' className='block text-[10px] font-bold tracking-[0.08em] uppercase' style={{ color: 'var(--color-content-text-secondary)' }}>
-                    ADDRESS LINE 1 *
-                  </label>
-                  <button
-                    type='button'
-                    onClick={handleUseCurrentLocation}
-                    className='text-[10px] font-bold uppercase tracking-wider text-[var(--color-accent)] hover:underline flex items-center gap-1 cursor-pointer bg-transparent border-0 p-0'
-                  >
-                    <Locate size={12} /> Use Current Location
-                  </button>
-                </div>
-                <input
-                  id='address-line-1'
-                  type='text'
-                  value={newAddress.addressLine1}
-                  onChange={(e) => handleChange('addressLine1', e.target.value.slice(0, 100))}
-                  className={`w-full h-[52px] rounded-lg text-[15px] px-4 outline-none transition-colors`}
-                  style={{
-                    background: 'var(--color-content-card)',
-                    border: errors.addressLine1 ? '1px solid var(--color-danger)' : '1px solid var(--color-content-border)',
-                    color: 'var(--color-content-text)',
-                  }}
-                  placeholder='House/Flat no., Building name'
-                  maxLength={100}
-                />
-                {errors.addressLine1 && (
-                  <span className='block text-xs text-red-400 mt-2'>
-                    {errors.addressLine1}
-                  </span>
-                )}
-              </div>
-
-              {/* Address Line 2 */}
-              <div>
-                <label htmlFor='address-line-2' className='block text-[10px] font-bold tracking-[0.08em] mb-2 uppercase' style={{ color: 'var(--color-content-text-secondary)' }}>
-                  ADDRESS LINE 2
-                </label>
-                <input
-                  id='address-line-2'
-                  type='text'
-                  value={newAddress.addressLine2}
-                  onChange={(e) => handleChange('addressLine2', e.target.value.slice(0, 200))}
-                  className='w-full h-[52px] rounded-lg text-[15px] px-4 outline-none transition-colors'
-                  style={{ background: 'var(--color-content-card)', border: '1px solid var(--color-content-border)', color: 'var(--color-content-text)' }}
-                  placeholder='Road name, Area, Colony'
-                  maxLength={200}
-                />
-              </div>
-
-              {/* Landmark */}
-              <div>
-                <label htmlFor='address-landmark' className='block text-[10px] font-bold tracking-[0.08em] mb-2 uppercase' style={{ color: 'var(--color-content-text-secondary)' }}>
-                  LANDMARK
-                </label>
-                <input
-                  id='address-landmark'
-                  type='text'
-                  value={newAddress.landmark}
-                  onChange={(e) => handleChange('landmark', e.target.value)}
-                  className='w-full h-[52px] rounded-lg text-[15px] px-4 outline-none transition-colors'
-                  style={{ background: 'var(--color-content-card)', border: '1px solid var(--color-content-border)', color: 'var(--color-content-text)' }}
-                  placeholder='Nearby landmark (optional)'
-                />
-              </div>
-
-              {/* Pincode and City */}
-              <div className='grid grid-cols-2 gap-3'>
-                <div>
-                  <label htmlFor='address-pincode' className='block text-[10px] font-bold tracking-[0.08em] mb-2 uppercase' style={{ color: 'var(--color-content-text-secondary)' }}>
-                    PINCODE *
-                  </label>
-                  <input
-                    id='address-pincode'
-                    type='text'
-                    value={newAddress.pincode}
-                    onChange={(e) => {
-                      const value = e.target.value
-                        .replace(/\D/g, '')
-                        .slice(0, 6)
-                      handleChange('pincode', value)
-                    }}
-                    className={`w-full h-[52px] rounded-lg text-[15px] px-4 outline-none transition-colors`}
-                    style={{
-                      background: 'var(--color-content-card)',
-                      border: errors.pincode ? '1px solid var(--color-danger)' : '1px solid var(--color-content-border)',
-                      color: 'var(--color-content-text)',
-                    }}
-                    placeholder='000000'
-                    maxLength={6}
-                  />
-                  {errors.pincode && (
-                    <span className='block text-xs text-red-400 mt-2'>
-                      {errors.pincode}
-                    </span>
-                  )}
-                </div>
-
-                <div>
-                  <label htmlFor='address-city' className='block text-[10px] font-bold tracking-[0.08em] mb-2 uppercase' style={{ color: 'var(--color-content-text-secondary)' }}>
-                    CITY *
-                  </label>
-                  <input
-                    id='address-city'
-                    type='text'
-                    value={newAddress.city}
-                    onChange={(e) => handleChange('city', e.target.value)}
-                    className={`w-full h-[52px] rounded-lg text-[15px] px-4 outline-none transition-colors`}
-                    style={{
-                      background: 'var(--color-content-card)',
-                      border: errors.city ? '1px solid var(--color-danger)' : '1px solid var(--color-content-border)',
-                      color: 'var(--color-content-text)',
-                    }}
-                    placeholder='City'
-                  />
-                  {errors.city && (
-                    <span className='block text-xs text-red-400 mt-2'>
-                      {errors.city}
-                    </span>
-                  )}
-                </div>
-              </div>
-
-              {/* State */}
-              <div>
-                <label htmlFor='address-state' className='block text-[10px] font-bold tracking-[0.08em] mb-2 uppercase' style={{ color: 'var(--color-content-text-secondary)' }}>
-                  STATE *
-                </label>
-                <input
-                  id='address-state'
-                  type='text'
-                  value={newAddress.state}
-                  onChange={(e) => handleChange('state', e.target.value)}
-                  className={`w-full h-[52px] rounded-lg text-[15px] px-4 outline-none transition-colors`}
-                  style={{
-                    background: 'var(--color-content-card)',
-                    border: errors.state ? '1px solid var(--color-danger)' : '1px solid var(--color-content-border)',
-                    color: 'var(--color-content-text)',
-                  }}
-                  placeholder='State'
-                />
-                {errors.state && (
-                  <span className='block text-xs text-red-400 mt-2'>
-                    {errors.state}
-                  </span>
-                )}
-              </div>
-
-              {/* Set as Default */}
-              <div className='flex items-center gap-3 p-4 rounded-xl' style={{ background: 'var(--color-content-border)', border: '1px solid var(--color-content-border)' }}>
-                <input
-                  type='checkbox'
-                  id='setAsDefault'
-                  checked={newAddress.setAsDefault}
-                  onChange={(e) =>
-                    handleChange('setAsDefault', e.target.checked)
-                  }
-                  className='w-5 h-5 rounded bg-white/10 border-[#333] text-white focus:ring-2 focus:ring-white/40'
-                />
-                <label
-                  htmlFor='setAsDefault'
-                  className='flex-1 text-[13px] font-medium cursor-pointer'
-                  style={{ color: 'var(--color-content-text)' }}
-                >
-                  Set as default address
-                </label>
-              </div>
-
-              {/* Submit Button */}
-              <button
-                type='submit'
-                disabled={isSavingAddress}
-                className='w-full h-[52px] rounded-lg text-[15px] font-bold cursor-pointer flex items-center justify-center gap-2 transition-all duration-200'
-                style={{
-                  background: isSavingAddress ? 'var(--color-content-border)' : 'var(--theme-btn-primary-bg)',
-                  color: isSavingAddress ? 'var(--color-content-text-secondary)' : 'var(--theme-btn-primary-text)',
-                }}
-              >
-                {isSavingAddress ? (
-                  <>
-                    <div className='w-4 h-4 border-2 border-black/20 border-t-black rounded-full animate-spin' />
-                    <span>
-                      {isEditingAddress ? 'Updating...' : 'Adding...'}
-                    </span>
-                  </>
-                ) : (
-                  <>
-                    <Save size={18} />
-                    <span>
-                      {isEditingAddress ? 'Update Address' : 'Add Address'}
-                    </span>
-                  </>
-                )}
-              </button>
-            </form>
-          </div>
-        </div>
+        <AddressFormModal
+          isEditingAddress={isEditingAddress}
+          newAddress={newAddress}
+          errors={errors}
+          isSavingAddress={isSavingAddress}
+          handleChange={handleChange}
+          handleAddNewAddress={handleAddNewAddress}
+          handleUseCurrentLocation={handleUseCurrentLocation}
+          resetFormAndSyncToMap={resetFormAndSyncToMap}
+        />
       )}
 
       {/* Delete Confirmation Modal */}
       {showDeleteConfirm && (
-        <div className='fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[1100] p-4'>
-          <div className='rounded-2xl p-6 max-w-[400px] w-full shadow-2xl' style={{ background: 'var(--color-content-bg)', border: '1px solid var(--color-content-border)' }}>
-            <h3 className='text-[18px] font-black mb-2' style={{ color: 'var(--color-content-text)' }}>
-              Delete Address?
-            </h3>
-            <p className='text-[13px] mb-6' style={{ color: 'var(--color-content-text-secondary)' }}>
-              Are you sure you want to delete this address? This action cannot
-              be undone.
-            </p>
-            <div className='flex gap-3'>
-              <button
-                onClick={() => setShowDeleteConfirm(null)}
-                disabled={isDeletingAddress}
-                className='flex-1 h-[46px] border rounded-lg text-[13px] font-bold hover:bg-white/10 transition-all disabled:opacity-50'
-                style={{ background: 'var(--color-content-border)', borderColor: 'var(--color-content-border)', color: 'var(--color-content-text)' }}
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleDeleteAddress}
-                disabled={isDeletingAddress}
-                className='flex-1 h-[46px] bg-red-600 hover:bg-red-700 text-white rounded-lg text-[13px] font-bold transition-all disabled:opacity-50 flex items-center justify-center gap-2'
-              >
-                {isDeletingAddress ? (
-                  <>
-                    <div className='w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin' />
-                    Deleting...
-                  </>
-                ) : (
-                  'Delete'
-                )}
-              </button>
-            </div>
-          </div>
-        </div>
+        <DeleteConfirmModal
+          isDeletingAddress={isDeletingAddress}
+          handleDeleteAddress={handleDeleteAddress}
+          setShowDeleteConfirm={setShowDeleteConfirm}
+        />
       )}
     </div>
   )

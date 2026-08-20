@@ -15,23 +15,32 @@ export default function Card({
   className = '',
   style = {},
 }) {
-  const isInteractive = !!onClick;
+  const cardStyle = {
+    padding: padding,
+    cursor: onClick ? 'pointer' : 'default',
+    borderColor: selected ? 'var(--color-accent)' : undefined,
+    boxShadow: selected ? '0 0 0 1px var(--color-accent)' : undefined,
+    transition: 'border-color 150ms ease, box-shadow 150ms ease',
+    ...style,
+  };
+
+  if (onClick) {
+    return (
+      <button
+        type="button"
+        className={`card w-full text-left font-inherit text-inherit ${className}`}
+        onClick={onClick}
+        style={cardStyle}
+      >
+        {children}
+      </button>
+    );
+  }
 
   return (
     <div
       className={`card ${className}`}
-      onClick={onClick}
-      role={isInteractive ? 'button' : undefined}
-      tabIndex={isInteractive ? 0 : undefined}
-      onKeyDown={isInteractive ? (e) => e.key === 'Enter' && onClick() : undefined}
-      style={{
-        padding: padding,
-        cursor: isInteractive ? 'pointer' : 'default',
-        borderColor: selected ? 'var(--color-accent)' : undefined,
-        boxShadow: selected ? '0 0 0 1px var(--color-accent)' : undefined,
-        transition: 'border-color 150ms ease, box-shadow 150ms ease',
-        ...style,
-      }}
+      style={cardStyle}
     >
       {children}
     </div>

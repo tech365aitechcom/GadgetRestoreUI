@@ -107,7 +107,7 @@ export default function HomePage() {
     const fetchOrders = async () => {
       try {
         const res = await customerService.getOrders({ limit: 10 })
-        if (res && res.success && res.data?.orders) {
+        if (res?.success && res.data?.orders) {
           const list = res.data.orders
           const active = list.find(
             (o) => !['DELIVERED', 'CANCELLED'].includes(o.repairStatus),
@@ -138,7 +138,7 @@ export default function HomePage() {
 
   // Category-aware CTA — sets category context so brand page filters accordingly
   const handleCategorySelect = (cat) => {
-    if (cat && cat._id) {
+    if (cat?._id) {
       // API-backed category: store it so select-brand can filter brands
       setCategory({ _id: cat._id, name: cat.name })
       router.push('/select-brand')
@@ -184,9 +184,10 @@ export default function HomePage() {
 
         {/* Search bar - MOBILE ONLY */}
         <div className='lg:hidden block px-4 pb-0' style={{ paddingTop: 'calc(68px + env(safe-area-inset-top, 0px))' }}>
-          <div
+          <button
+            type='button'
             onClick={handleStart}
-            className='flex items-center gap-2.5 py-3 px-4 rounded-xl cursor-pointer'
+            className='w-full text-left flex items-center gap-2.5 py-3 px-4 rounded-xl cursor-pointer'
             style={{
               background: 'var(--color-content-card)',
               border: '1px solid var(--color-content-border)',
@@ -199,7 +200,7 @@ export default function HomePage() {
             >
               Search device or issue...
             </span>
-          </div>
+          </button>
         </div>
 
         {/* Hero Banner - DESKTOP ONLY */}
@@ -243,6 +244,7 @@ export default function HomePage() {
                 conversion rates today.
               </p>
               <button
+                type='button'
                 onClick={handleStart}
                 className='bg-white text-black border-0 rounded-xl py-3.25 px-7 font-bold text-[13px] tracking-wider uppercase cursor-pointer'
               >
@@ -305,6 +307,7 @@ export default function HomePage() {
                     </div>
                   </div>
                   <button
+                    type='button'
                     onClick={() =>
                       router.push(
                         `/orders/detail?ticketNumber=${activeOrder.ticketNumber}`,
@@ -356,6 +359,7 @@ export default function HomePage() {
                     </div>
                   </div>
                   <button
+                    type='button'
                     onClick={handleStart}
                     className='btn-accent w-full h-10.5 text-xs tracking-wider uppercase'
                   >
@@ -375,13 +379,13 @@ export default function HomePage() {
               </h3>
               <div className='flex flex-col gap-1.5'>
                 {manuals.map(({ label, sub, Icon }) => (
-                  <a
+                  <button
+                    type='button'
                     key={label}
-                    href='#'
-                    className='flex items-center gap-3 p-2.5 rounded-[10px] no-underline transition-[background] duration-150'
+                    className='w-full text-left flex items-center gap-3 p-2.5 rounded-[10px] no-underline transition-[background] duration-150 border-none bg-transparent cursor-pointer'
                     onMouseEnter={(e) =>
-                      (e.currentTarget.style.background =
-                        'var(--color-content-bg)')
+                    (e.currentTarget.style.background =
+                      'var(--color-content-bg)')
                     }
                     onMouseLeave={(e) =>
                       (e.currentTarget.style.background = 'transparent')
@@ -410,7 +414,7 @@ export default function HomePage() {
                         {sub}
                       </span>
                     </div>
-                  </a>
+                  </button>
                 ))}
               </div>
             </div>
@@ -471,6 +475,7 @@ export default function HomePage() {
                       </span>
                     </div>
                     <button
+                      type='button'
                       onClick={() =>
                         router.push(
                           `/orders/detail?ticketNumber=${activeOrder.ticketNumber}`,
@@ -532,6 +537,7 @@ export default function HomePage() {
                       </span>
                     </div>
                     <button
+                      type='button'
                       onClick={handleStart}
                       className='border-0 rounded-[10px] py-2.25 px-4.5 text-xs font-bold tracking-wide cursor-pointer'
                       style={{
@@ -562,62 +568,74 @@ export default function HomePage() {
               Quick Repair
             </h4>
           </div>
-          {error ? (
-            <div className='lg:block hidden'>
-              <ErrorState
-                title={error}
-                message='You can still start a repair by clicking the button below.'
-                buttonText='Start New Repair'
-                onButtonClick={handleStart}
-              />
-            </div>
-          ) : isLoading ? (
-            <div className='grid lg:grid-cols-4 grid-cols-2 lg:gap-3.5 gap-2.5'>
-              {[1, 2, 3, 4].map((i) => (
-                <Skeleton
-                  key={i}
-                  className='h-[110px] rounded-[var(--radius-card)]'
-                />
-              ))}
-            </div>
-          ) : categories.length === 0 ? (
-            <div className='lg:block hidden'>
-              <ErrorState
-                title='No service categories available'
-                buttonText='Start New Repair'
-                onButtonClick={handleStart}
-              />
-            </div>
-          ) : (
-            <div className='grid lg:grid-cols-6 grid-cols-2 lg:gap-5 gap-2.5'>
-              {categories.map((cat, idx) => {
-                const CatIcon = cat.icon || Smartphone
-                return (
-                  <button
-                    key={idx}
-                    onClick={() => handleCategorySelect(cat)}
-                    className='service-card'
-                    style={{
-                      padding: 'var(--service-card-padding, 18px 12px)',
-                    }}
-                  >
-                    <div className='service-card-icon'>
-                      <CatIcon size={21} className='lg:block hidden' />
-                      <CatIcon size={20} className='lg:hidden block' />
-                    </div>
-                    <span
-                      className='service-card-label'
+          {(() => {
+            if (error) {
+              return (
+                <div className='lg:block hidden'>
+                  <ErrorState
+                    title={error}
+                    message='You can still start a repair by clicking the button below.'
+                    buttonText='Start New Repair'
+                    onButtonClick={handleStart}
+                  />
+                </div>
+              )
+            }
+            if (isLoading) {
+              return (
+                <div className='grid lg:grid-cols-4 grid-cols-2 lg:gap-3.5 gap-2.5'>
+                  {[1, 2, 3, 4].map((i) => (
+                    <Skeleton
+                      key={i}
+                      className='h-[110px] rounded-[var(--radius-card)]'
+                    />
+                  ))}
+                </div>
+              )
+            }
+            if (categories.length === 0) {
+              return (
+                <div className='lg:block hidden'>
+                  <ErrorState
+                    title='No service categories available'
+                    buttonText='Start New Repair'
+                    onButtonClick={handleStart}
+                  />
+                </div>
+              )
+            }
+            return (
+              <div className='grid lg:grid-cols-6 grid-cols-2 lg:gap-5 gap-2.5'>
+                {categories.map((cat) => {
+                  const CatIcon = cat.icon || Smartphone
+                  return (
+                    <button
+                      type='button'
+                      key={cat._id || cat.name}
+                      onClick={() => handleCategorySelect(cat)}
+                      className='service-card'
                       style={{
-                        fontSize: 'var(--service-card-label-size, 12px)',
+                        padding: 'var(--service-card-padding, 18px 12px)',
                       }}
                     >
-                      {cat.name}
-                    </span>
-                  </button>
-                )
-              })}
-            </div>
-          )}
+                      <div className='service-card-icon'>
+                        <CatIcon size={21} className='lg:block hidden' />
+                        <CatIcon size={20} className='lg:hidden block' />
+                      </div>
+                      <span
+                        className='service-card-label'
+                        style={{
+                          fontSize: 'var(--service-card-label-size, 12px)',
+                        }}
+                      >
+                        {cat.name}
+                      </span>
+                    </button>
+                  )
+                })}
+              </div>
+            )
+          })()}
 
           {/* Mobile error states */}
           {error && (
@@ -680,6 +698,7 @@ export default function HomePage() {
                 Exclusive offer for new service registrations.
               </p>
               <button
+                type='button'
                 onClick={handleStart}
                 className='border-0 rounded-[10px] py-2.5 px-5 text-xs font-bold cursor-pointer tracking-wide'
                 style={{
@@ -704,8 +723,9 @@ export default function HomePage() {
           {/* Desktop: 2-column grid */}
           <div className='hidden lg:grid lg:grid-cols-3 lg:gap-5'>
             {/* Screen Replacement */}
-            <div
-              className='popular-card min-h-55 relative'
+            <button
+              type='button'
+              className='popular-card min-h-55 relative text-left'
               onClick={handleStart}
             >
               <Image
@@ -726,21 +746,18 @@ export default function HomePage() {
                 <p className='text-xs text-white/75 mb-3.5'>
                   Original parts with 12-month warranty.
                 </p>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    handleStart()
-                  }}
+                <span
                   className='bg-transparent border-0 cursor-pointer text-white/85 text-xs font-bold tracking-wide uppercase flex items-center gap-1'
                 >
                   Book Screen <ChevronRight size={13} />
-                </button>
+                </span>
               </div>
-            </div>
+            </button>
 
             {/* Liquid Damage */}
-            <div
-              className='popular-card min-h-55 relative'
+            <button
+              type='button'
+              className='popular-card min-h-55 relative text-left'
               onClick={handleStart}
             >
               <Image
@@ -761,26 +778,23 @@ export default function HomePage() {
                 <p className='text-xs text-white/75 mb-3.5'>
                   Ultrasonic cleaning &amp; circuit restoration.
                 </p>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    handleStart()
-                  }}
+                <span
                   className='bg-transparent border-0 cursor-pointer text-white/85 text-xs font-bold tracking-wide uppercase flex items-center gap-1'
                 >
                   Diagnose Board <ChevronRight size={13} />
-                </button>
+                </span>
               </div>
-            </div>
+            </button>
           </div>
 
           {/* Mobile: Horizontal scroll */}
           <div className='lg:hidden scrollbar-none flex gap-3 overflow-x-auto pb-1 snap-x snap-mandatory'>
             {POPULAR_SERVICES.map(({ title, sub, bg, image }) => (
-              <div
+              <button
+                type='button'
                 key={title}
                 onClick={handleStart}
-                className='shrink-0 w-38.75 h-48.75 rounded-2xl overflow-hidden relative cursor-pointer snap-start border border-white/[0.07]'
+                className='shrink-0 w-38.75 h-48.75 rounded-2xl overflow-hidden relative cursor-pointer snap-start border border-white/[0.07] text-left'
                 style={{ background: bg }}
               >
                 {image && (
@@ -808,7 +822,7 @@ export default function HomePage() {
                   </h5>
                   <span className='text-[10px] text-white/45'>{sub}</span>
                 </div>
-              </div>
+              </button>
             ))}
           </div>
         </div>
@@ -816,6 +830,7 @@ export default function HomePage() {
 
       {/* Floating CTA - MOBILE ONLY */}
       <button
+        type='button'
         onClick={handleStart}
         className='lg:hidden fixed right-4 z-40 rounded-full py-3 px-5 font-bold text-[13px] flex items-center gap-2 cursor-pointer border border-white/15 shadow-[0_4px_16px_rgba(108,123,255,0.4)]'
         style={{

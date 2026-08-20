@@ -12,7 +12,6 @@ import {
   Phone,
   KeySquare,
   ChevronRight,
-  X,
 } from 'lucide-react'
 import { useBooking } from '@/context/BookingContext'
 import Cookies from 'js-cookie'
@@ -118,7 +117,7 @@ export default function CustomerDetailsPage() {
   const handleOpenPolicy = async (e, policyKey) => {
     e.preventDefault()
     e.stopPropagation()
-    
+
     const paths = {
       privacy: '/privacy-policy',
       terms: '/terms-and-conditions',
@@ -127,7 +126,7 @@ export default function CustomerDetailsPage() {
       replacement: '/replacement-cancellation-policy',
       cookie: '/cookie-policy',
     }
-    
+
     const path = paths[policyKey]
     if (!path) return
     const pathWithQuery = `${path}?from=checkout`
@@ -260,7 +259,7 @@ export default function CustomerDetailsPage() {
       newErrors.fullName = 'Name too long (max 100 chars)'
 
     if (!formData.email.trim()) newErrors.email = 'Email ID is required'
-    else if (!/^\S+@\S+\.\S+$/.test(formData.email))
+    else if (!/^[^\s@]+@[^\s@.]+(\.[^\s@.]+)+$/.test(formData.email))
       newErrors.email = 'Enter a valid email address'
 
     if (
@@ -359,7 +358,7 @@ export default function CustomerDetailsPage() {
               icon={Phone}
               name='mobile'
               value={formData.mobile}
-              onChange={() => {}}
+              onChange={() => { }}
               readOnly
             />
 
@@ -502,6 +501,7 @@ export default function CustomerDetailsPage() {
           }}
         >
           <button
+            type='button'
             onClick={handleSubmit}
             disabled={isLoading || !formData.fullName || !formData.email || !agreed}
             className='w-full h-[50px] rounded-[20px] text-sm font-bold flex items-center justify-center gap-2 shadow-xl active:scale-95 transition-all uppercase tracking-wider disabled:opacity-50'
@@ -573,7 +573,7 @@ export default function CustomerDetailsPage() {
                       icon={Phone}
                       name='mobile'
                       value={formData.mobile}
-                      onChange={() => {}}
+                      onChange={() => { }}
                       readOnly
                     />
                   </div>

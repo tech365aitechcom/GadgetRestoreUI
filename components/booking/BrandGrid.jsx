@@ -2,7 +2,6 @@
 
 import { useState, useMemo } from 'react'
 import { Search, ScanLine } from 'lucide-react'
-import Skeleton from '@/components/ui/Skeleton'
 import OptimizedImage from '@/components/ui/OptimizedImage'
 import { getBrandLogo } from '@/lib/utils'
 
@@ -77,6 +76,7 @@ export function TrustBadges() {
 export function ScanSerialButton({ compact = false }) {
   return (
     <button
+      type='button'
       className='scan-serial-card'
       style={compact ? { minWidth: 200 } : { width: '100%' }}
       aria-label='Scan serial number'
@@ -150,6 +150,7 @@ export default function BrandGrid({
         />
         {search && (
           <button
+            type='button'
             onClick={() => setSearch('')}
             style={{
               background: 'none',
@@ -195,6 +196,7 @@ export default function BrandGrid({
             const logoUrl = getBrandLogo(brand.name, brand.logo)
             return (
               <button
+                type='button'
                 key={brand._id}
                 className={`brand-card${isSelected ? ' selected' : ''}`}
                 onClick={() => onSelectBrand(brand)}

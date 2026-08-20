@@ -1,7 +1,7 @@
 'use client';
 
 import { usePathname } from 'next/navigation';
-import { Home, ClipboardList, User } from 'lucide-react';
+import { ClipboardList, User } from 'lucide-react';
 import { useProtectedNavigation } from '@/hooks/useProtectedNavigation';
 import LoginAlertModal from './LoginAlertModal';
 
@@ -28,6 +28,7 @@ export default function BottomNav() {
           const isActive = pathname.startsWith(href);
           return (
             <button
+              type='button'
               key={href}
               onClick={(e) => {
                 e.preventDefault();

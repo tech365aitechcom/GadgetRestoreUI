@@ -34,6 +34,7 @@ export default function PublicLayout({ children }) {
           0
         )
       } catch (err) {
+        console.error('Failed to fetch unread notification count:', err)
         setUnreadCount(0)
       }
     }
