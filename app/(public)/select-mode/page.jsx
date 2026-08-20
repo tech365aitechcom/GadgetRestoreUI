@@ -5,20 +5,14 @@ import { useRouter } from 'next/navigation';
 import {
   ArrowLeft,
   ChevronRight,
-  Check,
-  Smartphone,
-  FlaskConical,
   Home,
   Truck,
   Lock,
-  Award,
-  Shield,
   BadgeCheck,
   Cpu,
 } from 'lucide-react';
 
 import { useBooking } from '@/context/BookingContext';
-import catalogueService from '@/services/catalogue.service';
 import { useBookingGuard } from '@/hooks/useBookingGuard';
 
 /* ─── Service mode config (Phase 1: Lab only) ───────────────────────────────── */
@@ -45,6 +39,7 @@ const SERVICE_MODES = [
 function ServiceModeCard({ mode, isSelected, onSelect }) {
   return (
     <button
+      type='button'
       onClick={() => mode.active && onSelect(mode.id)}
       disabled={!mode.active}
       aria-pressed={isSelected}
@@ -59,9 +54,9 @@ function ServiceModeCard({ mode, isSelected, onSelect }) {
         {/* Badges */}
         {mode.badges && mode.badges.length > 0 && (
           <div className="flex gap-2 flex-wrap mb-0 lg:mb-1">
-            {mode.badges.map((b, i) => (
+            {mode.badges.map((b) => (
               <span
-                key={i}
+                key={b}
                 className="text-[9px] font-extrabold uppercase tracking-wider px-3 py-1.5 rounded-full"
                 style={{
                   background: 'var(--color-tag-bg)',
@@ -156,7 +151,6 @@ function RemarksField({ value, onChange }) {
 export default function SelectModePage() {
   const router = useRouter();
   const {
-    brand, model, symptoms, partTier,
     serviceMode: contextServiceMode,
     remarks: contextRemarks,
     setServiceMode,
@@ -198,6 +192,7 @@ export default function SelectModePage() {
         {/* Header */}
         <div className="mb-0 lg:mb-4">
           <button
+            type='button'
             onClick={() => router.push('/select-tier')}
             className="hidden lg:inline-flex items-center gap-1.5 bg-transparent border-none cursor-pointer text-xs font-semibold mb-3.5 p-0 uppercase tracking-wider"
             style={{ color: 'var(--color-content-text-secondary)' }}
@@ -301,6 +296,7 @@ export default function SelectModePage() {
           </span>
         </div>
         <button
+          type='button'
           onClick={handleContinue}
           disabled={!selectedMode}
           className="h-11 px-5 border-none rounded-[var(--radius-btn)] font-bold text-[13px] flex items-center gap-1.5 transition-all duration-150"

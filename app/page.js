@@ -9,14 +9,8 @@ import {
   Phone,
   Mail,
   Clock,
-  ArrowRight,
   Check,
   Star,
-  Smartphone,
-  Laptop,
-  Tablet,
-  Gamepad,
-  Headphones,
   Monitor,
   Calendar,
   Zap,
@@ -31,7 +25,6 @@ import {
   Package,
   Send,
   User,
-  Users,
   Menu,
   X,
 } from 'lucide-react'
@@ -51,8 +44,8 @@ function AnimatedCounter({ target, duration = 1200, decimals = 0 }) {
 
   useEffect(() => {
     let start = 0
-    const end = parseFloat(target)
-    if (isNaN(end)) return
+    const end = Number.parseFloat(target)
+    if (Number.isNaN(end)) return
     if (end === 0) return
 
     const totalSteps = 40
@@ -65,7 +58,7 @@ function AnimatedCounter({ target, duration = 1200, decimals = 0 }) {
         setCount(end)
         clearInterval(timer)
       } else {
-        setCount(parseFloat(start.toFixed(decimals)))
+        setCount(Number.parseFloat(start.toFixed(decimals)))
       }
     }, stepTime)
 
@@ -160,26 +153,933 @@ const REVIEWS_DATA = [
 
 let hasShownSplashSession = false
 
-export default function SplashOrLandingPage() {
-  const router = useRouter()
-  const [mounted, setMounted] = useState(false)
-  const [isNativeApp, setIsNativeApp] = useState(false)
-  const [showSplash, setShowSplash] = useState(!hasShownSplashSession)
-  const [progress, setProgress] = useState(0)
+const handleSplashCompletion = async (router, setShowSplash) => {
+  let hasSeen = 'false'
+  try {
+    const { value } = await Preferences.get({
+      key: 'has_seen_onboarding',
+    })
+    hasSeen = value || 'false'
+    console.log('[SPLASH] Onboarding status:', hasSeen)
+  } catch (e) {
+    console.error('[SPLASH] Error reading preferences:', e)
+    hasSeen = 'false'
+  }
 
-  // Web Landing Page state
-  const [activeSection, setActiveSection] = useState('hero')
-  const [activeFaq, setActiveFaq] = useState(0) // Open first one by default as shown in Figma
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [currentReviewIndex, setCurrentReviewIndex] = useState(0)
+  // Use Next.js router for client-side navigation in Capacitor
+  // This avoids protocol/CORS issues with static exports
+  const targetRoute = hasSeen === 'true' ? '/' : '/onboarding'
+  console.log('[SPLASH] Navigating to:', targetRoute)
 
-  useEffect(() => {
-    if (!mounted) return
-    const timer = setInterval(() => {
-      setCurrentReviewIndex((prev) => (prev + 1) % REVIEWS_DATA.length)
+  setTimeout(() => {
+    hasShownSplashSession = true
+    if (targetRoute === '/') {
+      setShowSplash(false)
+    } else {
+      router.push(targetRoute)
+    }
+  }, 300)
+}
+
+function SplashScreen({ progress }) {
+  const activeDotIndex = Math.min(2, Math.floor(progress / 33.3))
+  return (
+    <div
+      className='min-h-screen w-screen text-white flex flex-col overflow-hidden relative'
+      style={{ background: 'var(--color-bg)' }}
+    >
+      {/* 💻 DESKTOP SPLASH VIEW */}
+      <div
+        className='hidden lg:flex flex-col justify-between w-full h-screen p-10 box-border z-10'
+        style={{
+          background:
+            'radial-gradient(circle at 75% 25%, var(--color-accent-tint-8) 0%, transparent 55%), linear-gradient(135deg, var(--color-bg) 0%, var(--color-bg-900) 50%, var(--color-bg-600) 100%)',
+        }}
+      >
+        <header className='flex justify-between items-center w-full'>
+          <div className='flex gap-1.5 text-zinc-700 font-mono text-[10px] select-none'>
+            <span>——</span>
+            <span>——</span>
+            <span>——</span>
+          </div>
+          <div className='flex items-center gap-8 text-[10px] tracking-[0.18em] font-extrabold text-zinc-500 font-sans select-none'>
+            <div>
+              STATUS: <span className='text-emerald-400'>ONLINE</span>
+            </div>
+            <div>
+              DIAGNOSTIC_MODE: <span className='text-blue-400'>ACTIVE</span>
+            </div>
+          </div>
+        </header>
+
+        <main className='flex-1 flex flex-col items-center justify-center text-center'>
+          <div className='mb-3'>
+            <img
+              src='/gadget-restore-logo.svg'
+              alt='Gadget Restore Logo'
+              className='h-16 w-auto object-contain animate-pulse'
+            />
+          </div>
+          <div className='text-[10px] tracking-[0.8em] text-zinc-400 font-bold leading-relaxed mr-[-0.8em] select-none'>
+            TECHNICAL PRECISION
+          </div>
+          <div className='flex items-center justify-center gap-2 mt-16 mb-4 select-none'>
+            <div className='w-[18px] h-[18px] rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center'>
+              <svg
+                className='w-2.5 h-2.5 text-emerald-400'
+                fill='none'
+                viewBox='0 0 24 24'
+                stroke='currentColor'
+                strokeWidth='3'
+              >
+                <path
+                  strokeLinecap='round'
+                  strokeLinejoin='round'
+                  d='M5 13l4 4L19 7'
+                />
+              </svg>
+            </div>
+            <span className='text-[10.5px] tracking-[0.2em] font-extrabold text-zinc-300 uppercase'>
+              INITIALIZING SYSTEMS
+            </span>
+          </div>
+          <div className='w-[280px] h-[1px] bg-zinc-800/80 relative overflow-hidden rounded-full'>
+            <div
+              className='h-full bg-white transition-all duration-75 ease-out'
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+        </main>
+
+        <footer className='flex justify-between items-center w-full text-zinc-600 font-sans text-[9px] tracking-[0.12em] font-bold select-none'>
+          <div>© 2026 GADGET RESTORE. TECHNICAL PRECISION.</div>
+          <div className='flex items-center gap-6'>
+            <span className='flex items-center gap-2'>
+              <span className='w-1 h-1 rounded-full bg-zinc-700' />
+              <span>SYSTEM V1.0.2</span>
+            </span>
+            <span className='flex items-center gap-2'>
+              <span className='w-1 h-1 rounded-full bg-zinc-700' />
+              <span>ENCRYPTED CONNECTION</span>
+            </span>
+          </div>
+        </footer>
+      </div>
+
+      {/* 📱 MOBILE SPLASH VIEW */}
+      <div
+        className='flex lg:hidden flex-col justify-between w-full h-[100svh] px-6 py-10 box-border z-10 overflow-hidden'
+        style={{
+          background:
+            'radial-gradient(circle at 50% 30%, var(--color-accent-tint-4) 0%, transparent 60%), var(--color-bg-900)',
+        }}
+      >
+        <div className='h-4' />
+        <div className='flex-1 flex flex-col items-center justify-center text-center'>
+          <div className='relative mb-9 select-none animate-pulse duration-[3000ms]'>
+            <img
+              src='/images/Logo Container.png'
+              alt='System Hardware'
+              className='w-28 h-28 object-contain'
+            />
+          </div>
+          <div className='mb-2'>
+            <img
+              src='/gadget-restore-logo.svg'
+              alt='Gadget Restore Logo'
+              className='h-9 w-auto object-contain'
+            />
+          </div>
+          <div className='text-[9px] tracking-[0.65em] text-zinc-500 font-bold mr-[-0.65em] select-none'>
+            TECHNICAL PRECISION
+          </div>
+          <div className='w-[190px] h-[1px] bg-zinc-800/80 relative overflow-hidden mt-12 mb-5 rounded-full'>
+            <div
+              className='h-full bg-white transition-all duration-75 ease-out'
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+          <div className='flex justify-center gap-2 mb-3.5 select-none'>
+            {[0, 1, 2].map((dotIdx) => (
+              <div
+                key={`dot-${dotIdx}`}
+                className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${dotIdx === activeDotIndex ? 'bg-white scale-110' : 'bg-zinc-800'}`}
+              />
+            ))}
+          </div>
+          <div className='text-[10px] tracking-[0.2em] font-extrabold text-zinc-400 select-none'>
+            {getProgressLabel(progress)}
+          </div>
+        </div>
+
+        <footer className='flex justify-center gap-10 text-zinc-500 pb-2'>
+          <div className='w-[42px] h-[42px] rounded-full border border-zinc-800 bg-zinc-900/10 flex items-center justify-center'>
+            <svg
+              className='w-5 h-5 text-zinc-400'
+              fill='none'
+              viewBox='0 0 24 24'
+              stroke='currentColor'
+              strokeWidth='1.5'
+            >
+              <path
+                strokeLinecap='round'
+                strokeLinejoin='round'
+                d='M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z'
+              />
+            </svg>
+          </div>
+          <div className='w-[42px] h-[42px] rounded-full border border-zinc-800 bg-zinc-900/10 flex items-center justify-center'>
+            <svg
+              className='w-5 h-5 text-zinc-400'
+              fill='none'
+              viewBox='0 0 24 24'
+              stroke='currentColor'
+              strokeWidth='1.5'
+            >
+              <path
+                strokeLinecap='round'
+                strokeLinejoin='round'
+                d='M21 12a9 9 0 11-18 0 9 9 0 0118 0z'
+              />
+              <path
+                strokeLinecap='round'
+                strokeLinejoin='round'
+                d='M3.6 9h16.8M3.6 15h16.8'
+              />
+            </svg>
+          </div>
+          <div className='w-[42px] h-[42px] rounded-full border border-zinc-800 bg-zinc-900/10 flex items-center justify-center'>
+            <svg
+              className='w-5 h-5 text-zinc-400'
+              fill='none'
+              viewBox='0 0 24 24'
+              stroke='currentColor'
+              strokeWidth='1.5'
+            >
+              <path
+                strokeLinecap='round'
+                strokeLinejoin='round'
+                d='M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z'
+              />
+              <path
+                strokeLinecap='round'
+                strokeLinejoin='round'
+                d='M15 12a3 3 0 11-6 0 3 3 0 016 0z'
+              />
+            </svg>
+          </div>
+        </footer>
+      </div>
+    </div>
+  )
+}
+
+function MobileMenuDrawer({ mobileMenuOpen, activeSection, handleMobileNavClick }) {
+  if (!mobileMenuOpen) return null
+
+  return (
+    <div className='lg:hidden fixed inset-x-0 top-[73px] z-50 bg-white/98 backdrop-blur-md flex flex-col justify-between px-6 py-10 border-t border-zinc-100 shadow-2xl h-[calc(100vh-73px)] landing-mobile-menu'>
+      <div className='flex flex-col gap-6 font-black text-sm tracking-widest text-zinc-500'>
+        <a
+          href='#hero'
+          onClick={() => handleMobileNavClick('hero')}
+          className={`py-3 border-b border-zinc-100/50 cursor-pointer transition-colors ${activeSection === 'hero' ? 'text-[var(--color-accent)] font-black' : 'hover:text-zinc-900'}`}
+        >
+          Home
+        </a>
+        <a
+          href='#services'
+          onClick={() => handleMobileNavClick('expertise')}
+          className={`py-3 border-b border-zinc-100/50 cursor-pointer transition-colors ${activeSection === 'expertise' ? 'text-[var(--color-accent)] font-black' : 'hover:text-zinc-900'}`}
+        >
+          Services
+        </a>
+        <a
+          href='#why-choose-us'
+          onClick={() => handleMobileNavClick('why-choose-us')}
+          className={`py-3 border-b border-zinc-100/50 cursor-pointer transition-colors ${activeSection === 'why-choose-us' ? 'text-[var(--color-accent)] font-black' : 'hover:text-zinc-900'}`}
+        >
+          About
+        </a>
+        <a
+          href='#faq'
+          onClick={() => handleMobileNavClick('faq')}
+          className={`py-3 border-b border-zinc-100/50 cursor-pointer transition-colors ${activeSection === 'faq' ? 'text-[var(--color-accent)] font-black' : 'hover:text-zinc-900'}`}
+        >
+          FAQs
+        </a>
+        <a
+          href='#contact'
+          onClick={() => handleMobileNavClick('contact')}
+          className={`py-3 border-b border-zinc-100/50 cursor-pointer transition-colors ${activeSection === 'contact' ? 'text-[var(--color-accent)] font-black' : 'hover:text-zinc-900'}`}
+        >
+          Contact
+        </a>
+      </div>
+
+      <div className='flex flex-col gap-6'>
+        <button
+          type='button'
+          onClick={() => handleMobileNavClick('book')}
+          className='bg-black text-white w-full py-4 rounded-full text-xs font-black tracking-widest cursor-pointer shadow-lg hover:scale-[1.01] transition-transform duration-200'
+        >
+          BOOK NOW
+        </button>
+
+        <div className='flex items-center gap-4 bg-[#FAF9FF] p-4 rounded-2xl border border-zinc-100'>
+          <div className='w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm text-[var(--color-accent)] shrink-0'>
+            <Phone size={16} className='animate-bounce' />
+          </div>
+          <div>
+            <div className='font-extrabold text-zinc-800 text-[10px] tracking-wider uppercase'>
+              Call Us Now
+            </div>
+            <a
+              href='tel:8800003785'
+              className='text-xs font-black text-[var(--color-accent)] tracking-wide hover:underline'
+            >
+              +91 8800003785
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+const LANDING_SLOTS = {
+  mobile: {
+    brand: {
+      _id: '68b175cf10113c5d55976da5',
+      name: 'Apple',
+      logo: 'https://cs-portal-documents.s3.ap-south-1.amazonaws.com/brand-logos/1780912095817-apple.svg',
+    },
+    category: { _id: '67b46b938ffdfd20a19c9da9', name: 'Mobile' },
+  },
+  ipad: {
+    brand: {
+      _id: '68b175a710113c5d55975eac',
+      name: 'Apple',
+      logo: 'https://cs-portal-documents.s3.ap-south-1.amazonaws.com/brand-logos/1780912547229-apple.svg',
+    },
+    category: { _id: '67b483a0a7c6cc25c6864445', name: 'iPad' },
+  },
+  laptop: {
+    brand: {
+      _id: '68b175b310113c5d5597624e',
+      name: 'Apple',
+      logo: 'https://cs-portal-documents.s3.ap-south-1.amazonaws.com/brand-logos/1780912570555-apple.svg',
+    },
+    category: { _id: '6790c19283c3aeebf3dba734', name: 'Laptop' },
+  },
+  desktop: {
+    brand: {
+      _id: '68b175b310113c5d5597624e',
+      name: 'Apple',
+      logo: 'https://cs-portal-documents.s3.ap-south-1.amazonaws.com/brand-logos/1780912570555-apple.svg',
+    },
+    category: { _id: '6790c19283c3aeebf3dba734', name: 'Laptop' },
+  },
+}
+
+const setupIntersectionObserver = (setActiveSection) => {
+  const sections = ['hero', 'expertise', 'services', 'why-choose-us', 'faq', 'contact']
+
+  const observerOptions = {
+    root: null,
+    rootMargin: '-30% 0px -50% 0px', // Trigger when section occupies the middle of viewport
+    threshold: 0,
+  }
+
+  const observerCallback = (entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        const id = entry.target.id
+        if (id === 'services' || id === 'expertise') {
+          setActiveSection('expertise') // Map both services sections to 'expertise'
+        } else {
+          setActiveSection(id)
+        }
+      }
+    })
+  }
+
+  const observer = new IntersectionObserver(observerCallback, observerOptions)
+
+  sections.forEach((id) => {
+    const element = document.getElementById(id)
+    if (element) observer.observe(element)
+  })
+
+  return () => observer.disconnect()
+}
+
+const handleContactFormSubmitExt = async (e, formData, setFormData, setSubmitMessage, setIsSubmitting) => {
+  e.preventDefault()
+  setIsSubmitting(true)
+  setSubmitMessage(null)
+
+  try {
+    const result = await submitSupportContact(formData)
+
+    // Show success message
+    setSubmitMessage({
+      type: 'success',
+      text: result.data?.message || 'Thank you! Our support team will call you back shortly.',
+    })
+
+    // Reset form after successful submission
+    setFormData({
+      name: '',
+      email: '',
+      phone: '',
+      date: '',
+      time: '',
+      service: '',
+    })
+
+    // Auto-hide success message after 8 seconds
+    setTimeout(() => {
+      setSubmitMessage(null)
+    }, 8000)
+  } catch (error) {
+    // Show error message
+    setSubmitMessage({
+      type: 'error',
+      text: error.message || 'Failed to submit. Please try again or call us directly.',
+    })
+
+    // Auto-hide error message after 6 seconds
+    setTimeout(() => {
+      setSubmitMessage(null)
     }, 6000)
-    return () => clearInterval(timer)
-  }, [mounted])
+  } finally {
+    setIsSubmitting(false)
+  }
+}
+
+const executeCategorySelect = (slotKey, router, reset, setBrand) => {
+  const slot = LANDING_SLOTS[slotKey]
+  if (!slot) {
+    router.push('/select-category')
+    return
+  }
+  reset()
+  setTimeout(() => {
+    setBrand(slot.brand)
+    router.push(
+      `/select-model?catId=${slot.category._id}&catName=${encodeURIComponent(slot.category.name)}`,
+    )
+  }, 0)
+}
+
+const executeBookNowCTA = (router, reset, setBrand) => {
+  reset() // start with clean slate
+  const appleBrand = {
+    _id: '65f8c8577adcd9e5c544d673',
+    name: 'Apple',
+    logo: '/images/apple-logo.png',
+  }
+  setBrand(appleBrand)
+  router.push('/select-category')
+}
+
+const executeOpenPolicy = async (path, router) => {
+  if (Capacitor.isNativePlatform()) {
+    router.push(path)
+  } else {
+    window.open(path, '_blank')
+  }
+}
+
+// Pure helper at module scope — keeps the inner progress callback free of nesting penalties
+const calcNextProgress = (prev, step) => (prev >= 100 ? 100 : prev + step)
+
+// Predicate helpers — move logical-operator sequences out of component scope to reduce
+// cognitive complexity (each || / && sequence inside a nested function costs +1 in SonarQube)
+const shouldSkipSplashEffect = (mounted, isNativeApp, showSplash) =>
+  !mounted || !isNativeApp || !showSplash
+
+const isSplashComplete = (isNativeApp, progress, showSplash) =>
+  isNativeApp && progress >= 100 && showSplash
+
+// Module-level nav-link class helper — removes 5 ternary operators from component JSX
+const getNavLinkClass = (isActive) =>
+  `pb-1 border-b-2 transition-all duration-200 cursor-pointer ${isActive ? 'text-zinc-900 border-[var(--color-accent)]' : 'border-transparent hover:text-zinc-900'
+  }`
+
+// Module-level handlers — removes all if/else branches from component scope
+const mobileNavClickHandler = (section, setMobileMenuOpen, setActiveSection, handleBookNowCTA) => {
+  setMobileMenuOpen(false)
+  if (section === 'book') return handleBookNowCTA()
+  if (section) setActiveSection(section)
+}
+
+const repairCardClickHandler = (itemTitle, slotKey, handleCategorySelect) => {
+  if (itemTitle === 'Phone Repair') return handleCategorySelect(slotKey)
+  const contactSec = document.getElementById('contact')
+  if (contactSec) contactSec.scrollIntoView({ behavior: 'smooth' })
+}
+
+// Eliminates the ternary from handleFaqToggle inside the component
+const getNextFaqIndex = (activeFaq, index) => (activeFaq === index ? null : index)
+
+const TIME_SLOTS = [
+  '09:00 AM',
+  '09:30 AM',
+  '10:00 AM',
+  '10:30 AM',
+  '11:00 AM',
+  '11:30 AM',
+  '12:00 PM',
+  '12:30 PM',
+  '01:00 PM',
+  '01:30 PM',
+  '02:00 PM',
+  '02:30 PM',
+  '03:00 PM',
+  '03:30 PM',
+  '04:00 PM',
+  '04:30 PM',
+  '05:00 PM',
+  '05:30 PM',
+  '06:00 PM',
+]
+
+function LandingHeader({
+  isScrolled,
+  router,
+  activeSection,
+  setActiveSection,
+  handleBookNowCTA,
+  mobileMenuOpen,
+  setMobileMenuOpen,
+}) {
+  return (
+    <header className='fixed top-0 left-0 right-0 z-50 w-full bg-white shadow-sm transition-all duration-300 landing-header'>
+      {/* PROMOTIONAL TOP INFO HEADER BAR (Figma Header - Desktop only) */}
+      <div
+        className={`hidden md:flex bg-[#FAF9FF] border-b border-zinc-100 py-4 px-6 lg:px-20 justify-between items-center gap-4 text-xs transition-all duration-300 ${isScrolled
+            ? 'h-0 py-0 overflow-hidden opacity-0 border-b-0'
+            : 'h-auto opacity-100'
+          }`}
+      >
+        <div className='flex items-center'>
+          <button
+            type='button'
+            onClick={() => router.push('/')}
+            className='bg-transparent border-0 p-0 cursor-pointer'
+            aria-label='Go to home page'
+          >
+            <img
+              src='images/logo-light.png'
+              alt='Gadget Restore Logo'
+              className='h-10 w-auto object-contain'
+            />
+          </button>
+        </div>
+        <div className='flex items-center gap-8 text-zinc-500'>
+          <div className='flex items-center gap-3'>
+            <div className='w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm text-[var(--color-accent)]'>
+              <Clock size={14} />
+            </div>
+            <div>
+              <div className='font-extrabold text-zinc-800 text-[11px] tracking-wider'>
+                Timings
+              </div>
+              <div className='text-[11px] font-medium'>
+                Mon - Sat 10:00 AM - 07:00 PM
+              </div>
+            </div>
+          </div>
+
+          <div className='flex items-center gap-3'>
+            <div className='w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm text-[var(--color-accent)]'>
+              <Mail size={14} />
+            </div>
+            <div>
+              <div className='font-extrabold text-zinc-800 text-[11px] tracking-wider'>
+                Email Us
+              </div>
+              <a
+                href='mailto:support@gadgetrestore.in'
+                className='text-[11px] font-medium hover:text-[var(--color-accent)] transition-colors'
+              >
+                support@gadgetrestore.in
+              </a>
+            </div>
+          </div>
+
+          <div className='flex items-center gap-3'>
+            <div className='w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm text-[var(--color-accent)]'>
+              <Phone size={14} className='animate-bounce' />
+            </div>
+            <div>
+              <div className='font-extrabold text-zinc-800 text-[11px] tracking-wider'>
+                Call Us Now
+              </div>
+              <a
+                href='tel:8800003785'
+                className='text-[11px] font-black text-[var(--color-accent)] tracking-wide hover:underline'
+              >
+                +91 8800003785
+              </a>
+            </div>
+          </div>
+
+          <a
+            href='https://www.instagram.com/gadget_restore.in'
+            target='_blank'
+            rel='noopener noreferrer'
+            className='flex items-center gap-3 hover:opacity-85 transition-opacity'
+            title='Follow us on Instagram'
+          >
+            <div className='w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm text-pink-600 hover:bg-pink-50 transition-colors'>
+              <svg
+                className='w-3.5 h-3.5'
+                viewBox='0 0 24 24'
+                fill='none'
+                stroke='currentColor'
+                strokeWidth='2'
+                strokeLinecap='round'
+                strokeLinejoin='round'
+              >
+                <rect x='2' y='2' width='20' height='20' rx='5' ry='5'></rect>
+                <path d='M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z'></path>
+                <line x1='17.5' y1='6.5' x2='17.51' y2='6.5'></line>
+              </svg>
+            </div>
+            <div>
+              <div className='font-extrabold text-zinc-800 text-[11px] tracking-wider'>
+                Instagram
+              </div>
+              <div className='text-[11px] font-medium'>
+                @gadget_restore.in
+              </div>
+            </div>
+          </a>
+        </div>
+      </div>
+
+      {/* MAIN NAVIGATION ROW (Fully Responsive Sticky Nav) */}
+      <nav className='bg-white py-4 px-6 lg:px-20 flex justify-between items-center transition-all duration-300'>
+        {/* Left Side: Brand Logo (Sticky on mobile, hidden on desktop to avoid double logo except when scrolled) */}
+        <div
+          className={`flex items-center ${isScrolled ? 'lg:flex' : 'lg:hidden'}`}
+        >
+          <button
+            type='button'
+            onClick={() => router.push('/')}
+            className='bg-transparent border-0 p-0 cursor-pointer'
+            aria-label='Go to home page'
+          >
+            <img
+              src='images/logo-light.png'
+              alt='Gadget Restore Logo'
+              className='h-9 w-auto object-contain'
+            />
+          </button>
+        </div>
+
+        {/* Center: Desktop-only Navigation Links */}
+        <div className='hidden lg:flex items-center gap-8 font-black text-xs tracking-widest text-zinc-500'>
+          <a
+            href='#hero'
+            onClick={() => setActiveSection('hero')}
+            className={getNavLinkClass(activeSection === 'hero')}
+          >
+            Home
+          </a>
+          <a
+            href='#expertise'
+            onClick={() => setActiveSection('expertise')}
+            className={getNavLinkClass(activeSection === 'expertise')}
+          >
+            Services
+          </a>
+          <a
+            href='#why-choose-us'
+            onClick={() => setActiveSection('why-choose-us')}
+            className={getNavLinkClass(activeSection === 'why-choose-us')}
+          >
+            About
+          </a>
+          <a
+            href='#faq'
+            onClick={() => setActiveSection('faq')}
+            className={getNavLinkClass(activeSection === 'faq')}
+          >
+            FAQs
+          </a>
+          <a
+            href='#contact'
+            onClick={() => setActiveSection('contact')}
+            className={getNavLinkClass(activeSection === 'contact')}
+          >
+            Contact
+          </a>
+        </div>
+
+        {/* Right Side: Desktop CTA or Hamburger button */}
+        <div className='flex items-center gap-4'>
+          <button
+            type='button'
+            onClick={() => handleBookNowCTA()}
+            className='hidden sm:inline-block bg-black text-white px-8 py-3 rounded-full text-xs font-black tracking-widest cursor-pointer hover:scale-[1.03] transition-all duration-200'
+          >
+            BOOK NOW
+          </button>
+
+          {/* Hamburger Icon for Mobile Viewports */}
+          <button
+            type='button'
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className='lg:hidden p-2 text-zinc-900 hover:text-black focus:outline-none cursor-pointer'
+            aria-label='Toggle menu'
+          >
+            {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
+        </div>
+      </nav>
+    </header>
+  )
+}
+
+function MilestonesSection() {
+  return (
+    <section className='py-20 px-6 lg:px-20 bg-[#FAF9FF] border-t border-b border-zinc-100/50 relative overflow-hidden'>
+      <div className='max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-5 gap-y-8 md:gap-y-0 text-center divide-zinc-200/60 md:divide-x'>
+        {/* Stat 1 */}
+        <div className='flex flex-col items-center justify-center p-2'>
+          <span className='text-4xl lg:text-5xl font-black text-zinc-900 tracking-tight'>
+            <AnimatedCounter target={9} />+
+          </span>
+          <span className='text-[10px] lg:text-[11px] uppercase tracking-widest text-zinc-400 font-extrabold mt-2'>
+            Years of Experience
+          </span>
+        </div>
+
+        {/* Stat 2 */}
+        <div className='flex flex-col items-center justify-center p-2'>
+          <span className='text-4xl lg:text-5xl font-black text-zinc-900 tracking-tight'>
+            <AnimatedCounter target={20} />k+
+          </span>
+          <span className='text-[10px] lg:text-[11px] uppercase tracking-widest text-zinc-400 font-extrabold mt-2'>
+            Happy Customers
+          </span>
+        </div>
+
+        {/* Stat 3 */}
+        <div className='flex flex-col items-center justify-center p-2'>
+          <span className='text-4xl lg:text-5xl font-black text-zinc-900 tracking-tight'>
+            <AnimatedCounter target={20} />+
+          </span>
+          <span className='text-[10px] lg:text-[11px] uppercase tracking-widest text-zinc-400 font-extrabold mt-2'>
+            Expert Technicians
+          </span>
+        </div>
+
+        {/* Stat 4 */}
+        <div className='flex flex-col items-center justify-center p-2'>
+          <span className='text-4xl lg:text-5xl font-black text-zinc-900 tracking-tight'>
+            <AnimatedCounter target={25} />k+
+          </span>
+          <span className='text-[10px] lg:text-[11px] uppercase tracking-widest text-zinc-400 font-extrabold mt-2'>
+            Total Works Done
+          </span>
+        </div>
+
+        {/* Stat 5 */}
+        <div className='flex flex-col items-center justify-center p-2 col-span-2 md:col-span-1'>
+          <div className='flex items-center justify-center gap-1.5'>
+            <span className='text-4xl lg:text-5xl font-black text-zinc-900 tracking-tight'>
+              <AnimatedCounter target={4.8} decimals={1} />
+            </span>
+            <Star size={24} className='text-amber-500 fill-amber-500 shrink-0' />
+          </div>
+          <span className='text-[10px] lg:text-[11px] uppercase tracking-widest text-zinc-400 font-extrabold mt-2'>
+            Tech Rating
+          </span>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function ReviewsAndFaqSection({
+  currentReviewIndex,
+  setCurrentReviewIndex,
+  activeFaq,
+  handleFaqToggle,
+}) {
+  return (
+    <section className='py-24 px-6 lg:px-20 bg-[#FAF9FF] border-t border-zinc-100'>
+      <div className='flex flex-col lg:flex-row gap-16'>
+        {/* Left Column: Testimonial card */}
+        <div className='w-full lg:w-1/2'>
+          <h2 className='text-2xl font-black tracking-wider text-zinc-900 mb-8 flex items-center gap-3'>
+            Trusted Clients
+            <div className='w-5 h-5 rounded-full bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-500'>
+              <Check size={10} strokeWidth={4} />
+            </div>
+          </h2>
+
+          <div className='bg-[#FAF9FF] border border-zinc-100 rounded-[32px] p-8 lg:p-10 shadow-sm relative overflow-hidden min-h-[340px] flex flex-col justify-between transition-all duration-300'>
+            <div>
+              <div className='flex items-center justify-between mb-6'>
+                <div className='flex items-center gap-4'>
+                  <div className='w-12 h-12 rounded-full bg-white border border-zinc-200 flex items-center justify-center text-zinc-500 shadow-sm shrink-0'>
+                    <User size={18} className='text-zinc-600' />
+                  </div>
+                  <div>
+                    <h4 className='font-extrabold tracking-wide text-zinc-900 text-xs'>
+                      {REVIEWS_DATA[currentReviewIndex].name}
+                    </h4>
+                    <p className='text-[10px] text-zinc-400 font-bold tracking-wider mt-0.5'>
+                      {REVIEWS_DATA[currentReviewIndex].location}
+                    </p>
+                  </div>
+                </div>
+                <div className='flex gap-0.5 text-amber-400'>
+                  {Array.from(
+                    { length: REVIEWS_DATA[currentReviewIndex].rating },
+                    (_, i) => `star-${i}`
+                  ).map((key) => (
+                    <Star
+                      key={key}
+                      size={14}
+                      fill='currentColor'
+                      className='fill-amber-400 text-amber-400'
+                    />
+                  ))}
+                  {REVIEWS_DATA[currentReviewIndex].rating < 5 && (
+                    <Star size={14} className='text-zinc-200' />
+                  )}
+                </div>
+              </div>
+              <div className='min-h-[120px] flex items-center mb-4'>
+                <p
+                  key={currentReviewIndex}
+                  className='text-sm text-zinc-600 italic leading-relaxed animate-fadeIn'
+                >
+                  "{REVIEWS_DATA[currentReviewIndex].text}"
+                </p>
+              </div>
+            </div>
+
+            {/* Slider Dots & Arrow Navigation */}
+            <div className='flex items-center justify-between pt-4 border-t border-zinc-100'>
+              <div className='flex gap-1.5 overflow-x-auto max-w-[70%] py-1'>
+                {REVIEWS_DATA.map((review, idx) => (
+                  <button
+                    key={`dot-${review.name}`}
+                    type='button'
+                    onClick={() => setCurrentReviewIndex(idx)}
+                    className={`w-1.5 h-1.5 rounded-full transition-all duration-300 shrink-0 ${idx === currentReviewIndex
+                        ? 'bg-black w-4'
+                        : 'bg-zinc-200 hover:bg-zinc-300'
+                      }`}
+                    aria-label={`Go to review ${idx + 1}`}
+                  />
+                ))}
+              </div>
+              <div className='flex gap-1.5'>
+                <button
+                  type='button'
+                  onClick={() =>
+                    setCurrentReviewIndex(
+                      (prev) =>
+                        (prev - 1 + REVIEWS_DATA.length) % REVIEWS_DATA.length
+                    )
+                  }
+                  className='w-7 h-7 rounded-full border border-zinc-200 flex items-center justify-center text-zinc-600 hover:bg-zinc-50 hover:text-black hover:border-zinc-400 active:scale-90 transition-all cursor-pointer'
+                  aria-label='Previous review'
+                >
+                  <ChevronDown size={14} className='rotate-90' />
+                </button>
+                <button
+                  type='button'
+                  onClick={() =>
+                    setCurrentReviewIndex(
+                      (prev) => (prev + 1) % REVIEWS_DATA.length
+                    )
+                  }
+                  className='w-7 h-7 rounded-full border border-zinc-200 flex items-center justify-center text-zinc-600 hover:bg-zinc-50 hover:text-black hover:border-zinc-400 active:scale-90 transition-all cursor-pointer'
+                  aria-label='Next review'
+                >
+                  <ChevronDown size={14} className='-rotate-90' />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Right Column: FAQ accordions */}
+        <div id='faq' className='w-full lg:w-1/2'>
+          <h2 className='text-2xl font-black tracking-wider text-zinc-900 mb-8 flex items-center gap-3'>
+            FAQ
+            <div className='w-5 h-5 rounded-full bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-500'>
+              <HelpCircle size={10} strokeWidth={4} />
+            </div>
+          </h2>
+
+          <div className='flex flex-col gap-4'>
+            {[
+              {
+                q: 'How long does a typical repair take?',
+                a: 'Most repairs, like screen or battery replacements, are completed within 1 to 2 hours. More complex issues involving motherboard repair or data recovery may take 24–48 hours depending on the damage.',
+              },
+              {
+                q: 'Do you provide a warranty?',
+                a: 'Yes, every repair is covered under our structural 90-day warranty, guarding against any defect in materials and craftsmanship.',
+              },
+              {
+                q: 'Do I need an appointment?',
+                a: 'No, you can simply drop by our workshop during business hours, but booking online guarantees priority check-in.',
+              },
+              {
+                q: 'What devices do you repair?',
+                a: 'We specialize in the repair and service of the entire Apple product ecosystem, including iPhones, iPads, MacBooks, iMacs, and Apple Watches.',
+              },
+              {
+                q: 'What Kind of parts will be used in the repair?',
+                a: "Unless explicitly mentioned, Gadget Restore uses Premium Grade parts. The performance will be the same as that of the original part. Gadget Restore's quality team certifies every part through a thorough grading process.",
+              },
+            ].map((faq, idx) => {
+              const isOpen = activeFaq === idx
+              return (
+                <div
+                  key={faq.q}
+                  className='bg-white border border-zinc-100 rounded-2xl overflow-hidden transition-all duration-300'
+                >
+                  <button
+                    type='button'
+                    onClick={() => handleFaqToggle(idx)}
+                    className='w-full p-5 text-left flex justify-between items-center font-extrabold text-xs tracking-wider text-zinc-950 hover:bg-zinc-50 transition-colors cursor-pointer'
+                  >
+                    <span>{faq.q}</span>
+                    <ChevronDown
+                      size={14}
+                      className={`text-zinc-500 transform transition-transform duration-300 ${isOpen ? 'rotate-180' : ''
+                        }`}
+                    />
+                  </button>
+                  {isOpen && (
+                    <div className='p-5 pt-0 text-xs text-zinc-500 leading-relaxed border-t border-zinc-50 bg-[#FAF9FF] animate-fadeIn'>
+                      {faq.a}
+                    </div>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function ContactSchedulerSection() {
   const [timeDropdownOpen, setTimeDropdownOpen] = useState(false)
   const [timeDropdownRect, setTimeDropdownRect] = useState(null)
   const timeButtonRef = useRef(null)
@@ -194,10 +1094,269 @@ export default function SplashOrLandingPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitMessage, setSubmitMessage] = useState(null)
 
-  // Booking Context
-  const { reset, setCategory, setBrand } = useBooking()
+  const handleInputChange = (e) => {
+    const { name, value } = e.target
+    setFormData((prev) => ({ ...prev, [name]: value }))
+  }
 
+  const handleFormSubmit = (e) =>
+    handleContactFormSubmitExt(
+      e,
+      formData,
+      setFormData,
+      setSubmitMessage,
+      setIsSubmitting
+    )
+
+  return (
+    <section
+      id='contact'
+      className='grid grid-cols-1 lg:grid-cols-2 bg-[#05060f] overflow-hidden border-t border-zinc-900'
+    >
+      {/* Left Side: Tech Hand Photograph Full Height */}
+      <div className='w-full h-full min-h-[450px] lg:min-h-[640px] relative overflow-hidden'>
+        <img
+          src='/images/Left Side_ Image.png'
+          alt='Make a Schedule Tech Hands Typing'
+          className='w-full h-full object-cover absolute inset-0'
+        />
+      </div>
+
+      {/* Right Side: Clean Dark Scheduler Panel */}
+      <div className='py-24 px-8 lg:px-24 bg-[#07080e] flex flex-col justify-center text-white relative'>
+        <div className='max-w-[480px]'>
+          <span className='text-[10px] font-bold uppercase tracking-[0.25em] text-zinc-400 block mb-2'>
+            NEED HELP?
+          </span>
+          <h2 className='text-3xl lg:text-5xl font-black tracking-tight mb-8'>
+            Contact Support
+          </h2>
+          <p className='text-xs text-zinc-400 leading-relaxed mb-6'>
+            Fill out the form below and our support team will call you back.
+          </p>
+
+          <form onSubmit={handleFormSubmit} className='space-y-6'>
+            {/* Success/Error Message */}
+            {submitMessage && (
+              <div
+                className={`p-4 rounded-lg border ${submitMessage.type === 'success'
+                    ? 'bg-emerald-900/20 border-emerald-500/30 text-emerald-300'
+                    : 'bg-red-900/20 border-red-500/30 text-red-300'
+                  } text-xs leading-relaxed animate-fadeIn`}
+              >
+                {submitMessage.text}
+              </div>
+            )}
+
+            <div className='grid grid-cols-1 sm:grid-cols-2 gap-5'>
+              <input
+                type='text'
+                name='name'
+                required
+                value={formData.name}
+                onChange={handleInputChange}
+                placeholder='Your Name'
+                className='w-full h-14 bg-transparent border border-white/10 px-4 text-xs text-white placeholder-zinc-500 outline-none focus:border-white transition-colors'
+              />
+              <input
+                type='email'
+                name='email'
+                required
+                value={formData.email}
+                onChange={handleInputChange}
+                placeholder='Email'
+                className='w-full h-14 bg-transparent border border-white/10 px-4 text-xs text-white placeholder-zinc-500 outline-none focus:border-white transition-colors'
+              />
+            </div>
+
+            <div className='grid grid-cols-1 sm:grid-cols-2 gap-5'>
+              <input
+                type='tel'
+                name='phone'
+                required
+                value={formData.phone}
+                onChange={handleInputChange}
+                placeholder='Phone'
+                pattern='\d{10}'
+                className='w-full h-14 bg-transparent border border-white/10 px-4 text-xs text-white placeholder-zinc-500 outline-none focus:border-white transition-colors'
+              />
+              <div className='relative'>
+                <input
+                  type='date'
+                  name='date'
+                  value={formData.date}
+                  onChange={handleInputChange}
+                  min={new Date().toISOString().split('T')[0]}
+                  className='w-full h-14 bg-transparent border border-white/10 px-4 text-xs text-white placeholder-zinc-500 outline-none focus:border-white transition-colors [color-scheme:dark] cursor-pointer'
+                />
+                <Calendar
+                  size={16}
+                  className='absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none'
+                />
+              </div>
+            </div>
+
+            <div className='grid grid-cols-1 sm:grid-cols-2 gap-5'>
+              <div className='relative'>
+                {/* Custom time slot dropdown — avoids native select overflow on mobile */}
+                <button
+                  ref={timeButtonRef}
+                  type='button'
+                  onClick={() => {
+                    if (timeButtonRef.current) {
+                      const r = timeButtonRef.current.getBoundingClientRect()
+                      setTimeDropdownRect(r)
+                    }
+                    setTimeDropdownOpen((v) => !v)
+                  }}
+                  className='w-full h-14 bg-transparent border border-white/10 px-4 text-xs text-left outline-none focus:border-white transition-colors cursor-pointer flex items-center justify-between'
+                  style={{ color: formData.time ? '#fff' : '#71717a' }}
+                >
+                  <span>{formData.time || 'Time Slot'}</span>
+                  <Clock size={16} className='text-zinc-500 shrink-0' />
+                </button>
+
+                {timeDropdownOpen && (
+                  <>
+                    {/* Backdrop to close on outside click */}
+                    <button
+                      type='button'
+                      className='fixed inset-0 z-40 bg-transparent border-0 cursor-default'
+                      onClick={() => setTimeDropdownOpen(false)}
+                      aria-label='Close time dropdown'
+                    />
+                    {/* Scrollable panel — anchored directly below the trigger button */}
+                    <div
+                      className='fixed z-50 bg-[#07080e] border border-white/10 overflow-y-auto'
+                      style={{
+                        maxHeight: '240px',
+                        width: timeDropdownRect ? timeDropdownRect.width : 220,
+                        top: timeDropdownRect ? timeDropdownRect.bottom + 4 : 0,
+                        left: timeDropdownRect ? timeDropdownRect.left : 0,
+                      }}
+                    >
+                      {TIME_SLOTS.map((slot) => (
+                        <button
+                          key={slot}
+                          type='button'
+                          onClick={() => {
+                            setFormData((prev) => ({ ...prev, time: slot }))
+                            setTimeDropdownOpen(false)
+                          }}
+                          className='w-full px-4 py-3 text-xs text-left transition-colors cursor-pointer'
+                          style={{
+                            color: formData.time === slot ? '#fff' : '#a1a1aa',
+                            background:
+                              formData.time === slot
+                                ? 'rgba(255,255,255,0.08)'
+                                : 'transparent',
+                            borderBottom: '1px solid rgba(255,255,255,0.05)',
+                          }}
+                          onMouseEnter={(e) =>
+                          (e.currentTarget.style.background =
+                            'rgba(255,255,255,0.06)')
+                          }
+                          onMouseLeave={(e) =>
+                          (e.currentTarget.style.background =
+                            formData.time === slot
+                              ? 'rgba(255,255,255,0.08)'
+                              : 'transparent')
+                          }
+                        >
+                          {slot}
+                        </button>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </div>
+              <div className='relative'>
+                <select
+                  name='service'
+                  value={formData.service}
+                  onChange={handleInputChange}
+                  className='w-full h-14 bg-[#07080e] border border-white/10 px-4 text-xs text-white outline-none focus:border-white transition-colors appearance-none cursor-pointer'
+                >
+                  <option value='' disabled>
+                    Select Service
+                  </option>
+                  <option value='Mobile Repair'>Mobile Repair</option>
+                  <option value='iPad/Tablet Repair'>iPad/Tablet Repair</option>
+                  <option value='MacBook/Laptop Repair'>
+                    MacBook/Laptop Repair
+                  </option>
+                </select>
+                <ChevronDown
+                  size={16}
+                  className='absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none'
+                />
+              </div>
+            </div>
+
+            <div className='pt-2'>
+              <button
+                type='submit'
+                disabled={isSubmitting}
+                className='w-56 h-12 bg-white text-black font-extrabold tracking-wider text-xs uppercase hover:bg-zinc-200 active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed'
+              >
+                {isSubmitting ? (
+                  <>
+                    <div className='w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin' />
+                    SUBMITTING...
+                  </>
+                ) : (
+                  <>
+                    <Phone size={16} />
+                    REQUEST CALLBACK
+                  </>
+                )}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+export default function SplashOrLandingPage() {
+  const router = useRouter()
+  const [mounted, setMounted] = useState(false)
+  const [isNativeApp, setIsNativeApp] = useState(false)
+  const [showSplash, setShowSplash] = useState(!hasShownSplashSession)
+  const [progress, setProgress] = useState(0)
+
+  // Web Landing Page state
+  const [activeSection, setActiveSection] = useState('hero')
+  const [activeFaq, setActiveFaq] = useState(0) // Open first one by default as shown in Figma
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [currentReviewIndex, setCurrentReviewIndex] = useState(0)
   const [isScrolled, setIsScrolled] = useState(false)
+
+  // Booking Context
+  const { reset, setBrand } = useBooking()
+
+  // One-liner delegates — zero control flow inside component scope
+  const handleMobileNavClick = (section) =>
+    mobileNavClickHandler(section, setMobileMenuOpen, setActiveSection, handleBookNowCTA)
+
+  const handleRepairCardClick = (itemTitle, slotKey) =>
+    repairCardClickHandler(itemTitle, slotKey, handleCategorySelect)
+
+  const handleCategorySelect = (slotKey) => executeCategorySelect(slotKey, router, reset, setBrand)
+  const handleBookNowCTA = () => executeBookNowCTA(router, reset, setBrand)
+  const handleFaqToggle = (index) => setActiveFaq(getNextFaqIndex(activeFaq, index))
+  const handleOpenPolicy = (path) => executeOpenPolicy(path, router)
+
+  // Merged: both effects share [mounted] dep — one guard replaces two
+  useEffect(() => {
+    if (!mounted) return
+    const timer = setInterval(() => {
+      setCurrentReviewIndex((prev) => (prev + 1) % REVIEWS_DATA.length)
+    }, 6000)
+    const cleanupObserver = setupIntersectionObserver(setActiveSection)
+    return () => { clearInterval(timer); cleanupObserver() }
+  }, [mounted])
 
   // Capacitor platform detection
   useEffect(() => {
@@ -212,413 +1371,32 @@ export default function SplashOrLandingPage() {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
-  // Dynamic header menu item active state based on scroll intersection
-  useEffect(() => {
-    if (!mounted) return
-
-    const sections = ['hero', 'expertise', 'services', 'why-choose-us', 'faq', 'contact']
-
-    const observerOptions = {
-      root: null,
-      rootMargin: '-30% 0px -50% 0px', // Trigger when section occupies the middle of viewport
-      threshold: 0,
-    }
-
-    const observerCallback = (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          const id = entry.target.id
-          if (id === 'services' || id === 'expertise') {
-            setActiveSection('expertise') // Map both services sections to 'expertise'
-          } else {
-            setActiveSection(id)
-          }
-        }
-      })
-    }
-
-    const observer = new IntersectionObserver(observerCallback, observerOptions)
-
-    sections.forEach((id) => {
-      const element = document.getElementById(id)
-      if (element) observer.observe(element)
-    })
-
-    return () => observer.disconnect()
-  }, [mounted])
-
   // Smooth progress animation for Native Mobile Splash Page
   useEffect(() => {
-    if (!mounted || !isNativeApp || !showSplash) return
+    if (shouldSkipSplashEffect(mounted, isNativeApp, showSplash)) return
 
     const duration = 2200 // 2.2 seconds
     const intervalTime = 20
     const step = 100 / (duration / intervalTime)
-
-    const timer = setInterval(() => {
-      setProgress((prev) => {
-        if (prev >= 100) {
-          clearInterval(timer)
-          return 100
-        }
-        return prev + step
-      })
-    }, intervalTime)
-
+    const timer = setInterval(
+      () => setProgress((prev) => calcNextProgress(prev, step)),
+      intervalTime
+    )
     return () => clearInterval(timer)
   }, [mounted, isNativeApp, showSplash])
 
   // Navigate native app after splash completes
   useEffect(() => {
-    if (isNativeApp && progress >= 100 && showSplash) {
-      const decideRoute = async () => {
-        let hasSeen = 'false'
-        try {
-          const { value } = await Preferences.get({
-            key: 'has_seen_onboarding',
-          })
-          hasSeen = value || 'false'
-          console.log('[SPLASH] Onboarding status:', hasSeen)
-        } catch (e) {
-          console.error('[SPLASH] Error reading preferences:', e)
-          hasSeen = 'false'
-        }
-
-        // Use Next.js router for client-side navigation in Capacitor
-        // This avoids protocol/CORS issues with static exports
-        const targetRoute = hasSeen === 'true' ? '/' : '/onboarding'
-        console.log('[SPLASH] Navigating to:', targetRoute)
-
-        setTimeout(() => {
-          hasShownSplashSession = true
-          if (targetRoute === '/') {
-            setShowSplash(false)
-          } else {
-            router.push(targetRoute)
-          }
-        }, 300)
-      }
-      decideRoute()
+    if (isSplashComplete(isNativeApp, progress, showSplash)) {
+      handleSplashCompletion(router, setShowSplash)
     }
   }, [progress, isNativeApp, router, showSplash])
-
-  // Handlers for Web Landing Page
-  const handleFaqToggle = (index) => {
-    setActiveFaq(activeFaq === index ? null : index)
-  }
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
-  }
-
-  const LANDING_SLOTS = {
-    mobile: {
-      brand: {
-        _id: '68b175cf10113c5d55976da5',
-        name: 'Apple',
-        logo: 'https://cs-portal-documents.s3.ap-south-1.amazonaws.com/brand-logos/1780912095817-apple.svg',
-      },
-      category: { _id: '67b46b938ffdfd20a19c9da9', name: 'Mobile' },
-    },
-    ipad: {
-      brand: {
-        _id: '68b175a710113c5d55975eac',
-        name: 'Apple',
-        logo: 'https://cs-portal-documents.s3.ap-south-1.amazonaws.com/brand-logos/1780912547229-apple.svg',
-      },
-      category: { _id: '67b483a0a7c6cc25c6864445', name: 'iPad' },
-    },
-    laptop: {
-      brand: {
-        _id: '68b175b310113c5d5597624e',
-        name: 'Apple',
-        logo: 'https://cs-portal-documents.s3.ap-south-1.amazonaws.com/brand-logos/1780912570555-apple.svg',
-      },
-      category: { _id: '6790c19283c3aeebf3dba734', name: 'Laptop' },
-    },
-    desktop: {
-      brand: {
-        _id: '68b175b310113c5d5597624e',
-        name: 'Apple',
-        logo: 'https://cs-portal-documents.s3.ap-south-1.amazonaws.com/brand-logos/1780912570555-apple.svg',
-      },
-      category: { _id: '6790c19283c3aeebf3dba734', name: 'Laptop' },
-    },
-  }
-
-  const handleCategorySelect = (slotKey) => {
-    const slot = LANDING_SLOTS[slotKey]
-    if (!slot) {
-      router.push('/select-category')
-      return
-    }
-    reset()
-    setTimeout(() => {
-      setBrand(slot.brand)
-      router.push(
-        `/select-model?catId=${slot.category._id}&catName=${encodeURIComponent(slot.category.name)}`,
-      )
-    }, 0)
-  }
-
-  const handleBookNowCTA = () => {
-    reset() // start with clean slate
-    const appleBrand = {
-      _id: '65f8c8577adcd9e5c544d673',
-      name: 'Apple',
-      logo: '/images/apple-logo.png',
-    }
-    setBrand(appleBrand)
-    router.push('/select-category')
-  }
-
-  const handleFormSubmit = async (e) => {
-    e.preventDefault()
-    setIsSubmitting(true)
-    setSubmitMessage(null)
-
-    try {
-      const result = await submitSupportContact(formData)
-
-      // Show success message
-      setSubmitMessage({
-        type: 'success',
-        text: result.data?.message || 'Thank you! Our support team will call you back shortly.',
-      })
-
-      // Reset form after successful submission
-      setFormData({
-        name: '',
-        email: '',
-        phone: '',
-        date: '',
-        time: '',
-        service: '',
-      })
-
-      // Auto-hide success message after 8 seconds
-      setTimeout(() => {
-        setSubmitMessage(null)
-      }, 8000)
-    } catch (error) {
-      // Show error message
-      setSubmitMessage({
-        type: 'error',
-        text: error.message || 'Failed to submit. Please try again or call us directly.',
-      })
-
-      // Auto-hide error message after 6 seconds
-      setTimeout(() => {
-        setSubmitMessage(null)
-      }, 6000)
-    } finally {
-      setIsSubmitting(false)
-    }
-  }
-
-  const handleOpenPolicy = async (path) => {
-    if (Capacitor.isNativePlatform()) {
-      router.push(path)
-    } else {
-      window.open(path, '_blank')
-    }
-  }
 
   if (!mounted) return null
 
   // ── RENDER NATIVE APP SPLASH PAGE ───────────────────────────────────────────
   if (isNativeApp && showSplash) {
-    const activeDotIndex = Math.min(2, Math.floor(progress / 33.3))
-    return (
-      <div
-        className='min-h-screen w-screen text-white flex flex-col overflow-hidden relative'
-        style={{ background: 'var(--color-bg)' }}
-      >
-        {/* 💻 DESKTOP SPLASH VIEW */}
-        <div
-          className='hidden lg:flex flex-col justify-between w-full h-screen p-10 box-border z-10'
-          style={{
-            background:
-              'radial-gradient(circle at 75% 25%, var(--color-accent-tint-8) 0%, transparent 55%), linear-gradient(135deg, var(--color-bg) 0%, var(--color-bg-900) 50%, var(--color-bg-600) 100%)',
-          }}
-        >
-          <header className='flex justify-between items-center w-full'>
-            <div className='flex gap-1.5 text-zinc-700 font-mono text-[10px] select-none'>
-              <span>——</span>
-              <span>——</span>
-              <span>——</span>
-            </div>
-            <div className='flex items-center gap-8 text-[10px] tracking-[0.18em] font-extrabold text-zinc-500 font-sans select-none'>
-              <div>
-                STATUS: <span className='text-emerald-400'>ONLINE</span>
-              </div>
-              <div>
-                DIAGNOSTIC_MODE: <span className='text-blue-400'>ACTIVE</span>
-              </div>
-            </div>
-          </header>
-
-          <main className='flex-1 flex flex-col items-center justify-center text-center'>
-            <div className='mb-3'>
-              <img
-                src='/gadget-restore-logo.svg'
-                alt='Gadget Restore Logo'
-                className='h-16 w-auto object-contain animate-pulse'
-              />
-            </div>
-            <div className='text-[10px] tracking-[0.8em] text-zinc-400 font-bold leading-relaxed mr-[-0.8em] select-none'>
-              TECHNICAL PRECISION
-            </div>
-            <div className='flex items-center justify-center gap-2 mt-16 mb-4 select-none'>
-              <div className='w-[18px] h-[18px] rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center'>
-                <svg
-                  className='w-2.5 h-2.5 text-emerald-400'
-                  fill='none'
-                  viewBox='0 0 24 24'
-                  stroke='currentColor'
-                  strokeWidth='3'
-                >
-                  <path
-                    strokeLinecap='round'
-                    strokeLinejoin='round'
-                    d='M5 13l4 4L19 7'
-                  />
-                </svg>
-              </div>
-              <span className='text-[10.5px] tracking-[0.2em] font-extrabold text-zinc-300 uppercase'>
-                INITIALIZING SYSTEMS
-              </span>
-            </div>
-            <div className='w-[280px] h-[1px] bg-zinc-800/80 relative overflow-hidden rounded-full'>
-              <div
-                className='h-full bg-white transition-all duration-75 ease-out'
-                style={{ width: `${progress}%` }}
-              />
-            </div>
-          </main>
-
-          <footer className='flex justify-between items-center w-full text-zinc-600 font-sans text-[9px] tracking-[0.12em] font-bold select-none'>
-            <div>© 2026 GADGET RESTORE. TECHNICAL PRECISION.</div>
-            <div className='flex items-center gap-6'>
-              <span className='flex items-center gap-2'>
-                <span className='w-1 h-1 rounded-full bg-zinc-700' />
-                <span>SYSTEM V1.0.2</span>
-              </span>
-              <span className='flex items-center gap-2'>
-                <span className='w-1 h-1 rounded-full bg-zinc-700' />
-                <span>ENCRYPTED CONNECTION</span>
-              </span>
-            </div>
-          </footer>
-        </div>
-
-        {/* 📱 MOBILE SPLASH VIEW */}
-        <div
-          className='flex lg:hidden flex-col justify-between w-full h-[100svh] px-6 py-10 box-border z-10 overflow-hidden'
-          style={{
-            background:
-              'radial-gradient(circle at 50% 30%, var(--color-accent-tint-4) 0%, transparent 60%), var(--color-bg-900)',
-          }}
-        >
-          <div className='h-4' />
-          <div className='flex-1 flex flex-col items-center justify-center text-center'>
-            <div className='relative mb-9 select-none animate-pulse duration-[3000ms]'>
-              <img
-                src='/images/Logo Container.png'
-                alt='System Hardware'
-                className='w-28 h-28 object-contain'
-              />
-            </div>
-            <div className='mb-2'>
-              <img
-                src='/gadget-restore-logo.svg'
-                alt='Gadget Restore Logo'
-                className='h-9 w-auto object-contain'
-              />
-            </div>
-            <div className='text-[9px] tracking-[0.65em] text-zinc-500 font-bold mr-[-0.65em] select-none'>
-              TECHNICAL PRECISION
-            </div>
-            <div className='w-[190px] h-[1px] bg-zinc-800/80 relative overflow-hidden mt-12 mb-5 rounded-full'>
-              <div
-                className='h-full bg-white transition-all duration-75 ease-out'
-                style={{ width: `${progress}%` }}
-              />
-            </div>
-            <div className='flex justify-center gap-2 mb-3.5 select-none'>
-              {[0, 1, 2].map((dotIdx) => (
-                <div
-                  key={`dot-${dotIdx}`}
-                  className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${dotIdx === activeDotIndex ? 'bg-white scale-110' : 'bg-zinc-800'}`}
-                />
-              ))}
-            </div>
-            <div className='text-[10px] tracking-[0.2em] font-extrabold text-zinc-400 select-none'>
-              {getProgressLabel(progress)}
-            </div>
-          </div>
-
-          <footer className='flex justify-center gap-10 text-zinc-500 pb-2'>
-            <div className='w-[42px] h-[42px] rounded-full border border-zinc-800 bg-zinc-900/10 flex items-center justify-center'>
-              <svg
-                className='w-5 h-5 text-zinc-400'
-                fill='none'
-                viewBox='0 0 24 24'
-                stroke='currentColor'
-                strokeWidth='1.5'
-              >
-                <path
-                  strokeLinecap='round'
-                  strokeLinejoin='round'
-                  d='M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z'
-                />
-              </svg>
-            </div>
-            <div className='w-[42px] h-[42px] rounded-full border border-zinc-800 bg-zinc-900/10 flex items-center justify-center'>
-              <svg
-                className='w-5 h-5 text-zinc-400'
-                fill='none'
-                viewBox='0 0 24 24'
-                stroke='currentColor'
-                strokeWidth='1.5'
-              >
-                <path
-                  strokeLinecap='round'
-                  strokeLinejoin='round'
-                  d='M21 12a9 9 0 11-18 0 9 9 0 0118 0z'
-                />
-                <path
-                  strokeLinecap='round'
-                  strokeLinejoin='round'
-                  d='M3.6 9h16.8M3.6 15h16.8'
-                />
-              </svg>
-            </div>
-            <div className='w-[42px] h-[42px] rounded-full border border-zinc-800 bg-zinc-900/10 flex items-center justify-center'>
-              <svg
-                className='w-5 h-5 text-zinc-400'
-                fill='none'
-                viewBox='0 0 24 24'
-                stroke='currentColor'
-                strokeWidth='1.5'
-              >
-                <path
-                  strokeLinecap='round'
-                  strokeLinejoin='round'
-                  d='M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z'
-                />
-                <path
-                  strokeLinecap='round'
-                  strokeLinejoin='round'
-                  d='M15 12a3 3 0 11-6 0 3 3 0 016 0z'
-                />
-              </svg>
-            </div>
-          </footer>
-        </div>
-      </div>
-    )
+    return <SplashScreen progress={progress} />
   }
 
   // ── RENDER WEB HIGH-FIDELITY FIGMA LIGHT-THEME LANDING PAGE ──────────────────
@@ -627,301 +1405,23 @@ export default function SplashOrLandingPage() {
       {/* ────────────────────────────────────────────────────────────────────────
           STICKY HEADER WRAPPER
           ──────────────────────────────────────────────────────────────────────── */}
-      <header className='fixed top-0 left-0 right-0 z-50 w-full bg-white shadow-sm transition-all duration-300 landing-header'>
-        {/* PROMOTIONAL TOP INFO HEADER BAR (Figma Header - Desktop only) */}
-        <div className={`hidden md:flex bg-[#FAF9FF] border-b border-zinc-100 py-4 px-6 lg:px-20 justify-between items-center gap-4 text-xs transition-all duration-300 ${isScrolled ? 'h-0 py-0 overflow-hidden opacity-0 border-b-0' : 'h-auto opacity-100'}`}>
-          <div className='flex items-center'>
-            <button
-              type='button'
-              onClick={() => router.push('/')}
-              className='bg-transparent border-0 p-0 cursor-pointer'
-              aria-label='Go to home page'
-            >
-              <img
-                src='images/logo-light.png'
-                alt='Gadget Restore Logo'
-                className='h-10 w-auto object-contain'
-              />
-            </button>
-          </div>
-          <div className='flex items-center gap-8 text-zinc-500'>
-            <div className='flex items-center gap-3'>
-              <div className='w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm text-[var(--color-accent)]'>
-                <Clock size={14} />
-              </div>
-              <div>
-                <div className='font-extrabold text-zinc-800 text-[11px] tracking-wider'>
-                  Timings
-                </div>
-                <div className='text-[11px] font-medium'>
-                  Mon - Sat 10:00 AM - 07:00 PM
-                </div>
-              </div>
-            </div>
-
-            <div className='flex items-center gap-3'>
-              <div className='w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm text-[var(--color-accent)]'>
-                <Mail size={14} />
-              </div>
-              <div>
-                <div className='font-extrabold text-zinc-800 text-[11px] tracking-wider'>
-                  Email Us
-                </div>
-                <a
-                  href='mailto:support@gadgetrestore.in'
-                  className='text-[11px] font-medium hover:text-[var(--color-accent)] transition-colors'
-                >
-                  support@gadgetrestore.in
-                </a>
-              </div>
-            </div>
-
-            <div className='flex items-center gap-3'>
-              <div className='w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm text-[var(--color-accent)]'>
-                <Phone size={14} className='animate-bounce' />
-              </div>
-              <div>
-                <div className='font-extrabold text-zinc-800 text-[11px] tracking-wider'>
-                  Call Us Now
-                </div>
-                <a
-                  href='tel:8800003785'
-                  className='text-[11px] font-black text-[var(--color-accent)] tracking-wide hover:underline'
-                >
-                  +91 8800003785
-                </a>
-              </div>
-            </div>
-
-            <a
-              href='https://www.instagram.com/gadget_restore.in'
-              target='_blank'
-              rel='noopener noreferrer'
-              className='flex items-center gap-3 hover:opacity-85 transition-opacity'
-              title='Follow us on Instagram'
-            >
-              <div className='w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm text-pink-600 hover:bg-pink-50 transition-colors'>
-                <svg
-                  className='w-3.5 h-3.5'
-                  viewBox='0 0 24 24'
-                  fill='none'
-                  stroke='currentColor'
-                  strokeWidth='2'
-                  strokeLinecap='round'
-                  strokeLinejoin='round'
-                >
-                  <rect x='2' y='2' width='20' height='20' rx='5' ry='5'></rect>
-                  <path d='M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z'></path>
-                  <line x1='17.5' y1='6.5' x2='17.51' y2='6.5'></line>
-                </svg>
-              </div>
-              <div>
-                <div className='font-extrabold text-zinc-800 text-[11px] tracking-wider'>
-                  Instagram
-                </div>
-                <div className='text-[11px] font-medium'>
-                  @gadget_restore.in
-                </div>
-              </div>
-            </a>
-          </div>
-        </div>
-
-        {/* MAIN NAVIGATION ROW (Fully Responsive Sticky Nav) */}
-        <nav className='bg-white py-4 px-6 lg:px-20 flex justify-between items-center transition-all duration-300'>
-          {/* Left Side: Brand Logo (Sticky on mobile, hidden on desktop to avoid double logo except when scrolled) */}
-          <div className={`flex items-center ${isScrolled ? 'lg:flex' : 'lg:hidden'}`}>
-            <button
-              type='button'
-              onClick={() => router.push('/')}
-              className='bg-transparent border-0 p-0 cursor-pointer'
-              aria-label='Go to home page'
-            >
-              <img
-                src='images/logo-light.png'
-                alt='Gadget Restore Logo'
-                className='h-9 w-auto object-contain'
-              />
-            </button>
-          </div>
-
-          {/* Center: Desktop-only Navigation Links */}
-          <div className='hidden lg:flex items-center gap-8 font-black text-xs tracking-widest text-zinc-500'>
-            <a
-              href='#hero'
-              onClick={() => setActiveSection('hero')}
-              className={`pb-1 border-b-2 transition-all duration-200 cursor-pointer ${activeSection === 'hero'
-                ? 'text-zinc-900 border-[var(--color-accent)]'
-                : 'border-transparent hover:text-zinc-900'
-                }`}
-            >
-              Home
-            </a>
-            <a
-              href='#expertise'
-              onClick={() => setActiveSection('expertise')}
-              className={`pb-1 border-b-2 transition-all duration-200 cursor-pointer ${activeSection === 'expertise'
-                ? 'text-zinc-900 border-[var(--color-accent)]'
-                : 'border-transparent hover:text-zinc-900'
-                }`}
-            >
-              Services
-            </a>
-            <a
-              href='#why-choose-us'
-              onClick={() => setActiveSection('why-choose-us')}
-              className={`pb-1 border-b-2 transition-all duration-200 cursor-pointer ${activeSection === 'why-choose-us'
-                ? 'text-zinc-900 border-[var(--color-accent)]'
-                : 'border-transparent hover:text-zinc-900'
-                }`}
-            >
-              About
-            </a>
-            <a
-              href='#faq'
-              onClick={() => setActiveSection('faq')}
-              className={`pb-1 border-b-2 transition-all duration-200 cursor-pointer ${activeSection === 'faq'
-                ? 'text-zinc-900 border-[var(--color-accent)]'
-                : 'border-transparent hover:text-zinc-900'
-                }`}
-            >
-              FAQs
-            </a>
-            <a
-              href='#contact'
-              onClick={() => setActiveSection('contact')}
-              className={`pb-1 border-b-2 transition-all duration-200 cursor-pointer ${activeSection === 'contact'
-                ? 'text-zinc-900 border-[var(--color-accent)]'
-                : 'border-transparent hover:text-zinc-900'
-                }`}
-            >
-              Contact
-            </a>
-          </div>
-
-          {/* Right Side: Desktop CTA or Hamburger button */}
-          <div className='flex items-center gap-4'>
-            <button
-              onClick={() => handleBookNowCTA()}
-              className='hidden sm:inline-block bg-black text-white px-8 py-3 rounded-full text-xs font-black tracking-widest cursor-pointer hover:scale-[1.03] transition-all duration-200'
-            >
-              BOOK NOW
-            </button>
-
-            {/* Hamburger Icon for Mobile Viewports */}
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className='lg:hidden p-2 text-zinc-900 hover:text-black focus:outline-none cursor-pointer'
-              aria-label='Toggle menu'
-            >
-              {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-            </button>
-          </div>
-        </nav>
-      </header>
+      <LandingHeader
+        isScrolled={isScrolled}
+        router={router}
+        activeSection={activeSection}
+        setActiveSection={setActiveSection}
+        handleBookNowCTA={handleBookNowCTA}
+        mobileMenuOpen={mobileMenuOpen}
+        setMobileMenuOpen={setMobileMenuOpen}
+      />
       <div className='h-[73px] md:h-[144px] shrink-0 landing-spacer' />
 
       {/* 📱 Mobile Menu Sliding Drawer Overlay */}
-      {mobileMenuOpen && (
-        <div className='lg:hidden fixed inset-x-0 top-[73px] z-50 bg-white/98 backdrop-blur-md flex flex-col justify-between px-6 py-10 border-t border-zinc-100 shadow-2xl h-[calc(100vh-73px)] landing-mobile-menu'>
-          <div className='flex flex-col gap-6 font-black text-sm tracking-widest text-zinc-500'>
-            <a
-              href='#hero'
-              onClick={() => {
-                setMobileMenuOpen(false)
-                setActiveSection('hero')
-              }}
-              className={`py-3 border-b border-zinc-100/50 cursor-pointer transition-colors ${activeSection === 'hero'
-                ? 'text-[var(--color-accent)] font-black'
-                : 'hover:text-zinc-900'
-                }`}
-            >
-              Home
-            </a>
-            <a
-              href='#services'
-              onClick={() => {
-                setMobileMenuOpen(false)
-                setActiveSection('expertise')
-              }}
-              className={`py-3 border-b border-zinc-100/50 cursor-pointer transition-colors ${activeSection === 'expertise'
-                ? 'text-[var(--color-accent)] font-black'
-                : 'hover:text-zinc-900'
-                }`}
-            >
-              Services
-            </a>
-            <a
-              href='#why-choose-us'
-              onClick={() => {
-                setMobileMenuOpen(false)
-                setActiveSection('why-choose-us')
-              }}
-              className={`py-3 border-b border-zinc-100/50 cursor-pointer transition-colors ${activeSection === 'why-choose-us'
-                ? 'text-[var(--color-accent)] font-black'
-                : 'hover:text-zinc-900'
-                }`}
-            >
-              About
-            </a>
-            <a
-              href='#faq'
-              onClick={() => {
-                setMobileMenuOpen(false)
-                setActiveSection('faq')
-              }}
-              className={`py-3 border-b border-zinc-100/50 cursor-pointer transition-colors ${activeSection === 'faq'
-                ? 'text-[var(--color-accent)] font-black'
-                : 'hover:text-zinc-900'
-                }`}
-            >
-              FAQs
-            </a>
-            <a
-              href='#contact'
-              onClick={() => {
-                setMobileMenuOpen(false)
-                setActiveSection('contact')
-              }}
-              className={`py-3 border-b border-zinc-100/50 cursor-pointer transition-colors ${activeSection === 'contact'
-                ? 'text-[var(--color-accent)] font-black'
-                : 'hover:text-zinc-900'
-                }`}
-            >
-              Contact
-            </a>
-          </div>
-
-          <div className='flex flex-col gap-6'>
-            <button
-              onClick={() => {
-                setMobileMenuOpen(false)
-                handleBookNowCTA()
-              }}
-              className='bg-black text-white w-full py-4 rounded-full text-xs font-black tracking-widest cursor-pointer shadow-lg hover:scale-[1.01] transition-transform duration-200'
-            >
-              BOOK NOW
-            </button>
-
-            <div className='flex items-center gap-4 bg-[#FAF9FF] p-4 rounded-2xl border border-zinc-100'>
-              <div className='w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm text-[var(--color-accent)] shrink-0'>
-                <Phone size={16} className='animate-bounce' />
-              </div>
-              <div>
-                <div className='font-extrabold text-zinc-800 text-[10px] tracking-wider uppercase'>
-                  Call Us Now
-                </div>
-                <a
-                  href='tel:8800003785'
-                  className='text-xs font-black text-[var(--color-accent)] tracking-wide hover:underline'
-                >
-                  +91 8800003785
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      <MobileMenuDrawer
+        mobileMenuOpen={mobileMenuOpen}
+        activeSection={activeSection}
+        handleMobileNavClick={handleMobileNavClick}
+      />
 
       {/* ────────────────────────────────────────────────────────────────────────
           1. HERO HEADER SECTION (Prinstine matching landing-banner.png)
@@ -1005,16 +1505,7 @@ export default function SplashOrLandingPage() {
             <button
               key={item.title}
               type='button'
-              onClick={() => {
-                if (item.title === 'Phone Repair') {
-                  handleCategorySelect(item.slotKey)
-                } else {
-                  const contactSec = document.getElementById('contact')
-                  if (contactSec) {
-                    contactSec.scrollIntoView({ behavior: 'smooth' })
-                  }
-                }
-              }}
+              onClick={() => handleRepairCardClick(item.title, item.slotKey)}
               className='bg-[#FAF9FF] border border-zinc-100/50 p-8 rounded-3xl group hover:border-[var(--color-accent)]/20 hover:bg-[#F2EFFD] transition-all duration-300 cursor-pointer w-full text-center'
             >
               <div className='w-62 h-62 rounded-2xl overflow-hidden mb-6 mx-auto flex items-center justify-center bg-white shadow-sm'>
@@ -1078,16 +1569,7 @@ export default function SplashOrLandingPage() {
             <button
               key={item.title}
               type='button'
-              onClick={() => {
-                if (item.title === 'Phone Repair') {
-                  handleCategorySelect(item.slotKey)
-                } else {
-                  const contactSec = document.getElementById('contact')
-                  if (contactSec) {
-                    contactSec.scrollIntoView({ behavior: 'smooth' })
-                  }
-                }
-              }}
+              onClick={() => handleRepairCardClick(item.title, item.slotKey)}
               className='bg-white rounded-xl overflow-hidden border border-zinc-100 hover:shadow-2xl hover:shadow-zinc-200/50 transition-all duration-300 group cursor-pointer flex flex-col justify-between w-full text-left'
             >
               <div className='h-60 relative overflow-hidden bg-white flex items-center justify-center'>
@@ -1329,52 +1811,7 @@ export default function SplashOrLandingPage() {
       {/* ────────────────────────────────────────────────────────────────────────
           7. STATS / MILESTONES SECTION (Full Width Theme matched)
           ──────────────────────────────────────────────────────────────────────── */}
-      <section className='py-20 px-6 lg:px-20 bg-[#FAF9FF] border-t border-b border-zinc-100/50 relative overflow-hidden'>
-        <div className='max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-5 gap-y-8 md:gap-y-0 text-center divide-zinc-200/60 md:divide-x'>
-          {/* Stat 1 */}
-          <div className='flex flex-col items-center justify-center p-2'>
-            <span className='text-4xl lg:text-5xl font-black text-zinc-900 tracking-tight'>
-              {mounted ? <AnimatedCounter target={9} /> : '9'}+
-            </span>
-            <span className='text-[10px] lg:text-[11px] uppercase tracking-widest text-zinc-400 font-extrabold mt-2'>Years of Experience</span>
-          </div>
-
-          {/* Stat 2 */}
-          <div className='flex flex-col items-center justify-center p-2'>
-            <span className='text-4xl lg:text-5xl font-black text-zinc-900 tracking-tight'>
-              {mounted ? <AnimatedCounter target={20} /> : '20'}k+
-            </span>
-            <span className='text-[10px] lg:text-[11px] uppercase tracking-widest text-zinc-400 font-extrabold mt-2'>Happy Customers</span>
-          </div>
-
-          {/* Stat 3 */}
-          <div className='flex flex-col items-center justify-center p-2'>
-            <span className='text-4xl lg:text-5xl font-black text-zinc-900 tracking-tight'>
-              {mounted ? <AnimatedCounter target={20} /> : '20'}+
-            </span>
-            <span className='text-[10px] lg:text-[11px] uppercase tracking-widest text-zinc-400 font-extrabold mt-2'>Expert Technicians</span>
-          </div>
-
-          {/* Stat 4 */}
-          <div className='flex flex-col items-center justify-center p-2'>
-            <span className='text-4xl lg:text-5xl font-black text-zinc-900 tracking-tight'>
-              {mounted ? <AnimatedCounter target={25} /> : '25'}k+
-            </span>
-            <span className='text-[10px] lg:text-[11px] uppercase tracking-widest text-zinc-400 font-extrabold mt-2'>Total Works Done</span>
-          </div>
-
-          {/* Stat 5 */}
-          <div className='flex flex-col items-center justify-center p-2 col-span-2 md:col-span-1'>
-            <div className='flex items-center justify-center gap-1.5'>
-              <span className='text-4xl lg:text-5xl font-black text-zinc-900 tracking-tight'>
-                {mounted ? <AnimatedCounter target={4.8} decimals={1} /> : '4.8'}
-              </span>
-              <Star size={24} className='text-amber-500 fill-amber-500 shrink-0' />
-            </div>
-            <span className='text-[10px] lg:text-[11px] uppercase tracking-widest text-zinc-400 font-extrabold mt-2'>Tech Rating</span>
-          </div>
-        </div>
-      </section>
+      <MilestonesSection />
 
       {/* ────────────────────────────────────────────────────────────────────────
           8. HOW IT WORKS SECTION
@@ -1434,154 +1871,12 @@ export default function SplashOrLandingPage() {
           9. TRUSTED CLIENTS & FAQ ACCORDION SECTION
           ──────────────────────────────────────────────────────────────────────── */}
 
-      <section className='py-24 px-6 lg:px-20 bg-[#FAF9FF] border-t border-zinc-100'>
-        <div className='flex flex-col lg:flex-row gap-16'>
-          {/* Left Column: Testimonial card */}
-          <div className='w-full lg:w-1/2'>
-            <h2 className='text-2xl font-black tracking-wider text-zinc-900 mb-8 flex items-center gap-3'>
-              Trusted Clients
-              <div className='w-5 h-5 rounded-full bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-500'>
-                <Check size={10} strokeWidth={4} />
-              </div>
-            </h2>
-
-            <div className='bg-[#FAF9FF] border border-zinc-100 rounded-[32px] p-8 lg:p-10 shadow-sm relative overflow-hidden min-h-[340px] flex flex-col justify-between transition-all duration-300'>
-              <div>
-                <div className='flex items-center justify-between mb-6'>
-                  <div className='flex items-center gap-4'>
-                    <div className='w-12 h-12 rounded-full bg-white border border-zinc-200 flex items-center justify-center text-zinc-500 shadow-sm shrink-0'>
-                      <User size={18} className='text-zinc-600' />
-                    </div>
-                    <div>
-                      <h4 className='font-extrabold tracking-wide text-zinc-900 text-xs'>
-                        {REVIEWS_DATA[currentReviewIndex].name}
-                      </h4>
-                      <p className='text-[10px] text-zinc-400 font-bold tracking-wider mt-0.5'>
-                        {REVIEWS_DATA[currentReviewIndex].location}
-                      </p>
-                    </div>
-                  </div>
-                  <div className='flex gap-0.5 text-amber-400'>
-                    {Array.from({ length: REVIEWS_DATA[currentReviewIndex].rating }, (_, i) => `star-${i}`).map((key) => (
-                      <Star key={key} size={14} fill='currentColor' className='fill-amber-400 text-amber-400' />
-                    ))}
-                    {REVIEWS_DATA[currentReviewIndex].rating < 5 && (
-                      <Star size={14} className='text-zinc-200' />
-                    )}
-                  </div>
-                </div>
-                <div className='min-h-[120px] flex items-center mb-4'>
-                  <p
-                    key={currentReviewIndex}
-                    className='text-sm text-zinc-600 italic leading-relaxed animate-fadeIn'
-                  >
-                    "{REVIEWS_DATA[currentReviewIndex].text}"
-                  </p>
-                </div>
-              </div>
-
-              {/* Slider Dots & Arrow Navigation */}
-              <div className='flex items-center justify-between pt-4 border-t border-zinc-100'>
-                <div className='flex gap-1.5 overflow-x-auto max-w-[70%] py-1'>
-                  {REVIEWS_DATA.map((_, idx) => (
-                    <button
-                      key={`dot-${idx}`}
-                      type='button'
-                      onClick={() => setCurrentReviewIndex(idx)}
-                      className={`w-1.5 h-1.5 rounded-full transition-all duration-300 shrink-0 ${idx === currentReviewIndex ? 'bg-black w-4' : 'bg-zinc-200 hover:bg-zinc-300'
-                        }`}
-                      aria-label={`Go to review ${idx + 1}`}
-                    />
-                  ))}
-                </div>
-                <div className='flex gap-1.5'>
-                  <button
-                    type='button'
-                    onClick={() =>
-                      setCurrentReviewIndex(
-                        (prev) => (prev - 1 + REVIEWS_DATA.length) % REVIEWS_DATA.length
-                      )
-                    }
-                    className='w-7 h-7 rounded-full border border-zinc-200 flex items-center justify-center text-zinc-600 hover:bg-zinc-50 hover:text-black hover:border-zinc-400 active:scale-90 transition-all cursor-pointer'
-                    aria-label='Previous review'
-                  >
-                    <ChevronDown size={14} className='rotate-90' />
-                  </button>
-                  <button
-                    type='button'
-                    onClick={() =>
-                      setCurrentReviewIndex((prev) => (prev + 1) % REVIEWS_DATA.length)
-                    }
-                    className='w-7 h-7 rounded-full border border-zinc-200 flex items-center justify-center text-zinc-600 hover:bg-zinc-50 hover:text-black hover:border-zinc-400 active:scale-90 transition-all cursor-pointer'
-                    aria-label='Next review'
-                  >
-                    <ChevronDown size={14} className='-rotate-90' />
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Right Column: FAQ accordions */}
-          <div id='faq' className='w-full lg:w-1/2'>
-            <h2 className='text-2xl font-black tracking-wider text-zinc-900 mb-8 flex items-center gap-3'>
-              FAQ
-              <div className='w-5 h-5 rounded-full bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-500'>
-                <HelpCircle size={10} strokeWidth={4} />
-              </div>
-            </h2>
-
-            <div className='flex flex-col gap-4'>
-              {[
-                {
-                  q: 'How long does a typical repair take?',
-                  a: 'Most repairs, like screen or battery replacements, are completed within 1 to 2 hours. More complex issues involving motherboard repair or data recovery may take 24–48 hours depending on the damage.',
-                },
-                {
-                  q: 'Do you provide a warranty?',
-                  a: 'Yes, every repair is covered under our structural 90-day warranty, guarding against any defect in materials and craftsmanship.',
-                },
-                {
-                  q: 'Do I need an appointment?',
-                  a: 'No, you can simply drop by our workshop during business hours, but booking online guarantees priority check-in.',
-                },
-                {
-                  q: 'What devices do you repair?',
-                  a: 'We specialize in the repair and service of the entire Apple product ecosystem, including iPhones, iPads, MacBooks, iMacs, and Apple Watches.',
-                },
-                {
-                  q: 'What Kind of parts will be used in the repair?',
-                  a: "Unless explicitly mentioned, Gadget Restore uses Premium Grade parts. The performance will be the same as that of the original part. Gadget Restore's quality team certifies every part through a thorough grading process.",
-                },
-              ].map((faq, idx) => {
-                const isOpen = activeFaq === idx
-                return (
-                  <div
-                    key={faq.q}
-                    className='bg-white border border-zinc-100 rounded-2xl overflow-hidden transition-all duration-300'
-                  >
-                    <button
-                      onClick={() => handleFaqToggle(idx)}
-                      className='w-full p-5 text-left flex justify-between items-center font-extrabold text-xs tracking-wider text-zinc-950 hover:bg-zinc-50 transition-colors cursor-pointer'
-                    >
-                      <span>{faq.q}</span>
-                      <ChevronDown
-                        size={14}
-                        className={`text-zinc-500 transform transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}
-                      />
-                    </button>
-                    {isOpen && (
-                      <div className='p-5 pt-0 text-xs text-zinc-500 leading-relaxed border-t border-zinc-50 bg-[#FAF9FF] animate-fadeIn'>
-                        {faq.a}
-                      </div>
-                    )}
-                  </div>
-                )
-              })}
-            </div>
-          </div>
-        </div>
-      </section>
+      <ReviewsAndFaqSection
+        currentReviewIndex={currentReviewIndex}
+        setCurrentReviewIndex={setCurrentReviewIndex}
+        activeFaq={activeFaq}
+        handleFaqToggle={handleFaqToggle}
+      />
       {/* ────────────────────────────────────────────────────────────────────────
           10. WORKING PROCESS SECTION (Pure Coded Visual Timeline)
           ──────────────────────────────────────────────────────────────────────── */}
@@ -1652,240 +1947,7 @@ export default function SplashOrLandingPage() {
       {/* ────────────────────────────────────────────────────────────────────────
           11. INTERACTIVE BOOKING SCHEDULER SECTION (Dark Keyboard BG)
           ──────────────────────────────────────────────────────────────────────── */}
-      <section
-        id='contact'
-        className='grid grid-cols-1 lg:grid-cols-2 bg-[#05060f] overflow-hidden border-t border-zinc-900'
-      >
-        {/* Left Side: Tech Hand Photograph Full Height */}
-        <div className='w-full h-full min-h-[450px] lg:min-h-[640px] relative overflow-hidden'>
-          <img
-            src='/images/Left Side_ Image.png'
-            alt='Make a Schedule Tech Hands Typing'
-            className='w-full h-full object-cover absolute inset-0'
-          />
-        </div>
-
-        {/* Right Side: Clean Dark Scheduler Panel */}
-        <div className='py-24 px-8 lg:px-24 bg-[#07080e] flex flex-col justify-center text-white relative'>
-          <div className='max-w-[480px]'>
-            <span className='text-[10px] font-bold uppercase tracking-[0.25em] text-zinc-400 block mb-2'>
-              NEED HELP?
-            </span>
-            <h2 className='text-3xl lg:text-5xl font-black tracking-tight mb-8'>
-              Contact Support
-            </h2>
-            <p className='text-xs text-zinc-400 leading-relaxed mb-6'>
-              Fill out the form below and our support team will call you back.
-            </p>
-
-            <form onSubmit={handleFormSubmit} className='space-y-6'>
-              {/* Success/Error Message */}
-              {submitMessage && (
-                <div
-                  className={`p-4 rounded-lg border ${submitMessage.type === 'success'
-                    ? 'bg-emerald-900/20 border-emerald-500/30 text-emerald-300'
-                    : 'bg-red-900/20 border-red-500/30 text-red-300'
-                    } text-xs leading-relaxed animate-fadeIn`}
-                >
-                  {submitMessage.text}
-                </div>
-              )}
-
-              <div className='grid grid-cols-1 sm:grid-cols-2 gap-5'>
-                <input
-                  type='text'
-                  name='name'
-                  required
-                  value={formData.name}
-                  onChange={handleInputChange}
-                  placeholder='Your Name'
-                  className='w-full h-14 bg-transparent border border-white/10 px-4 text-xs text-white placeholder-zinc-500 outline-none focus:border-white transition-colors'
-                />
-                <input
-                  type='email'
-                  name='email'
-                  required
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  placeholder='Email'
-                  className='w-full h-14 bg-transparent border border-white/10 px-4 text-xs text-white placeholder-zinc-500 outline-none focus:border-white transition-colors'
-                />
-              </div>
-
-              <div className='grid grid-cols-1 sm:grid-cols-2 gap-5'>
-                <input
-                  type='tel'
-                  name='phone'
-                  required
-                  value={formData.phone}
-                  onChange={handleInputChange}
-                  placeholder='Phone'
-                  pattern='\d{10}'
-                  className='w-full h-14 bg-transparent border border-white/10 px-4 text-xs text-white placeholder-zinc-500 outline-none focus:border-white transition-colors'
-                />
-                <div className='relative'>
-                  <input
-                    type='date'
-                    name='date'
-                    value={formData.date}
-                    onChange={handleInputChange}
-                    min={new Date().toISOString().split('T')[0]}
-                    className='w-full h-14 bg-transparent border border-white/10 px-4 text-xs text-white placeholder-zinc-500 outline-none focus:border-white transition-colors [color-scheme:dark] cursor-pointer'
-                  />
-                  <Calendar
-                    size={16}
-                    className='absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none'
-                  />
-                </div>
-              </div>
-
-              <div className='grid grid-cols-1 sm:grid-cols-2 gap-5'>
-                <div className='relative'>
-                  {/* Custom time slot dropdown — avoids native select overflow on mobile */}
-                  <button
-                    ref={timeButtonRef}
-                    type='button'
-                    onClick={() => {
-                      if (timeButtonRef.current) {
-                        const r = timeButtonRef.current.getBoundingClientRect()
-                        setTimeDropdownRect(r)
-                      }
-                      setTimeDropdownOpen((v) => !v)
-                    }}
-                    className='w-full h-14 bg-transparent border border-white/10 px-4 text-xs text-left outline-none focus:border-white transition-colors cursor-pointer flex items-center justify-between'
-                    style={{ color: formData.time ? '#fff' : '#71717a' }}
-                  >
-                    <span>{formData.time || 'Time Slot'}</span>
-                    <Clock size={16} className='text-zinc-500 shrink-0' />
-                  </button>
-
-                  {timeDropdownOpen && (
-                    <>
-                      {/* Backdrop to close on outside click */}
-                      <button
-                        type='button'
-                        className='fixed inset-0 z-40 bg-transparent border-0 cursor-default'
-                        onClick={() => setTimeDropdownOpen(false)}
-                        aria-label='Close time dropdown'
-                      />
-                      {/* Scrollable panel — anchored directly below the trigger button */}
-                      <div
-                        className='fixed z-50 bg-[#07080e] border border-white/10 overflow-y-auto'
-                        style={{
-                          maxHeight: '240px',
-                          width: timeDropdownRect
-                            ? timeDropdownRect.width
-                            : 220,
-                          top: timeDropdownRect
-                            ? timeDropdownRect.bottom + 4
-                            : 0,
-                          left: timeDropdownRect ? timeDropdownRect.left : 0,
-                        }}
-                      >
-                        {[
-                          '09:00 AM',
-                          '09:30 AM',
-                          '10:00 AM',
-                          '10:30 AM',
-                          '11:00 AM',
-                          '11:30 AM',
-                          '12:00 PM',
-                          '12:30 PM',
-                          '01:00 PM',
-                          '01:30 PM',
-                          '02:00 PM',
-                          '02:30 PM',
-                          '03:00 PM',
-                          '03:30 PM',
-                          '04:00 PM',
-                          '04:30 PM',
-                          '05:00 PM',
-                          '05:30 PM',
-                          '06:00 PM',
-                        ].map((slot) => (
-                          <button
-                            key={slot}
-                            type='button'
-                            onClick={() => {
-                              setFormData((prev) => ({ ...prev, time: slot }))
-                              setTimeDropdownOpen(false)
-                            }}
-                            className='w-full px-4 py-3 text-xs text-left transition-colors cursor-pointer'
-                            style={{
-                              color:
-                                formData.time === slot ? '#fff' : '#a1a1aa',
-                              background:
-                                formData.time === slot
-                                  ? 'rgba(255,255,255,0.08)'
-                                  : 'transparent',
-                              borderBottom: '1px solid rgba(255,255,255,0.05)',
-                            }}
-                            onMouseEnter={(e) =>
-                            (e.currentTarget.style.background =
-                              'rgba(255,255,255,0.06)')
-                            }
-                            onMouseLeave={(e) =>
-                            (e.currentTarget.style.background =
-                              formData.time === slot
-                                ? 'rgba(255,255,255,0.08)'
-                                : 'transparent')
-                            }
-                          >
-                            {slot}
-                          </button>
-                        ))}
-                      </div>
-                    </>
-                  )}
-                </div>
-                <div className='relative'>
-                  <select
-                    name='service'
-                    value={formData.service}
-                    onChange={handleInputChange}
-                    className='w-full h-14 bg-[#07080e] border border-white/10 px-4 text-xs text-white outline-none focus:border-white transition-colors appearance-none cursor-pointer'
-                  >
-                    <option value='' disabled>
-                      Select Service
-                    </option>
-                    <option value='Mobile Repair'>Mobile Repair</option>
-                    <option value='iPad/Tablet Repair'>
-                      iPad/Tablet Repair
-                    </option>
-                    <option value='MacBook/Laptop Repair'>
-                      MacBook/Laptop Repair
-                    </option>
-                  </select>
-                  <ChevronDown
-                    size={16}
-                    className='absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none'
-                  />
-                </div>
-              </div>
-
-              <div className='pt-2'>
-                <button
-                  type='submit'
-                  disabled={isSubmitting}
-                  className='w-56 h-12 bg-white text-black font-extrabold tracking-wider text-xs uppercase hover:bg-zinc-200 active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed'
-                >
-                  {isSubmitting ? (
-                    <>
-                      <div className='w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin' />
-                      SUBMITTING...
-                    </>
-                  ) : (
-                    <>
-                      <Phone size={16} />
-                      REQUEST CALLBACK
-                    </>
-                  )}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      </section>
+      <ContactSchedulerSection />
 
       {/* ────────────────────────────────────────────────────────────────────────
           12. TECH TIPS & NEWS SECTION

@@ -23,7 +23,6 @@ import {
 
 import catalogueService from '@/services/catalogue.service'
 import { useBooking } from '@/context/BookingContext'
-import { getBrandLogo } from '@/lib/utils'
 import { useBookingGuard } from '@/hooks/useBookingGuard'
 
 
@@ -102,6 +101,221 @@ const getSymptomIcon = (symptom) => {
   return <Wrench size={20} />
 }
 
+// Extracted: Desktop right-column "Repair Ticket" panel
+// Moves selectedIds ternaries + isIpadOrMac branch out of SelectSymptomsPage
+const DesktopCtaPanel = ({ isIpadOrMac, selectedIds, symptomsList, handleContinue }) => {
+  const hasSelection = selectedIds.length > 0
+  const sharedBtnStyle = {
+    width: '100%',
+    height: 'var(--btn-height-primary)',
+    background: hasSelection ? 'var(--color-accent)' : 'var(--color-content-divider)',
+    color: hasSelection ? '#fff' : 'var(--color-content-text-secondary)',
+    border: 'none',
+    borderRadius: 'var(--radius-btn)',
+    fontWeight: 700,
+    fontSize: 14,
+    cursor: hasSelection ? 'pointer' : 'not-allowed',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    transition: 'all 0.2s ease',
+    boxShadow: hasSelection ? '0 4px 16px rgba(108,123,255,0.25)' : 'none',
+  }
+
+  return (
+    <>
+      {/* Selected Issues List */}
+      <div style={{ marginBottom: 24 }}>
+        <span
+          style={{
+            fontSize: 11,
+            fontWeight: 700,
+            color: 'var(--color-content-text-secondary)',
+            textTransform: 'uppercase',
+            display: 'block',
+            marginBottom: 8,
+          }}
+        >
+          Selected Issues ({selectedIds.length})
+        </span>
+
+        {!hasSelection ? (
+          <div
+            style={{
+              padding: '16px',
+              background: 'var(--color-content-bg)',
+              borderRadius: 10,
+              textAlign: 'center',
+              fontSize: 13,
+              color: 'var(--color-content-text-secondary)',
+            }}
+          >
+            No symptoms selected. Tap cards on the left to add issues.
+          </div>
+        ) : (
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 8,
+              maxHeight: 200,
+              overflowY: 'auto',
+              paddingRight: 4,
+            }}
+          >
+            {symptomsList
+              .filter((s) => selectedIds.includes(s._id))
+              .map((s) => (
+                <div
+                  key={s._id}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    padding: '8px 12px',
+                    background: 'var(--color-content-bg)',
+                    borderRadius: 8,
+                    fontSize: 13,
+                    fontWeight: 600,
+                  }}
+                >
+                  <div style={{ color: 'var(--color-accent)', display: 'flex', alignItems: 'center' }}>
+                    <Check size={14} strokeWidth={3} />
+                  </div>
+                  <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}>
+                    {s.name}
+                  </span>
+                </div>
+              ))}
+          </div>
+        )}
+      </div>
+
+      {/* CTA Button */}
+      {isIpadOrMac ? (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <div style={{ fontSize: 13, color: 'var(--color-content-text-secondary)', textAlign: 'center', lineHeight: 1.5 }}>
+            For iPad, Tablet, Mac & PC repairs, please contact customer support directly.
+          </div>
+          <button
+            type='button'
+            onClick={() => (window.location.href = 'tel:+918800003785')}
+            disabled={!hasSelection}
+            style={sharedBtnStyle}
+          >
+            <Phone size={16} /> Call +91 8800003785
+          </button>
+        </div>
+      ) : (
+        <button type='button' onClick={handleContinue} disabled={!hasSelection} style={sharedBtnStyle}>
+          Continue to Pricing <ChevronRight size={16} />
+        </button>
+      )}
+    </>
+  )
+}
+
+// Extracted: Mobile sticky bottom CTA bar
+// Moves isIpadOrMac branch + all selectedIds ternaries out of SelectSymptomsPage
+const MobileCtaBar = ({ isIpadOrMac, selectedIds, handleContinue }) => {
+  const hasSelection = selectedIds.length > 0
+  const sharedBtnStyle = {
+    height: 44,
+    background: hasSelection ? 'var(--color-accent)' : 'var(--color-content-divider)',
+    color: hasSelection ? '#fff' : 'var(--color-content-text-secondary)',
+    border: 'none',
+    borderRadius: 'var(--radius-btn)',
+    fontWeight: 700,
+    fontSize: 13,
+    cursor: hasSelection ? 'pointer' : 'not-allowed',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    transition: 'all 0.15s ease',
+  }
+
+  const pluralSuffix = selectedIds.length === 1 ? '' : 's'
+  const selectionMessage = hasSelection
+    ? `${selectedIds.length} symptom${pluralSuffix} selected`
+    : 'No symptoms selected'
+
+  if (isIpadOrMac) {
+    return (
+      <>
+        <div>
+          <span
+            style={{
+              display: 'block',
+              fontSize: 10,
+              fontWeight: 700,
+              color: 'var(--color-content-text-secondary)',
+              textTransform: 'uppercase',
+              letterSpacing: '0.05em',
+            }}
+          >
+            {hasSelection ? `${selectedIds.length} issue selected` : 'No symptoms selected'}
+          </span>
+          <span
+            style={{
+              fontSize: 13,
+              fontWeight: 800,
+              color: hasSelection ? 'var(--color-accent)' : 'var(--color-content-text)',
+            }}
+          >
+            {hasSelection ? '+91 8800003785' : 'Select at least one issue'}
+          </span>
+        </div>
+        <button
+          type='button'
+          onClick={() => (window.location.href = 'tel:+918800003785')}
+          disabled={!hasSelection}
+          style={{ ...sharedBtnStyle, padding: '0 20px' }}
+        >
+          <Phone size={14} /> Call Support
+        </button>
+      </>
+    )
+  }
+
+  return (
+    <>
+      <div>
+        <span
+          style={{
+            display: 'block',
+            fontSize: 10,
+            fontWeight: 700,
+            color: 'var(--color-content-text-secondary)',
+            textTransform: 'uppercase',
+            letterSpacing: '0.05em',
+          }}
+        >
+          {selectionMessage}
+        </span>
+        <span
+          style={{
+            fontSize: 13,
+            fontWeight: 800,
+            color: hasSelection ? 'var(--color-accent)' : 'var(--color-content-text)',
+          }}
+        >
+          {hasSelection ? 'Ready to continue ✓' : 'Select at least one issue'}
+        </span>
+      </div>
+      <button
+        type='button'
+        onClick={handleContinue}
+        disabled={!hasSelection}
+        style={{ ...sharedBtnStyle, padding: '0 24px' }}
+      >
+        Continue <ChevronRight size={14} />
+      </button>
+    </>
+  )
+}
+
 export default function SelectSymptomsPage() {
   const router = useRouter()
   const {
@@ -116,7 +330,6 @@ export default function SelectSymptomsPage() {
 
   const isApple = brand?.name?.toLowerCase() === 'apple'
   const defaultImage = isApple ? '/images/default-apple.png' : '/images/default-android.png'
-  const logoUrl = getBrandLogo(brand?.name, brand?.logo)
 
   const catName = (category?.name || model?.categoryId?.name || '').toLowerCase()
   const isIpadOrMac = catName === 'ipad' || catName === 'laptop'
@@ -150,7 +363,7 @@ export default function SelectSymptomsPage() {
         setSymptomsList(activeSymptoms)
 
         // Restore selection state from BookingContext if present
-        if (contextSymptoms && contextSymptoms.length > 0) {
+        if (contextSymptoms?.length) {
           const restoredIds = contextSymptoms.map((s) => s._id)
           setSelectedIds(restoredIds)
         }
@@ -167,11 +380,7 @@ export default function SelectSymptomsPage() {
       })
   }, [model, category, contextSymptoms, contextRemarks])
 
-  // Check if "Other" symptom is selected
-  const isOtherSelected = useMemo(() => {
-    const otherSymptom = symptomsList.find((s) => s.isOther)
-    return otherSymptom && selectedIds.includes(otherSymptom._id)
-  }, [symptomsList, selectedIds])
+
 
   // Filter symptoms list based on search query
   const filteredSymptoms = useMemo(() => {
@@ -180,19 +389,15 @@ export default function SelectSymptomsPage() {
     return symptomsList.filter(
       (s) =>
         s.name.toLowerCase().includes(query) ||
-        (s.description && s.description.toLowerCase().includes(query)),
+        (s.description?.toLowerCase().includes(query)),
     )
   }, [symptomsList, searchQuery])
 
   // Handle toggling of a symptom item (Allow multiple symptoms to be selected)
   const handleToggleSymptom = (id) => {
-    setSelectedIds((prev) => {
-      if (prev.includes(id)) {
-        return prev.filter((symptomId) => symptomId !== id)
-      } else {
-        return [...prev, id]
-      }
-    })
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((symptomId) => symptomId !== id) : [...prev, id]
+    )
   }
 
   // Process and save choices, then navigate
@@ -346,6 +551,7 @@ export default function SelectSymptomsPage() {
                   {/* Bottom: Action Buttons */}
                   <div style={{ display: 'flex', gap: 12, marginTop: 24 }}>
                     <button
+                      type='button'
                       onClick={() => router.push('/select-model')}
                       style={{
                         padding: '12px 24px',
@@ -420,6 +626,7 @@ export default function SelectSymptomsPage() {
                 />
                 {searchQuery && (
                   <button
+                    type='button'
                     onClick={() => setSearchQuery('')}
                     style={{
                       background: 'none',
@@ -485,6 +692,7 @@ export default function SelectSymptomsPage() {
                       const isSelected = selectedIds.includes(symptom._id)
                       return (
                         <button
+                          type='button'
                           key={symptom._id}
                           onClick={() => handleToggleSymptom(symptom._id)}
                           aria-pressed={isSelected}
@@ -608,6 +816,7 @@ export default function SelectSymptomsPage() {
                   }}
                 >
                   <label
+                    htmlFor='other-issue-desktop'
                     style={{
                       fontSize: 13,
                       fontWeight: 700,
@@ -630,6 +839,7 @@ export default function SelectSymptomsPage() {
                   </span>
                 </div>
                 <textarea
+                  id='other-issue-desktop'
                   rows={4}
                   placeholder='Provide additional details here (e.g., screen flashes green, back panel loose, mic crackling)...'
                   value={otherText}
@@ -819,159 +1029,12 @@ export default function SelectSymptomsPage() {
                   Repair Ticket
                 </h3>
 
-                {/* Selected Issues List */}
-                <div style={{ marginBottom: 24 }}>
-                  <span
-                    style={{
-                      fontSize: 11,
-                      fontWeight: 700,
-                      color: 'var(--color-content-text-secondary)',
-                      textTransform: 'uppercase',
-                      display: 'block',
-                      marginBottom: 8,
-                    }}
-                  >
-                    Selected Issues ({selectedIds.length})
-                  </span>
-
-                  {selectedIds.length === 0 ? (
-                    <div
-                      style={{
-                        padding: '16px',
-                        background: 'var(--color-content-bg)',
-                        borderRadius: 10,
-                        textAlign: 'center',
-                        fontSize: 13,
-                        color: 'var(--color-content-text-secondary)',
-                      }}
-                    >
-                      No symptoms selected. Tap cards on the left to add issues.
-                    </div>
-                  ) : (
-                    <div
-                      style={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: 8,
-                        maxHeight: 200,
-                        overflowY: 'auto',
-                        paddingRight: 4,
-                      }}
-                    >
-                      {symptomsList
-                        .filter((s) => selectedIds.includes(s._id))
-                        .map((s) => (
-                          <div
-                            key={s._id}
-                            style={{
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: 8,
-                              padding: '8px 12px',
-                              background: 'var(--color-content-bg)',
-                              borderRadius: 8,
-                              fontSize: 13,
-                              fontWeight: 600,
-                            }}
-                          >
-                            <div
-                              style={{
-                                color: 'var(--color-accent)',
-                                display: 'flex',
-                                alignItems: 'center',
-                              }}
-                            >
-                              <Check size={14} strokeWidth={3} />
-                            </div>
-                            <span
-                              style={{
-                                overflow: 'hidden',
-                                textOverflow: 'ellipsis',
-                                whiteSpace: 'nowrap',
-                                flex: 1,
-                              }}
-                            >
-                              {s.name}
-                            </span>
-                          </div>
-                        ))}
-                    </div>
-                  )}
-                </div>
-
-                {/* CTA Button */}
-                {isIpadOrMac ? (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                    <div style={{ fontSize: 13, color: 'var(--color-content-text-secondary)', textAlign: 'center', lineHeight: 1.5 }}>
-                      For iPad, Tablet, Mac & PC repairs, please contact customer support directly.
-                    </div>
-                    <button
-                      onClick={() => window.location.href = 'tel:+918800003785'}
-                      disabled={selectedIds.length === 0}
-                      style={{
-                        width: '100%',
-                        height: 'var(--btn-height-primary)',
-                        background:
-                          selectedIds.length > 0
-                            ? 'var(--color-accent)'
-                            : 'var(--color-content-divider)',
-                        color:
-                          selectedIds.length > 0
-                            ? '#fff'
-                            : 'var(--color-content-text-secondary)',
-                        border: 'none',
-                        borderRadius: 'var(--radius-btn)',
-                        fontWeight: 700,
-                        fontSize: 14,
-                        cursor: selectedIds.length > 0 ? 'pointer' : 'not-allowed',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: 8,
-                        transition: 'all 0.2s ease',
-                        boxShadow:
-                          selectedIds.length > 0
-                            ? '0 4px 16px rgba(108,123,255,0.25)'
-                            : 'none',
-                      }}
-                    >
-                      <Phone size={16} /> Call +91 8800003785
-                    </button>
-                  </div>
-                ) : (
-                  <button
-                    onClick={handleContinue}
-                    disabled={selectedIds.length === 0}
-                    style={{
-                      width: '100%',
-                      height: 'var(--btn-height-primary)',
-                      background:
-                        selectedIds.length > 0
-                          ? 'var(--color-accent)'
-                          : 'var(--color-content-divider)',
-                      color:
-                        selectedIds.length > 0
-                          ? '#fff'
-                          : 'var(--color-content-text-secondary)',
-                      border: 'none',
-                      borderRadius: 'var(--radius-btn)',
-                      fontWeight: 700,
-                      fontSize: 14,
-                      cursor: selectedIds.length > 0 ? 'pointer' : 'not-allowed',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: 8,
-                      transition: 'all 0.2s ease',
-                      boxShadow:
-                        selectedIds.length > 0
-                          ? '0 4px 16px rgba(108,123,255,0.25)'
-                          : 'none',
-                    }}
-                  >
-                    Continue to Pricing <ChevronRight size={16} />
-                  </button>
-                )}
+                <DesktopCtaPanel
+                  isIpadOrMac={isIpadOrMac}
+                  selectedIds={selectedIds}
+                  symptomsList={symptomsList}
+                  handleContinue={handleContinue}
+                />
               </div>
             </div>
           </div>
@@ -1026,7 +1089,8 @@ export default function SelectSymptomsPage() {
             </div>
 
             {/* Device Info Card */}
-            <div
+            <button
+              type='button'
               onClick={() => router.push('/select-model')}
               className="mobile-device-card"
               style={{
@@ -1088,7 +1152,7 @@ export default function SelectSymptomsPage() {
               </div>
 
               {/* Right Section: Brand Logo (Removed for android app branch) */}
-            </div>
+            </button>
           </div>
 
           {/* Mobile Search input */}
@@ -1111,6 +1175,7 @@ export default function SelectSymptomsPage() {
             />
             {searchQuery && (
               <button
+                type='button'
                 onClick={() => setSearchQuery('')}
                 style={{
                   background: 'none',
@@ -1164,6 +1229,7 @@ export default function SelectSymptomsPage() {
                 const isSelected = selectedIds.includes(symptom._id)
                 return (
                   <button
+                    type='button'
                     key={symptom._id}
                     onClick={() => handleToggleSymptom(symptom._id)}
                     className={`symptom-card ${isSelected ? 'selected' : ''}`}
@@ -1263,6 +1329,7 @@ export default function SelectSymptomsPage() {
               }}
             >
               <label
+                htmlFor='other-issue-mobile'
                 style={{
                   fontSize: 11,
                   fontWeight: 700,
@@ -1286,6 +1353,7 @@ export default function SelectSymptomsPage() {
               </span>
             </div>
             <textarea
+              id='other-issue-mobile'
               rows={3}
               placeholder='Tell us what is wrong with the device...'
               value={otherText}
@@ -1325,129 +1393,11 @@ export default function SelectSymptomsPage() {
             boxShadow: '0 -4px 10px rgba(0,0,0,0.04)',
           }}
         >
-          {isIpadOrMac ? (
-            <>
-              <div>
-                <span
-                  style={{
-                    display: 'block',
-                    fontSize: 10,
-                    fontWeight: 700,
-                    color: 'var(--color-content-text-secondary)',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.05em',
-                  }}
-                >
-                  {selectedIds.length > 0
-                    ? `${selectedIds.length} issue selected`
-                    : 'No symptoms selected'}
-                </span>
-                <span
-                  style={{
-                    fontSize: 13,
-                    fontWeight: 800,
-                    color:
-                      selectedIds.length > 0
-                        ? 'var(--color-accent)'
-                        : 'var(--color-content-text)',
-                  }}
-                >
-                  {selectedIds.length > 0
-                    ? '+91 8800003785'
-                    : 'Select at least one issue'}
-                </span>
-              </div>
-              <button
-                onClick={() => window.location.href = 'tel:+918800003785'}
-                disabled={selectedIds.length === 0}
-                style={{
-                  height: 44,
-                  padding: '0 20px',
-                  background:
-                    selectedIds.length > 0
-                      ? 'var(--color-accent)'
-                      : 'var(--color-content-divider)',
-                  color:
-                    selectedIds.length > 0
-                      ? '#fff'
-                      : 'var(--color-content-text-secondary)',
-                  border: 'none',
-                  borderRadius: 'var(--radius-btn)',
-                  fontWeight: 700,
-                  fontSize: 13,
-                  cursor: selectedIds.length > 0 ? 'pointer' : 'not-allowed',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: 6,
-                  transition: 'all 0.15s ease',
-                }}
-              >
-                <Phone size={14} /> Call Support
-              </button>
-            </>
-          ) : (
-            <>
-              <div>
-                <span
-                  style={{
-                    display: 'block',
-                    fontSize: 10,
-                    fontWeight: 700,
-                    color: 'var(--color-content-text-secondary)',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.05em',
-                  }}
-                >
-                  {selectedIds.length > 0
-                    ? `${selectedIds.length} symptom${selectedIds.length === 1 ? '' : 's'} selected`
-                    : 'No symptoms selected'}
-                </span>
-                <span
-                  style={{
-                    fontSize: 13,
-                    fontWeight: 800,
-                    color:
-                      selectedIds.length > 0
-                        ? 'var(--color-accent)'
-                        : 'var(--color-content-text)',
-                  }}
-                >
-                  {selectedIds.length > 0
-                    ? 'Ready to continue ✓'
-                    : 'Select at least one issue'}
-                </span>
-              </div>
-              <button
-                onClick={handleContinue}
-                disabled={selectedIds.length === 0}
-                style={{
-                  height: 44,
-                  padding: '0 24px',
-                  background:
-                    selectedIds.length > 0
-                      ? 'var(--color-accent)'
-                      : 'var(--color-content-divider)',
-                  color:
-                    selectedIds.length > 0
-                      ? '#fff'
-                      : 'var(--color-content-text-secondary)',
-                  border: 'none',
-                  borderRadius: 'var(--radius-btn)',
-                  fontWeight: 700,
-                  fontSize: 13,
-                  cursor: selectedIds.length > 0 ? 'pointer' : 'not-allowed',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: 6,
-                  transition: 'all 0.15s ease',
-                }}
-              >
-                Continue <ChevronRight size={14} />
-              </button>
-            </>
-          )}
+          <MobileCtaBar
+            isIpadOrMac={isIpadOrMac}
+            selectedIds={selectedIds}
+            handleContinue={handleContinue}
+          />
         </div>
       </div>
 

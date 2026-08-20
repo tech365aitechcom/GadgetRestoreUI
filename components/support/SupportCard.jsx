@@ -27,11 +27,12 @@ export default function SupportCard({
 }) {
   const handleContactSupport = (method) => {
     switch (method) {
-      case 'whatsapp':
+      case 'whatsapp': {
         // Remove + and spaces for WhatsApp URL
-        const cleanWhatsApp = whatsappNumber.replace(/[^0-9]/g, '');
+        const cleanWhatsApp = whatsappNumber.replace(/\D/g, '');
         window.open(`https://wa.me/${cleanWhatsApp}`, '_blank');
         break;
+      }
       case 'phone':
         window.location.href = `tel:${phoneNumber}`;
         break;
@@ -64,6 +65,7 @@ export default function SupportCard({
         </div>
         <div className="flex gap-2">
           <button
+            type="button"
             onClick={() => handleContactSupport('whatsapp')}
             className={`flex-1 flex items-center justify-center gap-2 p-3 ${buttonBg} ${buttonBorder} border rounded-lg ${buttonHover} active:scale-[0.98] transition-all`}
             aria-label="Contact via WhatsApp"
@@ -74,6 +76,7 @@ export default function SupportCard({
             </span>
           </button>
           <button
+            type="button"
             onClick={() => handleContactSupport('phone')}
             className={`flex-1 flex items-center justify-center gap-2 p-3 ${buttonBg} ${buttonBorder} border rounded-lg ${buttonHover} active:scale-[0.98] transition-all`}
             aria-label="Call support"
@@ -84,6 +87,7 @@ export default function SupportCard({
             </span>
           </button>
           <button
+            type="button"
             onClick={() => handleContactSupport('email')}
             className={`flex-1 flex items-center justify-center gap-2 p-3 ${buttonBg} ${buttonBorder} border rounded-lg ${buttonHover} active:scale-[0.98] transition-all`}
             aria-label="Email support"
@@ -112,6 +116,7 @@ export default function SupportCard({
 
       <div className="space-y-2">
         <button
+          type="button"
           onClick={() => handleContactSupport('whatsapp')}
           className={`w-full flex items-center gap-3 p-4 ${buttonBg} ${buttonBorder} border rounded-xl ${buttonHover} active:scale-[0.99] transition-all`}
           aria-label="Contact via WhatsApp"
@@ -147,6 +152,7 @@ export default function SupportCard({
         </button>
 
         <button
+          type="button"
           onClick={() => handleContactSupport('phone')}
           className={`w-full flex items-center gap-3 p-4 ${buttonBg} ${buttonBorder} border rounded-xl ${buttonHover} active:scale-[0.99] transition-all`}
           aria-label="Call support"
@@ -182,6 +188,7 @@ export default function SupportCard({
         </button>
 
         <button
+          type="button"
           onClick={() => handleContactSupport('email')}
           className={`w-full flex items-center gap-3 p-4 ${buttonBg} ${buttonBorder} border rounded-xl ${buttonHover} active:scale-[0.99] transition-all`}
           aria-label="Email support"

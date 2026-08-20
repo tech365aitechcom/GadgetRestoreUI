@@ -40,7 +40,6 @@ export function useBookingGuard(requirements = {}) {
 
     if (requirements.partTier && !partTier) {
       router.replace('/select-tier');
-      return;
     }
   }, [brand, model, symptoms, partTier, isRestored, router, requirements]);
 

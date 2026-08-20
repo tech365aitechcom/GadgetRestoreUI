@@ -45,6 +45,7 @@ export default function SelectBrandPage() {
                   {category.name}
                 </span>
                 <button
+                  type='button'
                   onClick={() => router.push('/select-category')}
                   className="background-none border-none cursor-pointer text-xs text-[var(--color-content-text-secondary)] underline p-0 hover:text-[var(--color-content-text)] transition-colors"
                 >

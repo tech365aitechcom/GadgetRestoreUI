@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useId } from 'react'
 import { useRouter } from 'next/navigation'
 import {
   User,
@@ -23,11 +23,10 @@ import {
 } from '@/lib/constants'
 import { useAuth } from '@/context/AuthContext'
 import customerService from '@/services/customer.service'
-import notificationService from '@/services/notification.service'
-import pushNotificationService from '@/services/push-notification.service'
 import Skeleton from '@/components/ui/Skeleton'
 
 export default function ProfilePage() {
+  const baseId = useId()
   const router = useRouter()
   const { logout } = useAuth()
   const [isLoading, setIsLoading] = useState(true)
@@ -36,21 +35,7 @@ export default function ProfilePage() {
     email: '',
     phone: '',
     profileImage: null,
-    membershipType: 'MEMBER',
-    totalRepairs: 0,
-    repairsLastMonth: 0,
-    currentStatus: 'No Active Orders',
-    currentDevice: '',
-    warrantyMonths: 0,
-    warrantyExpiry: '',
     addressCount: 0,
-  })
-
-  const [notifications, setNotifications] = useState({
-    whatsappNotifications: true,
-    smsNotifications: true,
-    emailNotifications: false,
-    pushNotifications: true,
   })
 
   const fetchProfileData = useCallback(async () => {
@@ -64,41 +49,15 @@ export default function ProfilePage() {
         email: profile.email || 'Not provided',
         phone: profile.mobile || '',
         profileImage: null,
-        membershipType:
-          profile.statistics?.totalOrders >= 5 ? 'PRO MEMBER' : 'MEMBER',
-        totalRepairs: profile.statistics?.completedOrders || 0,
-        repairsLastMonth: 0, // Calculate if needed
-        currentStatus:
-          profile.statistics?.totalOrders > profile.statistics?.completedOrders
-            ? 'Active'
-            : 'No Active Orders',
-        currentDevice: '', // This would come from active order
-        warrantyMonths: 6, // This would be calculated based on last order
-        warrantyExpiry: 'Premium coverage',
         addressCount: profile.addresses?.length || 0,
       })
-
-      // Set notification preferences
-      if (profile.preferences) {
-        setNotifications({
-          whatsappNotifications:
-            profile.preferences.whatsappNotifications ?? true,
-          smsNotifications: profile.preferences.smsNotifications ?? true,
-          emailNotifications: profile.preferences.emailNotifications ?? false,
-          pushNotifications: profile.preferences.pushNotifications ?? true,
-        })
-      }
     } catch (error) {
-      if (
-        error.message &&
-        error.message.toLowerCase().includes('customer not found')
-      ) {
+      if (error?.message?.toLowerCase().includes('customer not found')) {
         // Expected for new users, set default guest profile
         setUserData((prev) => ({
           ...prev,
           name: 'Guest User',
           email: 'Not provided',
-          currentStatus: 'No Active Orders',
         }))
       } else {
         console.error('Failed to fetch profile:', error)
@@ -125,108 +84,9 @@ export default function ProfilePage() {
     logout()
   }
 
-  const handleToggleNotification = async (key) => {
-    const newValue = !notifications[key]
-
-    if (key === 'pushNotifications' && newValue) {
-      try {
-        await pushNotificationService.requestAndRegister()
-      } catch (error) {
-        toast.error(error.message || 'Push notifications could not be enabled')
-        return
-      }
-    }
-
-    // Optimistically update UI
-    setNotifications((prev) => ({
-      ...prev,
-      [key]: newValue,
-    }))
-
-    try {
-      await customerService.updatePreferences({
-        [key]: newValue,
-      })
-      if (key === 'pushNotifications' && !newValue) {
-        try {
-          await pushNotificationService.unregister()
-        } catch (error) {
-          // Push unregister failed silently
-        }
-      }
-      toast.success('Notification preference updated')
-    } catch (error) {
-      console.error('Failed to update notification preference:', error)
-      // Revert on error
-      setNotifications((prev) => ({
-        ...prev,
-        [key]: !newValue,
-      }))
-      toast.error('Failed to update preference')
-    }
-  }
-
-  const handleRegisterBrowserPush = async () => {
-    try {
-      await pushNotificationService.requestAndRegister()
-      await customerService.updatePreferences({ pushNotifications: true })
-      setNotifications((prev) => ({
-        ...prev,
-        pushNotifications: true,
-      }))
-      toast.success('Browser push enabled for this device')
-    } catch (error) {
-      toast.error(error.message || 'Push notifications could not be enabled')
-    }
-  }
-
-  const handleSendTestPush = async () => {
-    try {
-      const response = await notificationService.sendTestPush()
-      const result = response.data || {}
-
-      if (result.success) {
-        await pushNotificationService.showLocalNotification(
-          'Gadget Restore test notification',
-          {
-            body: 'Push notification display is working on this browser.',
-          },
-        )
-        toast.success('Test push sent. Check your browser notifications.')
-        return
-      }
-
-      const reasonMap = {
-        customer_preference_disabled:
-          'Push preference is disabled. Enable it first.',
-        firebase_not_configured:
-          'Backend Firebase credentials are not configured.',
-        no_registered_devices:
-          'This browser is not registered yet. Click Enable this device first.',
-      }
-      toast.error(reasonMap[result.reason] || 'Test push was not sent.')
-    } catch (error) {
-      toast.error(error.message || 'Failed to send test push')
-    }
-  }
-
-  const handleContactSupport = (method) => {
-    switch (method) {
-      case 'whatsapp':
-        globalThis.open(SUPPORT_WHATSAPP, '_blank')
-        break
-      case 'phone':
-        globalThis.location.href = SUPPORT_PHONE
-        break
-      case 'email':
-        globalThis.location.href = SUPPORT_EMAIL
-        break
-      default:
-        break
-    }
-  }
-
   if (isLoading) {
+    const skeletonItems = Array.from({ length: 3 }, (_, i) => `${baseId}-sk-${i + 1}`)
+
     return (
       <>
         {/* ── Mobile Skeleton ── */}
@@ -243,8 +103,8 @@ export default function ProfilePage() {
             <div>
               <Skeleton className='h-3 w-28 rounded mb-3' />
               <div className='space-y-2'>
-                {Array.from({ length: 3 }).map((_, i) => (
-                  <Skeleton key={i} className='h-[72px] w-full rounded-xl' />
+                {skeletonItems.map((itemId) => (
+                  <Skeleton key={`mob-sec1-${itemId}`} className='h-[72px] w-full rounded-xl' />
                 ))}
               </div>
             </div>
@@ -252,8 +112,8 @@ export default function ProfilePage() {
             <div>
               <Skeleton className='h-3 w-20 rounded mb-3' />
               <div className='space-y-2'>
-                {Array.from({ length: 3 }).map((_, i) => (
-                  <Skeleton key={i} className='h-[72px] w-full rounded-xl' />
+                {skeletonItems.map((itemId) => (
+                  <Skeleton key={`mob-sec2-${itemId}`} className='h-[72px] w-full rounded-xl' />
                 ))}
               </div>
             </div>
@@ -278,8 +138,8 @@ export default function ProfilePage() {
             <div className='bg-[var(--theme-card)] rounded-2xl border border-[var(--theme-border)] p-6 shadow-sm space-y-5'>
               <Skeleton className='h-6 w-36 rounded-lg mb-2' />
               <div className='space-y-3'>
-                {Array.from({ length: 3 }).map((_, i) => (
-                  <div key={i} className='flex items-center gap-4 p-2'>
+                {skeletonItems.map((itemId) => (
+                  <div key={`desk-left-${itemId}`} className='flex items-center gap-4 p-2'>
                     <Skeleton className='w-11 h-11 rounded-xl' />
                     <div className='flex-1 space-y-2'>
                       <Skeleton className='h-4 w-32 rounded' />
@@ -296,9 +156,9 @@ export default function ProfilePage() {
                 <Skeleton className='h-6 w-44 rounded-lg mb-2' />
                 <Skeleton className='h-4 w-full rounded-md' />
                 <div className='space-y-3'>
-                  {Array.from({ length: 3 }).map((_, i) => (
+                  {skeletonItems.map((itemId) => (
                     <div
-                      key={i}
+                      key={`desk-right-${itemId}`}
                       className='flex items-center gap-4 p-4 bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl'
                     >
                       <Skeleton className='w-10 h-10 rounded-lg' />
@@ -386,6 +246,7 @@ export default function ProfilePage() {
 
               <div className='flex gap-4'>
                 <button
+                  type='button'
                   className='btn-primary text-[13px] px-5 h-[42px]'
                   onClick={() => router.push('/profile/personal-info')}
                 >
@@ -448,6 +309,7 @@ export default function ProfilePage() {
           </h3>
           <div className='space-y-2'>
             <button
+              type='button'
               onClick={() => router.push('/profile/personal-info')}
               className='w-full flex items-center gap-3 lg:gap-4 p-4 bg-[var(--theme-card)] lg:bg-transparent border border-[var(--theme-border)] lg:border-0 rounded-xl hover:bg-(--theme-btn-secondary-hover) active:scale-[0.98] lg:active:scale-[0.99] transition-all group'
             >
@@ -472,6 +334,7 @@ export default function ProfilePage() {
             </button>
 
             <button
+              type='button'
               onClick={() => router.push('/profile/addresses')}
               className='w-full flex items-center gap-3 p-4 bg-[var(--theme-card)] lg:bg-transparent border border-[var(--theme-border)] lg:border-0 rounded-xl hover:bg-(--theme-btn-secondary-hover) active:scale-[0.98] lg:active:scale-[0.99] transition-all group'
             >
@@ -498,6 +361,7 @@ export default function ProfilePage() {
             </button>
 
             <button
+              type='button'
               onClick={() => router.push('/orders')}
               className='w-full flex items-center gap-3 p-4 bg-[var(--theme-card)] lg:bg-transparent border border-[var(--theme-border)] lg:border-0 rounded-xl hover:bg-(--theme-btn-secondary-hover) active:scale-[0.98] lg:active:scale-[0.99] transition-all group'
             >
@@ -596,6 +460,7 @@ export default function ProfilePage() {
             </h3>
             <div className='space-y-2'>
               <button
+                type='button'
                 onClick={() => router.push('/notifications')}
                 className='w-full flex items-center gap-3 p-4 bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-xl hover:bg-(--theme-btn-secondary-hover) active:scale-[0.98] transition-all'
               >
@@ -615,6 +480,7 @@ export default function ProfilePage() {
               </button>
 
               <button
+                type='button'
                 onClick={handleLogout}
                 className='w-full flex items-center gap-3 p-4 bg-red-500/5 border border-red-500/20 rounded-xl hover:bg-red-500/10 active:scale-[0.98] transition-all'
               >
@@ -711,172 +577,12 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          {/* App Settings & Support */}
-          <div className='space-y-6'>
-            {/* Notifications */}
-            {/* <div className='bg-[var(--theme-card)] rounded-2xl border border-[var(--theme-border)] p-6 shadow-sm'>
-              <h2 className='text-[18px] font-extrabold text-[var(--theme-text-primary)] mb-5 flex items-center gap-2'>
-                <Bell size={20} />
-                Notifications
-              </h2>
-              <div className='space-y-4 mb-4'>
-                <div className='flex items-center justify-between'>
-                  <div>
-                    <div className='text-[13px] font-semibold text-[var(--theme-text-primary)]'>
-                      WhatsApp Notifications
-                    </div>
-                  </div>
-                  <button
-                    onClick={() =>
-                      handleToggleNotification('whatsappNotifications')
-                    }
-                    className={`relative w-12 h-7 rounded-full transition-colors ${notifications.whatsappNotifications
-                      ? 'bg-[var(--theme-btn-primary-bg)]'
-                      : 'bg-white/10'
-                      }`}
-                  >
-                    <div
-                      className={`absolute w-5 h-5 rounded-full top-1 transition-transform ${notifications.whatsappNotifications
-                        ? 'translate-x-6 bg-black'
-                        : 'translate-x-1 bg-[var(--theme-btn-primary-bg)]'
-                        }`}
-                    />
-                  </button>
-                </div>
-
-                <div className='flex items-center justify-between'>
-                  <div>
-                    <div className='text-[13px] font-semibold text-[var(--theme-text-primary)]'>
-                      SMS Notifications
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => handleToggleNotification('smsNotifications')}
-                    className={`relative w-12 h-7 rounded-full transition-colors ${notifications.smsNotifications
-                      ? 'bg-[var(--theme-btn-primary-bg)]'
-                      : 'bg-white/10'
-                      }`}
-                  >
-                    <div
-                      className={`absolute w-5 h-5 rounded-full top-1 transition-transform ${notifications.smsNotifications
-                        ? 'translate-x-6 bg-black'
-                        : 'translate-x-1 bg-[var(--theme-btn-primary-bg)]'
-                        }`}
-                    />
-                  </button>
-                </div>
-
-                <div className='flex items-center justify-between'>
-                  <div>
-                    <div className='text-[13px] font-semibold text-[var(--theme-text-primary)]'>
-                      Email Notifications
-                    </div>
-                  </div>
-                  <button
-                    onClick={() =>
-                      handleToggleNotification('emailNotifications')
-                    }
-                    className={`relative w-12 h-7 rounded-full transition-colors ${notifications.emailNotifications
-                      ? 'bg-[var(--theme-btn-primary-bg)]'
-                      : 'bg-white/10'
-                      }`}
-                  >
-                    <div
-                      className={`absolute w-5 h-5 rounded-full top-1 transition-transform ${notifications.emailNotifications
-                        ? 'translate-x-6 bg-black'
-                        : 'translate-x-1 bg-[var(--theme-btn-primary-bg)]'
-                        }`}
-                    />
-                  </button>
-                </div>
-
-                <div className='flex items-center justify-between'>
-                  <div>
-                    <div className='text-[13px] font-semibold text-[var(--theme-text-primary)]'>
-                      Push Notifications
-                    </div>
-                  </div>
-                  <button
-                    onClick={() =>
-                      handleToggleNotification('pushNotifications')
-                    }
-                    className={`relative w-12 h-7 rounded-full transition-colors ${notifications.pushNotifications
-                      ? 'bg-[var(--theme-btn-primary-bg)]'
-                      : 'bg-white/10'
-                      }`}
-                  >
-                    <div
-                      className={`absolute w-5 h-5 rounded-full top-1 transition-transform ${notifications.pushNotifications
-                        ? 'translate-x-6 bg-black'
-                        : 'translate-x-1 bg-[var(--theme-btn-primary-bg)]'
-                        }`}
-                    />
-                  </button>
-                </div>
-              </div>
-              <div className='grid grid-cols-1 sm:grid-cols-2 gap-2 mb-4'>
-                <button
-                  type='button'
-                  onClick={handleRegisterBrowserPush}
-                  className='rounded-xl bg-white/10 border border-white/10 px-4 py-3 text-[13px] font-semibold text-[var(--theme-text-primary)] hover:bg-white/15 transition-colors'
-                >
-                  Enable this device
-                </button>
-                <button
-                  type='button'
-                  onClick={handleSendTestPush}
-                  className='rounded-xl bg-[var(--theme-btn-primary-bg)] px-4 py-3 text-[13px] font-semibold text-[var(--theme-btn-primary-text)] hover:opacity-90 transition-opacity'
-                >
-                  Send test push
-                </button>
-              </div>
-              <div className='space-y-2'>
-                <button
-                  onClick={() => handleContactSupport('whatsapp')}
-                  className='w-full flex items-center gap-3 p-4 bg-[var(--theme-btn-secondary-bg)] border border-[var(--theme-border-strong)] rounded-xl hover:bg-[var(--theme-btn-secondary-hover)] active:scale-[0.99] transition-all'
-                >
-                  <div className='w-10 h-10 rounded-xl bg-[var(--theme-btn-secondary-bg)] flex items-center justify-center'>
-                    <MessageCircle
-                      size={20}
-                      className='text-[var(--theme-text-primary)]'
-                    />
-                  </div>
-                  <div className='flex-1 text-left'>
-                    <div className='text-[13px] font-semibold'>
-                      Live Assistant
-                    </div>
-                  </div>
-                  <ChevronRight
-                    size={18}
-                    className='text-[var(--theme-text-disabled)]'
-                  />
-                </button>
-
-                <button
-                  onClick={() => handleContactSupport('phone')}
-                  className='w-full flex items-center gap-3 p-4 bg-[var(--theme-btn-secondary-bg)] border border-[var(--theme-border-strong)] rounded-xl hover:bg-[var(--theme-btn-secondary-hover)] active:scale-[0.99] transition-all'
-                >
-                  <div className='w-10 h-10 rounded-xl bg-[var(--theme-btn-secondary-bg)] flex items-center justify-center'>
-                    <Phone
-                      size={20}
-                      className='text-[var(--theme-text-primary)]'
-                    />
-                  </div>
-                  <div className='flex-1 text-left'>
-                    <div className='text-[13px] font-semibold'>Help Center</div>
-                  </div>
-                  <ChevronRight
-                    size={18}
-                    className='text-[var(--theme-text-disabled)]'
-                  />
-                </button>
-              </div>
-            </div> */}
-
-            {/* Logout */}
+          {/* Logout (Desktop) */}
+          <div className='hidden lg:block pt-2'>
             <button
+              type='button'
               onClick={handleLogout}
-              className='hidden md:block w-full bg-red-500/5 border border-red-500/20 rounded-2xl p-4 text-red-500 font-bold text-[13px] hover:bg-red-500/10 active:scale-[0.99] transition-all shadow-sm'
+              className='w-full bg-red-500/5 border border-red-500/20 rounded-2xl p-4 text-red-500 font-bold text-[13px] hover:bg-red-500/10 active:scale-[0.99] transition-all shadow-sm'
             >
               Sign Out of Gadget Restore
             </button>

@@ -291,9 +291,9 @@ export default function EditAddressPage() {
           <form onSubmit={handleSubmit} className='space-y-5'>
             {/* Address Type */}
             <div>
-              <label className='block text-[10px] font-bold text-[var(--theme-text-tertiary)] tracking-[0.08em] mb-2 uppercase'>
+              <div className='block text-[10px] font-bold text-[var(--theme-text-tertiary)] tracking-[0.08em] mb-2 uppercase'>
                 ADDRESS TYPE
-              </label>
+              </div>
               <div className='flex gap-2'>
                 {['Home', 'Work', 'Other'].map((type) => (
                   <button
@@ -314,10 +314,11 @@ export default function EditAddressPage() {
 
             {/* Address Line 1 */}
             <div>
-              <label className='block text-[10px] font-bold text-[var(--theme-text-tertiary)] tracking-[0.08em] mb-2 uppercase'>
+              <label htmlFor='mobileAddressLine1' className='block text-[10px] font-bold text-[var(--theme-text-tertiary)] tracking-[0.08em] mb-2 uppercase'>
                 ADDRESS LINE 1 *
               </label>
               <input
+                id='mobileAddressLine1'
                 type='text'
                 value={formData.addressLine1}
                 onChange={(e) => handleChange('addressLine1', e.target.value.slice(0, 100))}
@@ -338,10 +339,11 @@ export default function EditAddressPage() {
 
             {/* Address Line 2 */}
             <div>
-              <label className='block text-[10px] font-bold text-[var(--theme-text-tertiary)] tracking-[0.08em] mb-2 uppercase'>
+              <label htmlFor='mobileAddressLine2' className='block text-[10px] font-bold text-[var(--theme-text-tertiary)] tracking-[0.08em] mb-2 uppercase'>
                 ADDRESS LINE 2
               </label>
               <input
+                id='mobileAddressLine2'
                 type='text'
                 value={formData.addressLine2}
                 onChange={(e) => handleChange('addressLine2', e.target.value.slice(0, 200))}
@@ -353,10 +355,11 @@ export default function EditAddressPage() {
 
             {/* Landmark */}
             <div>
-              <label className='block text-[10px] font-bold text-[var(--theme-text-tertiary)] tracking-[0.08em] mb-2 uppercase'>
+              <label htmlFor='mobileLandmark' className='block text-[10px] font-bold text-[var(--theme-text-tertiary)] tracking-[0.08em] mb-2 uppercase'>
                 LANDMARK
               </label>
               <input
+                id='mobileLandmark'
                 type='text'
                 value={formData.landmark}
                 onChange={(e) => handleChange('landmark', e.target.value)}
@@ -368,10 +371,11 @@ export default function EditAddressPage() {
             {/* Pincode, City, State */}
             <div className='grid grid-cols-2 gap-3'>
               <div>
-                <label className='block text-[10px] font-bold text-[var(--theme-text-tertiary)] tracking-[0.08em] mb-2 uppercase'>
+                <label htmlFor='mobilePincode' className='block text-[10px] font-bold text-[var(--theme-text-tertiary)] tracking-[0.08em] mb-2 uppercase'>
                   PINCODE *
                 </label>
                 <input
+                  id='mobilePincode'
                   type='text'
                   value={formData.pincode}
                   onChange={(e) => {
@@ -394,10 +398,11 @@ export default function EditAddressPage() {
               </div>
 
               <div>
-                <label className='block text-[10px] font-bold text-[var(--theme-text-tertiary)] tracking-[0.08em] mb-2 uppercase'>
+                <label htmlFor='mobileCity' className='block text-[10px] font-bold text-[var(--theme-text-tertiary)] tracking-[0.08em] mb-2 uppercase'>
                   CITY *
                 </label>
                 <input
+                  id='mobileCity'
                   type='text'
                   value={formData.city}
                   onChange={(e) => handleChange('city', e.target.value)}
@@ -417,10 +422,11 @@ export default function EditAddressPage() {
             </div>
 
             <div>
-              <label className='block text-[10px] font-bold text-[var(--theme-text-tertiary)] tracking-[0.08em] mb-2 uppercase'>
+              <label htmlFor='mobileState' className='block text-[10px] font-bold text-[var(--theme-text-tertiary)] tracking-[0.08em] mb-2 uppercase'>
                 STATE *
               </label>
               <input
+                id='mobileState'
                 type='text'
                 value={formData.state}
                 onChange={(e) => handleChange('state', e.target.value)}
@@ -483,6 +489,7 @@ export default function EditAddressPage() {
           {/* Breadcrumb */}
           <div className='flex items-center gap-2 mb-6'>
             <button
+              type='button'
               onClick={() => router.push('/profile')}
               className='text-[13px] text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] transition-colors'
             >
@@ -490,6 +497,7 @@ export default function EditAddressPage() {
             </button>
             <span className='text-[var(--theme-placeholder)]'>/</span>
             <button
+              type='button'
               onClick={() => router.push('/profile/addresses')}
               className='text-[13px] text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] transition-colors'
             >
@@ -513,9 +521,9 @@ export default function EditAddressPage() {
             <form onSubmit={handleSubmit} className='space-y-6'>
               {/* Address Type */}
               <div>
-                <label className='block text-[11px] font-bold text-[var(--theme-text-tertiary)] tracking-[0.08em] mb-2 uppercase'>
+                <div className='block text-[11px] font-bold text-[var(--theme-text-tertiary)] tracking-[0.08em] mb-2 uppercase'>
                   ADDRESS TYPE
-                </label>
+                </div>
                 <div className='flex gap-2'>
                   {['Home', 'Work', 'Other'].map((type) => (
                     <button
@@ -536,10 +544,11 @@ export default function EditAddressPage() {
               <div className='grid grid-cols-2 gap-4'>
                 {/* Address Line 1 */}
                 <div>
-                  <label className='block text-[11px] font-bold text-[var(--theme-text-tertiary)] tracking-[0.08em] mb-2 uppercase'>
+                  <label htmlFor='desktopAddressLine1' className='block text-[11px] font-bold text-[var(--theme-text-tertiary)] tracking-[0.08em] mb-2 uppercase'>
                     ADDRESS LINE 1 *
                   </label>
                   <input
+                    id='desktopAddressLine1'
                     type='text'
                     value={formData.addressLine1}
                     onChange={(e) =>
@@ -561,10 +570,11 @@ export default function EditAddressPage() {
 
                 {/* Address Line 2 */}
                 <div>
-                  <label className='block text-[11px] font-bold text-[var(--theme-text-tertiary)] tracking-[0.08em] mb-2 uppercase'>
+                  <label htmlFor='desktopAddressLine2' className='block text-[11px] font-bold text-[var(--theme-text-tertiary)] tracking-[0.08em] mb-2 uppercase'>
                     ADDRESS LINE 2
                   </label>
                   <input
+                    id='desktopAddressLine2'
                     type='text'
                     value={formData.addressLine2}
                     onChange={(e) =>
@@ -577,10 +587,11 @@ export default function EditAddressPage() {
 
                 {/* Landmark */}
                 <div>
-                  <label className='block text-[11px] font-bold text-[var(--theme-text-tertiary)] tracking-[0.08em] mb-2 uppercase'>
+                  <label htmlFor='desktopLandmark' className='block text-[11px] font-bold text-[var(--theme-text-tertiary)] tracking-[0.08em] mb-2 uppercase'>
                     LANDMARK
                   </label>
                   <input
+                    id='desktopLandmark'
                     type='text'
                     value={formData.landmark}
                     onChange={(e) => handleChange('landmark', e.target.value)}
@@ -591,10 +602,11 @@ export default function EditAddressPage() {
 
                 {/* Pincode and City */}
                 <div>
-                  <label className='block text-[11px] font-bold text-[var(--theme-text-tertiary)] tracking-[0.08em] mb-2 uppercase'>
+                  <label htmlFor='desktopPincode' className='block text-[11px] font-bold text-[var(--theme-text-tertiary)] tracking-[0.08em] mb-2 uppercase'>
                     PINCODE *
                   </label>
                   <input
+                    id='desktopPincode'
                     type='text'
                     value={formData.pincode}
                     onChange={(e) => {
@@ -618,10 +630,11 @@ export default function EditAddressPage() {
                   )}
                 </div>
                 <div>
-                  <label className='block text-[11px] font-bold text-[var(--theme-text-tertiary)] tracking-[0.08em] mb-2 uppercase'>
+                  <label htmlFor='desktopCity' className='block text-[11px] font-bold text-[var(--theme-text-tertiary)] tracking-[0.08em] mb-2 uppercase'>
                     CITY *
                   </label>
                   <input
+                    id='desktopCity'
                     type='text'
                     value={formData.city}
                     onChange={(e) => handleChange('city', e.target.value)}
@@ -641,10 +654,11 @@ export default function EditAddressPage() {
 
                 {/* State */}
                 <div>
-                  <label className='block text-[11px] font-bold text-[var(--theme-text-tertiary)] tracking-[0.08em] mb-2 uppercase'>
+                  <label htmlFor='desktopState' className='block text-[11px] font-bold text-[var(--theme-text-tertiary)] tracking-[0.08em] mb-2 uppercase'>
                     STATE *
                   </label>
                   <input
+                    id='desktopState'
                     type='text'
                     value={formData.state}
                     onChange={(e) => handleChange('state', e.target.value)}

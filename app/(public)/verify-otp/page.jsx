@@ -2,9 +2,11 @@
 
 import { Suspense, useState, useEffect, useRef } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { ArrowLeft, Bell, Lock, Shield } from 'lucide-react'
+import { Lock, Shield } from 'lucide-react'
 import authService from '@/services/auth.service'
 import { OTP_RESEND_SECONDS } from '@/lib/constants'
+
+const OTP_BOX_IDS = ['otp-0', 'otp-1', 'otp-2', 'otp-3', 'otp-4', 'otp-5']
 
 function VerifyOtpContent() {
   const router = useRouter()
@@ -65,7 +67,7 @@ function VerifyOtpContent() {
     setOtpString(digitsOnly)
 
     // Update individual boxes
-    const newOtp = Array(6).fill('')
+    const newOtp = new Array(6).fill('')
     for (let i = 0; i < digitsOnly.length; i++) {
       newOtp[i] = digitsOnly[i]
     }
@@ -167,6 +169,35 @@ function VerifyOtpContent() {
     }
   }
 
+  const getSuccessRedirect = () => {
+    const redirectParam = searchParams.get('redirect')
+    if (redirectParam) return redirectParam
+
+    if (typeof window !== 'undefined') {
+      const storedRedirect = sessionStorage.getItem('gr_redirect_after_login')
+      if (storedRedirect) {
+        sessionStorage.removeItem('gr_redirect_after_login')
+      }
+      sessionStorage.removeItem('gr_login_phone')
+
+      const bookingStateStr = localStorage.getItem('gr_booking_state')
+      if (bookingStateStr) {
+        try {
+          const bookingState = JSON.parse(bookingStateStr)
+          if (bookingState.brand && bookingState.model) {
+            return '/schedule'
+          }
+        } catch (e) {
+          console.error('Failed to parse booking state:', e)
+        }
+      }
+
+      if (storedRedirect) return storedRedirect
+    }
+
+    return '/'
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault()
 
@@ -191,37 +222,7 @@ function VerifyOtpContent() {
         localStorage.setItem('gr_authenticated_phone', phone)
       }
 
-      // Determine redirect URL with priority: URL param > session storage > default
-      let redirectUrl = '/'
-
-      // First check URL params (highest priority)
-      const redirectParam = searchParams.get('redirect')
-      if (redirectParam) {
-        redirectUrl = redirectParam
-      } else if (typeof window !== 'undefined') {
-        // Then check session storage
-        const storedRedirect = sessionStorage.getItem('gr_redirect_after_login')
-        if (storedRedirect) {
-          redirectUrl = storedRedirect
-          sessionStorage.removeItem('gr_redirect_after_login')
-        }
-        sessionStorage.removeItem('gr_login_phone')
-
-        // Check if there is an active booking state
-        const bookingStateStr = localStorage.getItem('gr_booking_state')
-        if (bookingStateStr) {
-          try {
-            const bookingState = JSON.parse(bookingStateStr)
-            if (bookingState.brand && bookingState.model) {
-              router.push('/schedule')
-              return
-            }
-          } catch (e) { }
-        }
-      }
-
-      // Successfully authenticated, route to intended page
-      router.push(redirectUrl)
+      router.push(getSuccessRedirect())
     } catch (err) {
       setError(err.message || 'Verification failed. Please try again.')
     } finally {
@@ -305,27 +306,31 @@ function VerifyOtpContent() {
               />
 
               {/* Visual OTP boxes */}
-              <div
-                className='flex justify-between gap-2 mb-6 ltr'
+              <button
+                type='button'
+                className='flex justify-between gap-2 mb-6 ltr w-full bg-transparent border-none p-0 cursor-pointer'
                 onClick={() => hiddenInputRef.current?.focus()}
               >
-                {otp.map((digit, idx) => (
-                  <div
-                    key={idx}
-                    className='otp-box-mobile w-11 h-12 bg-white/[0.04] border border-white/10 rounded text-white text-center text-xl font-bold flex items-center justify-center cursor-pointer transition-colors'
-                    style={{
-                      borderBottom:
-                        focusedIndex === idx ? '2px solid #ffffff' : 'none',
-                      borderColor:
-                        focusedIndex === idx
-                          ? 'rgba(255,255,255,0.4)'
-                          : 'rgba(255,255,255,0.1)',
-                    }}
-                  >
-                    {digit}
-                  </div>
-                ))}
-              </div>
+                {OTP_BOX_IDS.map((boxId, idx) => {
+                  const digit = otp[idx]
+                  return (
+                    <div
+                      key={`mobile-${boxId}`}
+                      className='otp-box-mobile w-11 h-12 bg-white/[0.04] border border-white/10 rounded text-white text-center text-xl font-bold flex items-center justify-center cursor-pointer transition-colors'
+                      style={{
+                        borderBottom:
+                          focusedIndex === idx ? '2px solid #ffffff' : 'none',
+                        borderColor:
+                          focusedIndex === idx
+                            ? 'rgba(255,255,255,0.4)'
+                            : 'rgba(255,255,255,0.1)',
+                      }}
+                    >
+                      {digit}
+                    </div>
+                  )
+                })}
+              </button>
 
               {error && (
                 <span className='block text-xs text-red-500 mb-5 font-medium'>
@@ -352,6 +357,7 @@ function VerifyOtpContent() {
                 </span>
               ) : (
                 <button
+                  type='button'
                   onClick={handleResend}
                   className='bg-transparent border-0 cursor-pointer text-white text-[13px] font-bold underline px-2 py-1'
                 >
@@ -406,21 +412,24 @@ function VerifyOtpContent() {
                 className='flex justify-between gap-2 mb-[30px] ltr'
                 onPaste={handlePaste}
               >
-                {otp.map((digit, idx) => (
-                  <input
-                    key={idx}
-                    type='text'
-                    pattern='[0-9]*'
-                    inputMode='numeric'
-                    value={digit}
-                    ref={(el) => (inputRefs.current[idx] = el)}
-                    onChange={(e) => handleOtpChange(idx, e.target.value)}
-                    onKeyDown={(e) => handleKeyDown(idx, e)}
-                    onFocus={(e) => e.target.select()}
-                    placeholder='·'
-                    className='otp-box-desktop w-12 h-[60px] bg-[#F2F2F5] border-0 rounded text-center text-xl font-bold text-[#111111] outline-none focus:bg-[#EAEAEF] transition-colors'
-                  />
-                ))}
+                {OTP_BOX_IDS.map((boxId, idx) => {
+                  const digit = otp[idx]
+                  return (
+                    <input
+                      key={`desktop-${boxId}`}
+                      type='text'
+                      pattern='[0-9]*'
+                      inputMode='numeric'
+                      value={digit}
+                      ref={(el) => (inputRefs.current[idx] = el)}
+                      onChange={(e) => handleOtpChange(idx, e.target.value)}
+                      onKeyDown={(e) => handleKeyDown(idx, e)}
+                      onFocus={(e) => e.target.select()}
+                      placeholder='·'
+                      className='otp-box-desktop w-12 h-[60px] bg-[#F2F2F5] border-0 rounded text-center text-xl font-bold text-[#111111] outline-none focus:bg-[#EAEAEF] transition-colors'
+                    />
+                  )
+                })}
               </div>
 
               {error && (
@@ -440,6 +449,7 @@ function VerifyOtpContent() {
 
             <div className='mt-7 text-center'>
               <button
+                type='button'
                 onClick={handleResend}
                 disabled={resendTimer > 0}
                 className='bg-transparent border-0 cursor-pointer disabled:cursor-default text-black hover:opacity-85 text-[13px] font-extrabold block mx-auto mb-2 px-2 py-1 transition-opacity'

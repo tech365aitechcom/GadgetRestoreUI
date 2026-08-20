@@ -266,6 +266,7 @@ function OrderConfirmationContent() {
               </span>
             </div>
             <button
+              type='button'
               onClick={handleShareOrderId}
               className="inline-flex items-center gap-1.5 bg-[var(--theme-btn-secondary-bg)] border border-[var(--theme-border)] px-3 py-1.5 rounded-full hover:bg-[var(--theme-btn-secondary-hover)] transition-all active:scale-95"
             >
@@ -348,6 +349,7 @@ function OrderConfirmationContent() {
         {/* Action Buttons */}
         <div className="flex flex-col gap-3 mb-6">
           <button
+            type='button'
             onClick={handleTrackOrder}
             className="w-full h-12 bg-[var(--theme-btn-primary-bg)] text-[var(--theme-btn-primary-text)] font-bold rounded-xl text-[12px] tracking-wide hover:opacity-90 active:scale-[0.99] transition-all flex items-center justify-center gap-2"
           >
@@ -356,6 +358,7 @@ function OrderConfirmationContent() {
           </button>
 
           <button
+            type='button'
             onClick={handleGoHome}
             className="w-full h-12 bg-[var(--theme-btn-secondary-bg)] border border-[var(--theme-btn-secondary-border)] text-[var(--theme-btn-secondary-text)] font-bold rounded-xl text-[12px] tracking-wide hover:bg-[var(--theme-btn-secondary-hover)] active:scale-[0.99] transition-all flex items-center justify-center gap-2"
           >
@@ -419,6 +422,7 @@ function OrderConfirmationContent() {
                   </span>
                 </div>
                 <button
+                  type='button'
                   onClick={handleShareOrderId}
                   className="inline-flex items-center gap-1.5 bg-[var(--theme-btn-secondary-bg)] border border-[var(--theme-border)] px-3 py-1.5 rounded-full hover:bg-[var(--theme-btn-secondary-hover)] transition-all active:scale-95"
                 >
@@ -570,6 +574,7 @@ function OrderConfirmationContent() {
           {/* Action Buttons Horizontal */}
           <div className="grid grid-cols-2 gap-4 w-full mb-6">
             <button
+              type='button'
               onClick={handleTrackOrder}
               className="h-12 bg-[var(--theme-btn-primary-bg)] text-[var(--theme-btn-primary-text)] font-bold rounded-xl text-[12px] tracking-wide hover:opacity-90 active:scale-[0.99] transition-all flex items-center justify-center gap-2"
             >
@@ -578,6 +583,7 @@ function OrderConfirmationContent() {
             </button>
 
             <button
+              type='button'
               onClick={handleGoHome}
               className="h-12 bg-[var(--theme-btn-secondary-bg)] border border-[var(--theme-btn-secondary-border)] text-[var(--theme-btn-secondary-text)] font-bold rounded-xl text-[12px] tracking-wide hover:bg-[var(--theme-btn-secondary-hover)] active:scale-[0.99] transition-all flex items-center justify-center gap-2"
             >

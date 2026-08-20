@@ -3,15 +3,8 @@
 import { useEffect, useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import {
-  ArrowLeft,
   Shield,
   Award,
-  ChevronRight,
-  Check,
-  Clock,
-  Smartphone,
-  AlertCircle,
-  Sparkles,
 } from 'lucide-react'
 
 import catalogueService from '@/services/catalogue.service'
@@ -118,6 +111,7 @@ function TierCard({
 
   return (
     <button
+      type='button'
       onClick={() => !isDisabled && onSelect(tier)}
       aria-pressed={isSelected}
       disabled={isDisabled}
@@ -310,7 +304,6 @@ export default function SelectTierPage() {
     symptoms,
     partTier: contextTier,
     setPartTier,
-    category,
   } = useBooking()
 
   const [tiers, setTiers] = useState([])
@@ -421,7 +414,6 @@ export default function SelectTierPage() {
 
   if (!isReady) return null
 
-  const categoryName = category?.name || model?.categoryId?.name || 'Device'
   const canContinue = !!selectedTier
 
 
@@ -606,6 +598,7 @@ export default function SelectTierPage() {
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
             <button
+              type='button'
               onClick={() => router.push('/select-symptoms')}
               style={{
                 background: 'none',
@@ -617,13 +610,18 @@ export default function SelectTierPage() {
                 transition: 'color 0.2s',
               }}
               onMouseOver={(e) => (e.target.style.color = '#ffffff')}
+              onFocus={(e) => (e.target.style.color = '#ffffff')}
               onMouseOut={(e) =>
+                (e.target.style.color = 'rgba(255, 255, 255, 0.6)')
+              }
+              onBlur={(e) =>
                 (e.target.style.color = 'rgba(255, 255, 255, 0.6)')
               }
             >
               Back to Diagnostics
             </button>
             <button
+              type='button'
               onClick={handleContinue}
               disabled={!canContinue}
               style={{
@@ -742,6 +740,7 @@ export default function SelectTierPage() {
 
                   return (
                     <button
+                      type='button'
                       key={tier._id}
                       onClick={() => !isDisabled && setSelectedTier(tier)}
                       disabled={isDisabled}
@@ -909,6 +908,7 @@ export default function SelectTierPage() {
           }}
         >
           <button
+            type='button'
             onClick={handleContinue}
             disabled={!canContinue}
             style={{

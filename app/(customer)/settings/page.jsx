@@ -58,6 +58,7 @@ export default function SettingsPage() {
             <div className='grid grid-cols-2 gap-3'>
               {/* Dark */}
               <button
+                type='button'
                 id='theme-dark-btn'
                 onClick={() => handleThemeChange('dark')}
                 className='relative flex flex-col items-center justify-center gap-2 h-[88px] rounded-2xl border-2 transition-all active:scale-[0.97]'
@@ -76,6 +77,7 @@ export default function SettingsPage() {
 
               {/* Light */}
               <button
+                type='button'
                 id='theme-light-btn'
                 onClick={() => handleThemeChange('light')}
                 className='relative flex flex-col items-center justify-center gap-2 h-[88px] rounded-2xl border-2 transition-all active:scale-[0.97]'
@@ -119,6 +121,7 @@ export default function SettingsPage() {
             <div className='grid grid-cols-2 gap-4 max-w-[400px]'>
               {/* Dark option */}
               <button
+                type='button'
                 id='theme-dark-btn-desktop'
                 onClick={() => handleThemeChange('dark')}
                 className='relative flex flex-col items-center justify-center gap-3 rounded-2xl border-2 transition-all active:scale-[0.98] cursor-pointer'
@@ -141,6 +144,7 @@ export default function SettingsPage() {
 
               {/* Light option */}
               <button
+                type='button'
                 id='theme-light-btn-desktop'
                 onClick={() => handleThemeChange('light')}
                 className='relative flex flex-col items-center justify-center gap-3 rounded-2xl border-2 transition-all active:scale-[0.98] cursor-pointer'

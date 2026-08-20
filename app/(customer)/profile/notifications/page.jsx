@@ -11,6 +11,38 @@ import customerService from '@/services/customer.service'
 import pushNotificationService from '@/services/push-notification.service'
 import notificationService from '@/services/notification.service'
 
+const MobileToggle = ({ isActive, onClick }) => (
+  <button
+    type='button'
+    onClick={onClick}
+    className={`relative w-12 h-7 rounded-full transition-colors flex-shrink-0 ml-3 ${isActive
+        ? 'bg-[var(--theme-toggle-bg-on)]'
+        : 'bg-[var(--theme-toggle-bg-off)]'
+      }`}
+  >
+    <div
+      className={`absolute w-5 h-5 bg-[var(--theme-toggle-thumb)] rounded-full top-1 transition-transform ${isActive ? 'translate-x-6' : 'translate-x-1'
+        }`}
+    />
+  </button>
+)
+
+const DesktopToggle = ({ isActive, onClick }) => (
+  <button
+    type='button'
+    onClick={onClick}
+    className={`relative w-12 h-7 rounded-full transition-colors ${isActive ? 'bg-[var(--theme-toggle-bg-on)]' : 'bg-white/10'
+      }`}
+  >
+    <div
+      className={`absolute w-5 h-5 rounded-full top-1 transition-transform ${isActive
+          ? 'translate-x-6 bg-black'
+          : 'translate-x-1 bg-[var(--theme-btn-primary-bg)]'
+        }`}
+    />
+  </button>
+)
+
 export default function NotificationsPage() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(true)
@@ -176,24 +208,10 @@ export default function NotificationsPage() {
                     </div>
                   </div>
                 </div>
-                <button
-                  onClick={() =>
-                    handleToggleNotification('whatsappNotifications')
-                  }
-                  className={`relative w-12 h-7 rounded-full transition-colors flex-shrink-0 ml-3 ${
-                    notifications.whatsappNotifications
-                      ? 'bg-[var(--theme-toggle-bg-on)]'
-                      : 'bg-[var(--theme-toggle-bg-off)]'
-                  }`}
-                >
-                  <div
-                    className={`absolute w-5 h-5 bg-[var(--theme-toggle-thumb)] rounded-full top-1 transition-transform ${
-                      notifications.whatsappNotifications
-                        ? 'translate-x-6'
-                        : 'translate-x-1'
-                    }`}
-                  />
-                </button>
+                <MobileToggle
+                  isActive={notifications.whatsappNotifications}
+                  onClick={() => handleToggleNotification('whatsappNotifications')}
+                />
               </div>
             </div>
 
@@ -213,20 +231,10 @@ export default function NotificationsPage() {
                     </div>
                   </div>
                 </div>
-                <button
+                <MobileToggle
+                  isActive={notifications.smsNotifications}
                   onClick={() => handleToggleNotification('smsNotifications')}
-                  className={`relative w-12 h-7 rounded-full transition-colors flex-shrink-0 ml-3 ${
-                    notifications.smsNotifications ? 'bg-[var(--theme-toggle-bg-on)]' : 'bg-[var(--theme-toggle-bg-off)]'
-                  }`}
-                >
-                  <div
-                    className={`absolute w-5 h-5 bg-[var(--theme-toggle-thumb)] rounded-full top-1 transition-transform ${
-                      notifications.smsNotifications
-                        ? 'translate-x-6'
-                        : 'translate-x-1'
-                    }`}
-                  />
-                </button>
+                />
               </div>
             </div>
 
@@ -246,22 +254,10 @@ export default function NotificationsPage() {
                     </div>
                   </div>
                 </div>
-                <button
+                <MobileToggle
+                  isActive={notifications.emailNotifications}
                   onClick={() => handleToggleNotification('emailNotifications')}
-                  className={`relative w-12 h-7 rounded-full transition-colors flex-shrink-0 ml-3 ${
-                    notifications.emailNotifications
-                      ? 'bg-[var(--theme-toggle-bg-on)]'
-                      : 'bg-[var(--theme-toggle-bg-off)]'
-                  }`}
-                >
-                  <div
-                    className={`absolute w-5 h-5 bg-[var(--theme-toggle-thumb)] rounded-full top-1 transition-transform ${
-                      notifications.emailNotifications
-                        ? 'translate-x-6'
-                        : 'translate-x-1'
-                    }`}
-                  />
-                </button>
+                />
               </div>
             </div>
 
@@ -281,20 +277,10 @@ export default function NotificationsPage() {
                     </div>
                   </div>
                 </div>
-                <button
+                <MobileToggle
+                  isActive={notifications.pushNotifications}
                   onClick={() => handleToggleNotification('pushNotifications')}
-                  className={`relative w-12 h-7 rounded-full transition-colors flex-shrink-0 ml-3 ${
-                    notifications.pushNotifications ? 'bg-[var(--theme-toggle-bg-on)]' : 'bg-[var(--theme-toggle-bg-off)]'
-                  }`}
-                >
-                  <div
-                    className={`absolute w-5 h-5 bg-[var(--theme-toggle-thumb)] rounded-full top-1 transition-transform ${
-                      notifications.pushNotifications
-                        ? 'translate-x-6'
-                        : 'translate-x-1'
-                    }`}
-                  />
-                </button>
+                />
               </div>
             </div>
             <div className='flex flex-col sm:flex-row gap-2'>
@@ -333,6 +319,7 @@ export default function NotificationsPage() {
           {/* Breadcrumb */}
           <div className='flex items-center gap-2 mb-6'>
             <button
+              type='button'
               onClick={() => router.push('/profile')}
               className='text-[13px] text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] transition-colors'
             >
@@ -365,24 +352,10 @@ export default function NotificationsPage() {
                     <div className='text-[15px] font-semibold text-[var(--theme-text-primary)]'>
                       WhatsApp Notifications
                     </div>
-                    <button
-                      onClick={() =>
-                        handleToggleNotification('whatsappNotifications')
-                      }
-                      className={`relative w-12 h-7 rounded-full transition-colors ${
-                        notifications.whatsappNotifications
-                          ? 'bg-[var(--theme-toggle-bg-on)]'
-                          : 'bg-white/10'
-                      }`}
-                    >
-                      <div
-                        className={`absolute w-5 h-5 rounded-full top-1 transition-transform ${
-                          notifications.whatsappNotifications
-                            ? 'translate-x-6 bg-black'
-                            : 'translate-x-1 bg-[var(--theme-btn-primary-bg)]'
-                        }`}
-                      />
-                    </button>
+                    <DesktopToggle
+                      isActive={notifications.whatsappNotifications}
+                      onClick={() => handleToggleNotification('whatsappNotifications')}
+                    />
                   </div>
                   <div className='text-[13px] text-[var(--theme-text-secondary)] leading-relaxed'>
                     Receive order updates, repair status, and delivery
@@ -401,24 +374,10 @@ export default function NotificationsPage() {
                     <div className='text-[15px] font-semibold text-[var(--theme-text-primary)]'>
                       SMS Notifications
                     </div>
-                    <button
-                      onClick={() =>
-                        handleToggleNotification('smsNotifications')
-                      }
-                      className={`relative w-12 h-7 rounded-full transition-colors ${
-                        notifications.smsNotifications
-                          ? 'bg-[var(--theme-toggle-bg-on)]'
-                          : 'bg-white/10'
-                      }`}
-                    >
-                      <div
-                        className={`absolute w-5 h-5 rounded-full top-1 transition-transform ${
-                          notifications.smsNotifications
-                            ? 'translate-x-6 bg-black'
-                            : 'translate-x-1 bg-[var(--theme-btn-primary-bg)]'
-                        }`}
-                      />
-                    </button>
+                    <DesktopToggle
+                      isActive={notifications.smsNotifications}
+                      onClick={() => handleToggleNotification('smsNotifications')}
+                    />
                   </div>
                   <div className='text-[13px] text-[var(--theme-text-secondary)] leading-relaxed'>
                     Get important updates and confirmations via text message to
@@ -437,24 +396,10 @@ export default function NotificationsPage() {
                     <div className='text-[15px] font-semibold text-[var(--theme-text-primary)]'>
                       Email Notifications
                     </div>
-                    <button
-                      onClick={() =>
-                        handleToggleNotification('emailNotifications')
-                      }
-                      className={`relative w-12 h-7 rounded-full transition-colors ${
-                        notifications.emailNotifications
-                          ? 'bg-[var(--theme-toggle-bg-on)]'
-                          : 'bg-white/10'
-                      }`}
-                    >
-                      <div
-                        className={`absolute w-5 h-5 rounded-full top-1 transition-transform ${
-                          notifications.emailNotifications
-                            ? 'translate-x-6 bg-black'
-                            : 'translate-x-1 bg-[var(--theme-btn-primary-bg)]'
-                        }`}
-                      />
-                    </button>
+                    <DesktopToggle
+                      isActive={notifications.emailNotifications}
+                      onClick={() => handleToggleNotification('emailNotifications')}
+                    />
                   </div>
                   <div className='text-[13px] text-[var(--theme-text-secondary)] leading-relaxed'>
                     Receive detailed repair reports, invoices, and warranty
@@ -473,24 +418,10 @@ export default function NotificationsPage() {
                     <div className='text-[15px] font-semibold text-[var(--theme-text-primary)]'>
                       Push Notifications
                     </div>
-                    <button
-                      onClick={() =>
-                        handleToggleNotification('pushNotifications')
-                      }
-                      className={`relative w-12 h-7 rounded-full transition-colors ${
-                        notifications.pushNotifications
-                          ? 'bg-[var(--theme-toggle-bg-on)]'
-                          : 'bg-white/10'
-                      }`}
-                    >
-                      <div
-                        className={`absolute w-5 h-5 rounded-full top-1 transition-transform ${
-                          notifications.pushNotifications
-                            ? 'translate-x-6 bg-black'
-                            : 'translate-x-1 bg-[var(--theme-btn-primary-bg)]'
-                        }`}
-                      />
-                    </button>
+                    <DesktopToggle
+                      isActive={notifications.pushNotifications}
+                      onClick={() => handleToggleNotification('pushNotifications')}
+                    />
                   </div>
                   <div className='text-[13px] text-[var(--theme-text-secondary)] leading-relaxed'>
                     Get instant push alerts on your device for real-time repair

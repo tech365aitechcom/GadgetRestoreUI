@@ -25,8 +25,8 @@ export default function ModelList({
     return models.filter(
       (m) =>
         m.name.toLowerCase().includes(q) ||
-        (m.modelNumber && m.modelNumber.toLowerCase().includes(q)) ||
-        (m.index && String(m.index).toLowerCase().includes(q)),
+        m.modelNumber?.toLowerCase().includes(q) ||
+        String(m.index ?? '').toLowerCase().includes(q),
     )
   }, [models, search])
 
@@ -53,6 +53,7 @@ export default function ModelList({
         />
         {search && (
           <button
+            type='button'
             onClick={() => setSearch('')}
             style={{
               background: 'none',
@@ -104,6 +105,7 @@ export default function ModelList({
             const defaultImage = isApple ? '/images/default-apple.png' : '/images/default-android.png'
             return (
               <button
+                type='button'
                 key={model._id}
                 className={`model-card${isSelected ? ' selected' : ''}`}
                 onClick={() => onSelectModel(model)}

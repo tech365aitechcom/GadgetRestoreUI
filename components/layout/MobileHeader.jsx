@@ -54,6 +54,7 @@ export default function MobileHeader({
       {/* Left side - Back button or empty space */}
       {showBack && !isHomePage ? (
         <button
+          type='button'
           onClick={handleBackClick}
           className='bg-transparent border-0 cursor-pointer text-white flex items-center justify-center w-9 h-9 rounded-full flex-shrink-0'
           aria-label='Go back'
@@ -66,6 +67,7 @@ export default function MobileHeader({
 
       {/* Center - Logo (Clickable to redirect home) */}
       <button
+        type='button'
         onClick={() => router.push('/')}
         className='flex-1 flex justify-center bg-transparent border-0 cursor-pointer outline-none active:opacity-75 transition-opacity'
         aria-label='Go to home page'
@@ -80,6 +82,7 @@ export default function MobileHeader({
       {/* Right side - Notification bell */}
       {showNotification ? (
         <button
+          type='button'
           onClick={() => router.push('/notifications')}
           className='bg-transparent border-0 cursor-pointer text-[#888] flex items-center w-9 h-9 justify-center rounded-full flex-shrink-0 relative'
           aria-label='Notifications'

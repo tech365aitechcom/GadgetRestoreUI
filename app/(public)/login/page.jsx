@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, Bell, ShieldCheck, Box, Compass } from 'lucide-react'
+import { ShieldCheck, Box, Compass } from 'lucide-react'
 import authService from '@/services/auth.service'
 
 export default function LoginPage() {
@@ -98,7 +98,7 @@ export default function LoginPage() {
       const errMsg = err.message || 'Failed to send OTP. Please try again.'
       const match = errMsg.match(/Please wait (\d+) seconds/i)
       if (match) {
-        setErrorCountdown(parseInt(match[1], 10))
+        setErrorCountdown(Number.parseInt(match[1], 10))
       } else {
         setErrorCountdown(null)
       }
@@ -141,7 +141,7 @@ export default function LoginPage() {
 
             <form onSubmit={handleSubmit}>
               <div className='mb-10'>
-                <label className='block text-[10px] font-bold text-white/50 tracking-[0.08em] mb-2 uppercase'>
+                <label htmlFor='phone-mobile' className='block text-[10px] font-bold text-white/50 tracking-[0.08em] mb-2 uppercase'>
                   PHONE NUMBER
                 </label>
                 <div className='flex gap-2 items-center'>
@@ -149,6 +149,7 @@ export default function LoginPage() {
                     +91
                   </div>
                   <input
+                    id='phone-mobile'
                     type='tel'
                     value={phone}
                     onChange={handlePhoneChange}
@@ -175,6 +176,7 @@ export default function LoginPage() {
 
             <div className='flex justify-center mt-5'>
               <button
+                type="button"
                 onClick={handleSkip}
                 className='bg-transparent border-0 cursor-pointer text-white/65 hover:text-white text-[13px] font-semibold px-2 py-1 transition-colors'
               >
@@ -254,7 +256,7 @@ export default function LoginPage() {
 
             <form onSubmit={handleSubmit}>
               <div className='mb-6'>
-                <label className='block text-[9.5px] font-bold text-[#000000] tracking-[0.12em] mb-2 uppercase'>
+                <label htmlFor='phone-desktop' className='block text-[9.5px] font-bold text-[#000000] tracking-[0.12em] mb-2 uppercase'>
                   PHONE NUMBER
                 </label>
                 <div className='flex gap-2 items-center'>
@@ -262,6 +264,7 @@ export default function LoginPage() {
                     +91
                   </div>
                   <input
+                    id='phone-desktop'
                     type='tel'
                     value={phone}
                     onChange={handlePhoneChange}
@@ -287,6 +290,7 @@ export default function LoginPage() {
             </form>
 
             <button
+              type="button"
               onClick={handleSkip}
               className='bg-transparent border-0 cursor-pointer text-[#A0A0A0] hover:text-black text-[10.5px] font-bold tracking-[0.12em] uppercase block mx-auto mt-6 px-2 py-1 transition-colors'
             >

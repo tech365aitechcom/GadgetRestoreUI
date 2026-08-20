@@ -29,7 +29,18 @@ function getDeviceId() {
   if (existing) return existing;
 
   const prefix = Capacitor.isNativePlatform() ? `native-${Capacitor.getPlatform()}-` : 'web-';
-  const nextId = `${prefix}${window.crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(16).slice(2)}`}`;
+  let randomSuffix;
+  if (typeof window.crypto?.randomUUID === 'function') {
+    randomSuffix = window.crypto.randomUUID();
+  } else if (window.crypto?.getRandomValues) {
+    const bytes = new Uint8Array(16);
+    window.crypto.getRandomValues(bytes);
+    randomSuffix = Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('');
+  } else {
+    randomSuffix = `${Date.now()}`;
+  }
+
+  const nextId = `${prefix}${randomSuffix}`;
   window.localStorage.setItem(DEVICE_ID_KEY, nextId);
   return nextId;
 }

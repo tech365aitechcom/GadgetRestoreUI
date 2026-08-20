@@ -38,6 +38,7 @@ export default function TopBar({
       <div style={{ width: 40, display: 'flex', alignItems: 'center' }}>
         {showBack && (
           <button
+            type='button'
             onClick={handleBack}
             aria-label="Go back"
             style={{

@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useReducer, useEffect, useState } from 'react';
+import { createContext, useContext, useReducer, useEffect, useState, useMemo } from 'react';
 
 // ── State shape ─────────────────────────────────────────────────────────────
 const INITIAL_STATE = {
@@ -70,7 +70,9 @@ export function BookingProvider({ children }) {
       if (saved) {
         dispatch({ type: 'RESTORE', payload: JSON.parse(saved) });
       }
-    } catch (_) {}
+    } catch (err) {
+      console.debug('Failed to restore booking state from localStorage:', err);
+    }
     setIsRestored(true);
   }, []);
 
@@ -78,10 +80,12 @@ export function BookingProvider({ children }) {
   useEffect(() => {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    } catch (_) {}
+    } catch (err) {
+      console.debug('Failed to persist booking state to localStorage:', err);
+    }
   }, [state]);
 
-  const actions = {
+  const actions = useMemo(() => ({
     setCategory:    (category)    => dispatch({ type: 'SET_CATEGORY',    payload: category }),
     setBrand:       (brand)       => dispatch({ type: 'SET_BRAND',       payload: brand }),
     setModel:       (model)       => dispatch({ type: 'SET_MODEL',       payload: model }),
@@ -95,18 +99,26 @@ export function BookingProvider({ children }) {
     reset:          ()            => dispatch({ type: 'RESET' }),
     // Atomically set brand + category (safe for products-page → select-model flow)
     startBooking:   ({ brand, category }) => dispatch({ type: 'SET_BOOKING_START', payload: { brand, category } }),
-  };
+  }), []);
 
   // Computed: can customer proceed to login?
-  const canProceedToBook =
+  const canProceedToBook = Boolean(
     state.brand &&
     state.model &&
     state.symptoms.length > 0 &&
     state.partTier &&
-    state.serviceMode;
+    state.serviceMode
+  );
+
+  const contextValue = useMemo(() => ({
+    ...state,
+    ...actions,
+    canProceedToBook,
+    isRestored,
+  }), [state, actions, canProceedToBook, isRestored]);
 
   return (
-    <BookingContext.Provider value={{ ...state, ...actions, canProceedToBook, isRestored }}>
+    <BookingContext.Provider value={contextValue}>
       {children}
     </BookingContext.Provider>
   );

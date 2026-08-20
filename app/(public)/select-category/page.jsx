@@ -3,10 +3,7 @@
 import { useRouter } from 'next/navigation'
 import {
   Smartphone,
-  Tablet,
-  Laptop,
   ChevronRight,
-  ArrowLeft,
 } from 'lucide-react'
 import { useBooking } from '@/context/BookingContext'
 
@@ -118,76 +115,76 @@ export default function SelectCategoryPage() {
       <section className='pb-24 px-6 lg:px-20 flex-1'>
         <div className='max-w-5xl mx-auto flex justify-center'>
           <div className='grid grid-cols-1 gap-6 lg:gap-8 w-full max-w-sm'>
-          {SLOTS.map((slot) => {
-            const Icon = slot.icon
-            return (
-              <button
-                key={slot.id}
-                onClick={() => handleSelectSlot(slot)}
-                className='group text-left rounded-[20px] overflow-hidden border transition-all duration-300 flex flex-col cursor-pointer focus:outline-none'
-                style={{
-                  background: 'var(--color-content-card)',
-                  borderColor: 'var(--color-content-border)',
-                  boxShadow: 'var(--theme-shadow-sm)',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.borderColor = 'var(--color-accent)'
-                  e.currentTarget.style.boxShadow =
-                    '0 8px 32px var(--color-accent-shadow-10)'
-                  e.currentTarget.style.transform = 'translateY(-2px)'
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.borderColor =
-                    'var(--color-content-border)'
-                  e.currentTarget.style.boxShadow = 'var(--theme-shadow-sm)'
-                  e.currentTarget.style.transform = 'translateY(0)'
-                }}
-              >
-                {/* Image area — white bg so images look bright & clear */}
-                <div className='h-52 w-full relative overflow-hidden bg-white flex items-center justify-center'>
-                  <img
-                    src={slot.bgImage}
-                    alt={slot.title}
-                    className='w-full h-full object-cover transition-transform duration-700 group-hover:scale-105'
-                  />
-                  <div className='absolute inset-0 bg-gradient-to-t from-black/40 to-transparent' />
-                </div>
-                {/* Card body */}
-                <div className='p-6 flex-1 flex flex-col justify-between relative'>
-                  {/* Arrow badge on hover */}
-                  <div
-                    className='absolute -top-5 right-5 w-10 h-10 rounded-full flex items-center justify-center shadow-lg transform translate-y-1 opacity-0 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300'
-                    style={{ background: 'var(--color-accent)', color: '#fff' }}
-                  >
-                    <ChevronRight size={18} strokeWidth={2.5} />
+            {SLOTS.map((slot) => {
+              return (
+                <button
+                  type='button'
+                  key={slot.id}
+                  onClick={() => handleSelectSlot(slot)}
+                  className='group text-left rounded-[20px] overflow-hidden border transition-all duration-300 flex flex-col cursor-pointer focus:outline-none'
+                  style={{
+                    background: 'var(--color-content-card)',
+                    borderColor: 'var(--color-content-border)',
+                    boxShadow: 'var(--theme-shadow-sm)',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.borderColor = 'var(--color-accent)'
+                    e.currentTarget.style.boxShadow =
+                      '0 8px 32px var(--color-accent-shadow-10)'
+                    e.currentTarget.style.transform = 'translateY(-2px)'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.borderColor =
+                      'var(--color-content-border)'
+                    e.currentTarget.style.boxShadow = 'var(--theme-shadow-sm)'
+                    e.currentTarget.style.transform = 'translateY(0)'
+                  }}
+                >
+                  {/* Image area — white bg so images look bright & clear */}
+                  <div className='h-52 w-full relative overflow-hidden bg-white flex items-center justify-center'>
+                    <img
+                      src={slot.bgImage}
+                      alt={slot.title}
+                      className='w-full h-full object-cover transition-transform duration-700 group-hover:scale-105'
+                    />
+                    <div className='absolute inset-0 bg-gradient-to-t from-black/40 to-transparent' />
                   </div>
-
-                  <div>
-                    <h3
-                      className='text-lg font-black tracking-wide mb-2 transition-colors'
-                      style={{ color: 'var(--color-content-text)' }}
+                  {/* Card body */}
+                  <div className='p-6 flex-1 flex flex-col justify-between relative'>
+                    {/* Arrow badge on hover */}
+                    <div
+                      className='absolute -top-5 right-5 w-10 h-10 rounded-full flex items-center justify-center shadow-lg transform translate-y-1 opacity-0 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300'
+                      style={{ background: 'var(--color-accent)', color: '#fff' }}
                     >
-                      {slot.title}
-                    </h3>
-                    <p
-                      className='text-xs leading-relaxed font-medium'
-                      style={{ color: 'var(--color-content-text-secondary)' }}
-                    >
-                      {slot.description}
-                    </p>
-                  </div>
+                      <ChevronRight size={18} strokeWidth={2.5} />
+                    </div>
 
-                  {/* CTA label */}
-                  <div
-                    className='mt-5 text-xs font-bold uppercase tracking-widest flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300'
-                    style={{ color: 'var(--color-accent)' }}
-                  >
-                    View Models <ChevronRight size={12} />
+                    <div>
+                      <h3
+                        className='text-lg font-black tracking-wide mb-2 transition-colors'
+                        style={{ color: 'var(--color-content-text)' }}
+                      >
+                        {slot.title}
+                      </h3>
+                      <p
+                        className='text-xs leading-relaxed font-medium'
+                        style={{ color: 'var(--color-content-text-secondary)' }}
+                      >
+                        {slot.description}
+                      </p>
+                    </div>
+
+                    {/* CTA label */}
+                    <div
+                      className='mt-5 text-xs font-bold uppercase tracking-widest flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300'
+                      style={{ color: 'var(--color-accent)' }}
+                    >
+                      View Models <ChevronRight size={12} />
+                    </div>
                   </div>
-                </div>
-              </button>
-            )
-          })}
+                </button>
+              )
+            })}
           </div>
         </div>
       </section>

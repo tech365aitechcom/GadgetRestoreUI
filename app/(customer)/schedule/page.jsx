@@ -31,7 +31,7 @@ function DesktopCalendar({ selectedDate, setSelectedDate, availableDates, setSel
 
   const days = []
   for (let i = 0; i < firstDay; i++) {
-    days.push(null)
+    days.push({ isEmpty: true, id: `empty-pad-${i}` })
   }
   for (let i = 1; i <= daysInMonth; i++) {
     days.push(new Date(currentMonth.getFullYear(), currentMonth.getMonth(), i))
@@ -106,8 +106,8 @@ function DesktopCalendar({ selectedDate, setSelectedDate, availableDates, setSel
                 />
               ))
             ) : (
-              days.map((day, idx) => {
-                if (!day) return <div key={`empty-${idx}`} style={{ width: '100%', aspectRatio: '1' }} />
+              days.map((day) => {
+                if (day?.isEmpty) return <div key={day.id} style={{ width: '100%', aspectRatio: '1' }} />
 
                 const year = day.getFullYear()
                 const month = String(day.getMonth() + 1).padStart(2, '0')
@@ -133,7 +133,6 @@ function DesktopCalendar({ selectedDate, setSelectedDate, availableDates, setSel
                   border = '1px solid var(--color-content-text)'
                   cursor = 'pointer'
                 } else if (isPast) {
-                  color = 'var(--theme-text-muted)'
                   opacity = 0.35
                 } else if (hasSlots) {
                   bg = 'var(--theme-bg-300)'
@@ -329,7 +328,8 @@ export default function SchedulePage() {
 
                 return (
                   <button
-                    key={idx}
+                    type='button'
+                    key={d.date || idx}
                     onClick={() => {
                       setSelectedDate(d.date)
                       setSelectedTimeSlot(null)
@@ -359,55 +359,63 @@ export default function SchedulePage() {
               Select Time Slot
             </h3>
             <div className='grid grid-cols-2 gap-3'>
-              {isLoading ? (
-                <>
-                  {[0, 1, 2, 3].map(i => (
-                    <div key={i} className="skeleton h-[52px] rounded-2xl animate-pulse bg-gray-200" />
-                  ))}
-                </>
-              ) : timeSlots.length > 0 ? (
-                timeSlots.map((t, idx) => {
-                  const isSelected = selectedTimeSlot === t.time
-                  const isAvailable = t.available !== false
+              {(() => {
+                if (isLoading) {
                   return (
-                    <button
-                      key={idx}
-                      disabled={!isAvailable}
-                      onClick={() => {
-                        setSelectedTimeSlot(t.time)
-                        setError('')
-                      }}
-                      className='h-[52px] rounded-2xl text-xs font-bold transition-all'
-                      style={{
-                        border: '1px solid var(--color-content-border)',
-                        background: !isAvailable
-                          ? 'var(--color-content-bg)'
-                          : isSelected
-                            ? 'var(--color-content-card)'
-                            : 'var(--color-content-card)',
-                        borderColor: !isAvailable
-                          ? 'transparent'
-                          : isSelected
-                            ? 'var(--color-content-text)'
-                            : 'var(--color-content-border)',
-                        color: !isAvailable
-                          ? 'var(--color-content-border)'
-                          : isSelected
-                            ? 'var(--color-content-text)'
-                            : 'var(--color-content-text-secondary)',
-                        cursor: !isAvailable ? 'not-allowed' : 'pointer',
-                        opacity: !isAvailable ? 0.4 : 1,
-                      }}
-                    >
-                      {t.time}
-                    </button>
+                    <>
+                      {[0, 1, 2, 3].map(i => (
+                        <div key={i} className="skeleton h-[52px] rounded-2xl animate-pulse bg-gray-200" />
+                      ))}
+                    </>
                   )
-                })
-              ) : (
-                <div className='col-span-2 text-center text-sm py-4' style={{ color: 'var(--color-content-text-secondary)' }}>
-                  No slots available for this date.
-                </div>
-              )}
+                }
+                if (timeSlots.length > 0) {
+                  return timeSlots.map((t) => {
+                    const isSelected = selectedTimeSlot === t.time
+                    const isAvailable = t.available !== false
+                    let bg = 'var(--color-content-card)';
+                    let bColor = 'var(--color-content-border)';
+                    let tColor = 'var(--color-content-text-secondary)';
+
+                    if (!isAvailable) {
+                      bg = 'var(--color-content-bg)';
+                      bColor = 'transparent';
+                      tColor = 'var(--color-content-border)';
+                    } else if (isSelected) {
+                      bColor = 'var(--color-content-text)';
+                      tColor = 'var(--color-content-text)';
+                    }
+
+                    return (
+                      <button
+                        type='button'
+                        key={t.time}
+                        disabled={!isAvailable}
+                        onClick={() => {
+                          setSelectedTimeSlot(t.time)
+                          setError('')
+                        }}
+                        className='h-[52px] rounded-2xl text-xs font-bold transition-all'
+                        style={{
+                          border: '1px solid var(--color-content-border)',
+                          background: bg,
+                          borderColor: bColor,
+                          color: tColor,
+                          cursor: !isAvailable ? 'not-allowed' : 'pointer',
+                          opacity: !isAvailable ? 0.4 : 1,
+                        }}
+                      >
+                        {t.time}
+                      </button>
+                    )
+                  })
+                }
+                return (
+                  <div className='col-span-2 text-center text-sm py-4' style={{ color: 'var(--color-content-text-secondary)' }}>
+                    No slots available for this date.
+                  </div>
+                )
+              })()}
             </div>
           </div>
 
@@ -417,9 +425,10 @@ export default function SchedulePage() {
               Shop / Service Center
             </h3>
             <div className='relative'>
-              <div
+              <button
+                type='button'
                 onClick={() => setIsMobileDropdownOpen(!isMobileDropdownOpen)}
-                className='rounded-2xl p-4 flex items-center justify-between shadow-sm cursor-pointer'
+                className='w-full text-left rounded-2xl p-4 flex items-center justify-between shadow-sm cursor-pointer'
                 style={{ background: 'var(--color-content-card)', border: '1px solid var(--color-content-border)' }}
               >
                 <div>
@@ -431,20 +440,21 @@ export default function SchedulePage() {
                   </p>
                 </div>
                 <ChevronDown size={18} color='#999' className={`transition-transform ${isMobileDropdownOpen ? 'rotate-180' : ''}`} />
-              </div>
+              </button>
 
               {isMobileDropdownOpen && (
                 <>
-                  <div className="fixed inset-0 z-40" onClick={() => setIsMobileDropdownOpen(false)} />
+                  <button type='button' aria-label="Close menu" className="fixed inset-0 z-40 w-full h-full cursor-default border-none bg-transparent" onClick={() => setIsMobileDropdownOpen(false)} />
                   <div className="absolute top-full left-0 w-full mt-2 rounded-2xl shadow-2xl z-50 overflow-hidden flex flex-col max-h-[240px] overflow-y-auto" style={{ background: 'var(--color-content-card)', border: '1px solid var(--color-content-border)' }}>
                     {serviceCentres.map((sc) => (
-                      <div
+                      <button
+                        type='button'
                         key={sc._id}
                         onClick={() => {
                           setSelectedServiceCentre(sc)
                           setIsMobileDropdownOpen(false)
                         }}
-                        className='p-4 last:border-none cursor-pointer transition-colors'
+                        className='w-full text-left p-4 last:border-none cursor-pointer transition-colors'
                         style={{
                           borderBottom: '1px solid var(--color-content-border)',
                           background: selectedServiceCentre?._id === sc._id ? 'var(--color-content-bg)' : 'transparent',
@@ -456,7 +466,7 @@ export default function SchedulePage() {
                         <p className='text-xs mt-1' style={{ color: 'var(--color-content-text-secondary)' }}>
                           {sc.address?.city || 'Service Center'}
                         </p>
-                      </div>
+                      </button>
                     ))}
                   </div>
                 </>
@@ -467,6 +477,7 @@ export default function SchedulePage() {
           {/* Confirm Button */}
           <div className='px-5 mt-10 mb-8'>
             <button
+              type='button'
               onClick={handleConfirm}
               className='w-full h-14 rounded-[20px] text-sm font-extrabold flex items-center justify-center gap-2 active:scale-[0.98] transition-transform'
               style={{ background: 'var(--theme-btn-primary-bg)', color: 'var(--theme-btn-primary-text)' }}
@@ -533,60 +544,69 @@ export default function SchedulePage() {
                   }}
                 >
                   <div className='grid grid-cols-4 gap-3 w-full'>
-                    {isLoading ? (
-                      <>
-                        {[0, 1, 2, 3].map(i => (
-                          <div key={i} className="skeleton h-14 rounded-xl animate-pulse bg-gray-200" />
-                        ))}
-                      </>
-                    ) : timeSlots.length > 0 ? (
-                      timeSlots.map((t, idx) => {
-                        const isSelected = selectedTimeSlot === t.time
-                        const isAvailable = t.available !== false
+                    {(() => {
+                      if (isLoading) {
                         return (
-                          <button
-                            key={idx}
-                            disabled={!isAvailable}
-                            onClick={() => {
-                              setSelectedTimeSlot(t.time)
-                              setError('')
-                            }}
-                            className='h-14 rounded-xl text-xs font-bold transition-all border-2'
-                            style={{
-                              background: !isAvailable
-                                ? 'var(--color-content-bg)'
-                                : isSelected
-                                  ? 'var(--color-content-text)'
-                                  : 'var(--theme-bg-300)',
-                              borderColor: !isAvailable
-                                ? 'transparent'
-                                : isSelected
-                                  ? 'var(--color-content-text)'
-                                  : 'transparent',
-                              color: !isAvailable
-                                ? 'var(--color-content-border)'
-                                : isSelected
-                                  ? 'var(--color-content-bg)'
-                                  : 'var(--color-content-text-secondary)',
-                              cursor: !isAvailable ? 'not-allowed' : 'pointer',
-                              opacity: !isAvailable ? 0.4 : 1,
-                            }}
-                          >
-                            {t.time}
-                          </button>
+                          <>
+                            {[0, 1, 2, 3].map(i => (
+                              <div key={i} className="skeleton h-14 rounded-xl animate-pulse bg-gray-200" />
+                            ))}
+                          </>
                         )
-                      })
-                    ) : (
-                      <div className='col-span-2 text-left text-sm py-4' style={{ color: 'var(--color-content-text-secondary)' }}>
-                        No slots available for this date.
-                      </div>
-                    )}
+                      }
+                      if (timeSlots.length > 0) {
+                        return timeSlots.map((t) => {
+                          const isSelected = selectedTimeSlot === t.time
+                          const isAvailable = t.available !== false
+                          let bg = 'var(--theme-bg-300)';
+                          let bColor = 'transparent';
+                          let tColor = 'var(--color-content-text-secondary)';
+
+                          if (!isAvailable) {
+                            bg = 'var(--color-content-bg)';
+                            tColor = 'var(--color-content-border)';
+                          } else if (isSelected) {
+                            bg = 'var(--color-content-text)';
+                            bColor = 'var(--color-content-text)';
+                            tColor = 'var(--color-content-bg)';
+                          }
+
+                          return (
+                            <button
+                              type='button'
+                              key={t.time}
+                              disabled={!isAvailable}
+                              onClick={() => {
+                                setSelectedTimeSlot(t.time)
+                                setError('')
+                              }}
+                              className='h-14 rounded-xl text-xs font-bold transition-all border-2'
+                              style={{
+                                background: bg,
+                                borderColor: bColor,
+                                color: tColor,
+                                cursor: !isAvailable ? 'not-allowed' : 'pointer',
+                                opacity: !isAvailable ? 0.4 : 1,
+                              }}
+                            >
+                              {t.time}
+                            </button>
+                          )
+                        })
+                      }
+                      return (
+                        <div className='col-span-2 text-left text-sm py-4' style={{ color: 'var(--color-content-text-secondary)' }}>
+                          No slots available for this date.
+                        </div>
+                      )
+                    })()}
                   </div>
                 </div>
               </div>
             </div>
 
             <button
+              type='button'
               onClick={handleConfirm}
               className='w-full h-16 rounded-xl text-[15px] font-black uppercase tracking-wider flex items-center justify-center gap-2 transition-colors cursor-pointer animate-fade-in'
               style={{ background: 'var(--theme-btn-primary-bg)', color: 'var(--theme-btn-primary-text)' }}
@@ -603,9 +623,10 @@ export default function SchedulePage() {
               </h3>
 
               <div className='relative mb-6'>
-                <div
+                <button
+                  type='button'
                   onClick={() => setIsDesktopDropdownOpen(!isDesktopDropdownOpen)}
-                  className='rounded-2xl p-4 flex items-center gap-4 shadow-sm cursor-pointer transition-colors'
+                  className='w-full text-left rounded-2xl p-4 flex items-center gap-4 shadow-sm cursor-pointer transition-colors'
                   style={{ background: 'var(--color-content-card)', border: '1px solid var(--color-content-border)' }}
                 >
                   <div className='w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0' style={{ background: 'var(--color-content-bg)' }}>
@@ -620,20 +641,21 @@ export default function SchedulePage() {
                     </p>
                   </div>
                   <ChevronDown size={20} color='var(--color-content-text-secondary)' className={`transition-transform ${isDesktopDropdownOpen ? 'rotate-180' : ''}`} />
-                </div>
+                </button>
 
                 {isDesktopDropdownOpen && (
                   <>
-                    <div className="fixed inset-0 z-40" onClick={() => setIsDesktopDropdownOpen(false)} />
+                    <button type='button' aria-label="Close menu" className="fixed inset-0 z-40 w-full h-full cursor-default border-none bg-transparent" onClick={() => setIsDesktopDropdownOpen(false)} />
                     <div className="absolute top-full left-0 w-full mt-2 rounded-2xl shadow-2xl z-50 overflow-hidden flex flex-col max-h-[300px] overflow-y-auto" style={{ background: 'var(--color-content-card)', border: '1px solid var(--color-content-border)' }}>
                       {serviceCentres.map((sc) => (
-                        <div
+                        <button
+                          type='button'
                           key={sc._id}
                           onClick={() => {
                             setSelectedServiceCentre(sc)
                             setIsDesktopDropdownOpen(false)
                           }}
-                          className='p-4 last:border-none cursor-pointer transition-colors flex items-center gap-4'
+                          className='w-full text-left p-4 last:border-none cursor-pointer transition-colors flex items-center gap-4'
                           style={{
                             borderBottom: '1px solid var(--color-content-border)',
                             background: selectedServiceCentre?._id === sc._id ? 'var(--color-content-bg)' : 'transparent',
@@ -650,7 +672,7 @@ export default function SchedulePage() {
                               {sc.address?.city || 'Service Center'}
                             </p>
                           </div>
-                        </div>
+                        </button>
                       ))}
                     </div>
                   </>

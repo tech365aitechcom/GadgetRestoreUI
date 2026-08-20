@@ -7,7 +7,6 @@ import { ArrowLeft } from 'lucide-react';
 import ModelList from '@/components/booking/ModelList';
 import catalogueService from '@/services/catalogue.service';
 import { useBooking } from '@/context/BookingContext';
-import { getBrandLogo } from '@/lib/utils';
 import { useBookingGuard } from '@/hooks/useBookingGuard';
 
 
@@ -52,7 +51,7 @@ export default function SelectModelPage() {
         const safeAll = all || [];
 
         // Filter by category if coming from the products flow
-        if (category && category.name && safeAll.length > 0) {
+        if (category?.name && safeAll.length > 0) {
           const catName = category.name.toLowerCase();
           const filtered = safeAll.filter((m) => {
             const mCat = (
@@ -87,7 +86,6 @@ export default function SelectModelPage() {
   if (!isReady) return null;
 
   const brandName = brand.name;
-  const logoUrl = getBrandLogo(brandName, brand.logo);
 
 
   return (
@@ -101,6 +99,7 @@ export default function SelectModelPage() {
           <div className="flex-1">
             {/* Back link (Desktop only) */}
             <button
+              type='button'
               onClick={() => router.push(backTarget)}
               className="hidden lg:inline-flex items-center gap-1.5 bg-none border-none cursor-pointer text-[var(--color-content-text-secondary)] text-xs font-semibold uppercase tracking-wider mb-3.5 p-0 hover:text-[var(--color-content-text)] transition-colors"
             >
