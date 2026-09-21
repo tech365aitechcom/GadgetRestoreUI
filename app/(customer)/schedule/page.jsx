@@ -1,11 +1,54 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { ArrowLeft, ChevronDown } from 'lucide-react'
 import { useBooking } from '@/context/BookingContext'
 import slotService from '@/services/slot.service'
 import serviceCentreService from '@/services/serviceCentre.service'
+
+// ── Past-slot helpers ────────────────────────────────────────────────────────
+// Parses "14:30", "9:00 AM" or "9 pm" into minutes since midnight (null if unparseable).
+function parseTimeToMinutes(str) {
+  const m = String(str || '').trim().match(/^(\d{1,2})(?::(\d{2}))?\s*([ap]m)?$/i)
+  if (!m) return null
+  let hours = Number(m[1])
+  const minutes = Number(m[2] || 0)
+  const meridiem = m[3]?.toLowerCase()
+  if (meridiem) {
+    if (hours === 12) hours = 0
+    if (meridiem === 'pm') hours += 12
+  }
+  return hours * 60 + minutes
+}
+
+// A slot label is "<start> - <end>"; the slot is bookable only while its start is in the future.
+function slotStartMinutes(time) {
+  return parseTimeToMinutes(String(time || '').split(/\s*[-–]\s*/)[0])
+}
+
+function toLocalDateStr(d) {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+}
+
+// Returns a copy of `dates` with every slot that has already started (per `now`) marked unavailable.
+function markPastSlots(dates, now) {
+  const todayStr = toLocalDateStr(now)
+  const nowMinutes = now.getHours() * 60 + now.getMinutes()
+  return dates.map((d) => {
+    if (d.date < todayStr) {
+      return { ...d, slots: d.slots.map((s) => ({ ...s, available: false })) }
+    }
+    if (d.date !== todayStr) return d
+    return {
+      ...d,
+      slots: d.slots.map((s) => {
+        const start = slotStartMinutes(s.time)
+        return start !== null && start <= nowMinutes ? { ...s, available: false } : s
+      }),
+    }
+  })
+}
 
 // ── Custom Desktop Calendar Picker ───────────────────────────────────────────
 function DesktopCalendar({ selectedDate, setSelectedDate, availableDates, setSelectedTimeSlot, setError, isLoading }) {
@@ -203,7 +246,8 @@ export default function SchedulePage() {
   const router = useRouter()
   const { setSlot, slot } = useBooking()
 
-  const [availableDates, setAvailableDates] = useState([])
+  const [rawDates, setRawDates] = useState([])
+  const [now, setNow] = useState(() => new Date())
   const [selectedDate, setSelectedDate] = useState(slot?.date || null)
   const [selectedTimeSlot, setSelectedTimeSlot] = useState(slot?.timeSlot || null)
   const [serviceCentres, setServiceCentres] = useState([])
@@ -212,6 +256,14 @@ export default function SchedulePage() {
   const [isDesktopDropdownOpen, setIsDesktopDropdownOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
+
+  // Tick every 30s so slots disable themselves as real time passes
+  useEffect(() => {
+    const id = setInterval(() => setNow(new Date()), 30 * 1000)
+    return () => clearInterval(id)
+  }, [])
+
+  const availableDates = useMemo(() => markPastSlots(rawDates, now), [rawDates, now])
 
   // 1. Fetch Service Centres on mount
   useEffect(() => {
@@ -252,14 +304,14 @@ export default function SchedulePage() {
           })
 
           parsedDates.sort((a, b) => new Date(a.date) - new Date(b.date))
-          setAvailableDates(parsedDates)
+          setRawDates(parsedDates)
 
-          if (!parsedDates.some(d => d.date === selectedDate)) {
-            if (parsedDates.length > 0) {
-              setSelectedDate(parsedDates[0].date)
-            } else {
-              setSelectedDate(null)
-            }
+          // Default to the first date that still has a bookable (non-past) slot
+          const visibleDates = markPastSlots(parsedDates, new Date())
+          const current = visibleDates.find(d => d.date === selectedDate)
+          if (!current || !current.slots.some(s => s.available)) {
+            const firstBookable = visibleDates.find(d => d.slots.some(s => s.available))
+            setSelectedDate(firstBookable?.date || visibleDates[0]?.date || null)
             setSelectedTimeSlot(null)
           }
         }
@@ -276,6 +328,15 @@ export default function SchedulePage() {
 
   const handleConfirm = () => {
     if (selectedDate && selectedTimeSlot && selectedServiceCentre) {
+      // Re-check against the real clock at submit time (the 30s tick may be stale)
+      const chosen = markPastSlots(rawDates, new Date())
+        .find((d) => d.date === selectedDate)
+        ?.slots.find((s) => s.time === selectedTimeSlot)
+      if (!chosen || !chosen.available) {
+        setSelectedTimeSlot(null)
+        setError('That time slot is no longer available. Please choose another.')
+        return
+      }
       setSlot({
         date: selectedDate,
         timeSlot: selectedTimeSlot,
@@ -289,6 +350,9 @@ export default function SchedulePage() {
 
   const selectedDateObj = availableDates.find((d) => d.date === selectedDate)
   const timeSlots = selectedDateObj?.slots || []
+  // A selected slot stops counting as selected once its start time has passed
+  const selectedSlotEntry = timeSlots.find((s) => s.time === selectedTimeSlot)
+  const activeTimeSlot = selectedSlotEntry && !selectedSlotEntry.available ? null : selectedTimeSlot
 
   return (
     <div className='schedule-page-shell'>
@@ -367,7 +431,7 @@ export default function SchedulePage() {
                 </>
               ) : timeSlots.length > 0 ? (
                 timeSlots.map((t, idx) => {
-                  const isSelected = selectedTimeSlot === t.time
+                  const isSelected = activeTimeSlot === t.time
                   const isAvailable = t.available !== false
                   return (
                     <button
@@ -541,7 +605,7 @@ export default function SchedulePage() {
                       </>
                     ) : timeSlots.length > 0 ? (
                       timeSlots.map((t, idx) => {
-                        const isSelected = selectedTimeSlot === t.time
+                        const isSelected = activeTimeSlot === t.time
                         const isAvailable = t.available !== false
                         return (
                           <button
