@@ -148,14 +148,8 @@ function TierCard({
         style={{
           position: 'relative',
           width: '100%',
-          height: compact ? 160 : 220,
           overflow: 'hidden',
           background: '#f5f5f7',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: 12,
-          boxSizing: 'border-box',
         }}
       >
         <img
@@ -163,8 +157,7 @@ function TierCard({
           alt={tier.tier}
           style={{
             width: '100%',
-            height: '100%',
-            objectFit: 'contain',
+            height: 'auto',
             display: 'block',
           }}
         />
