@@ -452,17 +452,18 @@ export default function SchedulePage() {
                             ? 'var(--color-content-card)'
                             : 'var(--color-content-card)',
                         borderColor: !isAvailable
-                          ? 'transparent'
+                          ? 'var(--color-content-border)'
                           : isSelected
                             ? 'var(--color-content-text)'
                             : 'var(--color-content-border)',
                         color: !isAvailable
-                          ? 'var(--color-content-border)'
+                          ? 'var(--color-content-text-secondary)'
                           : isSelected
                             ? 'var(--color-content-text)'
                             : 'var(--color-content-text-secondary)',
                         cursor: !isAvailable ? 'not-allowed' : 'pointer',
-                        opacity: !isAvailable ? 0.4 : 1,
+                        opacity: !isAvailable ? 0.6 : 1,
+                        textDecoration: !isAvailable ? 'line-through' : 'none',
                       }}
                     >
                       {t.time}
@@ -620,7 +621,7 @@ export default function SchedulePage() {
                             className='h-14 rounded-xl text-xs font-bold transition-all border-2'
                             style={{
                               background: !isAvailable
-                                ? 'var(--color-content-bg)'
+                                ? 'var(--theme-bg-300)'
                                 : isSelected
                                   ? 'var(--color-content-text)'
                                   : 'var(--theme-bg-300)',
@@ -630,12 +631,13 @@ export default function SchedulePage() {
                                   ? 'var(--color-content-text)'
                                   : 'transparent',
                               color: !isAvailable
-                                ? 'var(--color-content-border)'
+                                ? 'var(--color-content-text-secondary)'
                                 : isSelected
                                   ? 'var(--color-content-bg)'
                                   : 'var(--color-content-text-secondary)',
                               cursor: !isAvailable ? 'not-allowed' : 'pointer',
-                              opacity: !isAvailable ? 0.4 : 1,
+                              opacity: !isAvailable ? 0.6 : 1,
+                              textDecoration: !isAvailable ? 'line-through' : 'none',
                             }}
                           >
                             {t.time}
