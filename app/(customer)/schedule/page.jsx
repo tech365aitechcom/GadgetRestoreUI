@@ -22,16 +22,18 @@ function parseTimeToMinutes(str) {
   return hours * 60 + minutes
 }
 
-// A slot label is "<start> - <end>"; the slot is bookable only while its start is in the future.
-function slotStartMinutes(time) {
-  return parseTimeToMinutes(String(time || '').split(/\s*[-–]\s*/)[0])
+// A slot label is "<start> - <end>"; the slot stays bookable until its end time has passed.
+// Falls back to the start time when the label has no end.
+function slotEndMinutes(time) {
+  const [start, end] = String(time || '').split(/\s*[-–]\s*/)
+  return end !== undefined ? parseTimeToMinutes(end) : parseTimeToMinutes(start)
 }
 
 function toLocalDateStr(d) {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
 }
 
-// Returns a copy of `dates` with every slot that has already started (per `now`) marked unavailable.
+// Returns a copy of `dates` with every slot that has already ended (per `now`) marked unavailable.
 function markPastSlots(dates, now) {
   const todayStr = toLocalDateStr(now)
   const nowMinutes = now.getHours() * 60 + now.getMinutes()
@@ -43,8 +45,8 @@ function markPastSlots(dates, now) {
     return {
       ...d,
       slots: d.slots.map((s) => {
-        const start = slotStartMinutes(s.time)
-        return start !== null && start <= nowMinutes ? { ...s, available: false } : s
+        const end = slotEndMinutes(s.time)
+        return end !== null && end <= nowMinutes ? { ...s, available: false } : s
       }),
     }
   })
@@ -350,7 +352,7 @@ export default function SchedulePage() {
 
   const selectedDateObj = availableDates.find((d) => d.date === selectedDate)
   const timeSlots = selectedDateObj?.slots || []
-  // A selected slot stops counting as selected once its start time has passed
+  // A selected slot stops counting as selected once its end time has passed
   const selectedSlotEntry = timeSlots.find((s) => s.time === selectedTimeSlot)
   const activeTimeSlot = selectedSlotEntry && !selectedSlotEntry.available ? null : selectedTimeSlot
 
