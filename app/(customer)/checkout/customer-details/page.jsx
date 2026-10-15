@@ -100,6 +100,7 @@ InputField.propTypes = {
 export default function CustomerDetailsPage() {
   const router = useRouter()
   const {
+    category,
     brand,
     model,
     symptoms,
@@ -301,6 +302,7 @@ export default function CustomerDetailsPage() {
       /*
       // Create booking via API
       const result = await bookingService.createBooking({
+        category,
         brand,
         model,
         symptoms,
