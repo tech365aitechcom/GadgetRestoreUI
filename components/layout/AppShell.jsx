@@ -19,6 +19,8 @@ import { useBooking } from '@/context/BookingContext'
 import { useProtectedNavigation } from '@/hooks/useProtectedNavigation'
 import NotificationDrawer from '@/components/layout/NotificationDrawer'
 import LoginAlertModal from '@/components/ui/LoginAlertModal'
+import ThemeToggle from '@/components/ui/ThemeToggle'
+import Logo from '@/components/ui/Logo'
 import notificationService from '@/services/notification.service'
 import catalogueService from '@/services/catalogue.service'
 import orderService from '@/services/order.service'
@@ -197,11 +199,7 @@ export default function AppShell({ children, className = '' }) {
         {/* Logo */}
         <Link href="/">
           <div className='pt-6 px-5 pb-5'>
-            <img
-              src='/gadget-restore-logo.svg'
-              alt='Gadget Restore'
-              className='h-11 w-auto object-contain'
-            />
+            <Logo className='h-11' />
           </div>
         </Link>
 
@@ -220,8 +218,8 @@ export default function AppShell({ children, className = '' }) {
                   navigateTo(item.href)
                 }}
                 className={`flex items-center gap-3 py-3 px-5 rounded-xl border-none cursor-pointer w-full text-sm text-left transition-all duration-150 ${isActive
-                  ? 'font-extrabold text-black bg-white'
-                  : 'font-bold text-[#8A8A8A] bg-transparent hover:text-white hover:bg-white/6'
+                  ? 'font-extrabold text-[var(--theme-btn-primary-text)] bg-[var(--theme-btn-primary-bg)]'
+                  : 'font-bold text-[var(--color-text-secondary)] bg-transparent hover:text-[var(--color-text-primary)] hover:bg-[var(--theme-btn-secondary-hover)]'
                   }`}
               >
                 <Icon size={18} strokeWidth={isActive ? 2.5 : 2} />
@@ -233,10 +231,10 @@ export default function AppShell({ children, className = '' }) {
 
         {/* User snippet */}
         <div className='py-4 px-5 border-t border-divider flex items-center gap-3'>
-          <div className='w-8.5 h-8.5 rounded-full bg-white/10 flex items-center justify-center shrink-0'>
-            <User size={18} color='#fff' strokeWidth={2} />
+          <div className='w-8.5 h-8.5 rounded-full bg-[var(--theme-btn-secondary-bg)] flex items-center justify-center shrink-0'>
+            <User size={18} color='currentColor' strokeWidth={2} className='text-[var(--color-text-primary)]' />
           </div>
-          <span className='text-[13px] font-medium text-white overflow-hidden text-ellipsis whitespace-nowrap'>
+          <span className='text-[13px] font-medium text-[var(--color-text-primary)] overflow-hidden text-ellipsis whitespace-nowrap'>
             Hi {user?.name || 'Guest'}
           </span>
         </div>
@@ -246,6 +244,8 @@ export default function AppShell({ children, className = '' }) {
       <main className='content-col'>
         {/* Desktop Top Bar */}
         <header className='desktop-topbar'>
+          {/* Search bar disabled */}
+          {false && (
           <div ref={containerRef} className='desktop-topbar-search relative flex items-center w-full max-w-[440px]'>
             <Search size={15} color='var(--color-content-text-secondary)' className="shrink-0" />
             <input
@@ -374,7 +374,9 @@ export default function AppShell({ children, className = '' }) {
               </div>
             )}
           </div>
+          )}
           <div className='flex items-center gap-5 ml-auto'>
+            <ThemeToggle size={21} className='text-content-text-secondary hover:text-content-text' />
             <button
               aria-label='Notifications'
               onClick={() => setIsNotificationOpen(true)}

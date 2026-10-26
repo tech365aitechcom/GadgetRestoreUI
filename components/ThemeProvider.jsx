@@ -1,30 +1,20 @@
 'use client'
 
 import { useEffect } from 'react'
-import { DEFAULT_THEME, THEMES } from '@/lib/theme'
+import { applyTheme, getStoredTheme } from '@/lib/theme'
 
 /**
  * ThemeProvider Component
  *
- * This component automatically applies the theme when the app loads.
- * Add this to your root layout to enable theme support.
+ * The blocking script in the document <head> (see app/layout.js) already applies
+ * the persisted theme before first paint. This component is a hydration-time
+ * safety net: it re-asserts the stored theme in case the attribute was cleared,
+ * and keeps <html data-theme> in sync if the app was navigated to without a full
+ * document load. Add it to the root layout to enable theme support.
  */
 export default function ThemeProvider({ children }) {
   useEffect(() => {
-    const theme = DEFAULT_THEME
-    const themeValues = THEMES[theme]
-
-    if (!themeValues) {
-      return
-    }
-
-    // Apply CSS custom properties to document root
-    Object.entries(themeValues).forEach(([property, value]) => {
-      document.documentElement.style.setProperty(property, value)
-    })
-
-    // Set data attribute for theme-specific selectors
-    document.documentElement.setAttribute('data-theme', theme)
+    applyTheme(getStoredTheme())
   }, [])
 
   return <>{children}</>

@@ -302,12 +302,12 @@ export default function SelectSymptomsPage() {
                         fontWeight: 800,
                         textTransform: 'uppercase',
                         letterSpacing: '0.08em',
-                        background: '#000000',
-                        color: '#ffffff',
+                        background: 'var(--color-tag-bg)',
+                        color: 'var(--color-tag-text)',
                         padding: '6px 14px',
                         borderRadius: 999,
                         marginBottom: 16,
-                        border: '1px solid rgba(255, 255, 255, 0.15)',
+                        border: '1px solid var(--color-content-border)',
                       }}
                     >
                       ACTIVE INTAKE
@@ -349,12 +349,12 @@ export default function SelectSymptomsPage() {
                       onClick={() => router.push('/select-model')}
                       style={{
                         padding: '12px 24px',
-                        background: '#e4e4e7',
+                        background: 'var(--theme-btn-secondary-bg)',
                         border: 'none',
                         borderRadius: 8,
                         fontSize: 14,
                         fontWeight: 700,
-                        color: '#000000',
+                        color: 'var(--theme-btn-secondary-text)',
                         cursor: 'pointer',
                         transition: 'all 0.2s ease',
                         whiteSpace: 'nowrap',
@@ -370,7 +370,7 @@ export default function SelectSymptomsPage() {
                 <div
                   style={{
                     width: 320,
-                    background: 'linear-gradient(135deg, #1e2d29 0%, #0d1311 100%)',
+                    background: 'var(--device-panel-bg)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -387,7 +387,7 @@ export default function SelectSymptomsPage() {
                       width: '80%',
                       height: '80%',
                       objectFit: 'contain',
-                      filter: 'drop-shadow(0 15px 25px rgba(0, 0, 0, 0.6))',
+                      filter: 'var(--device-panel-shadow)',
                     }}
                     className="device-card-image"
                     onError={(e) => {
@@ -670,8 +670,8 @@ export default function SelectSymptomsPage() {
               {/* Premium Quality Standards Banner */}
               <div
                 style={{
-                  background: '#1E2024',
-                  border: '1px solid rgba(255, 255, 255, 0.08)',
+                  background: 'var(--color-content-card)',
+                  border: '1px solid var(--color-content-border)',
                   borderRadius: 16,
                   padding: '40px 32px',
                   display: 'flex',
@@ -686,7 +686,7 @@ export default function SelectSymptomsPage() {
                 <div style={{ display: 'flex', gap: 16, alignItems: 'flex-start', flex: 1 }}>
                   <div
                     style={{
-                      color: '#ffffff',
+                      color: 'var(--color-content-text)',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
@@ -700,7 +700,7 @@ export default function SelectSymptomsPage() {
                       style={{
                         fontSize: 15,
                         fontWeight: 700,
-                        color: '#ffffff',
+                        color: 'var(--color-content-text)',
                         margin: '0 0 6px 0',
                       }}
                     >
@@ -709,7 +709,7 @@ export default function SelectSymptomsPage() {
                     <p
                       style={{
                         fontSize: 13,
-                        color: '#9CA3AF',
+                        color: 'var(--color-content-text-secondary)',
                         margin: 0,
                         lineHeight: 1.6,
                       }}
@@ -736,7 +736,7 @@ export default function SelectSymptomsPage() {
                       style={{
                         fontSize: 22,
                         fontWeight: 800,
-                        color: '#ffffff',
+                        color: 'var(--color-content-text)',
                         lineHeight: 1,
                       }}
                     >
@@ -747,7 +747,7 @@ export default function SelectSymptomsPage() {
                         fontSize: 9,
                         fontWeight: 700,
                         letterSpacing: '0.08em',
-                        color: '#9CA3AF',
+                        color: 'var(--color-content-text-secondary)',
                         textTransform: 'uppercase',
                         whiteSpace: 'nowrap',
                       }}
@@ -761,7 +761,7 @@ export default function SelectSymptomsPage() {
                     style={{
                       height: 32,
                       width: 1,
-                      background: 'rgba(255, 255, 255, 0.12)',
+                      background: 'var(--color-content-border)',
                     }}
                   />
 
@@ -771,7 +771,7 @@ export default function SelectSymptomsPage() {
                       style={{
                         fontSize: 22,
                         fontWeight: 800,
-                        color: '#ffffff',
+                        color: 'var(--color-content-text)',
                         lineHeight: 1,
                       }}
                     >
@@ -782,7 +782,7 @@ export default function SelectSymptomsPage() {
                         fontSize: 9,
                         fontWeight: 700,
                         letterSpacing: '0.08em',
-                        color: '#9CA3AF',
+                        color: 'var(--color-content-text-secondary)',
                         textTransform: 'uppercase',
                         whiteSpace: 'nowrap',
                       }}
@@ -1467,7 +1467,7 @@ export default function SelectSymptomsPage() {
           transition: border-color 0.3s ease, box-shadow 0.3s ease;
         }
         .device-info-card:hover {
-          border-color: rgba(255, 255, 255, 0.15) !important;
+          border-color: var(--color-content-border) !important;
           box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
         }
         .device-card-image {
@@ -1478,11 +1478,11 @@ export default function SelectSymptomsPage() {
           filter: drop-shadow(0 20px 30px rgba(0, 0, 0, 0.7)) !important;
         }
         .diagnose-btn:not(:disabled):hover {
-          background-color: #18181b !important;
+          background-color: var(--theme-btn-primary-hover) !important;
           transform: translateY(-1px);
         }
         .change-device-btn:hover {
-          background-color: #ffffff !important;
+          background-color: var(--theme-btn-secondary-hover) !important;
           transform: translateY(-1px);
         }
         .mobile-device-card {
@@ -1520,7 +1520,7 @@ export default function SelectSymptomsPage() {
         }
         
         .symptom-card:hover {
-          background: rgba(255, 255, 255, 0.02) !important;
+          background: var(--theme-btn-secondary-hover) !important;
           border-color: rgba(108, 123, 255, 0.4) !important;
           transform: translateY(-2px);
           box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.05);

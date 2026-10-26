@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { Moon, Sun, Palette } from 'lucide-react'
-import { applyTheme } from '@/lib/theme'
+import { getStoredTheme, setTheme } from '@/lib/theme'
 
 // ─── Settings Page ─────────────────────────────────────────────────────────
 // Temporary page for testing theme switching.
@@ -14,17 +14,12 @@ export default function SettingsPage() {
 
   // Read persisted preference on mount and apply it
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('gr_theme') || 'dark'
-      setCurrentTheme(saved)
-      applyTheme(saved)
-    }
+    setCurrentTheme(getStoredTheme())
   }, [])
 
   const handleThemeChange = (theme) => {
-    applyTheme(theme)
+    setTheme(theme)
     setCurrentTheme(theme)
-    localStorage.setItem('gr_theme', theme)
   }
 
   return (
