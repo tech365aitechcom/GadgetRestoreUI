@@ -234,7 +234,7 @@ export default function SelectModePage() {
           <div className="lg:flex lg:relative hidden">
             <div className="p-12 flex-1 z-[2]">
               <div className="text-[11px] font-bold tracking-widest uppercase mb-4" style={{ color: 'var(--color-text-mid)' }}>
-                The Repair.co Promise
+                The Gadget Restore Promise
               </div>
               <h2 className="text-[32px] font-extrabold leading-tight mb-4 tracking-tight">
                 Precision is not an option; it is our standard.

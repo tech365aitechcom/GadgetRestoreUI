@@ -33,9 +33,25 @@ export const viewport = {
 };
 
 export default function RootLayout({ children }) {
+  // suppressHydrationWarning: the blocking script below stamps data-theme onto
+  // <html> before React hydrates, so the client attributes intentionally differ
+  // from the server markup. The flag only covers this element's own attributes,
+  // not the tree beneath it.
   return (
-    <html lang="en" className={`${inter.variable} ${manrope.variable}`}>
+    <html
+      lang="en"
+      className={`${inter.variable} ${manrope.variable}`}
+      suppressHydrationWarning
+    >
       <head>
+        {/* Apply the persisted theme before first paint to avoid a flash of the
+            wrong theme. Mirrors STORAGE_KEY / DEFAULT_THEME in lib/theme.js. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "(function(){try{var t=localStorage.getItem('gr_theme');document.documentElement.setAttribute('data-theme',t==='light'?'light':'dark');}catch(e){document.documentElement.setAttribute('data-theme','dark');}})();",
+          }}
+        />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
