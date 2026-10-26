@@ -151,12 +151,22 @@ function TierCard({
           height: compact ? 160 : 220,
           overflow: 'hidden',
           background: '#f5f5f7',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: 12,
+          boxSizing: 'border-box',
         }}
       >
         <img
           src={tier.image || FALLBACK_IMAGES[tier.tier]}
           alt={tier.tier}
-          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+          style={{
+            width: '100%',
+            height: '100%',
+            objectFit: 'contain',
+            display: 'block',
+          }}
         />
         {/* Recommended Badge on top right (if Original) */}
         {isOriginal && (

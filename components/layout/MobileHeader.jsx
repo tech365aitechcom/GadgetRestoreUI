@@ -66,10 +66,18 @@ export default function MobileHeader({
         <div className='w-9 flex-shrink-0' />
       )}
 
-      {/* Center - Logo */}
-      <div className='flex-1 flex justify-center'>
-        <Logo className='h-7' />
-      </div>
+      {/* Center - Logo (Clickable to redirect home) */}
+      <button
+        onClick={() => router.push('/')}
+        className='flex-1 flex justify-center bg-transparent border-0 cursor-pointer outline-none active:opacity-75 transition-opacity'
+        aria-label='Go to home page'
+      >
+        <img
+          src='/gadget-restore-logo.svg'
+          alt='Gadget Restore'
+          className='h-7 object-contain'
+        />
+      </button>
 
       {/* Right side - Theme toggle + Notification bell */}
       <div className='flex items-center gap-1 flex-shrink-0'>

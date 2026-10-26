@@ -701,7 +701,7 @@ export default function SplashOrLandingPage() {
             </div>
 
             <a
-              href='https://www.instagram.com/gadget.restore.in'
+              href='https://www.instagram.com/gadget_restore.in'
               target='_blank'
               rel='noopener noreferrer'
               className='flex items-center gap-3 hover:opacity-85 transition-opacity'
@@ -727,7 +727,7 @@ export default function SplashOrLandingPage() {
                   Instagram
                 </div>
                 <div className='text-[11px] font-medium'>
-                  @gadget.restore.in
+                  @gadget_restore.in
                 </div>
               </div>
             </a>
@@ -1917,7 +1917,7 @@ export default function SplashOrLandingPage() {
 
             <div className='flex items-center gap-3'>
               <a
-                href='https://www.instagram.com/gadget.restore.in'
+                href='https://www.instagram.com/gadget_restore.in'
                 target='_blank'
                 rel='noopener noreferrer'
                 aria-label='Instagram'
