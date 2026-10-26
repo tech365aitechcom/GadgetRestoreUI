@@ -12,7 +12,7 @@ const SLIDES = [
     image: '/images/onboarding-slide-1.png',
   },
   {
-    title: 'Genuine Parts<br />Expert Technicians.',
+    title: 'Premium Parts<br />Expert Technicians.',
     description: 'We use high-quality parts and industry<br />leading tools for the best results.',
     image: '/images/onboarding-slide-2.png',
   },

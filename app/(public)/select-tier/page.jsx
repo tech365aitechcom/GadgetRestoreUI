@@ -126,7 +126,7 @@ function TierCard({
         flex: 1,
         minWidth: 0,
         borderRadius: 18,
-        background: '#121212',
+        background: 'var(--color-content-card)',
         cursor: isDisabled ? 'not-allowed' : 'pointer',
         textAlign: 'left',
         outline: 'none',
@@ -136,7 +136,7 @@ function TierCard({
         flexDirection: 'column',
         border: isSelected
           ? '2px solid #0088ff'
-          : '2px solid rgba(255,255,255,0.08)',
+          : '2px solid var(--color-content-border)',
         boxShadow: isSelected ? '0 8px 25px rgba(0, 136, 255, 0.25)' : 'none',
         padding: 0,
         opacity: isDisabled ? 0.4 : 1,
@@ -151,22 +151,12 @@ function TierCard({
           height: compact ? 160 : 220,
           overflow: 'hidden',
           background: '#f5f5f7',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: 12,
-          boxSizing: 'border-box',
         }}
       >
         <img
           src={tier.image || FALLBACK_IMAGES[tier.tier]}
           alt={tier.tier}
-          style={{
-            width: '100%',
-            height: '100%',
-            objectFit: 'contain',
-            display: 'block',
-          }}
+          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
         />
         {/* Recommended Badge on top right (if Original) */}
         {isOriginal && (
@@ -218,7 +208,7 @@ function TierCard({
               style={{
                 fontSize: compact ? 18 : 22,
                 fontWeight: 800,
-                color: '#ffffff',
+                color: 'var(--color-content-text)',
                 lineHeight: 1.1,
               }}
             >
@@ -230,7 +220,7 @@ function TierCard({
               style={{
                 fontSize: compact ? 18 : 22,
                 fontWeight: 800,
-                color: '#ffffff',
+                color: 'var(--color-content-text)',
                 lineHeight: 1.1,
               }}
             >
@@ -243,7 +233,7 @@ function TierCard({
         <p
           style={{
             fontSize: compact ? 12 : 13,
-            color: 'rgba(255, 255, 255, 0.6)',
+            color: 'var(--color-content-text-secondary)',
             lineHeight: 1.6,
             margin: '0 0 20px 0',
           }}
@@ -261,7 +251,7 @@ function TierCard({
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: 6,
-                color: 'rgba(255, 255, 255, 0.4)',
+                color: 'var(--color-content-text-secondary)',
                 fontSize: 10,
                 fontWeight: 700,
                 letterSpacing: '0.06em',
@@ -276,12 +266,12 @@ function TierCard({
                 strokeWidth='3.5'
                 strokeLinecap='round'
                 strokeLinejoin='round'
-                style={{ color: 'rgba(255, 255, 255, 0.4)' }}
+                style={{ color: 'var(--color-content-text-secondary)' }}
               >
                 <path d='M22 11.08V12a10 10 0 1 1-5.93-9.14' />
                 <polyline points='22 4 12 14.01 9 11.01' />
               </svg>
-              GENUINE SOURCING
+              PREMIUM SOURCING
             </div>
           ) : (
             <div
@@ -289,7 +279,7 @@ function TierCard({
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: 6,
-                color: 'rgba(255, 255, 255, 0.4)',
+                color: 'var(--color-content-text-secondary)',
                 fontSize: 10,
                 fontWeight: 700,
                 letterSpacing: '0.06em',
@@ -298,7 +288,7 @@ function TierCard({
               <Shield
                 size={14}
                 strokeWidth={2}
-                style={{ color: 'rgba(255, 255, 255, 0.4)' }}
+                style={{ color: 'var(--color-content-text-secondary)' }}
               />
               {warrantyText}
             </div>
@@ -352,9 +342,10 @@ export default function SelectTierPage() {
     catalogueService
       .getPartTiers()
       .then((data) => {
-        const sorted = [...data].sort(
-          (a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0),
-        )
+        // 'Basic' is not offered — exclude it from the selectable tiers.
+        const sorted = data
+          .filter((t) => t.tier !== 'Basic')
+          .sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0))
         setTiers(sorted)
       })
       .catch(() => setError('Failed to load part tiers. Please try again.'))
@@ -444,7 +435,7 @@ export default function SelectTierPage() {
         .tier-card-btn:hover:not(.disabled) {
           transform: translateY(-4px);
           box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4) !important;
-          border-color: rgba(255, 255, 255, 0.2) !important;
+          border-color: var(--color-content-border) !important;
         }
         .tier-card-btn.selected {
           border-color: #0088ff !important;
@@ -467,7 +458,7 @@ export default function SelectTierPage() {
               style={{
                 fontSize: 36,
                 fontWeight: 900,
-                color: '#ffffff',
+                color: 'var(--color-content-text)',
                 textTransform: 'uppercase',
                 marginBottom: 8,
                 letterSpacing: '-0.02em',
@@ -551,8 +542,8 @@ export default function SelectTierPage() {
             left: 'var(--sidebar-width)',
             right: 0,
             height: 90,
-            background: '#0d0d0f',
-            borderTop: '1px solid rgba(255, 255, 255, 0.05)',
+            background: 'var(--color-content-surface)',
+            borderTop: '1px solid var(--color-content-border)',
             padding: '0 48px',
             display: 'flex',
             alignItems: 'center',
@@ -568,7 +559,7 @@ export default function SelectTierPage() {
                   display: 'block',
                   fontSize: 10,
                   fontWeight: 700,
-                  color: 'rgba(255,255,255,0.4)',
+                  color: 'var(--color-content-text-secondary)',
                   textTransform: 'uppercase',
                   letterSpacing: '0.05em',
                   marginBottom: 4,
@@ -576,7 +567,7 @@ export default function SelectTierPage() {
               >
                 Selected Quality
               </span>
-              <span style={{ fontSize: 15, fontWeight: 800, color: '#ffffff' }}>
+              <span style={{ fontSize: 15, fontWeight: 800, color: 'var(--color-content-text)' }}>
                 {selectedTier
                   ? `${selectedTier.tier}`
                   : 'Select a part quality'}
@@ -588,7 +579,7 @@ export default function SelectTierPage() {
                   display: 'block',
                   fontSize: 10,
                   fontWeight: 700,
-                  color: 'rgba(255,255,255,0.4)',
+                  color: 'var(--color-content-text-secondary)',
                   textTransform: 'uppercase',
                   letterSpacing: '0.05em',
                   marginBottom: 4,
@@ -596,7 +587,7 @@ export default function SelectTierPage() {
               >
                 Estimated Total
               </span>
-              <span style={{ fontSize: 15, fontWeight: 800, color: '#ffffff' }}>
+              <span style={{ fontSize: 15, fontWeight: 800, color: 'var(--color-content-text)' }}>
                 {(() => {
                   if (!selectedTier) return '—'
                   const avail = availability[selectedTier.tier]
@@ -620,15 +611,15 @@ export default function SelectTierPage() {
               style={{
                 background: 'none',
                 border: 'none',
-                color: 'rgba(255, 255, 255, 0.6)',
+                color: 'var(--color-content-text-secondary)',
                 fontSize: 13,
                 fontWeight: 600,
                 cursor: 'pointer',
                 transition: 'color 0.2s',
               }}
-              onMouseOver={(e) => (e.target.style.color = '#ffffff')}
+              onMouseOver={(e) => (e.target.style.color = 'var(--color-content-text)')}
               onMouseOut={(e) =>
-                (e.target.style.color = 'rgba(255, 255, 255, 0.6)')
+                (e.target.style.color = 'var(--color-content-text-secondary)')
               }
             >
               Back to Diagnostics
@@ -638,9 +629,9 @@ export default function SelectTierPage() {
               disabled={!canContinue}
               style={{
                 background: canContinue
-                  ? '#ffffff'
-                  : 'rgba(255, 255, 255, 0.1)',
-                color: canContinue ? '#000000' : 'rgba(255, 255, 255, 0.3)',
+                  ? 'var(--theme-btn-primary-bg)'
+                  : 'var(--theme-btn-secondary-bg)',
+                color: canContinue ? 'var(--theme-btn-primary-text)' : 'var(--theme-text-disabled)',
                 border: 'none',
                 borderRadius: 8,
                 padding: '12px 28px',
@@ -662,7 +653,7 @@ export default function SelectTierPage() {
       <div
         className='home-mobile'
         style={{
-          background: '#050505',
+          background: 'var(--theme-bg)',
           minHeight: '100svh',
           paddingBottom: 160,
         }}
@@ -683,7 +674,7 @@ export default function SelectTierPage() {
                 fontWeight: 900,
                 letterSpacing: '-0.02em',
                 textTransform: 'uppercase',
-                color: '#ffffff',
+                color: 'var(--color-content-text)',
                 marginBottom: 4,
               }}
             >
@@ -692,7 +683,7 @@ export default function SelectTierPage() {
             <p
               style={{
                 fontSize: 13,
-                color: 'rgba(255, 255, 255, 0.5)',
+                color: 'var(--color-content-text-secondary)',
                 lineHeight: 1.6,
               }}
             >
@@ -757,10 +748,10 @@ export default function SelectTierPage() {
                       disabled={isDisabled}
                       style={{
                         width: '100%',
-                        background: '#121212',
+                        background: 'var(--color-content-card)',
                         border: isSelected
-                          ? '1.5px solid #ffffff'
-                          : '1.5px solid rgba(255,255,255,0.08)',
+                          ? '1.5px solid var(--color-content-text)'
+                          : '1.5px solid var(--color-content-border)',
                         borderRadius: 14,
                         padding: '16px 20px',
                         display: 'flex',
@@ -790,8 +781,8 @@ export default function SelectTierPage() {
                             height: 18,
                             borderRadius: '50%',
                             border: isSelected
-                              ? '2px solid #ffffff'
-                              : '2px solid rgba(255,255,255,0.3)',
+                              ? '2px solid var(--color-content-text)'
+                              : '2px solid var(--color-content-border)',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
@@ -804,7 +795,7 @@ export default function SelectTierPage() {
                                 width: 10,
                                 height: 10,
                                 borderRadius: '50%',
-                                background: '#ffffff',
+                                background: 'var(--color-content-text)',
                               }}
                             />
                           )}
@@ -815,7 +806,7 @@ export default function SelectTierPage() {
                             style={{
                               fontSize: 16,
                               fontWeight: 800,
-                              color: '#ffffff',
+                              color: 'var(--color-content-text)',
                             }}
                           >
                             {tier.tier}
@@ -823,7 +814,7 @@ export default function SelectTierPage() {
                           <div
                             style={{
                               fontSize: 12,
-                              color: 'rgba(255,255,255,0.5)',
+                              color: 'var(--color-content-text-secondary)',
                               marginTop: 2,
                             }}
                           >
@@ -862,14 +853,14 @@ export default function SelectTierPage() {
                             style={{
                               fontSize: 15,
                               fontWeight: 800,
-                              color: '#ffffff',
+                              color: 'var(--color-content-text)',
                             }}
                           >
                             {displayPriceText}
                           </span>
                         )}
                         {isSelected && (
-                          <div style={{ color: '#ffffff' }}>
+                          <div style={{ color: 'var(--color-content-text)' }}>
                             <svg
                               width='18'
                               height='18'
@@ -895,7 +886,7 @@ export default function SelectTierPage() {
               textAlign: 'center',
               margin: '24px 0 16px 0',
               fontSize: 11,
-              color: 'rgba(255,255,255,0.4)',
+              color: 'var(--color-content-text-secondary)',
               fontStyle: 'italic',
             }}
           >
@@ -911,8 +902,8 @@ export default function SelectTierPage() {
               'calc(var(--nav-height) + env(safe-area-inset-bottom, 0px))',
             left: 0,
             right: 0,
-            background: '#0d0d0f',
-            borderTop: '1px solid rgba(255,255,255,0.05)',
+            background: 'var(--color-content-surface)',
+            borderTop: '1px solid var(--color-content-border)',
             padding: '16px 20px',
             zIndex: 90,
             boxShadow: '0 -4px 10px rgba(0,0,0,0.4)',
@@ -924,8 +915,8 @@ export default function SelectTierPage() {
             style={{
               width: '100%',
               height: 48,
-              background: canContinue ? '#ffffff' : 'rgba(255, 255, 255, 0.1)',
-              color: canContinue ? '#000000' : 'rgba(255, 255, 255, 0.3)',
+              background: canContinue ? 'var(--theme-btn-primary-bg)' : 'var(--theme-btn-secondary-bg)',
+              color: canContinue ? 'var(--theme-btn-primary-text)' : 'var(--theme-text-disabled)',
               border: 'none',
               borderRadius: 8,
               fontWeight: 800,

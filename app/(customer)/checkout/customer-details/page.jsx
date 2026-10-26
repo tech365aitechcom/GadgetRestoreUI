@@ -100,7 +100,6 @@ InputField.propTypes = {
 export default function CustomerDetailsPage() {
   const router = useRouter()
   const {
-    category,
     brand,
     model,
     symptoms,
@@ -299,7 +298,6 @@ export default function CustomerDetailsPage() {
 
       // Create booking via API
       const result = await bookingService.createBooking({
-        category,
         brand,
         model,
         symptoms,
@@ -541,7 +539,7 @@ export default function CustomerDetailsPage() {
                 <div className='flex items-center gap-3 mb-4'>
                   <CheckCircle2 size={18} className='text-green-500' />
                   <span className='text-sm font-bold text-white'>
-                    Genuine Quality Parts
+                    Premium Quality Parts
                   </span>
                 </div>
                 <div className='flex items-center gap-3 mb-4'>

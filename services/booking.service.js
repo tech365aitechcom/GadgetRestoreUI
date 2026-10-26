@@ -28,7 +28,6 @@ function toBookingAddress(address) {
 
 export const bookingService = {
   async createBooking({
-    category,
     brand,
     model,
     symptoms,
@@ -55,9 +54,6 @@ export const bookingService = {
       // Device Information (Required)
       brandId: brand._id,
       modelId: model._id,
-      // Sent as plain text (CS portal's `category` field has no ref, unlike
-      // brand/model), so the ticket view can show it directly.
-      category: category?.name || undefined,
 
       // Repair Information (Required)
       symptomIds: symptoms.map((symptom) => symptom._id),
