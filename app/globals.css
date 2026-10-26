@@ -1,13 +1,167 @@
 @import 'tailwindcss';
 
+/* ═══════════════════════════════════════════════════════════════════════════
+   THEME SOURCE OF TRUTH
+   The --theme-* tokens below are the single source of truth for dark/light.
+   Dark values live on :root (the default). Light values are overridden on
+   :root[data-theme='light']. A blocking script in the document <head> sets
+   data-theme before first paint, so there is no flash of the wrong theme.
+   All --color-* brand tokens further down read from these --theme-* tokens.
+   ═════════════════════════════════════════════════════════════════════════ */
+:root {
+  /* Brand logo filter — tints the black-source manufacturer logos (BrandGrid) */
+  --brand-logo-filter: brightness(0) invert(1);
+
+  /* Gadget Restore wordmark — white ink for dark surfaces. See .brand-logo. */
+  --brand-wordmark: url('/gadget-restore-logo.svg');
+
+  /* Main backgrounds */
+  --theme-bg: #050505;
+  --theme-surface: #0d0d0f;
+  --theme-card: #0d0d0f;
+  --theme-card-darker: #111111;
+
+  /* Extended surface shades */
+  --theme-bg-900: #0a0a0a;
+  --theme-bg-600: #141414;
+  --theme-bg-400: #222222;
+  --theme-bg-300: #2b2b2b;
+  --theme-bg-200: #333333;
+  --theme-bg-100: #555555;
+
+  /* Extended text shades */
+  --theme-text-muted: #666666;
+  --theme-text-mid: #a0a0a0;
+  --theme-text-soft: #cccccc;
+  --theme-text-near-white: #e0e0e0;
+
+  /* Text colors */
+  --theme-text-primary: #ffffff;
+  --theme-text-secondary: rgba(255, 255, 255, 0.6);
+  --theme-text-tertiary: rgba(255, 255, 255, 0.5);
+  --theme-text-disabled: rgba(255, 255, 255, 0.4);
+
+  /* Borders and dividers */
+  --theme-border: rgba(255, 255, 255, 0.05);
+  --theme-border-strong: rgba(255, 255, 255, 0.1);
+  --theme-divider: rgba(255, 255, 255, 0.05);
+
+  /* Interactive elements */
+  --theme-input-bg: rgba(255, 255, 255, 0.04);
+  --theme-input-border: rgba(255, 255, 255, 0.1);
+  --theme-input-border-focus: rgba(255, 255, 255, 0.4);
+  --theme-placeholder: rgba(255, 255, 255, 0.3);
+
+  /* Buttons */
+  --theme-btn-primary-bg: #ffffff;
+  --theme-btn-primary-text: #000000;
+  --theme-btn-primary-hover: rgba(255, 255, 255, 0.9);
+  --theme-btn-primary-border: rgba(255, 255, 255, 0.2);
+  --theme-btn-secondary-bg: rgba(255, 255, 255, 0.05);
+  --theme-btn-secondary-text: #ffffff;
+  --theme-btn-secondary-border: rgba(255, 255, 255, 0.1);
+  --theme-btn-secondary-hover: rgba(255, 255, 255, 0.1);
+
+  /* Toggle switches */
+  --theme-toggle-bg-on: #34c759;
+  --theme-toggle-bg-off: rgba(255, 255, 255, 0.2);
+  --theme-toggle-thumb: #ffffff;
+
+  /* Scrollbar */
+  --theme-scrollbar-thumb: rgba(255, 255, 255, 0.2);
+  --theme-scrollbar-thumb-hover: rgba(255, 255, 255, 0.3);
+
+  /* Shadows */
+  --theme-shadow-sm: 0 1px 4px rgba(0, 0, 0, 0.3);
+  --theme-shadow-md: 0 3px 10px rgba(0, 0, 0, 0.5);
+  --theme-shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.5);
+
+  /* Info/Alert colors */
+  --theme-info-bg: rgba(59, 130, 246, 0.1);
+  --theme-info-border: rgba(59, 130, 246, 0.2);
+  --theme-info-text: #93c5fd;
+  --theme-info-icon: #60a5fa;
+
+  /* Device image panel behind product shots (select-symptoms card) */
+  --device-panel-bg: linear-gradient(135deg, #1e2d29 0%, #0d1311 100%);
+  --device-panel-shadow: drop-shadow(0 15px 25px rgba(0, 0, 0, 0.6));
+}
+
+/* ── Light theme overrides ─────────────────────────────────────────────────
+   Only the tokens whose value differs from dark are redeclared here.        */
+:root[data-theme='light'] {
+  --brand-logo-filter: none;
+
+  /* Black ink wordmark — the white .svg is invisible on light surfaces. */
+  --brand-wordmark: url('/gadget-restore-logo-light.png');
+
+  --theme-bg: #f5f5f7;
+  --theme-surface: #ffffff;
+  --theme-card: #ffffff;
+  --theme-card-darker: #f5f5f7;
+
+  --theme-bg-900: #f5f5f7;
+  --theme-bg-600: #f0f0f0;
+  --theme-bg-400: #e0e0e0;
+  --theme-bg-300: #e8e8e8;
+  --theme-bg-200: #d0d0d0;
+  --theme-bg-100: #909090;
+
+  --theme-text-muted: #999999;
+  --theme-text-mid: #555555;
+  --theme-text-soft: #333333;
+  --theme-text-near-white: #1a1a1a;
+
+  --theme-text-primary: #000000;
+  --theme-text-secondary: rgba(0, 0, 0, 0.6);
+  --theme-text-tertiary: #6b6b6b;
+  --theme-text-disabled: rgba(0, 0, 0, 0.4);
+
+  --theme-border: #e5e5ea;
+  --theme-border-strong: #d0d0d0;
+  --theme-divider: #e5e5ea;
+
+  --theme-input-bg: #f8f8f8;
+  --theme-input-border: #e8e8e8;
+  --theme-input-border-focus: #d0d0d0;
+  --theme-placeholder: #b0b0b0;
+
+  --theme-btn-primary-bg: #000000;
+  --theme-btn-primary-text: #ffffff;
+  --theme-btn-primary-hover: #222222;
+  --theme-btn-primary-border: #000000;
+  --theme-btn-secondary-bg: #f5f5f7;
+  --theme-btn-secondary-text: #000000;
+  --theme-btn-secondary-border: #e5e5ea;
+  --theme-btn-secondary-hover: rgba(0, 0, 0, 0.05);
+
+  --theme-toggle-bg-off: #e5e5ea;
+
+  --theme-scrollbar-thumb: rgba(0, 0, 0, 0.2);
+  --theme-scrollbar-thumb-hover: rgba(0, 0, 0, 0.3);
+
+  --theme-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+  --theme-shadow-md: 0 3px 8px rgba(0, 0, 0, 0.1);
+  --theme-shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.15);
+
+  --theme-info-bg: #e3f2fd;
+  --theme-info-border: #90caf9;
+  --theme-info-text: #1565c0;
+  --theme-info-icon: #1976d2;
+
+  --device-panel-bg: linear-gradient(135deg, #f4f6f5 0%, #e6ebe9 100%);
+  --device-panel-shadow: drop-shadow(0 12px 22px rgba(0, 0, 0, 0.16));
+}
+
 /* ─── Brand Tokens ────────────────────────────────────────────────────────── */
 :root {
-  /* Sidebar / Mobile Nav — always dark */
-  --color-bg: #050505;
-  --color-bg-card: #111111;
-  --color-text-primary: #ffffff;
-  --color-text-secondary: #8a8a8a;
-  --color-divider: #222222;
+  /* Sidebar / Mobile Nav — bridged to the --theme-* tokens above for
+     automatic dark/light switching.                                          */
+  --color-bg: var(--theme-bg, #050505);
+  --color-bg-card: var(--theme-card-darker, #111111);
+  --color-text-primary: var(--theme-text-primary, #ffffff);
+  --color-text-secondary: var(--theme-text-secondary, rgba(255, 255, 255, 0.6));
+  --color-divider: var(--theme-divider, rgba(255, 255, 255, 0.05));
 
   /* Main Content Area — bridged to theme.js for automatic dark/light switching.
      These vars read from --theme-* which applyTheme() updates on toggle.      */
@@ -480,6 +634,28 @@
   }
 }
 
+/* ─── Theme-aware logo ─────────────────────────────────────────────────────
+   Backs <Logo> (components/ui/Logo.jsx). One element, one wordmark: the art
+   is a background-image read from --brand-wordmark, which flips with the
+   theme. Since data-theme is set by the blocking script in app/layout.js
+   before first paint, the right mark is up on the first frame — no flash, no
+   JS, and no way to end up with both variants on screen at once.
+
+   inline-block + width:auto + aspect-ratio lets callers size the mark with a
+   height alone (e.g. `h-7`) and get the correct width, the way `h-7 w-auto`
+   behaved on the old <img>. A block-level box would stretch width to the
+   container instead and ignore the ratio.
+   ─────────────────────────────────────────────────────────────────────────── */
+.brand-logo {
+  display: inline-block;
+  width: auto;
+  aspect-ratio: 210 / 72;
+  background-image: var(--brand-wordmark, url('/gadget-restore-logo.svg'));
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+}
+
 /* ─── App Shell ───────────────────────────────────────────────────────────── */
 .app-shell {
   width: 100%;
@@ -526,12 +702,12 @@
 }
 
 .desktop-sidebar a:hover {
-  color: #ffffff !important;
+  color: var(--color-text-primary) !important;
 }
 
 .desktop-sidebar a.active {
-  background-color: #ffffff !important;
-  color: #000000 !important;
+  background-color: var(--theme-btn-primary-bg, #ffffff) !important;
+  color: var(--theme-btn-primary-text, #000000) !important;
 }
 
 /* Sidebar nav item spacing */
@@ -550,13 +726,13 @@
 }
 
 .sidebar-nav-item:hover {
-  color: #fff;
-  background-color: rgba(255, 255, 255, 0.06);
+  color: var(--color-text-primary);
+  background-color: var(--theme-btn-secondary-hover, rgba(255, 255, 255, 0.06));
 }
 
 .sidebar-nav-item.active {
-  color: #000 !important;
-  background-color: #fff !important;
+  color: var(--theme-btn-primary-text, #000) !important;
+  background-color: var(--theme-btn-primary-bg, #fff) !important;
 }
 
 /* ─── Main Content Column ─────────────────────────────────────────────────── */
@@ -1019,6 +1195,17 @@
   animation: skeleton-shimmer 1.4s infinite linear;
 }
 
+/* The white-alpha shimmer above is invisible on light surfaces. */
+[data-theme='light'] .skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(0, 0, 0, 0.06) 25%,
+    rgba(0, 0, 0, 0.12) 50%,
+    rgba(0, 0, 0, 0.06) 75%
+  );
+  background-size: 800px 100%;
+}
+
 /* ─── Utility: Divider ────────────────────────────────────────────────────── */
 hr,
 .divider {
@@ -1067,7 +1254,7 @@ hr,
   justify-content: space-between;
   height: 52px;
   padding: 0 16px;
-  background-color: #111111;
+  background-color: var(--color-bg-card);
   border-bottom: 1px solid var(--color-divider);
   gap: 12px;
 }
@@ -1084,7 +1271,7 @@ hr,
   align-items: center;
   gap: 8px;
   padding: 12px 20px 12px !important;
-  background-color: #111111;
+  background-color: var(--color-bg-card);
   border-bottom: 1px solid var(--color-divider);
 }
 
@@ -1103,7 +1290,7 @@ hr,
   flex: 1;
   height: 4px;
   border-radius: 99px;
-  background-color: rgba(255, 255, 255, 0.15);
+  background-color: var(--theme-border-strong, rgba(255, 255, 255, 0.15));
   transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
@@ -1328,8 +1515,8 @@ hr,
   align-items: center;
   justify-content: space-between;
   padding: 14px 20px;
-  background-color: #111111;
-  border: 1px solid #2a2a2a;
+  background-color: var(--color-content-card);
+  border: 1px solid var(--color-content-border);
   border-radius: var(--radius-card);
   cursor: pointer;
   transition: background-color 150ms ease;
@@ -1337,7 +1524,7 @@ hr,
 }
 
 .scan-serial-card:hover {
-  background-color: #1a1a1a;
+  background-color: var(--color-content-surface);
 }
 
 .scan-serial-card:active {
@@ -1349,7 +1536,7 @@ hr,
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.12em;
-  color: #666;
+  color: var(--color-content-text-secondary);
   display: block;
   margin-bottom: 4px;
 }
@@ -1357,7 +1544,7 @@ hr,
 .scan-serial-card-title {
   font-size: 15px;
   font-weight: 800;
-  color: #fff;
+  color: var(--color-content-text);
 }
 
 .scan-serial-icon {
@@ -1366,9 +1553,9 @@ hr,
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: rgba(255, 255, 255, 0.07);
+  background-color: var(--theme-btn-secondary-bg);
   border-radius: 11px;
-  color: #aaa;
+  color: var(--color-content-text-secondary);
   flex-shrink: 0;
 }
 
@@ -1376,8 +1563,8 @@ hr,
    CAN'T FIND MODEL BANNER (dark)
    ══════════════════════════════════════════════════════════════════════════ */
 .cant-find-banner {
-  background-color: #111111;
-  border: 1px solid #2a2a2a;
+  background-color: var(--color-content-card);
+  border: 1px solid var(--color-content-border);
   border-radius: var(--radius-card);
   padding: 22px 24px;
   position: relative;
@@ -1397,7 +1584,7 @@ hr,
 .cant-find-title {
   font-size: 16px;
   font-weight: 800;
-  color: #fff;
+  color: var(--color-content-text);
   text-transform: uppercase;
   letter-spacing: 0.03em;
   margin-bottom: 6px;
@@ -1405,7 +1592,7 @@ hr,
 
 .cant-find-desc {
   font-size: 12px;
-  color: #888;
+  color: var(--color-content-text-secondary);
   line-height: 1.6;
   max-width: 360px;
 }
@@ -1418,9 +1605,9 @@ hr,
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: #fff;
+  color: var(--color-content-text);
   text-decoration: none;
-  border-bottom: 1.5px solid #fff;
+  border-bottom: 1.5px solid var(--color-content-text);
   padding-bottom: 2px;
   margin-top: 12px;
   transition: color 150ms ease;
@@ -1428,8 +1615,8 @@ hr,
 }
 
 .cant-find-cta:hover {
-  color: #ccc;
-  border-color: #ccc;
+  color: var(--color-content-text-secondary);
+  border-color: var(--color-content-text-secondary);
 }
 
 .cant-find-gear {
@@ -1467,11 +1654,11 @@ hr,
   width: 38px;
   height: 38px;
   border-radius: 50%;
-  background-color: #111;
+  background-color: var(--theme-btn-primary-bg);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #fff;
+  color: var(--theme-btn-primary-text);
   flex-shrink: 0;
 }
 
@@ -1573,7 +1760,7 @@ hr,
     left: 0;
     right: 0;
     height: env(safe-area-inset-top, 0px);
-    background-color: #111111;
+    background-color: var(--color-bg-card);
     z-index: 150;
     pointer-events: none;
   }

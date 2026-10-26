@@ -1,7 +1,7 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'in.grest.customerapp',
+  appId: 'com.grest.gadgetrestore',
   appName: 'Gadget Restore',
   webDir: 'out',
   server: {

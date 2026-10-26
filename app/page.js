@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { Capacitor } from '@capacitor/core'
 import { Preferences } from '@capacitor/preferences'
+import { SplashScreen } from '@capacitor/splash-screen'
 
 import {
   Phone,
@@ -152,7 +153,7 @@ const REVIEWS_DATA = [
     name: 'Kashish Khanna',
     location: 'Gurugram',
     rating: 4,
-    text: 'Great customer service and genuine care for customers. The repair quality exceeded my expectations, and the device has been working flawlessly ever since.',
+    text: 'Great customer service and premium care for customers. The repair quality exceeded my expectations, and the device has been working flawlessly ever since.',
     initials: 'KK',
     bg: 'linear-gradient(135deg, #f12711 0%, #f5af19 100%)',
   },
@@ -166,6 +167,7 @@ export default function SplashOrLandingPage() {
   const [isNativeApp, setIsNativeApp] = useState(false)
   const [showSplash, setShowSplash] = useState(!hasShownSplashSession)
   const [progress, setProgress] = useState(0)
+  const hasNavigatedRef = useRef(false)
 
   // Web Landing Page state
   const [activeSection, setActiveSection] = useState('hero')
@@ -204,6 +206,8 @@ export default function SplashOrLandingPage() {
     const isApp = Capacitor.isNativePlatform()
     setIsNativeApp(isApp)
     setMounted(true)
+    // Hand off from the native launch screen to our in-app splash right away
+    if (isApp) SplashScreen.hide().catch(() => {})
 
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 40)
@@ -271,6 +275,9 @@ export default function SplashOrLandingPage() {
   // Navigate native app after splash completes
   useEffect(() => {
     if (isNativeApp && progress >= 100 && showSplash) {
+      // progress can settle to exactly 100 after overshooting, re-firing this effect
+      if (hasNavigatedRef.current) return
+      hasNavigatedRef.current = true
       const decideRoute = async () => {
         let hasSeen = 'false'
         try {
@@ -957,8 +964,8 @@ export default function SplashOrLandingPage() {
             >
               Contact Us
             </a>
-            <p className='text-[10px] text-zinc-600 leading-relaxed max-w-[280px]'>
-              <strong className='text-zinc-900'>Disclaimer:</strong> Unless explicitly mentioned, Gadget Restore uses Premium Grade parts. The performance will be the same as that of the original part.
+            <p className='text-[14px] text-zinc-600 leading-relaxed max-w-[280px]'>
+              <strong className='text-zinc-900'>Disclaimer:</strong> Unless explicitly mentioned, Gadget Restore uses non-Apple premium-grade parts. The performance will be the same as that of the original part.
             </p>
           </div>
         </div>
@@ -1037,7 +1044,9 @@ export default function SplashOrLandingPage() {
 
       {/* ────────────────────────────────────────────────────────────────────────
           3. OUR SERVICES IMAGE CARDS SECTION (Off-white pattern)
+          HIDDEN — flip `false` to `true` to bring this section back.
           ──────────────────────────────────────────────────────────────────────── */}
+      {false && (
       <section
         id='services'
         className='py-24 px-6 lg:px-20 relative border-t border-zinc-100 bg-cover bg-center'
@@ -1108,9 +1117,10 @@ export default function SplashOrLandingPage() {
           ))}
         </div>
       </section>
+      )}
 
       {/* ────────────────────────────────────────────────────────────────────────
-          4. EXPERT TECHNICIANS SECTION (Exact image & overlapping black badge)
+          4.EXPERT TECHNICIANS SECTION (Exact image & overlapping black badge)
           ──────────────────────────────────────────────────────────────────────── */}
       <section className='py-24 px-6 lg:px-20 bg-white relative'>
         <div className='max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-16'>
@@ -1140,7 +1150,7 @@ export default function SplashOrLandingPage() {
               Expert Technicians You Can Trust
             </h2>
             <p className='text-sm text-zinc-500 leading-relaxed mb-8'>
-              At TechFix Pro, we understand how vital your devices are to your
+              At Gadget Restore, we understand how vital your devices are to your
               daily life and business. Our team of certified specialists brings
               a combined 15 years of technical expertise to every diagnostic and
               repair.
@@ -1584,7 +1594,9 @@ export default function SplashOrLandingPage() {
       </section>
       {/* ────────────────────────────────────────────────────────────────────────
           10. WORKING PROCESS SECTION (Pure Coded Visual Timeline)
+          HIDDEN — flip `false` to `true` to bring this section back.
           ──────────────────────────────────────────────────────────────────────── */}
+      {false && (
       <section
         id='process'
         className='py-28 px-6 lg:px-20 relative overflow-hidden flex flex-col items-center justify-center bg-cover bg-center'
@@ -1648,6 +1660,7 @@ export default function SplashOrLandingPage() {
           ))}
         </div>
       </section>
+      )}
 
       {/* ────────────────────────────────────────────────────────────────────────
           11. INTERACTIVE BOOKING SCHEDULER SECTION (Dark Keyboard BG)
@@ -1723,121 +1736,6 @@ export default function SplashOrLandingPage() {
                   pattern='\d{10}'
                   className='w-full h-14 bg-transparent border border-white/10 px-4 text-xs text-white placeholder-zinc-500 outline-none focus:border-white transition-colors'
                 />
-                <div className='relative'>
-                  <input
-                    type='date'
-                    name='date'
-                    value={formData.date}
-                    onChange={handleInputChange}
-                    min={new Date().toISOString().split('T')[0]}
-                    className='w-full h-14 bg-transparent border border-white/10 px-4 text-xs text-white placeholder-zinc-500 outline-none focus:border-white transition-colors [color-scheme:dark] cursor-pointer'
-                  />
-                  <Calendar
-                    size={16}
-                    className='absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none'
-                  />
-                </div>
-              </div>
-
-              <div className='grid grid-cols-1 sm:grid-cols-2 gap-5'>
-                <div className='relative'>
-                  {/* Custom time slot dropdown — avoids native select overflow on mobile */}
-                  <button
-                    ref={timeButtonRef}
-                    type='button'
-                    onClick={() => {
-                      if (timeButtonRef.current) {
-                        const r = timeButtonRef.current.getBoundingClientRect()
-                        setTimeDropdownRect(r)
-                      }
-                      setTimeDropdownOpen((v) => !v)
-                    }}
-                    className='w-full h-14 bg-transparent border border-white/10 px-4 text-xs text-left outline-none focus:border-white transition-colors cursor-pointer flex items-center justify-between'
-                    style={{ color: formData.time ? '#fff' : '#71717a' }}
-                  >
-                    <span>{formData.time || 'Time Slot'}</span>
-                    <Clock size={16} className='text-zinc-500 shrink-0' />
-                  </button>
-
-                  {timeDropdownOpen && (
-                    <>
-                      {/* Backdrop to close on outside click */}
-                      <button
-                        type='button'
-                        className='fixed inset-0 z-40 bg-transparent border-0 cursor-default'
-                        onClick={() => setTimeDropdownOpen(false)}
-                        aria-label='Close time dropdown'
-                      />
-                      {/* Scrollable panel — anchored directly below the trigger button */}
-                      <div
-                        className='fixed z-50 bg-[#07080e] border border-white/10 overflow-y-auto'
-                        style={{
-                          maxHeight: '240px',
-                          width: timeDropdownRect
-                            ? timeDropdownRect.width
-                            : 220,
-                          top: timeDropdownRect
-                            ? timeDropdownRect.bottom + 4
-                            : 0,
-                          left: timeDropdownRect ? timeDropdownRect.left : 0,
-                        }}
-                      >
-                        {[
-                          '09:00 AM',
-                          '09:30 AM',
-                          '10:00 AM',
-                          '10:30 AM',
-                          '11:00 AM',
-                          '11:30 AM',
-                          '12:00 PM',
-                          '12:30 PM',
-                          '01:00 PM',
-                          '01:30 PM',
-                          '02:00 PM',
-                          '02:30 PM',
-                          '03:00 PM',
-                          '03:30 PM',
-                          '04:00 PM',
-                          '04:30 PM',
-                          '05:00 PM',
-                          '05:30 PM',
-                          '06:00 PM',
-                        ].map((slot) => (
-                          <button
-                            key={slot}
-                            type='button'
-                            onClick={() => {
-                              setFormData((prev) => ({ ...prev, time: slot }))
-                              setTimeDropdownOpen(false)
-                            }}
-                            className='w-full px-4 py-3 text-xs text-left transition-colors cursor-pointer'
-                            style={{
-                              color:
-                                formData.time === slot ? '#fff' : '#a1a1aa',
-                              background:
-                                formData.time === slot
-                                  ? 'rgba(255,255,255,0.08)'
-                                  : 'transparent',
-                              borderBottom: '1px solid rgba(255,255,255,0.05)',
-                            }}
-                            onMouseEnter={(e) =>
-                            (e.currentTarget.style.background =
-                              'rgba(255,255,255,0.06)')
-                            }
-                            onMouseLeave={(e) =>
-                            (e.currentTarget.style.background =
-                              formData.time === slot
-                                ? 'rgba(255,255,255,0.08)'
-                                : 'transparent')
-                            }
-                          >
-                            {slot}
-                          </button>
-                        ))}
-                      </div>
-                    </>
-                  )}
-                </div>
                 <div className='relative'>
                   <select
                     name='service'
@@ -1953,7 +1851,9 @@ export default function SplashOrLandingPage() {
 
       {/* ────────────────────────────────────────────────────────────────────────
           13. FOOTER QUOTE CAROUSEL SECTION (Dark)
+          HIDDEN — flip `false` to `true` to bring this section back.
           ──────────────────────────────────────────────────────────────────────── */}
+      {false && (
       <section className='py-20 px-6 lg:px-20 bg-black text-center relative overflow-hidden border-t border-white/5'>
         <div className='max-w-[800px] mx-auto relative z-10 text-white'>
           <div className='text-[var(--color-accent)] text-6xl font-black mb-6 select-none'>
@@ -1977,146 +1877,183 @@ export default function SplashOrLandingPage() {
           </span>
         </div>
       </section>
+      )}
 
       {/* ────────────────────────────────────────────────────────────────────────
           MAIN SYSTEM FOOTER
           ──────────────────────────────────────────────────────────────────────── */}
-      <footer className='bg-black border-t border-white/5 py-12 px-4 lg:px-20 text-xs text-zinc-600 font-sans'>
-        {/* Contact Info Row */}
-        <div className='max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-6 lg:gap-8 pb-4 lg:pb-10 mb-4 lg:mb-10 border-b border-white/5 text-zinc-400 text-[11px]'>
-          <div className='flex items-center justify-start md:justify-start gap-3'>
-            <div className='w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-[var(--color-accent)]'>
-              <Clock size={14} />
-            </div>
-            <div className='text-left'>
-              <div className='font-extrabold text-white text-[11px] tracking-wider'>
-                Timings
-              </div>
-              <div className='text-[11px] font-medium text-zinc-400'>
-                Mon - Sat 10:00 AM - 07:00 PM
-              </div>
-            </div>
-          </div>
+      <footer className='bg-black border-t border-white/5 pt-16 pb-10 px-6 lg:px-20 text-xs text-zinc-600 font-sans'>
+        <div className='max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-[1.6fr_1fr_1fr] gap-12 lg:gap-16'>
+          {/* ── Brand + contacts + social ──────────────────────────────────── */}
+          <div className='flex flex-col gap-6'>
+            <img
+              src='/gadget-restore-logo.svg'
+              alt='Gadget Restore Logo'
+              className='h-9 w-auto object-contain self-start'
+            />
 
-          <div className='flex items-center justify-start md:justify-start gap-3'>
-            <div className='w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-[var(--color-accent)]'>
-              <Mail size={14} />
-            </div>
-            <div className='text-left'>
-              <div className='font-extrabold text-white text-[11px] tracking-wider'>
-                Email Us
-              </div>
+            <div className='flex flex-col gap-4 text-[13px] leading-relaxed text-zinc-400'>
+              <a
+                href='tel:+918800003785'
+                className='flex items-center gap-3 hover:text-white transition-colors'
+              >
+                <Phone size={15} className='text-zinc-500 shrink-0' />
+                +91 88000 03785
+              </a>
+
               <a
                 href='mailto:support@gadgetrestore.in'
-                className='text-[11px] font-medium text-zinc-400 hover:text-white transition-colors'
+                className='flex items-center gap-3 hover:text-white transition-colors'
               >
+                <Mail size={15} className='text-zinc-500 shrink-0' />
                 support@gadgetrestore.in
               </a>
-            </div>
-          </div>
 
-          <div className='flex items-center justify-start md:justify-start gap-3'>
-            <div className='w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-[var(--color-accent)]'>
-              <Phone size={14} />
-            </div>
-            <div className='text-left'>
-              <div className='font-extrabold text-white text-[11px] tracking-wider'>
-                Call Us Now
+              <div className='flex items-center gap-3'>
+                <Clock size={15} className='text-zinc-500 shrink-0' />
+                Mon – Sat, 10:00 AM – 07:00 PM
               </div>
-              <a
-                href='tel:8800003785'
-                className='text-[11px] font-medium text-zinc-400 hover:text-white transition-colors'
-              >
-                +91 8800003785
-              </a>
             </div>
-          </div>
 
-          <div className='flex items-center justify-start md:justify-start gap-3'>
-            <div className='w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-[var(--color-accent)]'>
-              <svg
-                className='w-3.5 h-3.5'
-                viewBox='0 0 24 24'
-                fill='none'
-                stroke='currentColor'
-                strokeWidth='2'
-                strokeLinecap='round'
-                strokeLinejoin='round'
-              >
-                <rect x='2' y='2' width='20' height='20' rx='5' ry='5'></rect>
-                <path d='M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z'></path>
-                <line x1='17.5' y1='6.5' x2='17.51' y2='6.5'></line>
-              </svg>
-            </div>
-            <div className='text-left'>
-              <div className='font-extrabold text-white text-[11px] tracking-wider'>
-                Follow Us
-              </div>
+            <div className='flex items-center gap-3'>
               <a
                 href='https://www.instagram.com/gadget.restore.in'
                 target='_blank'
                 rel='noopener noreferrer'
-                className='text-[11px] font-medium text-zinc-400 hover:text-white transition-colors'
+                aria-label='Instagram'
+                className='w-10 h-10 rounded-full border border-white/10 flex items-center justify-center text-zinc-400 hover:text-white hover:border-white/40 transition-colors'
               >
-                @gadget.restore.in
+                <svg
+                  className='w-4 h-4'
+                  viewBox='0 0 24 24'
+                  fill='none'
+                  stroke='currentColor'
+                  strokeWidth='2'
+                  strokeLinecap='round'
+                  strokeLinejoin='round'
+                >
+                  <rect x='2' y='2' width='20' height='20' rx='5' ry='5'></rect>
+                  <path d='M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z'></path>
+                  <line x1='17.5' y1='6.5' x2='17.51' y2='6.5'></line>
+                </svg>
               </a>
+
+              <a
+                href='https://wa.me/918800003785'
+                target='_blank'
+                rel='noopener noreferrer'
+                aria-label='WhatsApp'
+                className='w-10 h-10 rounded-full border border-white/10 flex items-center justify-center text-zinc-400 hover:text-white hover:border-white/40 transition-colors'
+              >
+                <svg
+                  className='w-4 h-4'
+                  viewBox='0 0 24 24'
+                  fill='none'
+                  stroke='currentColor'
+                  strokeWidth='2'
+                  strokeLinecap='round'
+                  strokeLinejoin='round'
+                >
+                  <path d='M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z'></path>
+                </svg>
+              </a>
+            </div>
+          </div>
+
+          {/* ── Explore column ─────────────────────────────────────────────── */}
+          <div className='flex flex-col gap-4'>
+            <h4 className='font-extrabold tracking-[0.15em] text-[11px] text-white uppercase'>
+              Explore Gadget Restore
+            </h4>
+            <div className='flex flex-col gap-3 text-[13px] text-zinc-400'>
+              <a href='#hero' className='hover:text-white transition-colors'>
+                Home
+              </a>
+              <a
+                href='#expertise'
+                className='hover:text-white transition-colors'
+              >
+                Our Expertise
+              </a>
+              <a
+                href='#why-choose-us'
+                className='hover:text-white transition-colors'
+              >
+                Why Choose Us
+              </a>
+              <a href='#faq' className='hover:text-white transition-colors'>
+                FAQs
+              </a>
+              <a href='#contact' className='hover:text-white transition-colors'>
+                Contact Us
+              </a>
+            </div>
+          </div>
+
+          {/* ── Legal column ───────────────────────────────────────────────── */}
+          <div className='flex flex-col gap-4'>
+            <h4 className='font-extrabold tracking-[0.15em] text-[11px] text-white uppercase'>
+              Legal &amp; Policies
+            </h4>
+            <div className='flex flex-col gap-3 text-[13px] text-zinc-400'>
+              <button
+                type='button'
+                className='text-left bg-transparent border-0 p-0 hover:text-white transition-colors cursor-pointer'
+                onClick={() => handleOpenPolicy('/privacy-policy')}
+              >
+                Privacy Policy
+              </button>
+              <button
+                type='button'
+                className='text-left bg-transparent border-0 p-0 hover:text-white transition-colors cursor-pointer'
+                onClick={() => handleOpenPolicy('/terms-and-conditions')}
+              >
+                Terms and Conditions
+              </button>
+              {/* These pages exist under app/(policies) — uncomment to list them.
+              <button
+                type='button'
+                className='text-left bg-transparent border-0 p-0 hover:text-white transition-colors cursor-pointer'
+                onClick={() => handleOpenPolicy('/warranty-policy')}
+              >
+                Warranty Policy
+              </button>
+              <button
+                type='button'
+                className='text-left bg-transparent border-0 p-0 hover:text-white transition-colors cursor-pointer'
+                onClick={() => handleOpenPolicy('/shipping-policy')}
+              >
+                Shipping Policy
+              </button>
+              <button
+                type='button'
+                className='text-left bg-transparent border-0 p-0 hover:text-white transition-colors cursor-pointer'
+                onClick={() =>
+                  handleOpenPolicy('/replacement-cancellation-policy')
+                }
+              >
+                Replacement &amp; Cancellation
+              </button>
+              <button
+                type='button'
+                className='text-left bg-transparent border-0 p-0 hover:text-white transition-colors cursor-pointer'
+                onClick={() => handleOpenPolicy('/cookie-policy')}
+              >
+                Cookie Policy
+              </button>
+              */}
             </div>
           </div>
         </div>
 
-        <div className='max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6'>
-          <img
-            src='/gadget-restore-logo.svg'
-            alt='Gadget Restore Logo'
-            className='h-8 w-auto object-contain opacity-50 hover:opacity-100 transition-opacity'
-          />
+        {/* ── Bottom bar ───────────────────────────────────────────────────── */}
+        <div className='max-w-7xl mx-auto mt-14 pt-6 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4'>
           <p className='tracking-widest text-[9px] font-bold text-center md:text-left'>
-            © 2026 GADGET RESTORE INC. TECHNICAL PRECISION. ALL RIGHTS RESERVED.
+            © 2026 GADGET RESTORE. TECHNICAL PRECISION. ALL RIGHTS RESERVED.
           </p>
-          <div className='flex flex-wrap justify-center md:justify-end gap-x-6 gap-y-2 text-[10px] font-black tracking-widest text-zinc-500'>
-            <button
-              type='button'
-              className='hover:text-white transition-colors cursor-pointer bg-transparent border-0 p-0 text-left uppercase'
-              onClick={() => handleOpenPolicy('/privacy-policy')}
-            >
-              Privacy Policy
-            </button>
-            <button
-              type='button'
-              className='hover:text-white transition-colors cursor-pointer bg-transparent border-0 p-0 text-left uppercase'
-              onClick={() => handleOpenPolicy('/terms-and-conditions')}
-            >
-              Terms & Conditions
-            </button>
-            {/* <button
-              type='button'
-              className='hover:text-white transition-colors cursor-pointer bg-transparent border-0 p-0 text-left uppercase'
-              onClick={() => handleOpenPolicy('/warranty-policy')}
-            >
-              Warranty Policy
-            </button>
-            <button
-              type='button'
-              className='hover:text-white transition-colors cursor-pointer bg-transparent border-0 p-0 text-left uppercase'
-              onClick={() => handleOpenPolicy('/shipping-policy')}
-            >
-              Shipping Policy
-            </button>
-            <button
-              type='button'
-              className='hover:text-white transition-colors cursor-pointer bg-transparent border-0 p-0 text-left uppercase'
-              onClick={() => handleOpenPolicy('/replacement-cancellation-policy')}
-            >
-              Replacement & Cancellation
-            </button>
-            <button
-              type='button'
-              className='hover:text-white transition-colors cursor-pointer bg-transparent border-0 p-0 text-left uppercase'
-              onClick={() => handleOpenPolicy('/cookie-policy')}
-            >
-              Cookie Policy
-            </button> */}
-          </div>
+          <p className='tracking-widest text-[9px] font-bold text-center md:text-right'>
+            MADE IN INDIA
+          </p>
         </div>
       </footer>
 
@@ -2139,3 +2076,4 @@ export default function SplashOrLandingPage() {
     </div>
   )
 }
+

@@ -192,7 +192,7 @@ export default function PricingPage() {
 
   if (isLoading) {
     return (
-      <div className='min-h-screen bg-black text-white w-full max-w-full'>
+      <div className='min-h-screen bg-content-bg text-content-text w-full max-w-full'>
         <div className='p-4 sm:p-6 lg:p-8 pb-36 lg:pb-16 w-full max-w-7xl'>
           {/* Header Skeleton */}
           <div className='mb-8 lg:mb-10 pt-4 lg:pt-5'>
@@ -233,28 +233,28 @@ export default function PricingPage() {
   }
 
   return (
-    <div className='min-h-screen bg-black text-white w-full max-w-full'>
+    <div className='min-h-screen bg-content-bg text-content-text w-full max-w-full'>
       {/* Main Content Area */}
       <div className='p-4 sm:p-6 lg:p-8 pb-36 lg:pb-16 w-full max-w-7xl'>
         {/* Back link & Header */}
         <div className='mb-8 lg:mb-10 pt-4 lg:pt-5'>
           <button
             onClick={() => router.push('/select-mode')}
-            className='hidden md:inline-flex items-center gap-1.5 bg-transparent border-none cursor-pointer text-gray-400 hover:text-white text-xs font-semibold uppercase tracking-wider mb-6 p-0 transition-colors'
+            className='hidden md:inline-flex items-center gap-1.5 bg-transparent border-none cursor-pointer text-content-text-secondary hover:text-content-text text-xs font-semibold uppercase tracking-wider mb-6 p-0 transition-colors'
           >
             <ArrowLeft size={14} /> Back to Service Mode
           </button>
-          <h1 className='text-2xl sm:text-3xl lg:text-5xl font-black tracking-tight text-white mb-2 lg:mb-3 uppercase lg:normal-case'>
+          <h1 className='text-2xl sm:text-3xl lg:text-5xl font-black tracking-tight text-content-text mb-2 lg:mb-3 uppercase lg:normal-case'>
             Review & Quote
           </h1>
-          <p className='text-xs sm:text-sm lg:text-base text-gray-400 leading-relaxed max-w-2xl m-0'>
+          <p className='text-xs sm:text-sm lg:text-base text-content-text-secondary leading-relaxed max-w-2xl m-0'>
             <span className='lg:inline hidden'>
               Please review your selection before finalizing the booking.{' '}
             </span>
             <span className='lg:hidden inline'>
               Please review your selection
             </span>
-            <span className='text-white font-semibold block sm:inline mt-1 sm:mt-0 lg:ml-1'>
+            <span className='text-content-text font-semibold block sm:inline mt-1 sm:mt-0 lg:ml-1'>
               Quote ID: {quoteId}
             </span>
           </p>
@@ -265,10 +265,10 @@ export default function PricingPage() {
           {/* Left Column (Device Card & Diagnostic Summary) */}
           <div className='flex flex-col gap-6'>
             {/* Device Card */}
-            <div className='bg-[#16171B] rounded-3xl border border-white/5 overflow-hidden'>
+            <div className='bg-content-card rounded-3xl border border-content-border overflow-hidden'>
               {/* Mobile Device Header (Horizontal) */}
-              <div className='flex items-center gap-4 p-5 border-b border-white/5 lg:hidden'>
-                <div className='w-16 h-[74px] bg-[#1F222A] rounded-xl flex items-center justify-center shrink-0'>
+              <div className='flex items-center gap-4 p-5 border-b border-content-border lg:hidden'>
+                <div className='w-16 h-[74px] bg-[var(--theme-bg-400)] rounded-xl flex items-center justify-center shrink-0'>
                   <img
                     src={modelImg}
                     alt={model.name}
@@ -276,11 +276,11 @@ export default function PricingPage() {
                   />
                 </div>
                 <div>
-                  <h2 className='text-lg font-extrabold text-white mb-1'>
+                  <h2 className='text-lg font-extrabold text-content-text mb-1'>
                     {model.name}
                   </h2>
                   {symptoms.length > 0 && (
-                    <div className='text-xs text-gray-400'>
+                    <div className='text-xs text-content-text-secondary'>
                       {symptoms[0].name}
                     </div>
                   )}
@@ -288,7 +288,7 @@ export default function PricingPage() {
               </div>
 
               {/* Desktop Device Header (Hero Image) */}
-              <div className='hidden lg:flex bg-[#1F222A] h-60 relative items-center justify-center border-b border-white/5'>
+              <div className='hidden lg:flex bg-[var(--theme-bg-400)] h-60 relative items-center justify-center border-b border-content-border'>
                 <div className='absolute top-4 left-4 bg-black text-white text-[9px] font-extrabold px-2.5 py-1 rounded tracking-wider uppercase'>
                   Priority Service
                 </div>
@@ -303,38 +303,38 @@ export default function PricingPage() {
               <div className='p-6 hidden lg:block'>
                 <div className='flex justify-between items-start mb-6'>
                   <div>
-                    <h2 className='text-2xl font-extrabold text-white mb-1.5'>
+                    <h2 className='text-2xl font-extrabold text-content-text mb-1.5'>
                       {model.name}
                     </h2>
                   </div>
                 </div>
 
-                <div className='h-px bg-white/5 -mx-6 mb-5' />
+                <div className='h-px bg-content-divider -mx-6 mb-5' />
 
                 {/* Desktop 3-column Grid Parameters */}
                 <div className='grid grid-cols-3 gap-4'>
                   <div>
-                    <div className='text-[9px] font-bold text-gray-400 uppercase tracking-wider mb-1.5 flex items-center gap-1.5'>
-                      <Truck size={12} className='text-gray-400' /> Repair Mode
+                    <div className='text-[9px] font-bold text-content-text-secondary uppercase tracking-wider mb-1.5 flex items-center gap-1.5'>
+                      <Truck size={12} className='text-content-text-secondary' /> Repair Mode
                     </div>
-                    <div className='text-sm font-bold text-white'>
+                    <div className='text-sm font-bold text-content-text'>
                       {serviceMode === 'lab'
                         ? 'Pick & Drop'
                         : 'Doorstep Repair'}
                     </div>
                   </div>
                   <div>
-                    <div className='text-[9px] font-bold text-gray-400 uppercase tracking-wider mb-1.5 flex items-center gap-1.5'>
-                      <Clock size={12} className='text-gray-400' /> Est. Repair
+                    <div className='text-[9px] font-bold text-content-text-secondary uppercase tracking-wider mb-1.5 flex items-center gap-1.5'>
+                      <Clock size={12} className='text-content-text-secondary' /> Est. Repair
                       Time
                     </div>
-                    <div className='text-sm font-bold text-white'>Same Day</div>
+                    <div className='text-sm font-bold text-content-text'>Same Day</div>
                   </div>
                   <div>
-                    <div className='text-[9px] font-bold text-gray-400 uppercase tracking-wider mb-1.5 flex items-center gap-1.5'>
-                      <Shield size={12} className='text-gray-400' /> Warranty
+                    <div className='text-[9px] font-bold text-content-text-secondary uppercase tracking-wider mb-1.5 flex items-center gap-1.5'>
+                      <Shield size={12} className='text-content-text-secondary' /> Warranty
                     </div>
-                    <div className='text-sm font-bold text-white'>
+                    <div className='text-sm font-bold text-content-text'>
                       {warrantyMonths} Months
                     </div>
                   </div>
@@ -344,20 +344,20 @@ export default function PricingPage() {
               {/* Mobile Details Body */}
               <div className='p-5 lg:hidden flex flex-col gap-3.5'>
                 <div className='flex justify-between items-center'>
-                  <span className='text-xs text-gray-400'>Part Type</span>
-                  <span className='text-sm font-bold text-white'>
+                  <span className='text-xs text-content-text-secondary'>Part Type</span>
+                  <span className='text-sm font-bold text-content-text'>
                     {partTier.tier}
                   </span>
                 </div>
                 <div className='flex justify-between items-center'>
-                  <span className='text-xs text-gray-400'>Repair Mode</span>
-                  <span className='text-sm font-bold text-white'>
+                  <span className='text-xs text-content-text-secondary'>Repair Mode</span>
+                  <span className='text-sm font-bold text-content-text'>
                     {serviceMode === 'lab' ? 'Pick & Drop' : 'Doorstep Repair'}
                   </span>
                 </div>
                 <div className='flex justify-between items-center'>
-                  <span className='text-xs text-gray-400'>Warranty</span>
-                  <span className='text-sm font-bold text-white'>
+                  <span className='text-xs text-content-text-secondary'>Warranty</span>
+                  <span className='text-sm font-bold text-content-text'>
                     {warrantyMonths} Months
                   </span>
                 </div>
@@ -365,19 +365,19 @@ export default function PricingPage() {
             </div>
 
             {/* Desktop Diagnostic Summary Card */}
-            <div className='bg-[#16171B] rounded-3xl border border-white/5 p-8 hidden lg:block'>
-              <h3 className='text-[11px] font-extrabold text-gray-400 uppercase tracking-widest mb-5'>
+            <div className='bg-content-card rounded-3xl border border-content-border p-8 hidden lg:block'>
+              <h3 className='text-[11px] font-extrabold text-content-text-secondary uppercase tracking-widest mb-5'>
                 Diagnostic Summary
               </h3>
               <div className='flex flex-col gap-4'>
                 {symptoms.map((symp, i) => (
                   <div
                     key={i}
-                    className={`flex justify-between items-center pb-4 ${i < symptoms.length - 1 ? 'border-b border-white/5' : ''
+                    className={`flex justify-between items-center pb-4 ${i < symptoms.length - 1 ? 'border-b border-content-border' : ''
                       }`}
                   >
-                    <span className='text-sm text-white'>{symp.name}</span>
-                    <span className='text-[10px] font-extrabold text-[#EF4444] tracking-wider uppercase'>
+                    <span className='text-sm text-content-text'>{symp.name}</span>
+                    <span className='text-[10px] font-extrabold text-danger tracking-wider uppercase'>
                       FAIL
                     </span>
                   </div>
@@ -387,18 +387,18 @@ export default function PricingPage() {
           </div>
 
           {/* Right Column (Quote Details) */}
-          <div className='bg-[#16171B] rounded-3xl border border-white/5 p-5 lg:p-8 lg:sticky lg:top-10 flex flex-col justify-between lg:h-full'>
+          <div className='bg-content-card rounded-3xl border border-content-border p-5 lg:p-8 lg:sticky lg:top-10 flex flex-col justify-between lg:h-full'>
             <div>
               {/* Quote Header (Desktop only) */}
               <div className='hidden lg:flex items-center gap-3 mb-8'>
                 <FileText size={20} style={{ color: 'var(--color-accent)' }} />
-                <h3 className='text-base font-extrabold text-white uppercase tracking-wider'>
+                <h3 className='text-base font-extrabold text-content-text uppercase tracking-wider'>
                   Technical Quote
                 </h3>
               </div>
 
               {/* Quote Breakdowns - Itemized per Symptom/Repair */}
-              <div className='flex flex-col gap-5 lg:gap-6 pb-5 lg:pb-6 border-b border-white/5'>
+              <div className='flex flex-col gap-5 lg:gap-6 pb-5 lg:pb-6 border-b border-content-border'>
                 {itemizedSymptoms.map((symptom, index) => {
                   const sympServiceCharge =
                     symptom.partsCost + symptom.labourCost
@@ -408,7 +408,7 @@ export default function PricingPage() {
                     <div key={index} className='flex flex-col gap-3'>
                       {/* Symptom Name Header */}
                       {itemizedSymptoms.length > 1 && (
-                        <div className='text-[10px] font-bold text-gray-500 uppercase tracking-wider'>
+                        <div className='text-[10px] font-bold text-content-text-secondary uppercase tracking-wider'>
                           {symptom.name}
                         </div>
                       )}
@@ -416,17 +416,17 @@ export default function PricingPage() {
                       {/* Service Charge */}
                       {!symptom.isVariable && sympServiceCharge > 0 && (
                         <div>
-                          <div className='text-[9px] font-bold text-gray-400 uppercase tracking-wider mb-1 hidden lg:block'>
+                          <div className='text-[9px] font-bold text-content-text-secondary uppercase tracking-wider mb-1 hidden lg:block'>
                             SERVICE CHARGE
                           </div>
                           <div className='flex justify-between items-center'>
-                            <span className='text-xs lg:text-sm font-semibold text-gray-400 lg:text-white'>
+                            <span className='text-xs lg:text-sm font-semibold text-content-text-secondary lg:text-content-text'>
                               <span className='lg:hidden'>Service Charge</span>
                               <span className='hidden lg:inline'>
                                 Service Charge
                               </span>
                             </span>
-                            <span className='text-sm lg:text-base font-bold lg:font-extrabold text-white'>
+                            <span className='text-sm lg:text-base font-bold lg:font-extrabold text-content-text'>
                               ₹{sympServiceCharge.toLocaleString('en-IN')}
                             </span>
                           </div>
@@ -436,10 +436,10 @@ export default function PricingPage() {
                       {/* GST (18%) */}
                       {!symptom.isVariable && sympGst > 0 && (
                         <div className='flex justify-between items-center'>
-                          <span className='text-xs lg:text-sm font-semibold text-gray-400 lg:text-white'>
+                          <span className='text-xs lg:text-sm font-semibold text-content-text-secondary lg:text-content-text'>
                             GST
                           </span>
-                          <span className='text-sm lg:text-base font-bold lg:font-extrabold text-white'>
+                          <span className='text-sm lg:text-base font-bold lg:font-extrabold text-content-text'>
                             ₹{sympGst.toLocaleString('en-IN')}
                           </span>
                         </div>
@@ -448,11 +448,11 @@ export default function PricingPage() {
                       {/* Variable Pricing Indicator */}
                       {symptom.isVariable && (
                         <div>
-                          <div className='text-[9px] font-bold text-gray-400 uppercase tracking-wider mb-1 hidden lg:block'>
+                          <div className='text-[9px] font-bold text-content-text-secondary uppercase tracking-wider mb-1 hidden lg:block'>
                             SERVICE CHARGE
                           </div>
                           <div className='flex justify-between items-center'>
-                            <span className='text-xs lg:text-sm font-semibold text-gray-400 lg:text-white'>
+                            <span className='text-xs lg:text-sm font-semibold text-content-text-secondary lg:text-content-text'>
                               {symptom.name}
                             </span>
                             <span className='text-xs lg:text-sm font-semibold text-yellow-500'>
@@ -471,21 +471,21 @@ export default function PricingPage() {
             <div className='pt-5 lg:pt-6 flex flex-col gap-3'>
               {/* Grand Total (Labeled as Subtotal) */}
               <div className='flex justify-between items-end'>
-                <span className='text-sm lg:text-base font-extrabold text-white'>
+                <span className='text-sm lg:text-base font-extrabold text-content-text'>
                   Subtotal
                 </span>
                 <div className='flex flex-col items-end'>
-                  <span className='text-2xl lg:text-4xl font-black text-white tracking-tight leading-none'>
+                  <span className='text-2xl lg:text-4xl font-black text-content-text tracking-tight leading-none'>
                     ₹{totalAmount.toLocaleString('en-IN')}
                   </span>
-                  <span className='text-[9px] font-bold text-gray-400 uppercase tracking-wider mt-1'>
+                  <span className='text-[9px] font-bold text-content-text-secondary uppercase tracking-wider mt-1'>
                     Incl. 18% GST
                   </span>
                 </div>
               </div>
 
               {/* Mobile price disclaimer */}
-              <div className='text-[9px] font-bold text-gray-400 uppercase tracking-widest text-right mb-5 lg:hidden'>
+              <div className='text-[9px] font-bold text-content-text-secondary uppercase tracking-widest text-right mb-5 lg:hidden'>
                 * FINAL PRICE MAY VARY AFTER DIAGNOSIS
               </div>
             </div>
@@ -512,13 +512,13 @@ export default function PricingPage() {
         className='fixed left-0 right-0 p-4 z-40 lg:hidden'
         style={{
           bottom: 'calc(var(--nav-height) + env(safe-area-inset-bottom, 0px))',
-          background: 'linear-gradient(to top, #000000 70%, transparent)',
+          background: 'linear-gradient(to top, var(--color-content-bg) 70%, transparent)',
         }}
       >
         <button
           onClick={handleConfirm}
           disabled={!canProceedToBook}
-          className={`w-full h-14 bg-white text-black font-extrabold text-sm uppercase tracking-wider rounded-2xl flex items-center justify-center gap-2 shadow-lg transition-opacity ${canProceedToBook
+          className={`w-full h-14 bg-[var(--theme-btn-primary-bg)] text-[var(--theme-btn-primary-text)] font-extrabold text-sm uppercase tracking-wider rounded-2xl flex items-center justify-center gap-2 shadow-lg transition-opacity ${canProceedToBook
               ? 'cursor-pointer hover:opacity-90'
               : 'cursor-not-allowed opacity-50'
             }`}

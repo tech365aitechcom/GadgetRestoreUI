@@ -372,7 +372,7 @@ function VerifyOtpContent() {
           {/* Footer info */}
           <div className='text-center w-full z-10'>
             <p className='text-[9px] font-semibold text-white/35 tracking-[0.15em] uppercase leading-relaxed m-0'>
-              CERTIFIED TECHNICIANS • GENUINE PARTS • PRECISION ENGINEERING
+              CERTIFIED TECHNICIANS • PREMIUM PARTS • PRECISION ENGINEERING
             </p>
           </div>
         </div>

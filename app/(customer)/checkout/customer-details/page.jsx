@@ -539,7 +539,7 @@ export default function CustomerDetailsPage() {
                 <div className='flex items-center gap-3 mb-4'>
                   <CheckCircle2 size={18} className='text-green-500' />
                   <span className='text-sm font-bold text-white'>
-                    Genuine Quality Parts
+                    Premium Quality Parts
                   </span>
                 </div>
                 <div className='flex items-center gap-3 mb-4'>

@@ -25,6 +25,15 @@ import customerService from '@/services/customer.service'
 import toast from 'react-hot-toast'
 import { useAuth } from '@/context/AuthContext'
 
+/* CARTO basemap tiles come in a dark (Dark Matter) and a light (Positron)
+   variant. Pick the one matching the theme currently on <html data-theme>. */
+const cartoTileUrl = () => {
+  const isLight =
+    typeof document !== 'undefined' &&
+    document.documentElement.getAttribute('data-theme') === 'light'
+  return `https://{s}.basemaps.cartocdn.com/${isLight ? 'light_all' : 'dark_all'}/{z}/{x}/{y}.png`
+}
+
 // AddressCard component with PropTypes validation
 const AddressCard = ({ addr, selectedAddressId, setSelectedAddressId, handleSetDefault, handleEditAddress, setShowDeleteConfirm, getAddressIcon }) => {
   const isSelected = selectedAddressId === addr.id
@@ -509,6 +518,8 @@ export default function AddressPage() {
   const [selectedLocationText, setSelectedLocationText] = useState('Select location on map')
   const mapDesktopRef = useRef(null)
   const mapMobileRef = useRef(null)
+  const tileDesktopRef = useRef(null)
+  const tileMobileRef = useRef(null)
   const isDesktopProgrammaticMoveRef = useRef(false)
   const isMobileProgrammaticMoveRef = useRef(false)
 
@@ -666,7 +677,7 @@ export default function AddressPage() {
               attributionControl: false,
             }).setView([defaultLat, defaultLng], 14)
 
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png', {
+            tileDesktopRef.current = L.tileLayer(cartoTileUrl(), {
               subdomains: 'abcd',
               maxZoom: 20,
             }).addTo(mapDesktop)
@@ -711,7 +722,7 @@ export default function AddressPage() {
               attributionControl: false,
             }).setView([defaultLat, defaultLng], 14)
 
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png', {
+            tileMobileRef.current = L.tileLayer(cartoTileUrl(), {
               subdomains: 'abcd',
               maxZoom: 20,
             }).addTo(mapMobile)
@@ -763,13 +774,33 @@ export default function AddressPage() {
       if (mapDesktop) {
         mapDesktop.remove()
         mapDesktopRef.current = null
+        tileDesktopRef.current = null
       }
       if (mapMobile) {
         mapMobile.remove()
         mapMobileRef.current = null
+        tileMobileRef.current = null
       }
     }
   }, [isLoading])
+
+  /* Swap basemap tiles when the theme changes.
+     lib/theme emits no event, so watch <html data-theme> directly. */
+  useEffect(() => {
+    let appliedUrl = cartoTileUrl()
+    const observer = new MutationObserver(() => {
+      const url = cartoTileUrl()
+      if (url === appliedUrl) return
+      appliedUrl = url
+      tileDesktopRef.current?.setUrl(url)
+      tileMobileRef.current?.setUrl(url)
+    })
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['data-theme'],
+    })
+    return () => observer.disconnect()
+  }, [])
 
   // Sync map center to selected saved address
   useEffect(() => {
@@ -1395,3 +1426,5 @@ export default function AddressPage() {
     </div>
   )
 }
+
+

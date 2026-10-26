@@ -2,6 +2,8 @@
 
 import { useRouter, usePathname } from 'next/navigation'
 import { ArrowLeft, Bell } from 'lucide-react'
+import ThemeToggle from '@/components/ui/ThemeToggle'
+import Logo from '@/components/ui/Logo'
 
 /**
  * Mobile header component with back button, logo, and notification bell
@@ -55,7 +57,7 @@ export default function MobileHeader({
       {showBack && !isHomePage ? (
         <button
           onClick={handleBackClick}
-          className='bg-transparent border-0 cursor-pointer text-white flex items-center justify-center w-9 h-9 rounded-full flex-shrink-0'
+          className='bg-transparent border-0 cursor-pointer text-[var(--color-text-primary)] flex items-center justify-center w-9 h-9 rounded-full flex-shrink-0'
           aria-label='Go back'
         >
           <ArrowLeft size={20} />
@@ -66,28 +68,27 @@ export default function MobileHeader({
 
       {/* Center - Logo */}
       <div className='flex-1 flex justify-center'>
-        <img
-          src='/gadget-restore-logo.svg'
-          alt='Gadget Restore'
-          className='h-7 object-contain'
-        />
+        <Logo className='h-7' />
       </div>
 
-      {/* Right side - Notification bell */}
-      {showNotification ? (
-        <button
-          onClick={() => router.push('/notifications')}
-          className='bg-transparent border-0 cursor-pointer text-[#888] flex items-center w-9 h-9 justify-center rounded-full flex-shrink-0 relative'
-          aria-label='Notifications'
-        >
-          <Bell size={20} />
-          {unreadCount > 0 && (
-            <span className='absolute top-2 right-2 w-[7px] h-[7px] rounded-full bg-[var(--color-danger)] border-[1.5px] border-[#111] animate-pulse' />
-          )}
-        </button>
-      ) : (
-        <div className='w-9 h-9' />
-      )}
+      {/* Right side - Theme toggle + Notification bell */}
+      <div className='flex items-center gap-1 flex-shrink-0'>
+        <ThemeToggle size={20} className='text-[var(--color-text-secondary)] w-9 h-9 rounded-full hover:text-[var(--color-text-primary)]' />
+        {showNotification ? (
+          <button
+            onClick={() => router.push('/notifications')}
+            className='bg-transparent border-0 cursor-pointer text-[var(--color-text-secondary)] flex items-center w-9 h-9 justify-center rounded-full relative'
+            aria-label='Notifications'
+          >
+            <Bell size={20} />
+            {unreadCount > 0 && (
+              <span className='absolute top-2 right-2 w-[7px] h-[7px] rounded-full bg-[var(--color-danger)] border-[1.5px] border-[#111] animate-pulse' />
+            )}
+          </button>
+        ) : (
+          <div className='w-9 h-9' />
+        )}
+      </div>
     </div>
   )
 }
