@@ -27,6 +27,19 @@ import { useAuth } from '@/context/AuthContext'
 import { Capacitor } from '@capacitor/core'
 import { Geolocation } from '@capacitor/geolocation'
 
+/* CARTO basemap tiles come in a dark (Dark Matter) and a light (Positron)
+   variant. Pick the one matching the theme currently on <html data-theme>.
+   CARTO requires an API key; without one every tile is an "API KEY REQUIRED" placeholder. */
+const CARTO_API_KEY = process.env.NEXT_PUBLIC_CARTO_API_KEY
+
+const cartoTileUrl = () => {
+  const isLight =
+    typeof document !== 'undefined' &&
+    document.documentElement.getAttribute('data-theme') === 'light'
+  const keyParam = CARTO_API_KEY ? `?key=${encodeURIComponent(CARTO_API_KEY)}` : ''
+  return `https://{s}.basemaps.cartocdn.com/${isLight ? 'light_all' : 'dark_all'}/{z}/{x}/{y}.png${keyParam}`
+}
+
 // AddressCard component with PropTypes validation
 const AddressCard = ({ addr, selectedAddressId, setSelectedAddressId, handleSetDefault, handleEditAddress, setShowDeleteConfirm, getAddressIcon }) => {
   const isSelected = selectedAddressId === addr.id
@@ -706,7 +719,7 @@ export default function AddressPage() {
               attributionControl: false,
             }).setView([defaultLat, defaultLng], 14)
 
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png', {
+            L.tileLayer(cartoTileUrl(), {
               subdomains: 'abcd',
               maxZoom: 20,
             }).addTo(mapDesktop)
@@ -751,7 +764,7 @@ export default function AddressPage() {
               attributionControl: false,
             }).setView([defaultLat, defaultLng], 14)
 
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png', {
+            L.tileLayer(cartoTileUrl(), {
               subdomains: 'abcd',
               maxZoom: 20,
             }).addTo(mapMobile)
