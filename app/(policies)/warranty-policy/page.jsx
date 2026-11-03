@@ -5,11 +5,11 @@ import React from 'react'
 export default function WarrantyPolicy() {
   return (
     <div>
-      <h1 className='text-xl lg:text-4xl font-black  mb-3'>GADGET RESTORE WARRANTY POLICY</h1>
+      <h1 className='text-xl lg:text-4xl font-black mb-3'>GADGET RESTORE WARRANTY POLICY</h1>
       <div className='flex flex-wrap gap-x-6 gap-y-2 text-xs mb-10' style={{ color: 'var(--color-content-text-secondary)' }}>
-        <p>Effective Date: June 25, 2026</p>
+        <p>Effective Date: 25 June 2026</p>
         <p>•</p>
-        <p>Last Updated: June 25, 2026</p>
+        <p>Last Updated: 25 June 2026</p>
       </div>
 
       <div className='space-y-8 text-sm leading-relaxed text-zinc-300'>
@@ -46,9 +46,9 @@ export default function WarrantyPolicy() {
           <p className='mb-3'>This Limited Warranty Policy governs all repair services performed by Gadget Restore.</p>
           <p className='mb-3'>This Warranty Policy applies exclusively to parts replaced by Gadget Restore during an authorized repair service and shall be read together with:</p>
           <ul className='list-disc pl-5 space-y-1 mb-3 text-zinc-300'>
-            <li>Terms & Conditions</li>
+            <li>Terms &amp; Conditions</li>
             <li>Privacy Policy</li>
-            <li>Shipping & Logistics Policy</li>
+            <li>Shipping &amp; Logistics Policy</li>
             <li>Service Invoice</li>
             <li>Repair Order</li>
           </ul>
@@ -329,7 +329,7 @@ export default function WarrantyPolicy() {
           <h2 className='text-lg font-bold text-white mb-3'>19. Limitation of Liability</h2>
           <p className='mb-3'>To the maximum extent permitted by law:</p>
           <ol className='list-[lower-alpha] pl-5 space-y-2 text-zinc-300'>
-            <li>Gadget Restore’s total liability shall not exceed the original repair amount paid for the relevant service;</li>
+            <li>Gadget Restore's total liability shall not exceed the original repair amount paid for the relevant service;</li>
             <li>Gadget Restore shall not be liable for indirect, incidental, consequential, punitive, or special damages;</li>
             <li>Gadget Restore shall not be liable for business interruption, loss of profits, loss of revenue, or loss of opportunity.</li>
           </ol>
