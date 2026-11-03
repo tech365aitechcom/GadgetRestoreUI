@@ -471,9 +471,14 @@ export default function PricingPage() {
             <div className='pt-5 lg:pt-6 flex flex-col gap-3'>
               {/* Grand Total (Labeled as Subtotal) */}
               <div className='flex justify-between items-end'>
-                <span className='text-sm lg:text-base font-extrabold text-content-text'>
-                  Subtotal
-                </span>
+                <div className='flex flex-col'>
+                  <span className='text-sm lg:text-base font-extrabold text-content-text'>
+                    Subtotal
+                  </span>
+                  <span className='text-[10px] font-semibold text-content-text-secondary mt-0.5'>
+                    *Quote is Tentative
+                  </span>
+                </div>
                 <div className='flex flex-col items-end'>
                   <span className='text-2xl lg:text-4xl font-black text-content-text tracking-tight leading-none'>
                     ₹{totalAmount.toLocaleString('en-IN')}

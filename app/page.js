@@ -39,6 +39,80 @@ import {
 import { useBooking } from '@/context/BookingContext'
 import { submitSupportContact } from '@/lib/api'
 
+// Popup content for the "Our Guarantee" cards.
+// Summarised from app/(policies)/warranty-policy and privacy-policy — the
+// "Read full policy" button in the modal opens the complete page.
+const GUARANTEE_DETAILS = {
+  warranty: {
+    title: '90-Day Warranty',
+    intro:
+      'All replacement parts installed by Gadget Restore carry a limited warranty of three (3) months from the invoice date, unless stated otherwise on the invoice.',
+    groups: [
+      {
+        heading: 'What is covered',
+        items: [
+          'Display malfunction caused by manufacturing defects',
+          'Touch failure arising from defects in the replaced display',
+          'Battery malfunction caused by manufacturing defects',
+          'Failure of the replaced charging port during normal use',
+          'Failure of replaced cameras, microphones or speakers',
+          'Installation-related workmanship defects',
+        ],
+      },
+      {
+        heading: 'What is not covered',
+        items: [
+          'Physical, liquid, accidental or impact damage',
+          'Heat, fire or electrical surge damage',
+          'Cosmetic damage and normal wear and tear',
+          'Software, malware or virus-related issues',
+          'Unauthorised modifications or repairs',
+          'Data loss',
+        ],
+      },
+    ],
+    policyPath: '/warranty-policy',
+  },
+  privacy: {
+    title: 'Data Privacy',
+    intro:
+      'We handle your personal data in line with the Digital Personal Data Protection Act, 2023, and collect only what is reasonably necessary to book, diagnose and complete your repair.',
+    groups: [
+      {
+        heading: 'Your device during repair',
+        items: [
+          'Passwords or passcodes are requested only where genuinely necessary for a repair',
+          'Where access is needed, it is limited to the minimum required for the authorised service',
+          'Technicians must not browse, copy or disclose your content for unrelated purposes',
+          'Your device data is not copied or retained unless necessary for an authorised purpose',
+        ],
+      },
+      {
+        heading: 'Security safeguards',
+        items: [
+          'Role-based access controls and authentication for internal systems',
+          'Encryption and secure transmission where appropriate',
+          'Secure storage and controlled access to customer records',
+          'Confidentiality obligations for employees and service personnel',
+          'Periodic security assessments and secure disposal of records',
+        ],
+      },
+      {
+        heading: 'Your rights',
+        items: [
+          'Access information about the personal data we process',
+          'Correct or update inaccurate or incomplete data',
+          'Request erasure, subject to legal retention requirements',
+          'Withdraw consent where processing is based on it',
+          'Raise a grievance, or nominate someone to exercise your rights',
+        ],
+      },
+    ],
+    note: 'Please back up your device before a repair — we cannot guarantee preservation of data stored on it.',
+    policyPath: '/dpdp-policy',
+  },
+}
+
 // Helper function to get progress label
 function getProgressLabel(progress) {
   if (progress < 40) return 'INITIALIZING'
@@ -174,6 +248,8 @@ export default function SplashOrLandingPage() {
   const [activeFaq, setActiveFaq] = useState(0) // Open first one by default as shown in Figma
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [currentReviewIndex, setCurrentReviewIndex] = useState(0)
+  // Which guarantee card popup is open — 'warranty' | 'privacy' | null
+  const [guaranteeModal, setGuaranteeModal] = useState(null)
 
   useEffect(() => {
     if (!mounted) return
@@ -215,6 +291,24 @@ export default function SplashOrLandingPage() {
     window.addEventListener('scroll', handleScroll)
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
+
+  // Close the guarantee popup on Escape, and freeze the page behind it
+  useEffect(() => {
+    if (!guaranteeModal) return
+
+    const onKeyDown = (e) => {
+      if (e.key === 'Escape') setGuaranteeModal(null)
+    }
+    const previousOverflow = document.body.style.overflow
+
+    window.addEventListener('keydown', onKeyDown)
+    document.body.style.overflow = 'hidden'
+
+    return () => {
+      window.removeEventListener('keydown', onKeyDown)
+      document.body.style.overflow = previousOverflow
+    }
+  }, [guaranteeModal])
 
   // Dynamic header menu item active state based on scroll intersection
   useEffect(() => {
@@ -1207,6 +1301,7 @@ export default function SplashOrLandingPage() {
               title: '90-Day Warranty',
               desc: 'Peace of mind with our extensive parts and labor warranty.',
               image: '/images/3 month bg.png',
+              modal: 'warranty',
             },
             {
               title: 'Expert Team',
@@ -1217,27 +1312,51 @@ export default function SplashOrLandingPage() {
               title: 'Data Privacy',
               desc: 'Strict protocols to keep your personal data secure.',
               image: '/images/data privacy bg.png',
+              modal: 'privacy',
             },
-          ].map((item) => (
-            <div
-              key={item.title}
-              className='bg-white border border-zinc-100 p-8 rounded-[24px] flex flex-col items-center text-center shadow-sm hover:shadow-md transition-all duration-300 group min-h-[280px] justify-center'
-            >
-              <div className='w-52 h-52 rounded-2xl overflow-hidden mb-6 shrink-0 flex items-center justify-center'>
-                <img
-                  src={item.image}
-                  alt={item.title}
-                  className='w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 ease-out'
-                />
+          ].map((item) => {
+            const cardClass =
+              'bg-white border border-zinc-100 p-8 rounded-[24px] flex flex-col items-center text-center shadow-sm hover:shadow-md transition-all duration-300 group min-h-[280px] justify-center'
+
+            const cardBody = (
+              <>
+                <div className='w-52 h-52 rounded-2xl overflow-hidden mb-6 shrink-0 flex items-center justify-center'>
+                  <img
+                    src={item.image}
+                    alt={item.title}
+                    className='w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 ease-out'
+                  />
+                </div>
+                <h4 className='text-sm font-black text-zinc-900 mb-3'>
+                  {item.title}
+                </h4>
+                <p className='text-xs text-zinc-500 leading-relaxed max-w-[220px]'>
+                  {item.desc}
+                </p>
+                {item.modal && (
+                  <span className='mt-4 text-[10px] font-black tracking-widest uppercase text-[var(--color-accent)] group-hover:underline'>
+                    Know more
+                  </span>
+                )}
+              </>
+            )
+
+            return item.modal ? (
+              <button
+                key={item.title}
+                type='button'
+                onClick={() => setGuaranteeModal(item.modal)}
+                aria-haspopup='dialog'
+                className={`${cardClass} cursor-pointer text-center hover:border-[var(--color-accent)]/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)]`}
+              >
+                {cardBody}
+              </button>
+            ) : (
+              <div key={item.title} className={cardClass}>
+                {cardBody}
               </div>
-              <h4 className='text-sm font-black text-zinc-900 mb-3'>
-                {item.title}
-              </h4>
-              <p className='text-xs text-zinc-500 leading-relaxed max-w-[220px]'>
-                {item.desc}
-              </p>
-            </div>
-          ))}
+            )
+          })}
         </div>
       </section>
 
@@ -2010,7 +2129,6 @@ export default function SplashOrLandingPage() {
               >
                 Terms and Conditions
               </button>
-              {/* These pages exist under app/(policies) — uncomment to list them.
               <button
                 type='button'
                 className='text-left bg-transparent border-0 p-0 hover:text-white transition-colors cursor-pointer'
@@ -2041,7 +2159,13 @@ export default function SplashOrLandingPage() {
               >
                 Cookie Policy
               </button>
-              */}
+              <button
+                type='button'
+                className='text-left bg-transparent border-0 p-0 hover:text-white transition-colors cursor-pointer'
+                onClick={() => handleOpenPolicy('/dpdp-policy')}
+              >
+                DPDP Policy
+              </button>
             </div>
           </div>
         </div>
@@ -2056,6 +2180,92 @@ export default function SplashOrLandingPage() {
           </p>
         </div>
       </footer>
+
+      {/* ────────────────────────────────────────────────────────────────────────
+          GUARANTEE CARD POPUP (Warranty / Data Privacy)
+          ──────────────────────────────────────────────────────────────────────── */}
+      {guaranteeModal && GUARANTEE_DETAILS[guaranteeModal] && (
+        <div className='fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-6'>
+          {/* Backdrop */}
+          <button
+            type='button'
+            aria-label='Close'
+            onClick={() => setGuaranteeModal(null)}
+            className='absolute inset-0 bg-black/60 backdrop-blur-sm border-0 cursor-default animate-fadeIn'
+          />
+
+          <div
+            role='dialog'
+            aria-modal='true'
+            aria-labelledby='guarantee-modal-title'
+            className='relative z-10 w-full sm:max-w-[560px] max-h-[85vh] overflow-y-auto bg-white rounded-t-[24px] sm:rounded-[24px] shadow-2xl animate-fadeIn'
+          >
+            <div className='sticky top-0 bg-white flex items-start justify-between gap-4 px-6 sm:px-8 pt-7 pb-4 border-b border-zinc-100'>
+              <h3
+                id='guarantee-modal-title'
+                className='text-lg font-black text-zinc-900'
+              >
+                {GUARANTEE_DETAILS[guaranteeModal].title}
+              </h3>
+              <button
+                type='button'
+                onClick={() => setGuaranteeModal(null)}
+                aria-label='Close'
+                className='w-8 h-8 rounded-full bg-zinc-100 hover:bg-zinc-200 flex items-center justify-center text-zinc-600 transition-colors cursor-pointer shrink-0'
+              >
+                <X size={16} />
+              </button>
+            </div>
+
+            <div className='px-6 sm:px-8 py-6 flex flex-col gap-6'>
+              <p className='text-[13px] leading-relaxed text-zinc-600'>
+                {GUARANTEE_DETAILS[guaranteeModal].intro}
+              </p>
+
+              {GUARANTEE_DETAILS[guaranteeModal].groups.map((group) => (
+                <div key={group.heading} className='flex flex-col gap-3'>
+                  <h4 className='text-[11px] font-black tracking-widest uppercase text-zinc-900'>
+                    {group.heading}
+                  </h4>
+                  <ul className='flex flex-col gap-2'>
+                    {group.items.map((point) => (
+                      <li
+                        key={point}
+                        className='flex items-start gap-2.5 text-[13px] leading-relaxed text-zinc-600'
+                      >
+                        <Check
+                          size={14}
+                          className='text-[var(--color-accent)] shrink-0 mt-0.5'
+                        />
+                        {point}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+
+              {GUARANTEE_DETAILS[guaranteeModal].note && (
+                <p className='text-[12px] leading-relaxed text-zinc-500 italic'>
+                  {GUARANTEE_DETAILS[guaranteeModal].note}
+                </p>
+              )}
+
+              <button
+                type='button'
+                onClick={() => {
+                  const path = GUARANTEE_DETAILS[guaranteeModal].policyPath
+                  setGuaranteeModal(null)
+                  handleOpenPolicy(path)
+                }}
+                className='w-full sm:w-auto self-start h-12 px-6 bg-zinc-900 text-white font-extrabold tracking-wider text-[11px] uppercase rounded-full hover:bg-black active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-2'
+              >
+                Read full policy
+                <ArrowRight size={14} />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Embedded slide-in animation rules */}
       <style jsx global>{`
