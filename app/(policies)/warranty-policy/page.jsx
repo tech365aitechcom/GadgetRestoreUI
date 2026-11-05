@@ -12,29 +12,29 @@ export default function WarrantyPolicy() {
         <p>Last Updated: 25 June 2026</p>
       </div>
 
-      <div className='space-y-8 text-sm leading-relaxed text-zinc-300'>
+      <div className='space-y-8 text-sm leading-relaxed' style={{ color: 'var(--color-content-text)' }}>
         {/* Company & Support Information */}
-        <div className='grid grid-cols-1 md:grid-cols-2 gap-6 p-6 rounded-2xl border text-xs mb-8' style={{ background: 'rgba(255, 255, 255, 0.02)', borderColor: 'var(--color-content-border)' }}>
+        <div className='grid grid-cols-1 md:grid-cols-2 gap-6 p-6 rounded-2xl border text-xs mb-8' style={{ background: 'var(--color-content-card)', borderColor: 'var(--color-content-border)' }}>
           <div>
-            <p className='font-semibold text-white mb-1'>Operated by</p>
-            <p className='text-zinc-400 mb-3'>Radical Aftermarket Private Limited<br />(trading as Gadget Restore)</p>
+            <p className='font-semibold mb-1' style={{ color: 'var(--color-content-text)' }}>Operated by</p>
+            <p className='mb-3' style={{ color: 'var(--color-content-text-secondary)' }}>Radical Aftermarket Private Limited<br />(trading as Gadget Restore)</p>
 
-            <p className='font-semibold text-white mb-1'>CIN</p>
-            <p className='text-zinc-400 mb-3'>U74999HR2018PTC076488</p>
+            <p className='font-semibold mb-1' style={{ color: 'var(--color-content-text)' }}>CIN</p>
+            <p className='mb-3' style={{ color: 'var(--color-content-text-secondary)' }}>U74999HR2018PTC076488</p>
 
-            <p className='font-semibold text-white mb-1'>Registered Office</p>
-            <p className='text-zinc-400'>Khasra No. 34/22, Second Floor, NK Tower, Kanhai Road, Sector-45, Gurugram, Haryana – 122003, India</p>
+            <p className='font-semibold mb-1' style={{ color: 'var(--color-content-text)' }}>Registered Office</p>
+            <p style={{ color: 'var(--color-content-text-secondary)' }}>Khasra No. 34/22, Second Floor, NK Tower, Kanhai Road, Sector-45, Gurugram, Haryana – 122003, India</p>
           </div>
           <div>
-            <p className='font-semibold text-white mb-1'>Website</p>
-            <p className='text-zinc-400 mb-3'>
+            <p className='font-semibold mb-1' style={{ color: 'var(--color-content-text)' }}>Website</p>
+            <p className='mb-3' style={{ color: 'var(--color-content-text-secondary)' }}>
               <a href="https://gadgetrestore.in" target="_blank" rel="noopener noreferrer" className="text-accent hover:underline">
                 https://gadgetrestore.in
               </a>
             </p>
 
-            <p className='font-semibold text-white mb-1'>Support Contact</p>
-            <p className='text-zinc-400'>
+            <p className='font-semibold mb-1' style={{ color: 'var(--color-content-text)' }}>Support Contact</p>
+            <p style={{ color: 'var(--color-content-text-secondary)' }}>
               Phone: <a href="tel:+918800003785" className="text-accent hover:underline">+91 8800003785</a><br />
               Email: <a href="mailto:support@gadgetrestore.in" className="text-accent hover:underline">support@gadgetrestore.in</a>
             </p>
@@ -42,10 +42,10 @@ export default function WarrantyPolicy() {
         </div>
 
         <section>
-          <h2 className='text-lg font-bold text-white mb-3'>1. Overview</h2>
+          <h2 className='text-lg font-bold mb-3' style={{ color: 'var(--color-content-text)' }}>1. Overview</h2>
           <p className='mb-3'>This Limited Warranty Policy governs all repair services performed by Gadget Restore.</p>
           <p className='mb-3'>This Warranty Policy applies exclusively to parts replaced by Gadget Restore during an authorized repair service and shall be read together with:</p>
-          <ul className='list-disc pl-5 space-y-1 mb-3 text-zinc-300'>
+          <ul className='list-disc pl-5 space-y-1 mb-3'>
             <li>Terms &amp; Conditions</li>
             <li>Privacy Policy</li>
             <li>Shipping &amp; Logistics Policy</li>
@@ -56,10 +56,10 @@ export default function WarrantyPolicy() {
         </section>
 
         <section>
-          <h2 className='text-lg font-bold text-white mb-3'>2. Warranty Coverage</h2>
+          <h2 className='text-lg font-bold mb-3' style={{ color: 'var(--color-content-text)' }}>2. Warranty Coverage</h2>
           <p className='mb-3'>All replacement parts installed by Gadget Restore carry a limited warranty of three (3) months from the invoice date unless expressly stated otherwise on the invoice.</p>
           <p className='mb-3'>The warranty applies only to:</p>
-          <ul className='list-disc pl-5 space-y-1 mb-3 text-zinc-300'>
+          <ul className='list-disc pl-5 space-y-1 mb-3'>
             <li>The specific replacement part installed by Gadget Restore</li>
             <li>The specific device identified on the invoice</li>
             <li>Manufacturing defects in the replaced part</li>
@@ -69,9 +69,9 @@ export default function WarrantyPolicy() {
         </section>
 
         <section>
-          <h2 className='text-lg font-bold text-white mb-3'>3. Applicability of Warranty</h2>
+          <h2 className='text-lg font-bold mb-3' style={{ color: 'var(--color-content-text)' }}>3. Applicability of Warranty</h2>
           <p className='mb-3'>The warranty is applicable only when:</p>
-          <ol className='list-[lower-alpha] pl-5 space-y-2 text-zinc-300'>
+          <ol className='list-[lower-alpha] pl-5 space-y-2'>
             <li>The repaired device matches the device identified on the original invoice;</li>
             <li>The defect relates directly to the replaced part;</li>
             <li>The defect arises from manufacturing or workmanship issues;</li>
@@ -81,9 +81,9 @@ export default function WarrantyPolicy() {
         </section>
 
         <section>
-          <h2 className='text-lg font-bold text-white mb-3'>4. Parts Covered Under Warranty</h2>
+          <h2 className='text-lg font-bold mb-3' style={{ color: 'var(--color-content-text)' }}>4. Parts Covered Under Warranty</h2>
           <p className='mb-3'>Subject to the terms of this Policy, warranty coverage may apply to replacement parts including:</p>
-          <ul className='list-disc pl-5 space-y-1 mb-3 text-zinc-300'>
+          <ul className='list-disc pl-5 space-y-1 mb-3'>
             <li>Display assemblies</li>
             <li>Batteries</li>
             <li>Charging ports</li>
@@ -102,10 +102,10 @@ export default function WarrantyPolicy() {
         </section>
 
         <section>
-          <h2 className='text-lg font-bold text-white mb-3'>5. Premium Compatible Parts</h2>
+          <h2 className='text-lg font-bold mb-3' style={{ color: 'var(--color-content-text)' }}>5. Premium Compatible Parts</h2>
           <p className='mb-3'>Unless otherwise stated, Gadget Restore uses premium compatible replacement parts.</p>
           <p className='mb-3'>Customers acknowledge that:</p>
-          <ul className='list-disc pl-5 space-y-1 mb-3 text-zinc-300'>
+          <ul className='list-disc pl-5 space-y-1 mb-3'>
             <li>Premium compatible parts are not original manufacturer parts;</li>
             <li>Cosmetic appearance may vary slightly from the original components;</li>
             <li>Device manufacturers may display service notifications or warnings after third-party repairs;</li>
@@ -115,9 +115,9 @@ export default function WarrantyPolicy() {
         </section>
 
         <section>
-          <h2 className='text-lg font-bold text-white mb-3'>6. What is Covered</h2>
+          <h2 className='text-lg font-bold mb-3' style={{ color: 'var(--color-content-text)' }}>6. What is Covered</h2>
           <p className='mb-3'>Warranty coverage includes:</p>
-          <ol className='list-[lower-alpha] pl-5 space-y-2 text-zinc-300'>
+          <ol className='list-[lower-alpha] pl-5 space-y-2'>
             <li>Display malfunction caused by manufacturing defects;</li>
             <li>Touch failure arising from manufacturing defects in the replaced display;</li>
             <li>Battery malfunction caused by manufacturing defects;</li>
@@ -128,9 +128,9 @@ export default function WarrantyPolicy() {
         </section>
 
         <section>
-          <h2 className='text-lg font-bold text-white mb-3'>7. What is Not Covered</h2>
+          <h2 className='text-lg font-bold mb-3' style={{ color: 'var(--color-content-text)' }}>7. What is Not Covered</h2>
           <p className='mb-3'>The warranty does not cover:</p>
-          <ol className='list-[lower-alpha] pl-5 space-y-2 text-zinc-300'>
+          <ol className='list-[lower-alpha] pl-5 space-y-2'>
             <li>Physical damage;</li>
             <li>Liquid or water damage;</li>
             <li>Moisture ingress;</li>
@@ -153,9 +153,9 @@ export default function WarrantyPolicy() {
         </section>
 
         <section>
-          <h2 className='text-lg font-bold text-white mb-3'>8. Display Exclusions</h2>
+          <h2 className='text-lg font-bold mb-3' style={{ color: 'var(--color-content-text)' }}>8. Display Exclusions</h2>
           <p className='mb-3'>The following display-related conditions are expressly excluded from warranty coverage:</p>
-          <ul className='list-disc pl-5 space-y-1 mb-3 text-zinc-300'>
+          <ul className='list-disc pl-5 space-y-1 mb-3'>
             <li>Green line issues</li>
             <li>Pink line issues</li>
             <li>White line issues</li>
@@ -178,9 +178,9 @@ export default function WarrantyPolicy() {
         </section>
 
         <section>
-          <h2 className='text-lg font-bold text-white mb-3'>9. Physical and Liquid Damage Exclusions</h2>
+          <h2 className='text-lg font-bold mb-3' style={{ color: 'var(--color-content-text)' }}>9. Physical and Liquid Damage Exclusions</h2>
           <p className='mb-3'>Warranty shall immediately become void if the device shows evidence of:</p>
-          <ul className='list-disc pl-5 space-y-1 mb-3 text-zinc-300'>
+          <ul className='list-disc pl-5 space-y-1 mb-3'>
             <li>Cracks</li>
             <li>Dents</li>
             <li>Frame bending</li>
@@ -197,11 +197,11 @@ export default function WarrantyPolicy() {
         </section>
 
         <section>
-          <h2 className='text-lg font-bold text-white mb-3'>10. Issues Not Related to Replaced Parts</h2>
+          <h2 className='text-lg font-bold mb-3' style={{ color: 'var(--color-content-text)' }}>10. Issues Not Related to Replaced Parts</h2>
           <p className='mb-3'>Warranty applies only to the replaced component.</p>
           <p className='mb-3'>Issues unrelated to the replaced component are not covered.</p>
           <p className='mb-3'>Examples include:</p>
-          <ul className='list-disc pl-5 space-y-1 mb-3 text-zinc-300'>
+          <ul className='list-disc pl-5 space-y-1 mb-3'>
             <li>Motherboard faults</li>
             <li>Network issues</li>
             <li>Face ID issues</li>
@@ -214,28 +214,28 @@ export default function WarrantyPolicy() {
         </section>
 
         <section>
-          <h2 className='text-lg font-bold text-white mb-3'>11. Warranty Claim Process</h2>
+          <h2 className='text-lg font-bold mb-3' style={{ color: 'var(--color-content-text)' }}>11. Warranty Claim Process</h2>
           <p className='mb-3'>To initiate a warranty claim, customers must:</p>
           <div className='space-y-3 pl-4 mb-4 border-l-2 border-zinc-700 text-sm'>
-            <p><strong className='text-white'>Step 1:</strong> Contact Gadget Restore support.</p>
-            <p><strong className='text-white'>Step 2:</strong> Provide:</p>
-            <ul className='list-disc pl-5 space-y-1 text-zinc-300'>
+            <p><strong style={{ color: 'var(--color-content-text)' }}>Step 1:</strong> Contact Gadget Restore support.</p>
+            <p><strong style={{ color: 'var(--color-content-text)' }}>Step 2:</strong> Provide:</p>
+            <ul className='list-disc pl-5 space-y-1'>
               <li>Invoice number</li>
               <li>Device details</li>
               <li>Description of issue</li>
               <li>Photo evidence (if applicable)</li>
               <li>Video evidence showing malfunction</li>
             </ul>
-            <p><strong className='text-white'>Step 3:</strong> Allow Gadget Restore to inspect and verify the device.</p>
+            <p><strong style={{ color: 'var(--color-content-text)' }}>Step 3:</strong> Allow Gadget Restore to inspect and verify the device.</p>
           </div>
           <p>Additional information may be requested where necessary.</p>
         </section>
 
         <section>
-          <h2 className='text-lg font-bold text-white mb-3'>12. Claim Verification</h2>
+          <h2 className='text-lg font-bold mb-3' style={{ color: 'var(--color-content-text)' }}>12. Claim Verification</h2>
           <p className='mb-3'>All warranty claims are subject to technical inspection.</p>
           <p className='mb-3'>Gadget Restore may:</p>
-          <ul className='list-disc pl-5 space-y-1 mb-3 text-zinc-300'>
+          <ul className='list-disc pl-5 space-y-1 mb-3'>
             <li>Conduct diagnostics;</li>
             <li>Inspect internal components;</li>
             <li>Review service history;</li>
@@ -246,9 +246,9 @@ export default function WarrantyPolicy() {
         </section>
 
         <section>
-          <h2 className='text-lg font-bold text-white mb-3'>13. Claim Resolution</h2>
+          <h2 className='text-lg font-bold mb-3' style={{ color: 'var(--color-content-text)' }}>13. Claim Resolution</h2>
           <p className='mb-3'>If a warranty claim is approved, Gadget Restore may:</p>
-          <ul className='list-disc pl-5 space-y-1 mb-3 text-zinc-300'>
+          <ul className='list-disc pl-5 space-y-1 mb-3'>
             <li>Repair the defective replacement part;</li>
             <li>Replace the defective replacement part;</li>
             <li>Perform additional corrective work as deemed appropriate.</li>
@@ -257,10 +257,10 @@ export default function WarrantyPolicy() {
         </section>
 
         <section>
-          <h2 className='text-lg font-bold text-white mb-3'>14. Resolution Timeline</h2>
+          <h2 className='text-lg font-bold mb-3' style={{ color: 'var(--color-content-text)' }}>14. Resolution Timeline</h2>
           <p className='mb-3'>Accepted warranty claims are generally resolved within five (5) working days after claim approval.</p>
           <p className='mb-3'>Resolution timelines may vary due to:</p>
-          <ul className='list-disc pl-5 space-y-1 text-zinc-300'>
+          <ul className='list-disc pl-5 space-y-1'>
             <li>Part availability;</li>
             <li>Logistics delays;</li>
             <li>Technical complexity;</li>
@@ -269,9 +269,9 @@ export default function WarrantyPolicy() {
         </section>
 
         <section>
-          <h2 className='text-lg font-bold text-white mb-3'>15. Non-Transferability</h2>
+          <h2 className='text-lg font-bold mb-3' style={{ color: 'var(--color-content-text)' }}>15. Non-Transferability</h2>
           <p className='mb-3'>This warranty:</p>
-          <ul className='list-disc pl-5 space-y-1 mb-3 text-zinc-300'>
+          <ul className='list-disc pl-5 space-y-1 mb-3'>
             <li>Applies only to the original customer;</li>
             <li>Applies only to the original repaired device;</li>
             <li>Cannot be transferred to another person;</li>
@@ -281,9 +281,9 @@ export default function WarrantyPolicy() {
         </section>
 
         <section>
-          <h2 className='text-lg font-bold text-white mb-3'>16. Warranty Void Conditions</h2>
+          <h2 className='text-lg font-bold mb-3' style={{ color: 'var(--color-content-text)' }}>16. Warranty Void Conditions</h2>
           <p className='mb-3'>Warranty shall become void if:</p>
-          <ol className='list-[lower-alpha] pl-5 space-y-2 text-zinc-300'>
+          <ol className='list-[lower-alpha] pl-5 space-y-2'>
             <li>The device is repaired by a third party after Gadget Restore service;</li>
             <li>The device is opened by an unauthorized person;</li>
             <li>Hardware tampering occurs;</li>
@@ -298,11 +298,11 @@ export default function WarrantyPolicy() {
         </section>
 
         <section>
-          <h2 className='text-lg font-bold text-white mb-3'>17. Data Backup Responsibility</h2>
+          <h2 className='text-lg font-bold mb-3' style={{ color: 'var(--color-content-text)' }}>17. Data Backup Responsibility</h2>
           <p className='mb-3'>Customers are solely responsible for backing up device data.</p>
           <p className='mb-3'>Warranty service may require diagnostics, resets, testing, or component replacement.</p>
           <p className='mb-3'>Gadget Restore shall not be liable for:</p>
-          <ul className='list-disc pl-5 space-y-1 text-zinc-300'>
+          <ul className='list-disc pl-5 space-y-1'>
             <li>Data loss;</li>
             <li>Data corruption;</li>
             <li>Loss of applications;</li>
@@ -313,9 +313,9 @@ export default function WarrantyPolicy() {
         </section>
 
         <section>
-          <h2 className='text-lg font-bold text-white mb-3'>18. No Refunds</h2>
+          <h2 className='text-lg font-bold mb-3' style={{ color: 'var(--color-content-text)' }}>18. No Refunds</h2>
           <p className='mb-3'>Warranty claims are not redeemable for:</p>
-          <ul className='list-disc pl-5 space-y-1 mb-3 text-zinc-300'>
+          <ul className='list-disc pl-5 space-y-1 mb-3'>
             <li>Cash refunds;</li>
             <li>Monetary compensation;</li>
             <li>Store credit;</li>
@@ -326,9 +326,9 @@ export default function WarrantyPolicy() {
         </section>
 
         <section>
-          <h2 className='text-lg font-bold text-white mb-3'>19. Limitation of Liability</h2>
+          <h2 className='text-lg font-bold mb-3' style={{ color: 'var(--color-content-text)' }}>19. Limitation of Liability</h2>
           <p className='mb-3'>To the maximum extent permitted by law:</p>
-          <ol className='list-[lower-alpha] pl-5 space-y-2 text-zinc-300'>
+          <ol className='list-[lower-alpha] pl-5 space-y-2'>
             <li>Gadget Restore's total liability shall not exceed the original repair amount paid for the relevant service;</li>
             <li>Gadget Restore shall not be liable for indirect, incidental, consequential, punitive, or special damages;</li>
             <li>Gadget Restore shall not be liable for business interruption, loss of profits, loss of revenue, or loss of opportunity.</li>
@@ -336,9 +336,9 @@ export default function WarrantyPolicy() {
         </section>
 
         <section>
-          <h2 className='text-lg font-bold text-white mb-3'>20. Force Majeure</h2>
+          <h2 className='text-lg font-bold mb-3' style={{ color: 'var(--color-content-text)' }}>20. Force Majeure</h2>
           <p className='mb-3'>Gadget Restore shall not be responsible for delays or inability to perform warranty obligations caused by:</p>
-          <ul className='list-disc pl-5 space-y-1 text-zinc-300'>
+          <ul className='list-disc pl-5 space-y-1'>
             <li>Natural disasters;</li>
             <li>Floods;</li>
             <li>Fires;</li>
@@ -351,17 +351,17 @@ export default function WarrantyPolicy() {
         </section>
 
         <section>
-          <h2 className='text-lg font-bold text-white mb-3'>21. Governing Law and Jurisdiction</h2>
+          <h2 className='text-lg font-bold mb-3' style={{ color: 'var(--color-content-text)' }}>21. Governing Law and Jurisdiction</h2>
           <p>This Warranty Policy shall be governed by the laws of India. Any dispute arising from this Warranty Policy shall be subject to the exclusive jurisdiction of the competent courts located in Gurugram, Haryana.</p>
         </section>
 
         <section>
-          <h2 className='text-lg font-bold text-white mb-3'>22. Grievance Redressal</h2>
+          <h2 className='text-lg font-bold mb-3' style={{ color: 'var(--color-content-text)' }}>22. Grievance Redressal</h2>
           <p className='mb-3'>For warranty-related complaints or claims:</p>
-          <div className='p-4 rounded-xl border text-xs space-y-2' style={{ background: 'rgba(255, 255, 255, 0.01)', borderColor: 'var(--color-content-border)' }}>
-            <p className='font-semibold text-white'>Radical Aftermarket Private Limited</p>
-            <p className='text-zinc-400'>Khasra No. 34/22, Second Floor, NK Tower, Kanhai Road, Sector-45, Gurugram, Haryana – 122003</p>
-            <p className='text-zinc-400'>
+          <div className='p-4 rounded-xl border text-xs space-y-2' style={{ background: 'var(--color-content-card)', borderColor: 'var(--color-content-border)' }}>
+            <p className='font-semibold' style={{ color: 'var(--color-content-text)' }}>Radical Aftermarket Private Limited</p>
+            <p style={{ color: 'var(--color-content-text-secondary)' }}>Khasra No. 34/22, Second Floor, NK Tower, Kanhai Road, Sector-45, Gurugram, Haryana – 122003</p>
+            <p style={{ color: 'var(--color-content-text-secondary)' }}>
               Phone: <a href="tel:+918800003785" className="text-accent hover:underline">+91 8800003785</a><br />
               Email: <a href="mailto:support@gadgetrestore.in" className="text-accent hover:underline">support@gadgetrestore.in</a>
             </p>
@@ -369,7 +369,7 @@ export default function WarrantyPolicy() {
         </section>
 
         <section>
-          <h2 className='text-lg font-bold text-white mb-3'>23. Acceptance</h2>
+          <h2 className='text-lg font-bold mb-3' style={{ color: 'var(--color-content-text)' }}>23. Acceptance</h2>
           <p>By availing any repair service from Gadget Restore, the customer acknowledges that they have read, understood, and agreed to this Limited Warranty Policy and accepts all conditions, exclusions, limitations, and obligations contained herein.</p>
         </section>
       </div>
