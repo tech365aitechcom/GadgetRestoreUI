@@ -12,29 +12,29 @@ export default function ReplacementCancellationPolicy() {
         <p>Last Updated: June 25, 2026</p>
       </div>
 
-      <div className='space-y-8 text-sm leading-relaxed text-zinc-300'>
+      <div className='space-y-8 text-sm leading-relaxed' style={{ color: 'var(--color-content-text)' }}>
         {/* Company & Support Information */}
-        <div className='grid grid-cols-1 md:grid-cols-2 gap-6 p-6 rounded-2xl border text-xs mb-8' style={{ background: 'rgba(255, 255, 255, 0.02)', borderColor: 'var(--color-content-border)' }}>
+        <div className='grid grid-cols-1 md:grid-cols-2 gap-6 p-6 rounded-2xl border text-xs mb-8' style={{ background: 'var(--color-content-card)', borderColor: 'var(--color-content-border)' }}>
           <div>
-            <p className='font-semibold text-white mb-1'>Operated by</p>
-            <p className='text-zinc-400 mb-3'>Radical Aftermarket Private Limited<br />(trading as Gadget Restore)</p>
+            <p className='font-semibold mb-1' style={{ color: 'var(--color-content-text)' }}>Operated by</p>
+            <p className='mb-3' style={{ color: 'var(--color-content-text-secondary)' }}>Radical Aftermarket Private Limited<br />(trading as Gadget Restore)</p>
 
-            <p className='font-semibold text-white mb-1'>CIN</p>
-            <p className='text-zinc-400 mb-3'>U74999HR2018PTC076488</p>
+            <p className='font-semibold mb-1' style={{ color: 'var(--color-content-text)' }}>CIN</p>
+            <p className='mb-3' style={{ color: 'var(--color-content-text-secondary)' }}>U74999HR2018PTC076488</p>
 
-            <p className='font-semibold text-white mb-1'>Registered Office</p>
-            <p className='text-zinc-400'>Khasra No. 34/22, Second Floor, NK Tower, Kanhai Road, Sector-45, Gurugram, Haryana – 122003, India</p>
+            <p className='font-semibold mb-1' style={{ color: 'var(--color-content-text)' }}>Registered Office</p>
+            <p style={{ color: 'var(--color-content-text-secondary)' }}>Khasra No. 34/22, Second Floor, NK Tower, Kanhai Road, Sector-45, Gurugram, Haryana – 122003, India</p>
           </div>
           <div>
-            <p className='font-semibold text-white mb-1'>Website</p>
-            <p className='text-zinc-400 mb-3'>
+            <p className='font-semibold mb-1' style={{ color: 'var(--color-content-text)' }}>Website</p>
+            <p className='mb-3' style={{ color: 'var(--color-content-text-secondary)' }}>
               <a href="https://gadgetrestore.in" target="_blank" rel="noopener noreferrer" className="text-accent hover:underline">
                 https://gadgetrestore.in
               </a>
             </p>
 
-            <p className='font-semibold text-white mb-1'>Support Contact</p>
-            <p className='text-zinc-400'>
+            <p className='font-semibold mb-1' style={{ color: 'var(--color-content-text)' }}>Support Contact</p>
+            <p style={{ color: 'var(--color-content-text-secondary)' }}>
               Phone: <a href="tel:+918800003785" className="text-accent hover:underline">+91 8800003785</a><br />
               Email: <a href="mailto:support@gadgetrestore.in" className="text-accent hover:underline">support@gadgetrestore.in</a>
             </p>
@@ -42,9 +42,9 @@ export default function ReplacementCancellationPolicy() {
         </div>
 
         <section>
-          <h2 className='text-lg font-bold text-white mb-3'>1. Overview</h2>
+          <h2 className='text-lg font-bold mb-3' style={{ color: 'var(--color-content-text)' }}>1. Overview</h2>
           <p className='mb-3'>This Replacement & Cancellation Policy governs repair services provided by Gadget Restore through:</p>
-          <ul className='list-disc pl-5 space-y-1 mb-3 text-zinc-300'>
+          <ul className='list-disc pl-5 space-y-1 mb-3'>
             <li>Walk-in Repairs</li>
             <li>Free Pickup & Drop Services</li>
             <li>Mail-In Repair Services</li>
@@ -52,7 +52,7 @@ export default function ReplacementCancellationPolicy() {
             <li>Customer Dashboard Bookings</li>
           </ul>
           <p className='mb-3'>This Policy should be read together with:</p>
-          <ul className='list-disc pl-5 space-y-1 mb-3 text-zinc-300'>
+          <ul className='list-disc pl-5 space-y-1 mb-3'>
             <li>Terms & Conditions</li>
             <li>Privacy Policy</li>
             <li>Warranty Policy</li>
@@ -63,10 +63,10 @@ export default function ReplacementCancellationPolicy() {
         </section>
 
         <section>
-          <h2 className='text-lg font-bold text-white mb-3'>2. Nature of Services</h2>
+          <h2 className='text-lg font-bold mb-3' style={{ color: 'var(--color-content-text)' }}>2. Nature of Services</h2>
           <p className='mb-3'>Gadget Restore is a repair-service provider and does not primarily sell finished products through the repair platform. Accordingly, replacement, cancellation, refund, and warranty rights differ from those applicable to traditional e-commerce product purchases.</p>
           <p className='mb-3'>Customers acknowledge that repair services involve:</p>
-          <ul className='list-disc pl-5 space-y-1 mb-3 text-zinc-300'>
+          <ul className='list-disc pl-5 space-y-1 mb-3'>
             <li>Diagnostics</li>
             <li>Labor</li>
             <li>Spare-part procurement</li>
@@ -78,21 +78,21 @@ export default function ReplacementCancellationPolicy() {
         </section>
 
         <section>
-          <h2 className='text-lg font-bold text-white mb-3'>3. Service Cancellation Policy</h2>
+          <h2 className='text-lg font-bold mb-3' style={{ color: 'var(--color-content-text)' }}>3. Service Cancellation Policy</h2>
           <div className='space-y-4'>
             <div>
-              <h3 className='text-sm font-semibold text-white mb-1'>3.1 Cancellation Before Pickup</h3>
+              <h3 className='text-sm font-semibold mb-1' style={{ color: 'var(--color-content-text)' }}>3.1 Cancellation Before Pickup</h3>
               <p className='mb-2'>Customers may cancel a repair request without charge if:</p>
-              <ul className='list-disc pl-5 space-y-1 text-zinc-300'>
+              <ul className='list-disc pl-5 space-y-1'>
                 <li>Pickup has not been scheduled; and</li>
                 <li>No diagnostics have been performed; and</li>
                 <li>No spare parts have been ordered specifically for the repair.</li>
               </ul>
             </div>
             <div>
-              <h3 className='text-sm font-semibold text-white mb-1'>3.2 Cancellation After Pickup</h3>
+              <h3 className='text-sm font-semibold mb-1' style={{ color: 'var(--color-content-text)' }}>3.2 Cancellation After Pickup</h3>
               <p className='mb-2'>Cancellation requests shall not be accepted after:</p>
-              <ul className='list-disc pl-5 space-y-1 text-zinc-300'>
+              <ul className='list-disc pl-5 space-y-1'>
                 <li>Device pickup has been completed;</li>
                 <li>Device has been submitted at a service center;</li>
                 <li>Diagnostics have commenced;</li>
@@ -105,14 +105,14 @@ export default function ReplacementCancellationPolicy() {
         </section>
 
         <section>
-          <h2 className='text-lg font-bold text-white mb-3'>4. Diagnostic Rejection</h2>
+          <h2 className='text-lg font-bold mb-3' style={{ color: 'var(--color-content-text)' }}>4. Diagnostic Rejection</h2>
           <p className='mb-3'>Where Gadget Restore identifies additional faults and provides a revised quotation:</p>
-          <ul className='list-disc pl-5 space-y-1 mb-3 text-zinc-300'>
+          <ul className='list-disc pl-5 space-y-1 mb-3'>
             <li>Customers may choose to reject the revised quotation;</li>
             <li>No further repair work shall be performed without approval.</li>
           </ul>
           <p className='mb-3'>In such cases:</p>
-          <ul className='list-disc pl-5 space-y-1 mb-3 text-zinc-300'>
+          <ul className='list-disc pl-5 space-y-1 mb-3'>
             <li>The device may be returned unrepaired;</li>
             <li>Previously completed diagnostics remain chargeable where applicable;</li>
             <li>Procurement costs for special-order parts may remain payable.</li>
@@ -120,9 +120,9 @@ export default function ReplacementCancellationPolicy() {
         </section>
 
         <section>
-          <h2 className='text-lg font-bold text-white mb-3'>5. No Cancellation After Repair Commencement</h2>
+          <h2 className='text-lg font-bold mb-3' style={{ color: 'var(--color-content-text)' }}>5. No Cancellation After Repair Commencement</h2>
           <p className='mb-3'>Once any of the following occur:</p>
-          <ul className='list-disc pl-5 space-y-1 mb-3 text-zinc-300'>
+          <ul className='list-disc pl-5 space-y-1 mb-3'>
             <li>Device disassembly;</li>
             <li>Component removal;</li>
             <li>Diagnostics requiring internal inspection;</li>
@@ -133,10 +133,10 @@ export default function ReplacementCancellationPolicy() {
         </section>
 
         <section>
-          <h2 className='text-lg font-bold text-white mb-3'>6. Replacement Policy for Repair Services</h2>
+          <h2 className='text-lg font-bold mb-3' style={{ color: 'var(--color-content-text)' }}>6. Replacement Policy for Repair Services</h2>
           <p className='mb-3'>Because Gadget Restore provides repair services rather than product sales, replacement requests shall be governed by the Warranty Policy.</p>
           <p className='mb-3'>A replacement may be offered only where:</p>
-          <ul className='list-disc pl-5 space-y-1 mb-3 text-zinc-300'>
+          <ul className='list-disc pl-5 space-y-1 mb-3'>
             <li>A covered replacement part suffers a verified manufacturing defect;</li>
             <li>The defect falls within the applicable warranty period;</li>
             <li>The claim satisfies all warranty conditions.</li>
@@ -145,9 +145,9 @@ export default function ReplacementCancellationPolicy() {
         </section>
 
         <section>
-          <h2 className='text-lg font-bold text-white mb-3'>7. Eligibility for Replacement</h2>
+          <h2 className='text-lg font-bold mb-3' style={{ color: 'var(--color-content-text)' }}>7. Eligibility for Replacement</h2>
           <p className='mb-3'>To qualify for a replacement under warranty:</p>
-          <ol className='list-[lower-alpha] pl-5 space-y-2 text-zinc-300'>
+          <ol className='list-[lower-alpha] pl-5 space-y-2'>
             <li>The device must be the same device referenced on the invoice;</li>
             <li>The claim must relate directly to the replaced part;</li>
             <li>The defect must arise from manufacturing or workmanship failure;</li>
@@ -158,28 +158,28 @@ export default function ReplacementCancellationPolicy() {
         </section>
 
         <section>
-          <h2 className='text-lg font-bold text-white mb-3'>8. Replacement Claim Process</h2>
+          <h2 className='text-lg font-bold mb-3' style={{ color: 'var(--color-content-text)' }}>8. Replacement Claim Process</h2>
           <p className='mb-3'>Customers seeking replacement under warranty must:</p>
           <div className='space-y-3 pl-4 mb-4 border-l-2 border-zinc-700 text-sm'>
-            <p><strong className='text-white'>Step 1:</strong> Contact Gadget Restore Support.</p>
-            <p><strong className='text-white'>Step 2:</strong> Provide:</p>
-            <ul className='list-disc pl-5 space-y-1 text-zinc-300'>
+            <p><strong style={{ color: 'var(--color-content-text)' }}>Step 1:</strong> Contact Gadget Restore Support.</p>
+            <p><strong style={{ color: 'var(--color-content-text)' }}>Step 2:</strong> Provide:</p>
+            <ul className='list-disc pl-5 space-y-1'>
               <li>Invoice number</li>
               <li>Device details</li>
               <li>Description of issue</li>
               <li>Photo evidence (where applicable)</li>
               <li>Video evidence demonstrating malfunction</li>
             </ul>
-            <p><strong className='text-white'>Step 3:</strong> Submit the device for inspection.</p>
-            <p><strong className='text-white'>Step 4:</strong> Allow Gadget Restore to verify warranty eligibility.</p>
+            <p><strong style={{ color: 'var(--color-content-text)' }}>Step 3:</strong> Submit the device for inspection.</p>
+            <p><strong style={{ color: 'var(--color-content-text)' }}>Step 4:</strong> Allow Gadget Restore to verify warranty eligibility.</p>
           </div>
           <p>Approval remains subject to inspection findings.</p>
         </section>
 
         <section>
-          <h2 className='text-lg font-bold text-white mb-3'>9. Replacement Resolution</h2>
+          <h2 className='text-lg font-bold mb-3' style={{ color: 'var(--color-content-text)' }}>9. Replacement Resolution</h2>
           <p className='mb-3'>Where a replacement claim is approved, Gadget Restore may:</p>
-          <ul className='list-disc pl-5 space-y-1 mb-3 text-zinc-300'>
+          <ul className='list-disc pl-5 space-y-1 mb-3'>
             <li>Repair the defective replacement part;</li>
             <li>Replace the defective replacement part;</li>
             <li>Reinstall an equivalent premium compatible replacement part.</li>
@@ -188,10 +188,10 @@ export default function ReplacementCancellationPolicy() {
         </section>
 
         <section>
-          <h2 className='text-lg font-bold text-white mb-3'>10. Claim Review Timeline</h2>
+          <h2 className='text-lg font-bold mb-3' style={{ color: 'var(--color-content-text)' }}>10. Claim Review Timeline</h2>
           <p className='mb-3'>Gadget Restore aims to review and process eligible replacement claims within five (5) working days following claim acceptance.</p>
           <p className='mb-3'>Timelines may vary due to:</p>
-          <ul className='list-disc pl-5 space-y-1 text-zinc-300'>
+          <ul className='list-disc pl-5 space-y-1'>
             <li>Spare-part availability;</li>
             <li>Technical requirements;</li>
             <li>Logistics delays;</li>
@@ -200,9 +200,9 @@ export default function ReplacementCancellationPolicy() {
         </section>
 
         <section>
-          <h2 className='text-lg font-bold text-white mb-3'>11. Non-Eligible Replacement Requests</h2>
+          <h2 className='text-lg font-bold mb-3' style={{ color: 'var(--color-content-text)' }}>11. Non-Eligible Replacement Requests</h2>
           <p className='mb-3'>Replacement requests shall be rejected where:</p>
-          <ul className='list-disc pl-5 space-y-1 mb-3 text-zinc-300'>
+          <ul className='list-disc pl-5 space-y-1 mb-3'>
             <li>Warranty period has expired;</li>
             <li>Physical damage is present;</li>
             <li>Liquid damage is present;</li>
@@ -217,12 +217,12 @@ export default function ReplacementCancellationPolicy() {
         </section>
 
         <section>
-          <h2 className='text-lg font-bold text-white mb-3'>12. Refund Policy</h2>
+          <h2 className='text-lg font-bold mb-3' style={{ color: 'var(--color-content-text)' }}>12. Refund Policy</h2>
           <div className='space-y-4'>
             <div>
-              <h3 className='text-sm font-semibold text-white mb-1'>12.1 Repair Services</h3>
+              <h3 className='text-sm font-semibold mb-1' style={{ color: 'var(--color-content-text)' }}>12.1 Repair Services</h3>
               <p className='mb-2'>Repair services are generally non-refundable. Customers acknowledge that repair services involve:</p>
-              <ul className='list-disc pl-5 space-y-1 text-zinc-300'>
+              <ul className='list-disc pl-5 space-y-1'>
                 <li>Technician time;</li>
                 <li>Diagnostics;</li>
                 <li>Labor;</li>
@@ -232,16 +232,16 @@ export default function ReplacementCancellationPolicy() {
                 <li>Quality control.</li>
               </ul>
               <p className='mt-2'>Accordingly, refunds shall not be available merely because:</p>
-              <ul className='list-disc pl-5 space-y-1 text-zinc-300'>
+              <ul className='list-disc pl-5 space-y-1'>
                 <li>The customer changes their mind;</li>
                 <li>The customer declines a completed repair;</li>
                 <li>The customer wishes to reverse an approved repair.</li>
               </ul>
             </div>
             <div>
-              <h3 className='text-sm font-semibold text-white mb-1'>12.2 Approved Refunds</h3>
+              <h3 className='text-sm font-semibold mb-1' style={{ color: 'var(--color-content-text)' }}>12.2 Approved Refunds</h3>
               <p className='mb-2'>Refunds may be considered only where:</p>
-              <ul className='list-disc pl-5 space-y-1 text-zinc-300'>
+              <ul className='list-disc pl-5 space-y-1'>
                 <li>Gadget Restore is unable to perform the service;</li>
                 <li>Payment was collected in error;</li>
                 <li>Required spare parts are permanently unavailable and no alternative solution exists;</li>
@@ -253,9 +253,9 @@ export default function ReplacementCancellationPolicy() {
         </section>
 
         <section>
-          <h2 className='text-lg font-bold text-white mb-3'>13. Refund Process</h2>
+          <h2 className='text-lg font-bold mb-3' style={{ color: 'var(--color-content-text)' }}>13. Refund Process</h2>
           <p className='mb-3'>Where a refund is approved:</p>
-          <ul className='list-disc pl-5 space-y-1 text-zinc-300'>
+          <ul className='list-disc pl-5 space-y-1'>
             <li>Refunds shall be processed through the original payment method wherever feasible;</li>
             <li>Verification may be required before processing;</li>
             <li>Additional documentation may be requested.</li>
@@ -263,10 +263,10 @@ export default function ReplacementCancellationPolicy() {
         </section>
 
         <section>
-          <h2 className='text-lg font-bold text-white mb-3'>14. Refund Timeline</h2>
+          <h2 className='text-lg font-bold mb-3' style={{ color: 'var(--color-content-text)' }}>14. Refund Timeline</h2>
           <p className='mb-3'>Approved refunds shall generally be initiated within seven (7) business days from approval.</p>
           <p className='mb-3'>Actual credit timelines may depend on:</p>
-          <ul className='list-disc pl-5 space-y-1 text-zinc-300'>
+          <ul className='list-disc pl-5 space-y-1'>
             <li>Banks;</li>
             <li>Card issuers;</li>
             <li>UPI providers;</li>
@@ -276,9 +276,9 @@ export default function ReplacementCancellationPolicy() {
         </section>
 
         <section>
-          <h2 className='text-lg font-bold text-white mb-3'>15. No Cash Compensation</h2>
+          <h2 className='text-lg font-bold mb-3' style={{ color: 'var(--color-content-text)' }}>15. No Cash Compensation</h2>
           <p className='mb-3'>Customers shall not be entitled to:</p>
-          <ul className='list-disc pl-5 space-y-1 mb-3 text-zinc-300'>
+          <ul className='list-disc pl-5 space-y-1 mb-3'>
             <li>Monetary compensation;</li>
             <li>Loss-of-use compensation;</li>
             <li>Business-loss compensation;</li>
@@ -289,18 +289,18 @@ export default function ReplacementCancellationPolicy() {
         </section>
 
         <section>
-          <h2 className='text-lg font-bold text-white mb-3'>16. Limitation of Liability</h2>
+          <h2 className='text-lg font-bold mb-3' style={{ color: 'var(--color-content-text)' }}>16. Limitation of Liability</h2>
           <p className='mb-3'>To the maximum extent permitted by law:</p>
-          <ol className='list-[lower-alpha] pl-5 space-y-2 text-zinc-300'>
+          <ol className='list-[lower-alpha] pl-5 space-y-2'>
             <li>Gadget Restore’s liability under this Policy shall not exceed the repair charges paid for the relevant service;</li>
             <li>Gadget Restore shall not be liable for indirect, incidental, consequential, punitive, or special damages.</li>
           </ol>
         </section>
 
         <section>
-          <h2 className='text-lg font-bold text-white mb-3'>17. Force Majeure</h2>
+          <h2 className='text-lg font-bold mb-3' style={{ color: 'var(--color-content-text)' }}>17. Force Majeure</h2>
           <p className='mb-3'>Gadget Restore shall not be liable for delays or inability to process replacements, cancellations, or refunds due to:</p>
-          <ul className='list-disc pl-5 space-y-1 text-zinc-300'>
+          <ul className='list-disc pl-5 space-y-1'>
             <li>Natural disasters;</li>
             <li>Floods;</li>
             <li>Fires;</li>
@@ -313,17 +313,17 @@ export default function ReplacementCancellationPolicy() {
         </section>
 
         <section>
-          <h2 className='text-lg font-bold text-white mb-3'>18. Governing Law and Jurisdiction</h2>
+          <h2 className='text-lg font-bold mb-3' style={{ color: 'var(--color-content-text)' }}>18. Governing Law and Jurisdiction</h2>
           <p>This Policy shall be governed by the laws of India. Any dispute arising under this Policy shall be subject to the exclusive jurisdiction of the competent courts located in Gurugram, Haryana.</p>
         </section>
 
         <section>
-          <h2 className='text-lg font-bold text-white mb-3'>19. Grievance Redressal</h2>
+          <h2 className='text-lg font-bold mb-3' style={{ color: 'var(--color-content-text)' }}>19. Grievance Redressal</h2>
           <p className='mb-3'>For replacement, cancellation, or refund-related concerns:</p>
-          <div className='p-4 rounded-xl border text-xs space-y-2' style={{ background: 'rgba(255, 255, 255, 0.01)', borderColor: 'var(--color-content-border)' }}>
-            <p className='font-semibold text-white'>Radical Aftermarket Private Limited</p>
-            <p className='text-zinc-400'>Khasra No. 34/22, Second Floor, NK Tower, Kanhai Road, Sector-45, Gurugram, Haryana – 122003</p>
-            <p className='text-zinc-400'>
+          <div className='p-4 rounded-xl border text-xs space-y-2' style={{ background: 'var(--color-content-card)', borderColor: 'var(--color-content-border)' }}>
+            <p className='font-semibold' style={{ color: 'var(--color-content-text)' }}>Radical Aftermarket Private Limited</p>
+            <p style={{ color: 'var(--color-content-text-secondary)' }}>Khasra No. 34/22, Second Floor, NK Tower, Kanhai Road, Sector-45, Gurugram, Haryana – 122003</p>
+            <p style={{ color: 'var(--color-content-text-secondary)' }}>
               Phone: <a href="tel:+918800003785" className="text-accent hover:underline">+91 8800003785</a><br />
               Email: <a href="mailto:support@gadgetrestore.in" className="text-accent hover:underline">support@gadgetrestore.in</a>
             </p>
@@ -331,12 +331,12 @@ export default function ReplacementCancellationPolicy() {
         </section>
 
         <section>
-          <h2 className='text-lg font-bold text-white mb-3'>20. Policy Changes</h2>
+          <h2 className='text-lg font-bold mb-3' style={{ color: 'var(--color-content-text)' }}>20. Policy Changes</h2>
           <p>Gadget Restore reserves the right to amend this Policy at any time. Updated versions shall become effective upon publication on the Website.</p>
         </section>
 
         <section>
-          <h2 className='text-lg font-bold text-white mb-3'>21. Acceptance</h2>
+          <h2 className='text-lg font-bold mb-3' style={{ color: 'var(--color-content-text)' }}>21. Acceptance</h2>
           <p>By booking a repair service, submitting a device for repair, requesting a replacement, seeking cancellation, or using any Gadget Restore service, you acknowledge that you have read, understood, and agreed to this Replacement & Cancellation Policy.</p>
         </section>
       </div>
