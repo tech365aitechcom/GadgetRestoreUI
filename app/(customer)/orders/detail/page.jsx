@@ -598,8 +598,8 @@ function OrderDetailContent() {
               <Check size={16} className='lg:w-[18px] lg:h-[18px] stroke-[3]' />
             </div>
           ) : isCurrent ? (
-            <div className='w-8 h-8 lg:w-9 lg:h-9 rounded-full border-2 border-white bg-black flex items-center justify-center shadow-md animate-pulse'>
-              <div className='w-2.5 h-2.5 rounded-full bg-white'></div>
+            <div className='w-8 h-8 lg:w-9 lg:h-9 rounded-full border-2 border-[var(--theme-text-primary)] bg-[var(--theme-bg)] flex items-center justify-center shadow-md animate-pulse'>
+              <div className='w-2.5 h-2.5 rounded-full bg-[var(--theme-text-primary)]'></div>
             </div>
           ) : (
             <div className='w-8 h-8 lg:w-9 lg:h-9 rounded-full bg-[var(--theme-card-darker)] border border-[var(--theme-border)] flex items-center justify-center text-[var(--theme-text-tertiary)]'>
@@ -615,13 +615,13 @@ function OrderDetailContent() {
         <div className='flex-1 min-w-0 pt-0.5'>
           <div className='flex items-center justify-between gap-2 flex-wrap mb-1'>
             <h4
-              className={`text-[14px] lg:text-[15px] font-extrabold lg:font-black tracking-tight ${isFuture ? 'text-[var(--theme-text-tertiary)]' : 'text-white'
+              className={`text-[14px] lg:text-[15px] font-extrabold lg:font-black tracking-tight ${isFuture ? 'text-[var(--theme-text-tertiary)]' : 'text-[var(--theme-text-primary)]'
                 }`}
             >
               {step.title}
             </h4>
             {isCurrent && (
-              <span className='text-[8px] font-black uppercase tracking-widest px-2 lg:px-2.5 py-0.5 rounded-full lg:rounded bg-white text-black leading-none shrink-0'>
+              <span className='text-[8px] font-black uppercase tracking-widest px-2 lg:px-2.5 py-0.5 rounded-full lg:rounded bg-[var(--theme-btn-primary-bg)] text-[var(--theme-btn-primary-text)] leading-none shrink-0'>
                 ACTIVE NOW
               </span>
             )}
@@ -652,7 +652,7 @@ function OrderDetailContent() {
             <div className='mt-2'>
               <button
                 onClick={() => toggleStepExpansion(step.status)}
-                className='flex items-center gap-1.5 text-[11px] font-bold text-[var(--theme-text-primary)] hover:text-white transition-colors'
+                className='flex items-center gap-1.5 text-[11px] font-bold text-[var(--theme-text-primary)] hover:text-[var(--theme-text-primary)] transition-colors'
               >
                 {isExpanded ? (
                   <ChevronUp size={14} />
@@ -699,13 +699,13 @@ function OrderDetailContent() {
       <div className='lg:hidden min-h-[100svh] bg-[var(--theme-bg)] pt-6 px-5 pb-24 text-[var(--theme-text-primary)]'>
         {/* TRACK ORDER heading */}
         <div className='mb-6'>
-          <h1 className='text-[26px] font-black tracking-tight mb-2 text-white'>
+          <h1 className='text-[26px] font-black tracking-tight mb-2 text-[var(--theme-text-primary)]'>
             TRACK ORDER
           </h1>
           <span className='text-[10px] uppercase font-extrabold tracking-wider px-3 py-1 rounded-full bg-[var(--theme-card-darker)] border border-[var(--theme-border)] text-[var(--theme-text-tertiary)] inline-block mb-3'>
             CURRENT STATUS
           </span>
-          <h2 className='text-[22px] font-black text-white leading-tight mb-1'>
+          <h2 className='text-[22px] font-black text-[var(--theme-text-primary)] leading-tight mb-1'>
             {getDisplayStatusLabel(order.repairStatus)}
           </h2>
           <p className='text-[12px] font-mono text-[var(--theme-text-tertiary)]'>
@@ -725,7 +725,7 @@ function OrderDetailContent() {
             </div>
 
             <div className='flex flex-col min-w-0 flex-1'>
-              <h3 className='text-[14px] font-extrabold text-white leading-tight truncate'>
+              <h3 className='text-[14px] font-extrabold text-[var(--theme-text-primary)] leading-tight truncate'>
                 {deviceName}
               </h3>
               <p className='text-[11px] text-[var(--theme-text-secondary)] mt-0.5 truncate'>
@@ -736,7 +736,7 @@ function OrderDetailContent() {
 
           <div className='shrink-0 text-right'>
             {order.finalCost ? (
-              <p className='text-[14px] font-black text-white'>
+              <p className='text-[14px] font-black text-[var(--theme-text-primary)]'>
                 {formatCurrency(order.finalCost)}
               </p>
             ) : (
@@ -778,7 +778,7 @@ function OrderDetailContent() {
         <div className='bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-3xl p-6 mb-6 shadow-sm'>
           {/* Timeline View Toggle */}
           <div className='flex items-center justify-between mb-6 pb-4 border-b border-[var(--theme-border)]'>
-            <h3 className='text-[11px] font-black uppercase tracking-wider text-white'>
+            <h3 className='text-[11px] font-black uppercase tracking-wider text-[var(--theme-text-primary)]'>
               Detailed Timeline
             </h3>
           </div>
@@ -847,7 +847,7 @@ function OrderDetailContent() {
             href='https://wa.me/918800003785'
             target='_blank'
             rel='noreferrer'
-            className='w-full h-12 bg-white text-black font-black rounded-2xl text-[12px] uppercase tracking-wider hover:opacity-90 active:scale-[0.99] transition-all flex items-center justify-center gap-2 shadow-lg'
+            className='w-full h-12 bg-[var(--theme-btn-primary-bg)] text-[var(--theme-btn-primary-text)] font-black rounded-2xl text-[12px] uppercase tracking-wider hover:opacity-90 active:scale-[0.99] transition-all flex items-center justify-center gap-2 shadow-lg'
           >
             <Headphones size={15} />
             Need Help?
@@ -867,13 +867,13 @@ function OrderDetailContent() {
               <span className='text-[10px] text-[var(--theme-text-tertiary)]'>
                 /
               </span>
-              <span className='text-[10px] uppercase font-mono font-extrabold tracking-wider text-white'>
+              <span className='text-[10px] uppercase font-mono font-extrabold tracking-wider text-[var(--theme-text-primary)]'>
                 {order.ticketNumber}
               </span>
             </div>
             <button
               onClick={() => router.push('/orders')}
-              className='text-[11px] font-black uppercase tracking-wider text-[var(--theme-text-primary)] hover:text-white transition-colors px-4 py-2 bg-[var(--theme-card-darker)] border border-[var(--theme-border)] rounded-xl flex items-center gap-1.5'
+              className='text-[11px] font-black uppercase tracking-wider text-[var(--theme-text-primary)] hover:text-[var(--theme-text-primary)] transition-colors px-4 py-2 bg-[var(--theme-card-darker)] border border-[var(--theme-border)] rounded-xl flex items-center gap-1.5'
             >
               ← Back to Orders
             </button>
@@ -883,7 +883,7 @@ function OrderDetailContent() {
           <div className='flex items-start justify-between gap-6 border-b border-[var(--theme-border)] pb-8 mb-8'>
             <div>
               <div className='flex items-center gap-3 mb-2 flex-wrap'>
-                <h1 className='text-[34px] font-black text-white tracking-tight leading-none'>
+                <h1 className='text-[34px] font-black text-[var(--theme-text-primary)] tracking-tight leading-none'>
                   {order.repairTypes?.[0]?.name
                     ? `Repairing ${order.repairTypes[0].name}`
                     : 'Repairing Device'}
@@ -905,7 +905,7 @@ function OrderDetailContent() {
                   <p className='text-[8px] uppercase tracking-widest text-[var(--theme-text-tertiary)] font-black leading-none mb-1.5'>
                     ESTIMATED COMPLETION
                   </p>
-                  <p className='text-[16px] font-black text-white leading-none'>
+                  <p className='text-[16px] font-black text-[var(--theme-text-primary)] leading-none'>
                     {formatDate(order.estimatedDeliveryDate)}
                   </p>
                 </div>
@@ -950,7 +950,7 @@ function OrderDetailContent() {
             <div className='flex flex-col gap-10'>
               <div className='bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-3xl p-8 shadow-sm'>
                 <div className='flex items-center justify-between mb-8 border-b border-[var(--theme-border)] pb-4'>
-                  <h3 className='text-sm font-black uppercase tracking-wider text-white'>
+                  <h3 className='text-sm font-black uppercase tracking-wider text-[var(--theme-text-primary)]'>
                     REPAIR MILESTONES & TIMELINE
                   </h3>
 
@@ -1014,8 +1014,8 @@ function OrderDetailContent() {
               )}
 
               {/* Dynamic Support CTA */}
-              <div className='bg-black border border-[var(--theme-border)] rounded-3xl p-6 shadow-lg'>
-                <h4 className='text-[16px] font-black text-white leading-tight mb-2'>
+              <div className='bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-3xl p-6 shadow-lg'>
+                <h4 className='text-[16px] font-black text-[var(--theme-text-primary)] leading-tight mb-2'>
                   Need Help?
                 </h4>
                 <p className='text-[11px] text-[var(--theme-text-secondary)] leading-relaxed font-medium mb-5'>
@@ -1026,7 +1026,7 @@ function OrderDetailContent() {
                   href='https://wa.me/918800003785'
                   target='_blank'
                   rel='noreferrer'
-                  className='w-full bg-white text-black py-3 rounded-xl text-[11px] font-black uppercase tracking-wider text-center hover:opacity-90 active:scale-95 transition-all flex items-center justify-center gap-1.5'
+                  className='w-full bg-[var(--theme-btn-primary-bg)] text-[var(--theme-btn-primary-text)] py-3 rounded-xl text-[11px] font-black uppercase tracking-wider text-center hover:opacity-90 active:scale-95 transition-all flex items-center justify-center gap-1.5'
                 >
                   <Headphones size={13} className='stroke-[2.5]' />
                   CHAT SUPPORT

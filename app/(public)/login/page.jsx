@@ -186,7 +186,7 @@ export default function LoginPage() {
           {/* Footer info */}
           <div className='text-center w-full z-10 absolute bottom-8 left-0 right-0 px-5'>
             <p className='text-[9px] font-inter font-semibold text-white/35 tracking-[0.15em] uppercase leading-relaxed m-0'>
-              CERTIFIED TECHNICIANS • GENUINE PARTS • PRECISION ENGINEERING
+              CERTIFIED TECHNICIANS • PREMIUM PARTS • PRECISION ENGINEERING
             </p>
           </div>
         </div>
@@ -312,7 +312,7 @@ export default function LoginPage() {
                 <Box size={17} color='#333333' strokeWidth={2.2} />
               </div>
               <span className='text-[9px] font-inter font-bold text-[#888] tracking-[0.08em] uppercase text-center leading-[1.5]'>
-                Genuine
+                Premium
                 <br />
                 Parts
               </span>
